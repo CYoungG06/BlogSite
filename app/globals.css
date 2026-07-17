@@ -195,6 +195,17 @@ body::after {
   }
 }
 
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   /* 入场:首页按 --stagger 级联(100ms 步进) */
   .animate-fade-up {
@@ -228,6 +239,11 @@ body::after {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 0.45s;
+  }
+
+  /* 图片灯箱入场 */
+  .animate-lightbox {
+    animation: lightbox-in 0.3s var(--ease-premium) both;
   }
 }
 
@@ -312,6 +328,7 @@ body::after {
 .prose img {
   border-radius: 0.5rem;
   box-shadow: 0 0 0 1px var(--hairline);
+  cursor: zoom-in;
 }
 
 /* rehype-autolink-headings 追加的 # 锚点 */

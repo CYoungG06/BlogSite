@@ -2,6 +2,7 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { useTranslations } from "next-intl";
 import FallbackNotice from "@/components/blog/FallbackNotice";
 import Container from "@/components/layout/Container";
+import Lightbox from "@/components/mdx/Lightbox";
 import MDXContent from "@/components/mdx/MDXContent";
 import TableOfContents from "@/components/mdx/TableOfContents";
 import { Link } from "@/i18n/navigation";
@@ -113,7 +114,9 @@ export default function ArticleDetail({
                 </div>
               ) : null}
               <div className="prose max-w-none">
-                <MDXContent source={item.content} />
+                <Lightbox>
+                  <MDXContent source={item.content} />
+                </Lightbox>
               </div>
             </article>
             {showToc ? (
