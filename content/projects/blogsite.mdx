@@ -1,0 +1,27 @@
+---
+title:
+  zh: "BlogSite — 你正在看的这个博客"
+  en: "BlogSite — the blog you are reading"
+description:
+  zh: "Next.js 16 静态导出的中英双语博客:本地 MDX、构建期搜索索引、零服务器。"
+  en: "A bilingual (zh/en) blog on Next.js 16 static export: local MDX, build-time search index, no server."
+date: "2026-07-01"
+tags: ["Next.js", "Tailwind CSS", "TypeScript"]
+github: "https://github.com/CYoungG06/BlogSite"
+featured: true
+hasDetail: true
+---
+
+## 为什么自己造一个
+
+用了一圈现成方案之后,还是想要一个每个细节都趁手的博客:中文排版不将就、深色模式不闪烁、搜索不依赖外部服务。现成的主题总有一两处硌手,于是从设计 token 开始自己写。这个站点既是工具也是作品——它的源码公开在 GitHub 上,复刻指南写在 `DESIGN.md` 里。
+
+## 技术栈
+
+Next.js 16(App Router)+ React 19 + Tailwind CSS v4,`output: 'export'` 纯静态导出。内容是仓库里的 MDX,构建期编译;搜索索引同样是构建期产物,中文走 bigram 分词。没有服务器,没有数据库,没有运行时渲染。
+
+## 几件做得比较认真的小事
+
+- **双语内容管线**:文章按 locale 分目录存放,缺译文的页面自动回退并提示,双语齐备则显示切换徽章。
+- **中文排版**:两个 CJK 友好的 remark 插件修掉强调与删除线的 flanking 问题,引用块去斜体,正文行高 1.75。
+- **动效预算**:所有动画只动 transform 与 opacity,`prefers-reduced-motion` 下全站静止。
