@@ -11,6 +11,7 @@ export default async function Footer() {
     { href: "/blog", label: t("nav.blog") },
     { href: "/notes", label: t("nav.notes") },
     { href: "/projects", label: t("nav.projects") },
+    { href: "/music", label: t("nav.music") },
     { href: "/about", label: t("nav.about") },
   ];
 
