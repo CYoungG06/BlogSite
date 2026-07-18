@@ -3,6 +3,7 @@ title: "DeepSeek Series Introduction"
 date: "2025-03-11"
 description: "DeepSeek 系列模型导读:从 v1 的 Scaling Law 研究,到 DeepSeekMoE 的细粒度专家划分,V2 的 MLA 注意力与解耦 RoPE,DeepSeekMath 的 GRPO,再到 V3 的无辅助损失负载均衡与 MTP。"
 tags: ["LLM", "DeepSeek", "MoE"]
+featured: true
 ---
 
 ## 1. DeepSeek v1

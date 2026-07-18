@@ -3,6 +3,7 @@ title: "Language Model Overview"
 date: "2024-12-28"
 description: "语言模型（Language Model, LM）是用于建模自然语言的概率模型，简单来说，其任务就是评估一个给定的词序列（即一个句子）在真实世界中出现的概率，或者说，对于任意的词序列，这个模型能够计算出这个序列是一句话的概率。"
 tags: ["Language-Model"]
+featured: true
 ---
 
 ## 1. 语言模型
