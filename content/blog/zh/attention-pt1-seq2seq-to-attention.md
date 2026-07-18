@@ -45,7 +45,31 @@ tags: ["attention"]
 这种**加权和**一定程度上也代替了我们需要的**选择**的操作，该操作的简单实现如下：  
 
 ```python
-import numpy as npN, H = 5, 4hs = np.random.randn(N, H)a = np.array([0.8, 0.1, 0.03, 0.05, 0.02])ar = a.reshape(5, 1).repeat(4, axis=1)print(ar.shape)# (5, 4)t = hs * arprint(t.shape)# (5, 4)c = np.sum(t, axis=0)print(c.shape)# (4,)# 批处理版Bs, N, H = 10, 5, 4hs = np.random.randn(Bs, N, H)a = np.random.randn(Bs, N)ar = a.reshape(Bs, N, 1).repeat(H, axis=2)t = hs * arprint(t.shape)# (10, 5, 4)c = np.sum(t, axis=1)print(c.shape)# (10, 4)
+import numpy as np
+N, H = 5, 4
+hs = np.random.randn(N, H)
+a = np.array([0.8, 0.1, 0.03, 0.05, 0.02])
+ar = a.reshape(5, 1).repeat(4, axis=1)
+print(ar.shape)
+# (5, 4)
+t = hs * ar
+print(t.shape)
+# (5, 4)
+c = np.sum(t, axis=0)
+print(c.shape)
+# (4,)
+
+# 批处理版
+Bs, N, H = 10, 5, 4
+hs = np.random.randn(Bs, N, H)
+a = np.random.randn(Bs, N)
+ar = a.reshape(Bs, N, 1).repeat(H, axis=2)
+t = hs * ar
+print(t.shape)
+# (10, 5, 4)
+c = np.sum(t, axis=1)
+print(c.shape)
+# (10, 4)
 ```
 
 进一步深入，考虑我们如何得到各个单词重要度的权重 $a$
@@ -64,7 +88,21 @@ $$
 我们使用代码来表示上述过程：  
 
 ```python
-N, T, H = 10, 5, 4hs = np.random.randn(N, T, H)h = np.random.randn(N, H)hr = h.reshape(N, 1, H).repeat(T, axis=1)# hr = h.reshape(N, 1, H) # 广播t = hs * hrprint(t.shape)# (10, 5, 4)s = np.sum(t, axis=2)print(s.shape)# (10, 5)a = softmax(s)print(a.shape)# (10, 5)
+N, T, H = 10, 5, 4
+hs = np.random.randn(N, T, H)
+h = np.random.randn(N, H)
+hr = h.reshape(N, 1, H).repeat(T, axis=1)
+# hr = h.reshape(N, 1, H) # 广播
+t = hs * hr
+print(t.shape)
+# (10, 5, 4)
+
+s = np.sum(t, axis=2)
+print(s.shape)
+# (10, 5)
+a = softmax(s)
+print(a.shape)
+# (10, 5)
 ```
 
 ![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/d20ffe75e95e4342a16bdf6fd23632f7.png)
@@ -102,19 +140,168 @@ $v^Ttanh(W(h_i+h_d))$
 代码如下：  
 
 ```python
-class Attention(nn.Module):  # Additive Attention    def __init__(self, enc_hid_dim, dec_hid_dim):        super(Attention, self).__init__()        self.attn = nn.Linear((enc_hid_dim * 2) + dec_hid_dim, dec_hid_dim)  # W        self.v = nn.Linear(dec_hid_dim, 1, bias=False)  # v    def forward(self, hidden, encoder_output):        # hidden: [batch, dec_hid_dim], encoder_output: [seq_len, batch, enc_hid_dim * num_directions]        # hidden here is the hidden state of the decoder at the current time step        # encoder_output is the output of the encoder for all time steps        batch_size = encoder_output.shape[1]        seq_len = encoder_output.shape[0]        hidden = hidden.unsqueeze(1).repeat(1, seq_len, 1)  # [batch, **seq_len**, dec_hid_dim]        encoder_output = encoder_output.permute(1, 0, 2)  # [batch, seq_len, enc_hid_dim * num_directions]        attn_energies = torch.tanh(self.attn(torch.cat((hidden, encoder_output), dim=2)))  # [batch, seq_len, dec_hid_dim]        attention = self.v(attn_energies).squeeze(2)  # [batch, seq_len]        return torch.softmax(attention, dim=1)  # [batch, seq_len]
+class Attention(nn.Module):  # Additive Attention
+    def __init__(self, enc_hid_dim, dec_hid_dim):
+        super(Attention, self).__init__()
+        self.attn = nn.Linear((enc_hid_dim * 2) + dec_hid_dim, dec_hid_dim)  # W
+        self.v = nn.Linear(dec_hid_dim, 1, bias=False)  # v
+
+    def forward(self, hidden, encoder_output):
+        # hidden: [batch, dec_hid_dim], encoder_output: [seq_len, batch, enc_hid_dim * num_directions]
+        # hidden here is the hidden state of the decoder at the current time step
+        # encoder_output is the output of the encoder for all time steps
+        batch_size = encoder_output.shape[1]
+        seq_len = encoder_output.shape[0]
+        hidden = hidden.unsqueeze(1).repeat(1, seq_len, 1)  # [batch, **seq_len**, dec_hid_dim]
+        encoder_output = encoder_output.permute(1, 0, 2)  # [batch, seq_len, enc_hid_dim * num_directions]
+        attn_energies = torch.tanh(self.attn(torch.cat((hidden, encoder_output), dim=2)))  # [batch, seq_len, dec_hid_dim]
+        attention = self.v(attn_energies).squeeze(2)  # [batch, seq_len]
+        return torch.softmax(attention, dim=1)  # [batch, seq_len]
 ```
 
 完整模型：  
 
 ```python
-# https://arxiv.org/abs/1409.0473v7import torch.nn as nnimport torchimport randomclass Encoder(nn.Module):    def __init__(self, input_dim, embed_dim, enc_hid_dim, dec_hid_dim, dropout):        super(Encoder, self).__init__()        self.embedding = nn.Embedding(input_dim, embed_dim)        self.rnn = nn.GRU(embed_dim, enc_hid_dim, bidirectional=True)        self.fc = nn.Linear(enc_hid_dim * 2, dec_hid_dim)        self.dropout = nn.Dropout(dropout)    def forward(self, x):        embedded = self.dropout(self.embedding(x))        output, hidden = self.rnn(embedded)          # output: [seq_len, batch, num_directions * hidden_size]        # hidden: [num_layers * num_directions, batch, hidden_size]        hidden = torch.cat((hidden[-2, :, :], hidden[-1, :, :]), dim=1)  # [batch, hidden_size * num_directions]        hidden = self.fc(hidden)        hidden = torch.tanh(hidden)        return output, hidden    class Attention(nn.Module):  # Additive Attention    def __init__(self, enc_hid_dim, dec_hid_dim):        super(Attention, self).__init__()        self.attn = nn.Linear((enc_hid_dim * 2) + dec_hid_dim, dec_hid_dim)        self.v = nn.Linear(dec_hid_dim, 1, bias=False)    def forward(self, hidden, encoder_output):        # hidden: [batch, dec_hid_dim], encoder_output: [seq_len, batch, enc_hid_dim * num_directions]        # hidden here is the hidden state of the decoder at the current time step        # encoder_output is the output of the encoder for all time steps        batch_size = encoder_output.shape[1]        seq_len = encoder_output.shape[0]        hidden = hidden.unsqueeze(1).repeat(1, seq_len, 1)  # [batch, **seq_len**, dec_hid_dim]        encoder_output = encoder_output.permute(1, 0, 2)  # [batch, seq_len, enc_hid_dim * num_directions]        attn_energies = torch.tanh(self.attn(torch.cat((hidden, encoder_output), dim=2)))  # [batch, seq_len, dec_hid_dim]        attention = self.v(attn_energies).squeeze(2)  # [batch, seq_len]        return torch.softmax(attention, dim=1)  # [batch, seq_len]    class Decoder(nn.Module):    def __init__(self, vocab_size, embed_dim, enc_hid_dim, dec_hid_dim, dropout, attention):        super(Decoder, self).__init__()        self.vocab_size = vocab_size        self.attention = attention        self.embedding = nn.Embedding(vocab_size, embed_dim)        self.rnn = nn.GRU((enc_hid_dim * 2) + embed_dim, dec_hid_dim)        self.fc = nn.Linear((enc_hid_dim * 2) + dec_hid_dim + embed_dim, vocab_size)        self.dropout = nn.Dropout(dropout)    def forward(self, input, hidden, encoder_output):        # input: [batch]        # hidden: [batch, dec_hid_dim]        # encoder_output: [seq_len, batch, enc_hid_dim * num_directions]        input = input.unsqueeze(0)  # [1, batch]        embedded = self.dropout(self.embedding(input))  # [1, batch, embed_dim]        attn = self.attention(hidden, encoder_output)  # [batch, seq_len]        attn = attn.unsqueeze(1)  # [batch, 1, seq_len]        encoder_output = encoder_output.permute(1, 0, 2)  # [batch, seq_len, enc_hid_dim * num_directions]        weighted = torch.bmm(attn, encoder_output)  # [batch, 1, enc_hid_dim * num_directions]        weighted = weighted.permute(1, 0, 2)  # [1, batch, enc_hid_dim * num_directions]        rnn_input = torch.cat((embedded, weighted), dim=2)  # [1, batch, (enc_hid_dim * 2) + embed_dim]        output, hidden = self.rnn(rnn_input, hidden.unsqueeze(0))  # output: [1, batch, dec_hid_dim], hidden: [1, batch, dec_hid_dim]        embedded = embedded.squeeze(0)  # [batch, embed_dim]        output = output.squeeze(0)  # [batch, dec_hid_dim]        weighted = weighted.squeeze(0)  # [batch, enc_hid_dim * num_directions]        context = torch.cat((output, weighted, embedded), dim=1)  # [batch, (enc_hid_dim * 2) + dec_hid_dim + embed_dim]        prediction = self.fc(context)  # [batch, output_dim]        return prediction, hidden.squeeze(0), attn.squeeze(1)  # prediction: [batch, output_dim], hidden: [batch, dec_hid_dim], a: [batch, seq_len]    class Seq2Seq(nn.Module):    def __init__(self, encoder, decoder, device):        super(Seq2Seq, self).__init__()        self.encoder = encoder        self.decoder = decoder        self.device = device    def forward(self, src, trg, teacher_forcing_ratio=0.5):        # src: [seq_len, batch]        # trg: [seq_len, batch]        batch_size = src.shape[1]        trg_len = trg.shape[0]        trg_vocab_size = self.decoder.vocab_size        output = torch.zeros(trg_len, batch_size, trg_vocab_size).to(self.device)        encoder_output, hidden = self.encoder(src)        input = trg[0, :]  # [batch], first input of decoder        for t in range(1, trg_len):            op, hidden, attn = self.decoder(input, hidden, encoder_output)            output[t] = op            teacher_force = random.random() < teacher_forcing_ratio            top1 = op.argmax(1)            input = trg[t] if teacher_force else top1        return output  # [trg_len, batch_size, trg_vocab_size]    if __name__ == '__main__':    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')    model = Seq2Seq(Encoder(input_dim=10, embed_dim=25, enc_hid_dim=51, dec_hid_dim=51, dropout=0.5), Decoder(vocab_size=10, embed_dim=25, enc_hid_dim=51, dec_hid_dim=51, dropout=0.5, attention=Attention(enc_hid_dim=51, dec_hid_dim=51)), device).to(device)    src = torch.randint(0, 10, (10, 32)).to(device)    trg = torch.randint(0, 10, (10, 32)).to(device)    output = model(src, trg)    print(output.shape)    print(model)
+# https://arxiv.org/abs/1409.0473v7
+
+import torch.nn as nn
+import torch
+import random
+
+class Encoder(nn.Module):
+    def __init__(self, input_dim, embed_dim, enc_hid_dim, dec_hid_dim, dropout):
+        super(Encoder, self).__init__()
+        self.embedding = nn.Embedding(input_dim, embed_dim)
+        self.rnn = nn.GRU(embed_dim, enc_hid_dim, bidirectional=True)
+        self.fc = nn.Linear(enc_hid_dim * 2, dec_hid_dim)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        embedded = self.dropout(self.embedding(x))
+        output, hidden = self.rnn(embedded)  
+        # output: [seq_len, batch, num_directions * hidden_size]
+        # hidden: [num_layers * num_directions, batch, hidden_size]
+        hidden = torch.cat((hidden[-2, :, :], hidden[-1, :, :]), dim=1)  # [batch, hidden_size * num_directions]
+        hidden = self.fc(hidden)
+        hidden = torch.tanh(hidden)
+        return output, hidden
+    
+class Attention(nn.Module):  # Additive Attention
+    def __init__(self, enc_hid_dim, dec_hid_dim):
+        super(Attention, self).__init__()
+        self.attn = nn.Linear((enc_hid_dim * 2) + dec_hid_dim, dec_hid_dim)
+        self.v = nn.Linear(dec_hid_dim, 1, bias=False)
+
+    def forward(self, hidden, encoder_output):
+        # hidden: [batch, dec_hid_dim], encoder_output: [seq_len, batch, enc_hid_dim * num_directions]
+        # hidden here is the hidden state of the decoder at the current time step
+        # encoder_output is the output of the encoder for all time steps
+        batch_size = encoder_output.shape[1]
+        seq_len = encoder_output.shape[0]
+        hidden = hidden.unsqueeze(1).repeat(1, seq_len, 1)  # [batch, **seq_len**, dec_hid_dim]
+        encoder_output = encoder_output.permute(1, 0, 2)  # [batch, seq_len, enc_hid_dim * num_directions]
+        attn_energies = torch.tanh(self.attn(torch.cat((hidden, encoder_output), dim=2)))  # [batch, seq_len, dec_hid_dim]
+        attention = self.v(attn_energies).squeeze(2)  # [batch, seq_len]
+        return torch.softmax(attention, dim=1)  # [batch, seq_len]
+    
+class Decoder(nn.Module):
+    def __init__(self, vocab_size, embed_dim, enc_hid_dim, dec_hid_dim, dropout, attention):
+        super(Decoder, self).__init__()
+        self.vocab_size = vocab_size
+        self.attention = attention
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.rnn = nn.GRU((enc_hid_dim * 2) + embed_dim, dec_hid_dim)
+        self.fc = nn.Linear((enc_hid_dim * 2) + dec_hid_dim + embed_dim, vocab_size)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, input, hidden, encoder_output):
+        # input: [batch]
+        # hidden: [batch, dec_hid_dim]
+        # encoder_output: [seq_len, batch, enc_hid_dim * num_directions]
+        input = input.unsqueeze(0)  # [1, batch]
+        embedded = self.dropout(self.embedding(input))  # [1, batch, embed_dim]
+        attn = self.attention(hidden, encoder_output)  # [batch, seq_len]
+        attn = attn.unsqueeze(1)  # [batch, 1, seq_len]
+        encoder_output = encoder_output.permute(1, 0, 2)  # [batch, seq_len, enc_hid_dim * num_directions]
+        weighted = torch.bmm(attn, encoder_output)  # [batch, 1, enc_hid_dim * num_directions]
+        weighted = weighted.permute(1, 0, 2)  # [1, batch, enc_hid_dim * num_directions]
+        rnn_input = torch.cat((embedded, weighted), dim=2)  # [1, batch, (enc_hid_dim * 2) + embed_dim]
+        output, hidden = self.rnn(rnn_input, hidden.unsqueeze(0))  # output: [1, batch, dec_hid_dim], hidden: [1, batch, dec_hid_dim]
+        embedded = embedded.squeeze(0)  # [batch, embed_dim]
+        output = output.squeeze(0)  # [batch, dec_hid_dim]
+        weighted = weighted.squeeze(0)  # [batch, enc_hid_dim * num_directions]
+        context = torch.cat((output, weighted, embedded), dim=1)  # [batch, (enc_hid_dim * 2) + dec_hid_dim + embed_dim]
+        prediction = self.fc(context)  # [batch, output_dim]
+        return prediction, hidden.squeeze(0), attn.squeeze(1)  # prediction: [batch, output_dim], hidden: [batch, dec_hid_dim], a: [batch, seq_len]
+    
+class Seq2Seq(nn.Module):
+    def __init__(self, encoder, decoder, device):
+        super(Seq2Seq, self).__init__()
+        self.encoder = encoder
+        self.decoder = decoder
+        self.device = device
+
+    def forward(self, src, trg, teacher_forcing_ratio=0.5):
+        # src: [seq_len, batch]
+        # trg: [seq_len, batch]
+        batch_size = src.shape[1]
+        trg_len = trg.shape[0]
+        trg_vocab_size = self.decoder.vocab_size
+        output = torch.zeros(trg_len, batch_size, trg_vocab_size).to(self.device)
+        encoder_output, hidden = self.encoder(src)
+        input = trg[0, :]  # [batch], first input of decoder
+        for t in range(1, trg_len):
+            op, hidden, attn = self.decoder(input, hidden, encoder_output)
+            output[t] = op
+            teacher_force = random.random() < teacher_forcing_ratio
+            top1 = op.argmax(1)
+            input = trg[t] if teacher_force else top1
+        return output  # [trg_len, batch_size, trg_vocab_size]
+    
+if __name__ == '__main__':
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = Seq2Seq(Encoder(input_dim=10, embed_dim=25, enc_hid_dim=51, dec_hid_dim=51, dropout=0.5), Decoder(vocab_size=10, embed_dim=25, enc_hid_dim=51, dec_hid_dim=51, dropout=0.5, attention=Attention(enc_hid_dim=51, dec_hid_dim=51)), device).to(device)
+    src = torch.randint(0, 10, (10, 32)).to(device)
+    trg = torch.randint(0, 10, (10, 32)).to(device)
+    output = model(src, trg)
+    print(output.shape)
+    print(model)
 ```
 
   
 
 ```plaintext
-Seq2Seq(  (encoder): Encoder(    (embedding): Embedding(10, 25)Seq2Seq(  (encoder): Encoder(    (embedding): Embedding(10, 25)    (rnn): GRU(25, 51, bidirectional=True)    (fc): Linear(in_features=102, out_features=51, bias=True)  (encoder): Encoder(    (embedding): Embedding(10, 25)    (rnn): GRU(25, 51, bidirectional=True)    (fc): Linear(in_features=102, out_features=51, bias=True)    (dropout): Dropout(p=0.5, inplace=False)    (rnn): GRU(25, 51, bidirectional=True)    (fc): Linear(in_features=102, out_features=51, bias=True)    (dropout): Dropout(p=0.5, inplace=False)    (fc): Linear(in_features=102, out_features=51, bias=True)    (dropout): Dropout(p=0.5, inplace=False)    (dropout): Dropout(p=0.5, inplace=False)  )  (decoder): Decoder(    (attention): Attention(      (attn): Linear(in_features=153, out_features=51, bias=True)      (v): Linear(in_features=51, out_features=1, bias=False)    )    (embedding): Embedding(10, 25)    (rnn): GRU(127, 51)    (fc): Linear(in_features=178, out_features=10, bias=True)    (dropout): Dropout(p=0.5, inplace=False)  ))
+Seq2Seq(
+  (encoder): Encoder(
+    (embedding): Embedding(10, 25)
+Seq2Seq(
+  (encoder): Encoder(
+    (embedding): Embedding(10, 25)
+    (rnn): GRU(25, 51, bidirectional=True)
+    (fc): Linear(in_features=102, out_features=51, bias=True)
+  (encoder): Encoder(
+    (embedding): Embedding(10, 25)
+    (rnn): GRU(25, 51, bidirectional=True)
+    (fc): Linear(in_features=102, out_features=51, bias=True)
+    (dropout): Dropout(p=0.5, inplace=False)
+    (rnn): GRU(25, 51, bidirectional=True)
+    (fc): Linear(in_features=102, out_features=51, bias=True)
+    (dropout): Dropout(p=0.5, inplace=False)
+    (fc): Linear(in_features=102, out_features=51, bias=True)
+    (dropout): Dropout(p=0.5, inplace=False)
+    (dropout): Dropout(p=0.5, inplace=False)
+  )
+  (decoder): Decoder(
+    (attention): Attention(
+      (attn): Linear(in_features=153, out_features=51, bias=True)
+      (v): Linear(in_features=51, out_features=1, bias=False)
+    )
+    (embedding): Embedding(10, 25)
+    (rnn): GRU(127, 51)
+    (fc): Linear(in_features=178, out_features=10, bias=True)
+    (dropout): Dropout(p=0.5, inplace=False)
+  )
+)
 ```
 
   

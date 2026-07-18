@@ -125,7 +125,63 @@ $$
 在该篇工作中，模型实现的重点就是对模型从密集变换成稀疏模型的部分，与添加 Adapters 层的部分，在本文的[代码仓库](https://github.com/wuhy68/Parameter-Efficient-MoE/tree/master)中主要在 `./camelidae/modeling_camelidae.py` 中实现，我们看其中的一部分：
 
 ```python
-class ParallelAdapterMLP(nn.Module):    def __init__(self, config, adapter_dim, adapter_scaling):        super().__init__()        self.config = config        self.intermediate_size = config.intermediate_size        self.hidden_size = config.hidden_size        self.adapter_down = nn.Linear(self.hidden_size, adapter_dim, bias=False)        self.adapter_up = nn.Linear(adapter_dim, self.hidden_size, bias=False)        self.adapter_act = nn.GELU()        self.adapter_dropout = nn.Dropout(p=0.1)        self.adapter_scaling = adapter_scaling    def forward(self, x):        x = self.adapter_dropout(x)        x = self.adapter_scaling * self.adapter_up(self.adapter_act(self.adapter_down(x)))        return xclass CamelidaeGateAdapter(nn.Module):    def __init__(self, config: CamelidaeConfig):        super().__init__()        self.intermediate_size = config.intermediate_size        self.hidden_size = config.hidden_size        # Step 1: Router        self.num_experts = config.num_experts        self.topk = config.topk        self.router = nn.Linear(            config.hidden_size, self.num_experts, bias=False        )        self.dtype = getattr(torch, config.moe_dtype)        # Step 2: Get the experts        self.experts = nn.ModuleDict()        for idx in range(config.num_experts):            self.experts[f"expert_&#123;idx&#125;"] = ParallelAdapterMLP(config, config.adapter_dim, config.moe_scaling)                def forward(self, input_hidden_states, output_hidden_states, router_hidden_states):        orig_shape = output_hidden_states.shape        input_hidden_states = input_hidden_states.view(-1, input_hidden_states.shape[-1])        output_hidden_states = output_hidden_states.view(-1, output_hidden_states.shape[-1])        router_hidden_states = router_hidden_states.view(-1, router_hidden_states.shape[-1])        router_logits = self.router(router_hidden_states)        expert_weights, expert_indices = torch.topk(router_logits, self.topk, dim=-1)        expert_weights = expert_weights.softmax(dim=-1)        flat_expert_indices = expert_indices.view(-1)        input_hidden_states = input_hidden_states.repeat_interleave(self.topk, dim=0)        expert_hidden_states = output_hidden_states.repeat_interleave(self.topk, dim=0)        for idx, expert in enumerate(self.experts.values()):            expert_hidden_states[flat_expert_indices == idx] += expert(input_hidden_states[flat_expert_indices == idx])        hidden_states = (expert_hidden_states.view(*expert_weights.shape, -1) * expert_weights.unsqueeze(-1)).sum(dim=1)        return hidden_states.view(*orig_shape), router_logits
+class ParallelAdapterMLP(nn.Module):
+    def __init__(self, config, adapter_dim, adapter_scaling):
+        super().__init__()
+        self.config = config
+        self.intermediate_size = config.intermediate_size
+        self.hidden_size = config.hidden_size
+        self.adapter_down = nn.Linear(self.hidden_size, adapter_dim, bias=False)
+        self.adapter_up = nn.Linear(adapter_dim, self.hidden_size, bias=False)
+        self.adapter_act = nn.GELU()
+
+        self.adapter_dropout = nn.Dropout(p=0.1)
+        self.adapter_scaling = adapter_scaling
+
+    def forward(self, x):
+        x = self.adapter_dropout(x)
+        x = self.adapter_scaling * self.adapter_up(self.adapter_act(self.adapter_down(x)))
+        return x
+
+class CamelidaeGateAdapter(nn.Module):
+    def __init__(self, config: CamelidaeConfig):
+        super().__init__()
+
+        self.intermediate_size = config.intermediate_size
+        self.hidden_size = config.hidden_size
+
+        # Step 1: Router
+        self.num_experts = config.num_experts
+        self.topk = config.topk
+        self.router = nn.Linear(
+            config.hidden_size, self.num_experts, bias=False
+        )
+        self.dtype = getattr(torch, config.moe_dtype)
+
+        # Step 2: Get the experts
+        self.experts = nn.ModuleDict()
+        for idx in range(config.num_experts):
+            self.experts[f"expert_{idx}"] = ParallelAdapterMLP(config, config.adapter_dim, config.moe_scaling)
+            
+    def forward(self, input_hidden_states, output_hidden_states, router_hidden_states):
+        orig_shape = output_hidden_states.shape
+        input_hidden_states = input_hidden_states.view(-1, input_hidden_states.shape[-1])
+        output_hidden_states = output_hidden_states.view(-1, output_hidden_states.shape[-1])
+        router_hidden_states = router_hidden_states.view(-1, router_hidden_states.shape[-1])
+
+        router_logits = self.router(router_hidden_states)
+
+        expert_weights, expert_indices = torch.topk(router_logits, self.topk, dim=-1)
+        expert_weights = expert_weights.softmax(dim=-1)
+        flat_expert_indices = expert_indices.view(-1)
+
+        input_hidden_states = input_hidden_states.repeat_interleave(self.topk, dim=0)
+        expert_hidden_states = output_hidden_states.repeat_interleave(self.topk, dim=0)
+        for idx, expert in enumerate(self.experts.values()):
+            expert_hidden_states[flat_expert_indices == idx] += expert(input_hidden_states[flat_expert_indices == idx])
+        hidden_states = (expert_hidden_states.view(*expert_weights.shape, -1) * expert_weights.unsqueeze(-1)).sum(dim=1)
+
+        return hidden_states.view(*orig_shape), router_logits
 ```
 
 `ParallelAdapterMLP` 类构建了添加到专家 FFN 后的适配器层，可以看到其 `forward` 方法与前面叙述的一致，然后在 `CamelidaeGateAdapter` 类中调用了该类，为每个专家添加一个适配器，在`CamelidaeGateAdapter` 类的 `forward` 中也可以看到 MoE 层中从输入门控网络得到输出分布，后经过 `KeepTopK` 和 `softmax` 操作得到门控的输出 $R(x)$，与处理专家的输入输出的过程。
@@ -135,13 +191,156 @@ class ParallelAdapterMLP(nn.Module):    def __init__(self, config, adapter_dim, 
 另外作者提到，在本文的研究中，对于 MoE 层的专家通过添加 Adapters 层进行微调，然后使用 QLoRA 对其他层进行微调，在 `train_moe.py` 中我们关注 `train` 函数，可以看到：
 
 ```python
-def train():    parser = transformers.HfArgumentParser(        (ModelArguments, DataArguments, TrainingArguments)    )    model_args, data_args, training_args = parser.parse_args_into_dataclasses()    training_args.ddp_find_unused_parameters = False    set_seed(42)    model_config = CamelidaeConfig.from_pretrained(model_args.model_name_or_path)    model_config.pretraining_tp = 1  ## without tensor parallelism rank    # Camelidae Config    model_config.moe_dtype = "bfloat16"    model_config.lora_r = 64    model_config.lora_alpha = 16    model_config.adapter_dim = 64    model_config.topk = 2    model_config.moe_scaling = 1    model_config.num_experts = 8    model_config.output_router_logits = False    # # Seq Length Extension    # model_config.rope_scaling = &#123;    #     "type": "dynamic",    #     "factor": 2,    # &#125;    model = LlamaForCausalLM.from_pretrained(        model_args.model_name_or_path,        config=model_config,        cache_dir=training_args.cache_dir,        load_in_4bit=True,        quantization_config=BitsAndBytesConfig(            load_in_4bit=True,            bnb_4bit_compute_dtype=torch.bfloat16,            bnb_4bit_use_double_quant=True,            bnb_4bit_quant_type="nf4",        ),        output_loading_info=False,    )    model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)    model.gradient_checkpointing_enable()    # lora_modules = find_all_linear_names(model)    lora_modules = [        "q_proj",        "k_proj",        "v_proj",        "o_proj",        "up_proj",        "gate_proj",        "down_proj",    ]    config = LoraConfig(        r=model_config.lora_r,        lora_alpha=model_config.lora_alpha,        target_modules=lora_modules,        lora_dropout=0.1,        bias="none",        task_type="CAUSAL_LM",    )    model = get_peft_model(model, config)    # Zero Init    for n, p in model.named_parameters():        if "adapter_up" in n:            nn.init.zeros_(p)        if "adapter_down" in n:            nn.init.kaiming_uniform_(p, a=math.sqrt(5))        if "router" in n:            nn.init.kaiming_uniform_(p, a=math.sqrt(5))    for name, module in model.named_modules():        if isinstance(module, LoraLayer):            if training_args.bf16:                module = module.to(torch.bfloat16)        if "norm" in name:            module = module.to(torch.float32)        if "lm_head" in name or "embed_tokens" in name:            if hasattr(module, "weight"):                if training_args.bf16 and module.weight.dtype == torch.float32:                    module = module.to(torch.bfloat16)        if "adapter" in name:            if training_args.bf16:                module = module.to(torch.bfloat16)            else:                module = module.to(torch.float32)    for n, p in model.named_parameters():        if "adapter" in n:            p.requires_grad = True        # if "norm" in n:        #     p.requires_grad = True    model.config.use_cache = False    print_trainable_parameters(model)    tokenizer = transformers.AutoTokenizer.from_pretrained(        model_args.model_name_or_path,        cache_dir=training_args.cache_dir,        model_max_length=training_args.model_max_length,        padding_side="right",        use_fast=False,        trust_remote_code=True,    )    if tokenizer.pad_token is None:        tokenizer.pad_token_id = (            0  # unk. we want this to be different from the eos token        )    data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args)    trainer = Trainer(        model=model, tokenizer=tokenizer, args=training_args, **data_module    )    trainer.add_callback(SavePeftModelCallback)    trainer.train()    model.save_pretrained(training_args.output_dir)
+def train():
+    parser = transformers.HfArgumentParser(
+        (ModelArguments, DataArguments, TrainingArguments)
+    )
+    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    training_args.ddp_find_unused_parameters = False
+    set_seed(42)
+
+    model_config = CamelidaeConfig.from_pretrained(model_args.model_name_or_path)
+    model_config.pretraining_tp = 1  ## without tensor parallelism rank
+
+    # Camelidae Config
+    model_config.moe_dtype = "bfloat16"
+    model_config.lora_r = 64
+    model_config.lora_alpha = 16
+    model_config.adapter_dim = 64
+    model_config.topk = 2
+    model_config.moe_scaling = 1
+    model_config.num_experts = 8
+    model_config.output_router_logits = False
+
+    # # Seq Length Extension
+    # model_config.rope_scaling = {
+    #     "type": "dynamic",
+    #     "factor": 2,
+    # }
+
+    model = LlamaForCausalLM.from_pretrained(
+        model_args.model_name_or_path,
+        config=model_config,
+        cache_dir=training_args.cache_dir,
+        load_in_4bit=True,
+        quantization_config=BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        ),
+        output_loading_info=False,
+    )
+    model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
+    model.gradient_checkpointing_enable()
+
+    # lora_modules = find_all_linear_names(model)
+    lora_modules = [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "up_proj",
+        "gate_proj",
+        "down_proj",
+    ]
+    config = LoraConfig(
+        r=model_config.lora_r,
+        lora_alpha=model_config.lora_alpha,
+        target_modules=lora_modules,
+        lora_dropout=0.1,
+        bias="none",
+        task_type="CAUSAL_LM",
+    )
+    model = get_peft_model(model, config)
+
+    # Zero Init
+    for n, p in model.named_parameters():
+        if "adapter_up" in n:
+            nn.init.zeros_(p)
+        if "adapter_down" in n:
+            nn.init.kaiming_uniform_(p, a=math.sqrt(5))
+        if "router" in n:
+            nn.init.kaiming_uniform_(p, a=math.sqrt(5))
+
+    for name, module in model.named_modules():
+        if isinstance(module, LoraLayer):
+            if training_args.bf16:
+                module = module.to(torch.bfloat16)
+        if "norm" in name:
+            module = module.to(torch.float32)
+        if "lm_head" in name or "embed_tokens" in name:
+            if hasattr(module, "weight"):
+                if training_args.bf16 and module.weight.dtype == torch.float32:
+                    module = module.to(torch.bfloat16)
+        if "adapter" in name:
+            if training_args.bf16:
+                module = module.to(torch.bfloat16)
+            else:
+                module = module.to(torch.float32)
+
+    for n, p in model.named_parameters():
+        if "adapter" in n:
+            p.requires_grad = True
+        # if "norm" in n:
+        #     p.requires_grad = True
+
+    model.config.use_cache = False
+    print_trainable_parameters(model)
+
+    tokenizer = transformers.AutoTokenizer.from_pretrained(
+        model_args.model_name_or_path,
+        cache_dir=training_args.cache_dir,
+        model_max_length=training_args.model_max_length,
+        padding_side="right",
+        use_fast=False,
+        trust_remote_code=True,
+    )
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token_id = (
+            0  # unk. we want this to be different from the eos token
+        )
+
+    data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args)
+    trainer = Trainer(
+        model=model, tokenizer=tokenizer, args=training_args, **data_module
+    )
+    trainer.add_callback(SavePeftModelCallback)
+
+    trainer.train()
+
+    model.save_pretrained(training_args.output_dir)
 ```
 
 其中：
 
 ```python
-model = LlamaForCausalLM.from_pretrained(    model_args.model_name_or_path,    config=model_config,    cache_dir=training_args.cache_dir,    load_in_4bit=True,    quantization_config=BitsAndBytesConfig(        load_in_4bit=True,        bnb_4bit_compute_dtype=torch.bfloat16,        bnb_4bit_use_double_quant=True,        bnb_4bit_quant_type="nf4",    ),    output_loading_info=False,)model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)model.gradient_checkpointing_enable()# lora_modules = find_all_linear_names(model)lora_modules = [    "q_proj",    "k_proj",    "v_proj",    "o_proj",    "up_proj",    "gate_proj",    "down_proj",]
+model = LlamaForCausalLM.from_pretrained(
+    model_args.model_name_or_path,
+    config=model_config,
+    cache_dir=training_args.cache_dir,
+    load_in_4bit=True,
+    quantization_config=BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+    ),
+    output_loading_info=False,
+)
+model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
+model.gradient_checkpointing_enable()
+
+# lora_modules = find_all_linear_names(model)
+lora_modules = [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "up_proj",
+    "gate_proj",
+    "down_proj",
+]
 ```
 
 是一些量化的配置与使用 LoRA 模块微调的模块，可以看到一共调整了注意力模块中的 `qkvo` 投影矩阵，门控矩阵与 MoE 层中的 FFN 模块，也就是说调整了除添加的 Adapters 的所有权重矩阵。

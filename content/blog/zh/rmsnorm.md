@@ -52,7 +52,20 @@ tags: ["LLM"]
 伪代码形式的RMSNorm实现如下：
 
 ```python
-import torchimport torch.nn as nnclass RMSNorm(nn.Module):    def __init__(self, d, eps=1e-8):        super(RMSNorm, self).__init__()        self.eps = eps        self.scale = nn.Parameter(torch.ones(d))    def forward(self, x):        # x shape: (..., d)        rms = torch.sqrt(torch.mean(x ** 2, dim=-1, keepdim=True) + self.eps)        x_norm = x / rms        return self.scale * x_norm
+import torch
+import torch.nn as nn
+
+class RMSNorm(nn.Module):
+    def __init__(self, d, eps=1e-8):
+        super(RMSNorm, self).__init__()
+        self.eps = eps
+        self.scale = nn.Parameter(torch.ones(d))
+
+    def forward(self, x):
+        # x shape: (..., d)
+        rms = torch.sqrt(torch.mean(x ** 2, dim=-1, keepdim=True) + self.eps)
+        x_norm = x / rms
+        return self.scale * x_norm
 ```
 
 ## 3\. RMSNorm与其他归一化方法的比较
@@ -148,7 +161,30 @@ RMSNorm 可以广泛应用于各种深度学习模型中，尤其在以下场景
 以 Transformer 模型为例，RMSNorm 可以替代 LayerNorm 以提高模型的训练效率和稳定性。以下是一个简化的示例代码：
 
 ```python
-import torchimport torch.nn as nnclass TransformerBlock(nn.Module):    def __init__(self, d_model, nhead, dim_feedforward):        super(TransformerBlock, self).__init__()        self.self_attn = nn.MultiheadAttention(d_model, nhead)        self.linear1 = nn.Linear(d_model, dim_feedforward)        self.linear2 = nn.Linear(dim_feedforward, d_model)        self.norm1 = RMSNorm(d_model)        self.norm2 = RMSNorm(d_model)        self.dropout = nn.Dropout(0.1)    def forward(self, src):        # Self-attention layer        attn_output, _ = self.self_attn(src, src, src)        src = src + self.dropout(attn_output)        src = self.norm1(src)                # Feedforward layer        ff_output = self.linear2(torch.relu(self.linear1(src)))        src = src + self.dropout(ff_output)        src = self.norm2(src)        return src
+import torch
+import torch.nn as nn
+
+class TransformerBlock(nn.Module):
+    def __init__(self, d_model, nhead, dim_feedforward):
+        super(TransformerBlock, self).__init__()
+        self.self_attn = nn.MultiheadAttention(d_model, nhead)
+        self.linear1 = nn.Linear(d_model, dim_feedforward)
+        self.linear2 = nn.Linear(dim_feedforward, d_model)
+        self.norm1 = RMSNorm(d_model)
+        self.norm2 = RMSNorm(d_model)
+        self.dropout = nn.Dropout(0.1)
+
+    def forward(self, src):
+        # Self-attention layer
+        attn_output, _ = self.self_attn(src, src, src)
+        src = src + self.dropout(attn_output)
+        src = self.norm1(src)
+        
+        # Feedforward layer
+        ff_output = self.linear2(torch.relu(self.linear1(src)))
+        src = src + self.dropout(ff_output)
+        src = self.norm2(src)
+        return src
 ```
 
 在上述示例中，`RMSNorm` 替代了通常在 Transformer 中使用的 `LayerNorm`，提供了更高效的归一化操作。
