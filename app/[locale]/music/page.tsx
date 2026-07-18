@@ -43,19 +43,6 @@ export default async function MusicPage({
         </p>
       </section>
 
-      {/* 网易云歌单嵌入 */}
-      <section className="pb-12">
-        <h2 className="font-mono text-xs text-muted">{t("playlist")}</h2>
-        <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-hairline">
-          <iframe
-            title={t("playlist")}
-            src={`https://music.163.com/outchain/player?type=0&id=${music.playlistId}&auto=0&height=430`}
-            className="h-[430px] w-full border-0"
-            loading="lazy"
-          />
-        </div>
-      </section>
-
       {/* 代表曲目 */}
       <section className="pb-12">
         <h2 className="font-mono text-xs text-muted">{t("tracks")}</h2>

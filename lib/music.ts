@@ -23,7 +23,6 @@ export interface MusicLink {
 }
 
 export interface MusicData {
-  playlistId: string;
   tracks: MusicTrack[];
   albums: MusicAlbum[];
   links: MusicLink[];
