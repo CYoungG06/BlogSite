@@ -64,10 +64,9 @@ const ENCODED_ENTITIES = [
   [/&lt;/g, "<"],
   [/&gt;/g, ">"],
   [/&quot;/g, '"'],
-  [/&#0?39;/g, "'"],
-  [/&#x27;/gi, "'"],
-  [/&#x2F;/gi, "/"],
   [/&nbsp;/g, " "],
+  [/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16))],
+  [/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d))],
   [/&amp;/g, "&"], // 必须最后
 ];
 
@@ -122,7 +121,12 @@ function extractCodeFigures(html) {
         /<td class="code"><pre>([\s\S]*?)<\/pre><\/td>/,
       );
       if (!preMatch) return "";
-      const code = decodeEntities(preMatch[1].replace(/<[^>]+>/g, ""));
+      // Hexo 行结构是 <span class="line">…</span><br>,先把 <br> 换成换行再剥标签
+      const code = decodeEntities(
+        preMatch[1]
+          .replace(/<br\s*\/?>/g, "\n")
+          .replace(/<[^>]+>/g, ""),
+      );
       blocks.push({ lang: lang ?? "", code });
       return `<p>MIGRATECODE${blocks.length - 1}MIGRATE</p>`;
     },

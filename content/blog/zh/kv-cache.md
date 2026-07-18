@@ -31,7 +31,11 @@ $$
 假如我们有输入 $X = [x_1,…,x_n]$，当我们输入文本并期待模型输出时，比如输入 `I'm learning natural` ，模型开始预测并输出：
 
 ```plaintext
-step 0 input: I'm learning naturalstep 1 input: I'm learning natural languagestep 2 input: I'm learning natural language processingstep 3 input: I'm learning natural language processing and......
+step 0 input: I'm learning natural
+step 1 input: I'm learning natural language
+step 2 input: I'm learning natural language processing
+step 3 input: I'm learning natural language processing and
+......
 ```
 
 由于模型的 **自回归** 性质，模型先前的输出也会作为下一步预测的输入，模型在 step 1 预测出了 `language` 后，句子 `I'm learning natural language` 就会作为下一步的输入，在 step 2 时预测出 `processing` ，我们可以发现在模型不断接受输入的过程中，变化的只有先前输出的新词，前面的内容保持不变（这块的内容会随着输出过程而越来越多）。
@@ -81,7 +85,21 @@ $$
 用代码表示为：  
 
 ```python
-if layer_past is not None:        past_key, past_value = layer_past        # 进行拼接        key = torch.cat((past_key, key), dim=-2)        value = torch.cat((past_value, value), dim=-2)        if use_cache is True:  # 当前是否需要缓存        present = (key, value)    else:        present = None        if self.reorder_and_upcast_attn:        attn_output, attn_weights = self._upcast_and_reordered_attn(query, key, value, attention_mask, head_mask)    else:        attn_output, attn_weights = self._attn(query, key, value, attention_mask, head_mask)
+if layer_past is not None:
+        past_key, past_value = layer_past
+        # 进行拼接
+        key = torch.cat((past_key, key), dim=-2)
+        value = torch.cat((past_value, value), dim=-2)
+    
+    if use_cache is True:  # 当前是否需要缓存
+        present = (key, value)
+    else:
+        present = None
+    
+    if self.reorder_and_upcast_attn:
+        attn_output, attn_weights = self._upcast_and_reordered_attn(query, key, value, attention_mask, head_mask)
+    else:
+        attn_output, attn_weights = self._attn(query, key, value, attention_mask, head_mask)
 ```
 
 ([https://zhuanlan.zhihu.com/p/662498827](https://zhuanlan.zhihu.com/p/662498827))

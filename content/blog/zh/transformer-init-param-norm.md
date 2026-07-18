@@ -17,11 +17,21 @@ tags: ["Transformer"]
 苏神提到 Tensorflow 中的 `tf.random.truncated_normal`，该函数采样结果实际均值为 $u$，而实际方差为 $\gamma\sigma^2$，其中 $\gamma=0.7737413…$（具体的推算过程我不会，我是菜鸡😭），但是我使用 Pytorch 的相似函数 `torch.nn.init.trunc_normal_` 进行了试验（该函数的截断区间参数 $a$ 和 $b$ 默认是 2，但是可以自己调整），使用默认参数值时结果也是一样的：
 
 ```python
-import torchw = torch. empty(300, 500)torch.nn.init.trunc_normal_(w, mean=0, std=1)# 计算均值mean = torch.mean(w)print(f"Empirical mean: &#123;mean:.6f&#125;")# 计算方差variance = torch.var(w)print(f"Empirical variance: &#123;variance:.6f&#125;")
+import torch
+
+w = torch. empty(300, 500)
+torch.nn.init.trunc_normal_(w, mean=0, std=1)
+# 计算均值
+mean = torch.mean(w)
+print(f"Empirical mean: {mean:.6f}")
+# 计算方差
+variance = torch.var(w)
+print(f"Empirical variance: {variance:.6f}")
 ```
 
 ```plaintext
-Empirical mean: -0.000635Empirical variance: 0.778056
+Empirical mean: -0.000635
+Empirical variance: 0.778056
 ```
 
 所以也可以使用苏神提到的同样的方法，若想得到方差为 $\sigma^2$ 的采样结果，传入函数的标准差为 $\frac{\sigma}{\sqrt{\gamma}} = \sigma \times 1.1368472…$
