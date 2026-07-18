@@ -52,9 +52,15 @@ export default async function HomePage({
     <Container>
       {/* Hero */}
       <section className="py-16 sm:py-24">
+        <p
+          className="animate-fade-up mb-6 inline-flex items-center rounded-full bg-surface px-3 py-1 font-mono text-xs text-muted ring-1 ring-hairline"
+          style={stagger(0)}
+        >
+          {t("home.construction")}
+        </p>
         <h1
           className="animate-fade-up max-w-3xl text-4xl font-semibold tracking-tighter sm:text-5xl"
-          style={stagger(0)}
+          style={stagger(1)}
         >
           {t("home.heroTitle")}
           {/* 竖条光标:em 尺寸跟随标题字号 */}
@@ -65,11 +71,11 @@ export default async function HomePage({
         </h1>
         <p
           className="animate-fade-up mt-5 max-w-2xl text-muted"
-          style={stagger(1)}
+          style={stagger(2)}
         >
           {t("home.heroSubtitle")}
         </p>
-        <div className="animate-fade-up mt-8 flex gap-3" style={stagger(2)}>
+        <div className="animate-fade-up mt-8 flex gap-3" style={stagger(3)}>
           <Link
             href="/blog"
             className="group inline-flex h-12 items-center gap-3 rounded-full bg-foreground pr-2 pl-6 text-sm font-medium text-background transition-transform duration-300 ease-premium active:scale-[0.98]"
@@ -90,7 +96,7 @@ export default async function HomePage({
 
       {/* 文章:md 以上两栏(精选 | 最近),共用一个区块头,紧凑排版 */}
       {featuredPosts.length > 0 || posts.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(3)}>
+        <section className="animate-fade-up py-16" style={stagger(4)}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
               {t("home.posts")}
@@ -129,7 +135,7 @@ export default async function HomePage({
 
       {/* 最新笔记:银灰 Double-Bezel 面板 */}
       {notes.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(4)}>
+        <section className="animate-fade-up py-16" style={stagger(5)}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
               {t("home.latestNotes")}
@@ -157,7 +163,7 @@ export default async function HomePage({
 
       {/* 精选项目:2 列卡片 */}
       {projects.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(5)}>
+        <section className="animate-fade-up py-16" style={stagger(6)}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
               {t("home.featuredProjects")}
