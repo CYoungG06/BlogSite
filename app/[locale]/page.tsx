@@ -88,12 +88,12 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* 精选文章:早期好文不被时间线埋没 */}
-      {featuredPosts.length > 0 ? (
+      {/* 文章:md 以上两栏(精选 | 最近),共用一个区块头,紧凑排版 */}
+      {featuredPosts.length > 0 || posts.length > 0 ? (
         <section className="animate-fade-up py-16" style={stagger(3)}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
-              {t("home.featuredPosts")}
+              {t("home.posts")}
             </h2>
             <Link
               href="/blog"
@@ -106,35 +106,30 @@ export default async function HomePage({
               />
             </Link>
           </div>
-          <PostRows posts={featuredPosts} />
-        </section>
-      ) : null}
-
-      {/* 最近文章:发丝行,左 mono 日期列 + 标题 + hover 箭头 */}
-      {posts.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(4)}>
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-xl font-semibold tracking-tight">
-              {t("home.latestPosts")}
-            </h2>
-            <Link
-              href="/blog"
-              className="group inline-flex items-center gap-1 font-mono text-xs text-muted transition-colors duration-300 ease-premium hover:text-foreground"
-            >
-              {t("home.viewAll")}
-              <ArrowUpRight
-                size={13}
-                className="transition-transform duration-300 ease-premium group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-              />
-            </Link>
+          <div className="grid gap-x-10 md:grid-cols-2">
+            {featuredPosts.length > 0 ? (
+              <div>
+                <p className="mt-6 font-mono text-xs text-muted">
+                  {t("home.featuredPosts")}
+                </p>
+                <PostRows posts={featuredPosts} compact />
+              </div>
+            ) : null}
+            {posts.length > 0 ? (
+              <div>
+                <p className="mt-6 font-mono text-xs text-muted">
+                  {t("home.latestPosts")}
+                </p>
+                <PostRows posts={posts} compact />
+              </div>
+            ) : null}
           </div>
-          <PostRows posts={posts} />
         </section>
       ) : null}
 
       {/* 最新笔记:银灰 Double-Bezel 面板 */}
       {notes.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(5)}>
+        <section className="animate-fade-up py-16" style={stagger(4)}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
               {t("home.latestNotes")}
@@ -162,7 +157,7 @@ export default async function HomePage({
 
       {/* 精选项目:2 列卡片 */}
       {projects.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(6)}>
+        <section className="animate-fade-up py-16" style={stagger(5)}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
               {t("home.featuredProjects")}
@@ -189,15 +184,21 @@ export default async function HomePage({
   );
 }
 
-/** 文章行:mono 日期列 + 标题 + hover 箭头(精选/最近共用) */
-function PostRows({ posts }: { posts: Post[] }) {
+/** 文章行:mono 日期列 + 标题 + hover 箭头(精选/最近共用;compact 收紧行距) */
+function PostRows({
+  posts,
+  compact = false,
+}: {
+  posts: Post[];
+  compact?: boolean;
+}) {
   return (
-    <ul className="mt-6">
+    <ul className={compact ? "mt-3" : "mt-6"}>
       {posts.map((post) => (
         <li key={post.slug} className="border-b border-hairline first:border-t">
           <Link
             href={`/blog/${post.slug}`}
-            className="group flex items-baseline gap-4 py-4"
+            className={`group flex items-baseline ${compact ? "gap-3 py-3" : "gap-4 py-4"}`}
           >
             <time
               dateTime={post.date}
