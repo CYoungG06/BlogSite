@@ -3,8 +3,8 @@
  * 一次性:旧 Hexo 站文章迁移(search.xml → MDX)。
  *
  * 用法:
- *   node scripts/migrate-old-blog.mjs [旧站目录]
- *   默认 /path/to/CYoungG06.github.io-main
+ *   node scripts/migrate-old-blog.mjs <旧站目录>
+ *   例: node scripts/migrate-old-blog.mjs ~/Downloads/CYoungG06.github.io-main
  *
  * 做的事:
  *   1. 解析 search.xml 的 <entry>(title / link / CDATA HTML 正文)
@@ -27,8 +27,11 @@ import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 import { stripMarkdown } from "../lib/markdown.ts";
 
-const OLD_SITE =
-  process.argv[2] ?? "/path/to/CYoungG06.github.io-main";
+const OLD_SITE = process.argv[2];
+if (!OLD_SITE) {
+  console.error("用法: node scripts/migrate-old-blog.mjs <旧站目录>");
+  process.exit(1);
+}
 const OUT_DIR = path.resolve("content/blog/zh");
 const IMG_OUT = path.resolve("public/images");
 
