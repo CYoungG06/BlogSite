@@ -15,6 +15,7 @@ export interface Note {
   preview: string;
   tags: string[];
   draft: boolean;
+  featured: boolean;
   readingMinutes: number;
   content: string;
 }

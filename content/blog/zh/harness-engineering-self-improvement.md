@@ -3,6 +3,7 @@ title: "「译 From Lil' Log」面向自我改进的 Harness Engineering"
 date: "2026-07-04"
 description: "Lilian Weng 关于 Harness Engineering 的研究综述:Harness 设计模式(工作流自动化、文件系统持久记忆、sub-agent)、上下文与工作流优化,以及自我改进与进化式程序搜索。"
 tags: ["转载", "LLM", "Agent"]
+featured: true
 ---
 
 > 本文转载自 [Lil' Log](https://lilianweng.github.io/),原文 [Harness Engineering for Self-Improvement](https://lilianweng.github.io/posts/2026-07-04-harness/),作者 Lilian Weng,首发于 2026-07-04。此处为中文翻译,仅供学习交流。

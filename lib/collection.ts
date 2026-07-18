@@ -29,6 +29,8 @@ export interface CollectionItem {
   description: string;
   tags: string[];
   draft: boolean;
+  /** 精选(置顶展示) */
+  featured: boolean;
   readingMinutes: number;
   content: string;
 }
@@ -56,6 +58,7 @@ function toItem(
     description: typeof fm.description === "string" ? fm.description : "",
     tags: Array.isArray(fm.tags) ? fm.tags.map(String) : [],
     draft: fm.draft === true,
+    featured: fm.featured === true,
     readingMinutes: estimateReadingMinutes(raw.content),
     content: raw.content,
   };

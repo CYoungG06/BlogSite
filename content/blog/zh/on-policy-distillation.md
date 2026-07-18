@@ -8,6 +8,7 @@ tags:
   - On-Policy Distillation
   - 调研报告
   - 强化学习
+featured: true
 ---
 
 > 调研时间:2026 年 5 月 | 覆盖范围:2023–2026 年学术研究与工业实践
