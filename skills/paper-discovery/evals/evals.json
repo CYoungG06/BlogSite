@@ -1,0 +1,47 @@
+{
+  "skill": "paper-discovery",
+  "version": "0.1.0",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我搜一下最近 mixture-of-experts 方向有什么新论文",
+      "should_trigger": true,
+      "assertions": [
+        "runs scripts/search.py with a relevant query",
+        "uses --since or --sort-by submittedDate for recency",
+        "presents results as a readable list with links"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "今天有什么值得关注的 AI 新论文?",
+      "should_trigger": true,
+      "assertions": [
+        "runs scripts/daily.py",
+        "includes HF daily papers or arXiv new submissions",
+        "summarizes top picks instead of dumping raw JSON"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "查一下 arxiv 1706.03762 这篇论文,有没有代码链接",
+      "should_trigger": true,
+      "assertions": [
+        "runs scripts/paper.py 1706.03762",
+        "reports github_repo / project_page if present"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "帮我把博客首页的排版调紧凑一点",
+      "should_trigger": false,
+      "assertions": ["does not run any paper-discovery script"]
+    },
+    {
+      "id": 5,
+      "prompt": "把这篇 md 文档翻译成中文存到 content/blog",
+      "should_trigger": false,
+      "assertions": ["does not run any paper-discovery script"]
+    }
+  ]
+}

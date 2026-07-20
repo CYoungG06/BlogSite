@@ -37,6 +37,8 @@ export default async function PapersPage({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
+  // 文档区块里的完整 URL(对外复制用)
+  const SITE = `https://cyoungg06.github.io${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}`;
   const t = await getTranslations({ locale, namespace: "papers" });
   const digests = getDigestDates()
     .map((date) => getDigest(date))
@@ -105,6 +107,37 @@ export default async function PapersPage({
           })}
         </ul>
       )}
+
+      {/* Agent 与开发者接入:静态 JSON API + RSS + skill 安装提示 */}
+      <section className="border-t border-hairline pb-16 pt-10">
+        <h2 className="font-mono text-sm text-muted">{t("apiTitle")}</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
+          {t("apiDesc")}
+        </p>
+        <div className="mt-4 overflow-x-auto rounded-2xl bg-surface p-4 font-mono text-xs ring-1 ring-hairline">
+          <p className="text-muted"># {t("apiIndex")}</p>
+          <p>
+            curl {SITE}
+            /api/papers/index.json
+          </p>
+          <p className="mt-3 text-muted"># {t("apiDaily")}</p>
+          <p>
+            curl {SITE}
+            /api/papers/2026-07-20.json
+          </p>
+          <p className="mt-3 text-muted"># RSS</p>
+          <p>
+            curl {SITE}
+            /feed.xml
+          </p>
+        </div>
+        <div className="mt-4 rounded-2xl bg-foreground/[0.03] p-4 ring-1 ring-hairline">
+          <p className="font-mono text-xs text-muted">
+            {t("apiPromptLabel")}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed">{t("apiPrompt")}</p>
+        </div>
+      </section>
     </Container>
   );
 }
