@@ -75,7 +75,7 @@ export default async function PaperDigestPage({
 
       {focus.length > 0 ? (
         <section className="pb-12">
-          <h2 className="font-mono text-xs text-muted">{t("focus")}</h2>
+          <h2 className="font-mono text-sm text-muted">{t("focus")}</h2>
           <div className="mt-4 rounded-[1.75rem] bg-surface p-1.5 ring-1 ring-hairline">
             <div className="rounded-[calc(1.75rem-0.375rem)] bg-background px-6 ring-1 ring-hairline [&>article:first-child]:border-t-0">
               {focus.map((paper) => (
@@ -93,7 +93,7 @@ export default async function PaperDigestPage({
 
       {hfRest.length > 0 ? (
         <section className="pb-12">
-          <h2 className="font-mono text-xs text-muted">{t("hfSection")}</h2>
+          <h2 className="font-mono text-sm text-muted">{t("hfSection")}</h2>
           <div className="mt-4">
             {hfRest.map((paper) => (
               <PaperCard key={paper.id} paper={paper} locale={locale} t={cardT} />
@@ -104,7 +104,7 @@ export default async function PaperDigestPage({
 
       {digest.arxiv.length > 0 ? (
         <section className="pb-12">
-          <h2 className="font-mono text-xs text-muted">{t("arxivSection")}</h2>
+          <h2 className="font-mono text-sm text-muted">{t("arxivSection")}</h2>
           {groups.map((cat) => (
             <div key={cat} className="mt-6">
               <h3 className="font-mono text-xs text-accent">{cat}</h3>

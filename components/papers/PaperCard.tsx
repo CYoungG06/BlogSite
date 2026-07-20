@@ -24,52 +24,55 @@ export default function PaperCard({
       : authors;
 
   return (
-    <article className="border-b border-hairline py-5 first:border-t">
-      <a
-        href={paper.urls.abs}
-        target="_blank"
-        rel="noreferrer"
-        className="group inline-flex items-baseline gap-1.5"
-      >
-        <h3 className="font-medium leading-snug tracking-tight transition-colors duration-300 ease-premium group-hover:text-accent">
-          {zh ? paper.titleZh : paper.title}
-        </h3>
-        <ArrowUpRight
-          size={13}
-          aria-hidden
-          className="shrink-0 self-center text-accent opacity-0 transition-opacity duration-300 ease-premium group-hover:opacity-100"
-        />
-      </a>
-      {zh ? (
-        <p className="mt-0.5 truncate text-xs text-muted">{paper.title}</p>
-      ) : null}
-
-      <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted">
-        {paper.upvotes ? (
-          <span className="rounded-full bg-accent/10 px-2 py-0.5 text-accent">
-            ▲ {paper.upvotes}
-          </span>
+    <article className="border-b border-hairline py-5 first:border-t sm:flex sm:items-start sm:gap-6">
+      <div className="min-w-0 flex-1">
+        <a
+          href={paper.urls.abs}
+          target="_blank"
+          rel="noreferrer"
+          className="group inline-flex items-baseline gap-1.5"
+        >
+          <h3 className="font-medium leading-snug tracking-tight transition-colors duration-300 ease-premium group-hover:text-accent">
+            {zh ? paper.titleZh : paper.title}
+          </h3>
+          <ArrowUpRight
+            size={13}
+            aria-hidden
+            className="shrink-0 self-center text-accent opacity-0 transition-opacity duration-300 ease-premium group-hover:opacity-100"
+          />
+        </a>
+        {zh ? (
+          <p className="mt-0.5 truncate text-sm text-muted">{paper.title}</p>
         ) : null}
-        {paper.githubStars ? <span>★ {paper.githubStars}</span> : null}
-        {paper.primaryCategory ? <span>{paper.primaryCategory}</span> : null}
-        <span>{paper.published.slice(0, 10)}</span>
-      </p>
 
-      {authorLine ? (
-        <p className="mt-1.5 truncate text-sm text-muted">{authorLine}</p>
-      ) : null}
-      {zh ? (
-        <p className="mt-1.5 text-sm leading-relaxed text-foreground/80">
-          {paper.summaryZh}
+        <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted">
+          {paper.upvotes ? (
+            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-accent">
+              ▲ {paper.upvotes}
+            </span>
+          ) : null}
+          {paper.githubStars ? <span>★ {paper.githubStars}</span> : null}
+          {paper.primaryCategory ? <span>{paper.primaryCategory}</span> : null}
+          <span>{paper.published.slice(0, 10)}</span>
         </p>
-      ) : paper.abstract ? (
-        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">
-          {paper.abstract}
-        </p>
-      ) : null}
 
+        {authorLine ? (
+          <p className="mt-1.5 truncate text-sm text-muted">{authorLine}</p>
+        ) : null}
+        {zh ? (
+          <p className="mt-1.5 text-sm leading-relaxed text-foreground/80">
+            {paper.summaryZh}
+          </p>
+        ) : paper.abstract ? (
+          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">
+            {paper.abstract}
+          </p>
+        ) : null}
+      </div>
+
+      {/* 链接列:宽屏右对齐竖排,窄屏回落为底部横排 */}
       {paper.githubRepo || paper.projectPage ? (
-        <p className="mt-2 flex gap-4 font-mono text-xs">
+        <p className="mt-2 flex shrink-0 gap-4 font-mono text-xs sm:mt-0 sm:flex-col sm:items-end sm:gap-1.5 sm:pt-0.5">
           {paper.githubRepo ? (
             <a
               href={paper.githubRepo}
