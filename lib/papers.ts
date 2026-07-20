@@ -16,6 +16,8 @@ export interface PaperItem {
   abstract: string;
   published: string;
   primaryCategory?: string;
+  /** arXiv 备注(页数/收录信息,如 "Accepted to NeurIPS") */
+  comment?: string;
   upvotes?: number;
   githubRepo?: string;
   githubStars?: number;

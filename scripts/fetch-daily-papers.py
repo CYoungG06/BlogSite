@@ -33,7 +33,7 @@ HF_BASES = (
 USER_AGENT = "blogsite-daily-papers/0.1 (personal site digest)"
 TIMEOUT = 20
 RETRY_SLEEPS = [5, 15, 45]
-ABSTRACT_LIMIT = 600
+ABSTRACT_LIMIT = None  # 不再截断:展示层有 line-clamp,完整摘要是 AI 导读的输入
 AUTHORS_KEPT = 6
 
 ATOM = "{http://www.w3.org/2005/Atom}"
@@ -102,7 +102,7 @@ def truncate(text: str | None) -> str:
     if not text:
         return ""
     text = re.sub(r"\s+", " ", text).strip()
-    if len(text) > ABSTRACT_LIMIT:
+    if ABSTRACT_LIMIT and len(text) > ABSTRACT_LIMIT:
         return text[:ABSTRACT_LIMIT].rstrip() + " …"
     return text
 
@@ -158,26 +158,28 @@ def parse_atom(data: bytes) -> list:
             continue
         arxiv_id = re.sub(r"v\d+$", "", m.group(1))
         prim = e.find(f"{ARXIV_NS}primary_category")
+        comment = (e.findtext(f"{ARXIV_NS}comment") or "").strip() or None
         names = [
             (a.findtext(f"{ATOM}name") or "").strip()
             for a in e.findall(f"{ATOM}author")
         ]
         authors, total = author_slice([n for n in names if n])
-        papers.append(
-            {
-                "id": arxiv_id,
-                "title": re.sub(r"\s+", " ", e.findtext(f"{ATOM}title") or "").strip(),
-                "authors": authors,
-                "authorsTotal": total,
-                "abstract": truncate(e.findtext(f"{ATOM}summary")),
-                "published": (e.findtext(f"{ATOM}published") or "").strip(),
-                "primaryCategory": prim.get("term") if prim is not None else None,
-                "urls": {
-                    "abs": f"https://arxiv.org/abs/{arxiv_id}",
-                    "pdf": f"https://arxiv.org/pdf/{arxiv_id}",
-                },
-            }
-        )
+        item = {
+            "id": arxiv_id,
+            "title": re.sub(r"\s+", " ", e.findtext(f"{ATOM}title") or "").strip(),
+            "authors": authors,
+            "authorsTotal": total,
+            "abstract": truncate(e.findtext(f"{ATOM}summary")),
+            "published": (e.findtext(f"{ATOM}published") or "").strip(),
+            "primaryCategory": prim.get("term") if prim is not None else None,
+            "urls": {
+                "abs": f"https://arxiv.org/abs/{arxiv_id}",
+                "pdf": f"https://arxiv.org/pdf/{arxiv_id}",
+            },
+        }
+        if comment:
+            item["comment"] = comment
+        papers.append(item)
     return papers
 
 
