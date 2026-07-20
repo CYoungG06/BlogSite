@@ -21,6 +21,9 @@ export interface PaperItem {
   githubStars?: number;
   projectPage?: string;
   numComments?: number;
+  /** AI 生成的中文译名与导读(scripts/summarize-digest.py,可能缺失) */
+  titleZh?: string;
+  summaryZh?: string;
   urls: { abs: string; pdf: string };
 }
 

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
 import PageHeader from "@/components/layout/PageHeader";
 import PaperCard from "@/components/papers/PaperCard";
+import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getDigest, getDigestDates, type PaperItem } from "@/lib/papers";
 
@@ -24,7 +25,7 @@ export async function generateMetadata({
   return { title: t("digestTitle", { date }) };
 }
 
-/** 单日速递:HF 热门(按 upvotes)+ arXiv 新论文(按主分类分组) */
+/** 单日速递:今日焦点(Top3 HF 面板)→ HF 热门 → arXiv 新论文(分组),底部期号导航 */
 export default async function PaperDigestPage({
   params,
 }: {
@@ -44,6 +45,10 @@ export default async function PaperDigestPage({
     etAl: t("etAl"),
   };
 
+  // 今日焦点:HF 榜前 3,面板突出;其余 HF 进入常规列表
+  const focus = digest.hf.slice(0, 3);
+  const hfRest = digest.hf.slice(3);
+
   // 保持 JSON 中分类声明的顺序,只展示实际有论文的分类
   const byCategory = new Map<string, PaperItem[]>();
   for (const paper of digest.arxiv) {
@@ -55,6 +60,12 @@ export default async function PaperDigestPage({
     ...[...byCategory.keys()].filter((c) => !digest.categories.includes(c)),
   ];
 
+  // 期号导航(dates 倒序:index-1 是更新的一期,index+1 是更旧的一期)
+  const dates = getDigestDates();
+  const idx = dates.indexOf(date);
+  const newer = idx > 0 ? dates[idx - 1] : null;
+  const older = idx >= 0 && idx < dates.length - 1 ? dates[idx + 1] : null;
+
   return (
     <Container>
       <PageHeader
@@ -62,32 +73,79 @@ export default async function PaperDigestPage({
         description={`${t("hfCount", { count: digest.hf.length })} · ${t("arxivCount", { count: digest.arxiv.length })}`}
       />
 
-      {digest.hf.length > 0 ? (
+      {focus.length > 0 ? (
+        <section className="pb-12">
+          <h2 className="font-mono text-xs text-muted">{t("focus")}</h2>
+          <div className="mt-4 rounded-[1.75rem] bg-surface p-1.5 ring-1 ring-hairline">
+            <div className="rounded-[calc(1.75rem-0.375rem)] bg-background px-6 ring-1 ring-hairline [&>article:first-child]:border-t-0">
+              {focus.map((paper) => (
+                <PaperCard
+                  key={paper.id}
+                  paper={paper}
+                  locale={locale}
+                  t={cardT}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {hfRest.length > 0 ? (
         <section className="pb-12">
           <h2 className="font-mono text-xs text-muted">{t("hfSection")}</h2>
           <div className="mt-4">
-            {digest.hf.map((paper) => (
-              <PaperCard key={paper.id} paper={paper} t={cardT} />
+            {hfRest.map((paper) => (
+              <PaperCard key={paper.id} paper={paper} locale={locale} t={cardT} />
             ))}
           </div>
         </section>
       ) : null}
 
       {digest.arxiv.length > 0 ? (
-        <section className="pb-16">
+        <section className="pb-12">
           <h2 className="font-mono text-xs text-muted">{t("arxivSection")}</h2>
           {groups.map((cat) => (
             <div key={cat} className="mt-6">
               <h3 className="font-mono text-xs text-accent">{cat}</h3>
               <div className="mt-2">
                 {byCategory.get(cat)!.map((paper) => (
-                  <PaperCard key={paper.id} paper={paper} t={cardT} />
+                  <PaperCard
+                    key={paper.id}
+                    paper={paper}
+                    locale={locale}
+                    t={cardT}
+                  />
                 ))}
               </div>
             </div>
           ))}
         </section>
       ) : null}
+
+      {/* 期号导航 */}
+      <nav className="flex items-center justify-between border-t border-hairline py-6 font-mono text-xs">
+        {older ? (
+          <Link
+            href={`/papers/${older}`}
+            className="text-muted transition-colors duration-300 ease-premium hover:text-foreground"
+          >
+            ← {older}
+          </Link>
+        ) : (
+          <span />
+        )}
+        {newer ? (
+          <Link
+            href={`/papers/${newer}`}
+            className="text-muted transition-colors duration-300 ease-premium hover:text-foreground"
+          >
+            {newer} →
+          </Link>
+        ) : (
+          <span />
+        )}
+      </nav>
     </Container>
   );
 }

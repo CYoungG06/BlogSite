@@ -170,11 +170,19 @@ export default async function HomePage({
                   rel="noreferrer"
                   className="group flex items-baseline gap-3 py-3"
                 >
-                  <span className="w-12 shrink-0 font-mono text-xs text-muted">
-                    {paper.upvotes ? `▲ ${paper.upvotes}` : paper.primaryCategory}
-                  </span>
+                  {paper.upvotes ? (
+                    <span className="w-12 shrink-0 rounded-full bg-accent/10 px-2 py-0.5 text-center font-mono text-xs text-accent">
+                      ▲ {paper.upvotes}
+                    </span>
+                  ) : (
+                    <span className="w-12 shrink-0 font-mono text-xs text-muted">
+                      {paper.primaryCategory}
+                    </span>
+                  )}
                   <span className="min-w-0 flex-1 truncate font-medium transition-colors duration-300 ease-premium group-hover:text-accent">
-                    {paper.title}
+                    {locale === "zh" && paper.titleZh
+                      ? paper.titleZh
+                      : paper.title}
                   </span>
                   <ArrowUpRight
                     size={15}

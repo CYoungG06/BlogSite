@@ -71,7 +71,11 @@ export default async function PapersPage({
                     />
                   </span>
                   <span className="mt-1.5 block truncate text-sm text-muted transition-colors duration-300 ease-premium group-hover:text-foreground">
-                    {top3.map((p) => p.title).join(" · ")}
+                    {top3
+                      .map((p) =>
+                        locale === "zh" && p.titleZh ? p.titleZh : p.title,
+                      )
+                      .join(" · ")}
                   </span>
                 </Link>
               </li>
