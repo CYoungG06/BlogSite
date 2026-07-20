@@ -1,0 +1,54 @@
+name: Daily Papers
+
+# 每天 02:17 UTC(北京 10:17)生成前一天的论文速递并提交;
+# 也可手动触发回填指定日期。push main 后由 Deploy workflow 自动上线。
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "内容日期 YYYY-MM-DD(留空 = 昨天 UTC)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-papers
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Resolve date
+        id: d
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          if [ -z "$DATE" ]; then DATE=$(date -u -d "yesterday" +%F); fi
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch daily papers
+        run: python3 scripts/fetch-daily-papers.py --date "${{ steps.d.outputs.date }}"
+
+      - name: Commit digest
+        run: |
+          if [ -z "$(git status --porcelain content/papers)" ]; then
+            echo "No new digest to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/papers
+          git commit -m "content: 论文速递 ${{ steps.d.outputs.date }}"
+          git push

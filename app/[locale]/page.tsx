@@ -11,6 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { isoDate } from "@/lib/format";
 import { getNotes } from "@/lib/notes";
+import { getLatestDigest } from "@/lib/papers";
 import { getPosts, type Post } from "@/lib/posts";
 import { getProjects } from "@/lib/projects";
 
@@ -44,6 +45,11 @@ export default async function HomePage({
   const projects = getProjects(locale)
     .filter((project) => project.featured)
     .slice(0, 2);
+  // 论文速递:最新一期,HF 热门(已按 upvotes 排序)优先,arXiv 补足 5 条
+  const digest = getLatestDigest();
+  const paperItems = digest
+    ? [...digest.hf, ...digest.arxiv].slice(0, 5)
+    : [];
 
   const stagger = (index: number) =>
     ({ "--stagger": `${index * 100}ms` }) as CSSProperties;
@@ -133,9 +139,58 @@ export default async function HomePage({
         </section>
       ) : null}
 
+      {/* 论文速递:最新一期 Top5,行内外链 arXiv,区块头链归档 */}
+      {digest && paperItems.length > 0 ? (
+        <section className="animate-fade-up py-16" style={stagger(5)}>
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-xl font-semibold tracking-tight">
+              {t("home.papers")}
+            </h2>
+            <Link
+              href="/papers"
+              className="group inline-flex items-center gap-1 font-mono text-xs text-muted transition-colors duration-300 ease-premium hover:text-foreground"
+            >
+              {t("home.viewAll")}
+              <ArrowUpRight
+                size={13}
+                className="transition-transform duration-300 ease-premium group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </Link>
+          </div>
+          <p className="mt-6 font-mono text-xs text-muted">{digest.date}</p>
+          <ul className="mt-3">
+            {paperItems.map((paper) => (
+              <li
+                key={paper.id}
+                className="border-b border-hairline first:border-t"
+              >
+                <a
+                  href={paper.urls.abs}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-baseline gap-3 py-3"
+                >
+                  <span className="w-12 shrink-0 font-mono text-xs text-muted">
+                    {paper.upvotes ? `▲ ${paper.upvotes}` : paper.primaryCategory}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate font-medium transition-colors duration-300 ease-premium group-hover:text-accent">
+                    {paper.title}
+                  </span>
+                  <ArrowUpRight
+                    size={15}
+                    aria-hidden
+                    className="shrink-0 -translate-x-1 self-center text-accent opacity-0 transition-all duration-300 ease-premium group-hover:translate-x-0 group-hover:opacity-100"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       {/* 最新笔记:银灰 Double-Bezel 面板 */}
       {notes.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(5)}>
+        <section className="animate-fade-up py-16" style={stagger(6)}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
               {t("home.latestNotes")}
@@ -163,7 +218,7 @@ export default async function HomePage({
 
       {/* 精选项目:2 列卡片 */}
       {projects.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(6)}>
+        <section className="animate-fade-up py-16" style={stagger(7)}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
               {t("home.featuredProjects")}
