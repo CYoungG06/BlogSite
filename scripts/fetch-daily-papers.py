@@ -77,18 +77,25 @@ def http_get(url: str) -> bytes:
 
 
 def hf_get(path_query: str):
+    """Try each HF base in order, with a few rounds of retry — local networks
+    (especially ones needing the mirror) throw transient SSL/conn errors."""
     last_err = None
-    for base in HF_BASES:
-        req = urllib.request.Request(base + path_query, headers={"User-Agent": USER_AGENT})
-        try:
-            with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-                if base != HF_BASES[0]:
-                    warn(f"HF official endpoint unreachable, using mirror {base}")
-                return json.loads(resp.read().decode("utf-8"))
-        except (urllib.error.URLError, TimeoutError, ValueError) as e:
-            last_err = str(e)
-            warn(f"HF endpoint {base} failed ({e}); trying next")
-    fail(f"All HF endpoints failed. Last error: {last_err}")
+    for round_i, sleep_s in enumerate([0, 3, 8]):
+        if sleep_s:
+            time.sleep(sleep_s)
+        for base in HF_BASES:
+            req = urllib.request.Request(
+                base + path_query, headers={"User-Agent": USER_AGENT}
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+                    if base != HF_BASES[0]:
+                        warn(f"HF official endpoint unreachable, using mirror {base}")
+                    return json.loads(resp.read().decode("utf-8"))
+            except (urllib.error.URLError, TimeoutError, ValueError) as e:
+                last_err = str(e)
+                warn(f"HF {base} failed ({e}); round {round_i + 1}/3")
+    fail(f"All HF endpoints failed after retries. Last error: {last_err}")
 
 
 def truncate(text: str | None) -> str:
