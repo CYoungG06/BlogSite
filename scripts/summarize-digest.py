@@ -33,10 +33,13 @@ RETRIES = 2
 
 SYSTEM_PROMPT = """你是技术论文速览编辑,读者是 ML/LLM 方向的研究者与工程师。
 给定一篇论文的标题与摘要,输出一个 JSON 对象(不要输出其他内容):
-{"titleZh": "...", "summaryZh": "..."}
+{"titleZh": "...", "summaryZh": "...", "relevant": true/false}
 要求:
 - titleZh:标题的准确中文翻译,保留 Transformer、RL、RAG 等通用术语原文,书名号或引号视需要
 - summaryZh:二到四句话的中文导读(总字数 120–250),依次说清「解决什么问题 + 方法要点(关键机制/组件)+ 关键结果(有数据带数据)+ 意义或适用场景」;直接陈述,不要“本文”“作者提出”式套话开头,不要评价性形容词堆砌
+- relevant:判断论文是否属于读者关注范围。关注:大语言模型与后训练(RL/蒸馏/对齐/推理)、多模态大模型(MLLM/VLM)、Agent(RL/harness/工具调用/规划)、AI for Research、LLM 系统与高效训练推理、MoE、长上下文、代码模型
+  不关注:音频/视频/图像生成、视觉重建(3D/NeRF/Gaussian Splatting)、扩散模型(用于语言/文本建模的除外)、偏物理/硬件/光子/量子、生物医药/医疗影像、与 LLM 无关的纯理论或经典数值/统计方法、能源/交通/农业/气象等垂直行业应用
+  拿不准时判 true
 - 只输出 JSON"""
 
 USER_TEMPLATE = """标题:{title}
@@ -109,7 +112,11 @@ def call_deepseek(key: str, paper: dict) -> dict | None:
             summary_zh = str(obj.get("summaryZh", "")).strip()
             if not title_zh or not summary_zh:
                 raise ValueError(f"empty fields in response: {content[:120]}")
-            return {"titleZh": title_zh, "summaryZh": summary_zh}
+            result = {"titleZh": title_zh, "summaryZh": summary_zh}
+            # 只在判为不相关时落字段(缺省视为相关,JSON 更瘦)
+            if obj.get("relevant") is False:
+                result["relevant"] = False
+            return result
         except Exception as e:  # HTTP/JSON/timeout: retry, then give up on this paper
             last_err = e
             if attempt <= RETRIES:
@@ -159,6 +166,8 @@ def main() -> None:
             paper = futures[fut]
             result = fut.result()
             if result:
+                # 清掉上一轮可能留下的 relevant:false,以本轮判定为准
+                paper.pop("relevant", None)
                 paper.update(result)
             with lock:
                 done += 1

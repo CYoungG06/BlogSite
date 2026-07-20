@@ -7,7 +7,12 @@ import PageHeader from "@/components/layout/PageHeader";
 import PaperCard from "@/components/papers/PaperCard";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { getDigest, getDigestDates, type PaperItem } from "@/lib/papers";
+import {
+  getDigest,
+  getDigestDates,
+  isRelevant,
+  type PaperItem,
+} from "@/lib/papers";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
@@ -45,13 +50,18 @@ export default async function PaperDigestPage({
     etAl: t("etAl"),
   };
 
+  // 相关性过滤:正文只显示相关论文,被过滤的收进底部折叠区
+  const hfRel = digest.hf.filter(isRelevant);
+  const arxivRel = digest.arxiv.filter(isRelevant);
+  const filtered = [...digest.hf, ...digest.arxiv].filter((p) => !isRelevant(p));
+
   // 今日焦点:HF 榜前 3,面板突出;其余 HF 进入常规列表
-  const focus = digest.hf.slice(0, 3);
-  const hfRest = digest.hf.slice(3);
+  const focus = hfRel.slice(0, 3);
+  const hfRest = hfRel.slice(3);
 
   // 保持 JSON 中分类声明的顺序,只展示实际有论文的分类
   const byCategory = new Map<string, PaperItem[]>();
-  for (const paper of digest.arxiv) {
+  for (const paper of arxivRel) {
     const cat = paper.primaryCategory ?? "other";
     byCategory.set(cat, [...(byCategory.get(cat) ?? []), paper]);
   }
@@ -70,7 +80,7 @@ export default async function PaperDigestPage({
     <Container>
       <PageHeader
         title={t("digestTitle", { date: digest.date })}
-        description={`${t("hfCount", { count: digest.hf.length })} · ${t("arxivCount", { count: digest.arxiv.length })}`}
+        description={`${t("hfCount", { count: hfRel.length })} · ${t("arxivCount", { count: arxivRel.length })}${filtered.length > 0 ? ` · ${t("filteredCount", { count: filtered.length })}` : ""}`}
       />
 
       {focus.length > 0 ? (
@@ -102,7 +112,7 @@ export default async function PaperDigestPage({
         </section>
       ) : null}
 
-      {digest.arxiv.length > 0 ? (
+      {arxivRel.length > 0 ? (
         <section className="pb-12">
           <h2 className="font-mono text-sm text-muted">{t("arxivSection")}</h2>
           {groups.map((cat) => (
@@ -121,6 +131,31 @@ export default async function PaperDigestPage({
             </div>
           ))}
         </section>
+      ) : null}
+
+      {/* 被兴趣过滤掉的论文:折叠保留,可展开捞回 */}
+      {filtered.length > 0 ? (
+        <details className="group mb-12 rounded-2xl bg-surface px-5 py-3 ring-1 ring-hairline">
+          <summary className="cursor-pointer select-none font-mono text-xs text-muted transition-colors duration-300 ease-premium hover:text-foreground">
+            {t("filteredCount", { count: filtered.length })}
+          </summary>
+          <ul className="mt-3 border-t border-hairline pt-3">
+            {filtered.map((paper) => (
+              <li key={paper.id} className="py-1">
+                <a
+                  href={paper.urls.abs}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block truncate text-sm text-muted transition-colors duration-300 ease-premium hover:text-accent"
+                >
+                  {locale === "zh" && paper.titleZh
+                    ? paper.titleZh
+                    : paper.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
       ) : null}
 
       {/* 期号导航 */}

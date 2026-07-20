@@ -26,7 +26,14 @@ export interface PaperItem {
   /** AI 生成的中文译名与导读(scripts/summarize-digest.py,可能缺失) */
   titleZh?: string;
   summaryZh?: string;
+  /** AI 相关性判定:false = 不在读者关注方向(缺省视为相关) */
+  relevant?: boolean;
   urls: { abs: string; pdf: string };
+}
+
+/** 缺省视为相关,只有显式 false 才被过滤 */
+export function isRelevant(paper: PaperItem): boolean {
+  return paper.relevant !== false;
 }
 
 export interface PapersDigest {

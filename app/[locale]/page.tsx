@@ -11,7 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { isoDate } from "@/lib/format";
 import { getNotes } from "@/lib/notes";
-import { getLatestDigest } from "@/lib/papers";
+import { getLatestDigest, isRelevant } from "@/lib/papers";
 import { getPosts, type Post } from "@/lib/posts";
 import { getProjects } from "@/lib/projects";
 
@@ -45,10 +45,11 @@ export default async function HomePage({
   const projects = getProjects(locale)
     .filter((project) => project.featured)
     .slice(0, 2);
-  // 论文速递:最新一期,HF 热门(已按 upvotes 排序)优先,arXiv 补足 5 条
+  // 论文速递:最新一期,HF 热门(已按 upvotes 排序)优先,arXiv 补足 5 条;
+  // 只取 AI 判定相关的论文
   const digest = getLatestDigest();
   const paperItems = digest
-    ? [...digest.hf, ...digest.arxiv].slice(0, 5)
+    ? [...digest.hf, ...digest.arxiv].filter(isRelevant).slice(0, 5)
     : [];
 
   const stagger = (index: number) =>

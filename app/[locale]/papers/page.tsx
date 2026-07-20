@@ -7,7 +7,7 @@ import Container from "@/components/layout/Container";
 import PageHeader from "@/components/layout/PageHeader";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { getDigestDates, getDigest } from "@/lib/papers";
+import { getDigestDates, getDigest, isRelevant } from "@/lib/papers";
 
 export async function generateMetadata({
   params,
@@ -32,7 +32,13 @@ export default async function PapersPage({
   const t = await getTranslations({ locale, namespace: "papers" });
   const digests = getDigestDates()
     .map((date) => getDigest(date))
-    .filter((d) => d !== null);
+    .filter((d) => d !== null)
+    // 归档列表只统计相关论文(与详情页正文一致)
+    .map((d) => ({
+      ...d,
+      hf: d.hf.filter(isRelevant),
+      arxiv: d.arxiv.filter(isRelevant),
+    }));
 
   return (
     <Container>

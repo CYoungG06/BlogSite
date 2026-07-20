@@ -183,7 +183,7 @@ def parse_atom(data: bytes) -> list:
     return papers
 
 
-def fetch_arxiv(day: str, categories: list, limit: int) -> list:
+def fetch_arxiv(day: str, categories: list, limit: int, primary_cats: list) -> list:
     cat_clause = " OR ".join(f"cat:{c}" for c in categories)
     sq = f"({cat_clause})" if len(categories) > 1 else cat_clause
     params = urllib.parse.urlencode(
@@ -199,6 +199,10 @@ def fetch_arxiv(day: str, categories: list, limit: int) -> list:
     # 服务端 submittedDate 区间语法在当前后端不可靠,这里按 v1 published 的
     # UTC 日期做客户端过滤(详见仓库 references 记录,与本地 skill 一致)
     papers = [p for p in papers if p["published"][:10] == day]
+    # 主分类白名单:query 的 cat: 会命中 cross-list,这里把主类不在白名单的
+    # (eess/物理/数学/q-bio/cs.CV 等)挡掉,减少垂直领域噪声
+    allowed = set(primary_cats)
+    papers = [p for p in papers if p.get("primaryCategory") in allowed]
     return papers[:limit]
 
 
@@ -206,6 +210,11 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--date", help="content date, YYYY-MM-DD (default: yesterday UTC)")
     ap.add_argument("--categories", default="cs.CL,cs.LG,cs.AI")
+    ap.add_argument(
+        "--primary-cats",
+        default="cs.CL,cs.LG,cs.AI,cs.MA,cs.IR,cs.SE",
+        help="arXiv 主分类白名单(逗号分隔),主类不在其中的论文被过滤",
+    )
     ap.add_argument("--hf-limit", type=int, default=30)
     ap.add_argument("--arxiv-limit", type=int, default=30)
     ap.add_argument("--output-dir", default="content/papers")
@@ -220,10 +229,11 @@ def main() -> None:
         day = datetime.now(timezone.utc).date() - timedelta(days=1)
     day_s = day.isoformat()
     categories = [c.strip() for c in args.categories.split(",") if c.strip()]
+    primary_cats = [c.strip() for c in args.primary_cats.split(",") if c.strip()]
 
     hf = fetch_hf(day_s, args.hf_limit)
     warn(f"HF daily {day_s}: {len(hf)} papers")
-    arxiv = fetch_arxiv(day_s, categories, args.arxiv_limit)
+    arxiv = fetch_arxiv(day_s, categories, args.arxiv_limit, primary_cats)
     warn(f"arXiv {day_s} ({','.join(categories)}): {len(arxiv)} papers before dedupe")
 
     hf_ids = {p["id"] for p in hf}
