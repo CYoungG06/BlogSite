@@ -16,7 +16,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "papers" });
-  return { title: t("title"), description: t("description") };
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: {
+      types: {
+        "application/rss+xml": `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/feed.xml`,
+      },
+    },
+  };
 }
 
 /** 速递归档:按日期倒序列出每期,附篇数与当日 Top3 标题 */
@@ -43,6 +51,14 @@ export default async function PapersPage({
   return (
     <Container>
       <PageHeader title={t("title")} description={t("description")} />
+      <p className="-mt-6 pb-8 font-mono text-xs">
+        <a
+          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/feed.xml`}
+          className="text-muted transition-colors duration-300 ease-premium hover:text-foreground"
+        >
+          {t("rss")} ↗
+        </a>
+      </p>
       {digests.length === 0 ? (
         <p className="pb-16 text-muted">{t("empty")}</p>
       ) : (
