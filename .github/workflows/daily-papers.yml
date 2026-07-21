@@ -1,11 +1,12 @@
 name: Daily Papers
 
-# 每天 02:17 UTC(北京 10:17)生成前一天的论文速递并提交;
-# 也可手动触发回填指定日期。有新内容时显式 dispatch Deploy 上线;
-# 任一步骤失败自动开 Issue 提醒。
+# 每天 08:17 UTC(北京 16:17)生成前一天的论文速递并提交。
+# 选这个时间:arXiv 每日新批次在 20:00 ET(= 次日 00:00 UTC)公布后,
+# 约 05:00 UTC 才进 API,过早跑会拿不到 arXiv 侧数据。
+# 有新内容时显式 dispatch Deploy 上线;任一步骤失败自动开 Issue 提醒。
 on:
   schedule:
-    - cron: "17 2 * * *"
+    - cron: "17 8 * * *"
   workflow_dispatch:
     inputs:
       date:
