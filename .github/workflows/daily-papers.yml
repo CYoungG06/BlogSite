@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: daily-papers
@@ -48,9 +49,11 @@ jobs:
         run: python3 scripts/summarize-digest.py "${{ steps.d.outputs.date }}"
 
       - name: Commit digest
+        id: commit
         run: |
           if [ -z "$(git status --porcelain content/papers)" ]; then
             echo "No new digest to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name "github-actions[bot]"
@@ -58,3 +61,12 @@ jobs:
           git add content/papers
           git commit -m "content: 论文速递 ${{ steps.d.outputs.date }}"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # GITHUB_TOKEN 的 push 不会触发其他 workflow(GitHub 防递归),
+      # 有新内容时显式 dispatch Deploy
+      - name: Trigger deploy
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run deploy.yml --ref main
