@@ -1,7 +1,8 @@
 name: Daily Papers
 
 # 每天 02:17 UTC(北京 10:17)生成前一天的论文速递并提交;
-# 也可手动触发回填指定日期。push main 后由 Deploy workflow 自动上线。
+# 也可手动触发回填指定日期。有新内容时显式 dispatch Deploy 上线;
+# 任一步骤失败自动开 Issue 提醒。
 on:
   schedule:
     - cron: "17 2 * * *"
@@ -15,6 +16,7 @@ on:
 permissions:
   contents: write
   actions: write
+  issues: write
 
 concurrency:
   group: daily-papers
@@ -70,3 +72,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run deploy.yml --ref main
+
+      # 任一步骤失败时开 Issue 提醒(成功信号 = bot 的 content 提交本身)
+      - name: Open issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue create \
+            --title "Daily Papers 失败:${{ steps.d.outputs.date || 'unknown' }}" \
+            --body "每日论文抓取 workflow 运行失败,请查看日志:$RUN_URL"$'\n\n'"时间(UTC):$(date -u +'%F %T')" \
+            --assignee "${{ github.repository_owner }}"
