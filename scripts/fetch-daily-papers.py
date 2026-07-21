@@ -206,6 +206,22 @@ def fetch_arxiv(day: str, categories: list, limit: int, primary_cats: list) -> l
     return papers[:limit]
 
 
+def recent_ids(output_dir: str, day: date_type, lookback: int = 3) -> set:
+    """回看最近几天的速递文件,收集已展示过的论文 id,用于跨天去重。"""
+    ids = set()
+    for i in range(1, lookback + 1):
+        path = os.path.join(
+            output_dir, (day - timedelta(days=i)).isoformat() + ".json"
+        )
+        try:
+            with open(path) as f:
+                d = json.load(f)
+            ids.update(p["id"] for p in d.get("hf", []) + d.get("arxiv", []))
+        except (OSError, json.JSONDecodeError):
+            continue
+    return ids
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--date", help="content date, YYYY-MM-DD (default: yesterday UTC)")
@@ -239,6 +255,15 @@ def main() -> None:
     hf_ids = {p["id"] for p in hf}
     arxiv = [p for p in arxiv if p["id"] not in hf_ids]
     warn(f"arXiv after dedupe against HF: {len(arxiv)}")
+
+    # 跨天去重:arXiv 侧剔除最近 3 天速递里已展示过的论文;
+    # HF 侧不去重——再次上榜是新的社区热度信号,值得展示
+    seen = recent_ids(args.output_dir, day)
+    if seen:
+        before = len(arxiv)
+        arxiv = [p for p in arxiv if p["id"] not in seen]
+        if before != len(arxiv):
+            warn(f"arXiv cross-day dedupe: {before} -> {len(arxiv)}")
 
     # 周末/arXiv 入库延迟日天然为空:不落盘,归档里不留空日期;
     # 已有文件的日子即使重跑出空也保留原文件
