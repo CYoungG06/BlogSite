@@ -47,7 +47,9 @@ export default function SearchClient() {
                     href={
                       item.type === "post"
                         ? `/blog/${item.slug}`
-                        : `/notes/${item.slug}`
+                        : item.type === "distilled"
+                          ? `/distilled/${item.slug}`
+                          : `/notes/${item.slug}`
                     }
                     className="group block border-b border-hairline py-4"
                   >

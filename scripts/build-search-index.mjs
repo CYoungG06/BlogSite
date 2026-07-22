@@ -24,6 +24,7 @@ const LOCALES = ["zh", "en"];
 const COLLECTIONS = [
   { dir: "blog", type: "post" },
   { dir: "notes", type: "note" },
+  { dir: "distilled", type: "distilled" },
 ];
 
 async function collectDocuments(locale) {

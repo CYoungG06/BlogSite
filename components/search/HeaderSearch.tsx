@@ -67,7 +67,11 @@ export default function HeaderSearch() {
 
   const goTo = (item: SearchResultItem) => {
     router.push(
-      item.type === "post" ? `/blog/${item.slug}` : `/notes/${item.slug}`,
+      item.type === "post"
+        ? `/blog/${item.slug}`
+        : item.type === "distilled"
+          ? `/distilled/${item.slug}`
+          : `/notes/${item.slug}`,
     );
     close();
   };

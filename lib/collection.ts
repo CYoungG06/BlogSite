@@ -31,6 +31,8 @@ export interface CollectionItem {
   draft: boolean;
   /** 精选(置顶展示) */
   featured: boolean;
+  /** 转载来源(distilled 集合用) */
+  source?: { name?: string; url?: string; author?: string };
   readingMinutes: number;
   content: string;
 }
@@ -59,6 +61,10 @@ function toItem(
     tags: Array.isArray(fm.tags) ? fm.tags.map(String) : [],
     draft: fm.draft === true,
     featured: fm.featured === true,
+    source:
+      typeof fm.source === "object" && fm.source !== null
+        ? (fm.source as { name?: string; url?: string; author?: string })
+        : undefined,
     readingMinutes: estimateReadingMinutes(raw.content),
     content: raw.content,
   };

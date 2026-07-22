@@ -24,14 +24,14 @@ export default function ArticleDetail({
   locale,
 }: {
   item: CollectionItem;
-  kind: "blog" | "notes";
+  kind: "blog" | "notes" | "distilled";
   locale: Locale;
 }) {
   const t = useTranslations(kind);
   const toc = extractHeadings(item.content);
   const showToc = toc.length >= 3; // 标题 < 3 个不显示
   const otherLocale: Locale = locale === "zh" ? "en" : "zh";
-  const base = kind === "blog" ? "/blog" : "/notes";
+  const base = kind === "blog" ? "/blog" : kind === "notes" ? "/notes" : "/distilled";
 
   return (
     <>
@@ -64,6 +64,25 @@ export default function ArticleDetail({
                 </>
               ) : null}
             </p>
+            {item.source ? (
+              <p className="mt-3 flex flex-wrap items-center gap-2 font-mono text-xs">
+                <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-accent">
+                  {t("fromSource", {
+                    name: item.source.author ?? item.source.name ?? "",
+                  })}
+                </span>
+                {item.source.url ? (
+                  <a
+                    href={item.source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-muted transition-colors duration-300 ease-premium hover:text-accent"
+                  >
+                    {t("readOriginal")} ↗
+                  </a>
+                ) : null}
+              </p>
+            ) : null}
             {item.tags.length > 0 || item.locales.length > 1 ? (
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 {item.tags.map((tag) => (
