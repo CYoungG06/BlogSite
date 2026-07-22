@@ -233,6 +233,11 @@ def main() -> None:
     )
     ap.add_argument("--hf-limit", type=int, default=30)
     ap.add_argument("--arxiv-limit", type=int, default=30)
+    ap.add_argument(
+        "--skip-arxiv",
+        action="store_true",
+        help="只抓 HF(早间先行版),arXiv 侧留空",
+    )
     ap.add_argument("--output-dir", default="content/papers")
     args = ap.parse_args()
 
@@ -249,21 +254,50 @@ def main() -> None:
 
     hf = fetch_hf(day_s, args.hf_limit)
     warn(f"HF daily {day_s}: {len(hf)} papers")
-    arxiv = fetch_arxiv(day_s, categories, args.arxiv_limit, primary_cats)
-    warn(f"arXiv {day_s} ({','.join(categories)}): {len(arxiv)} papers before dedupe")
+    if args.skip_arxiv:
+        arxiv = []
+        warn("--skip-arxiv: 早间先行版,arXiv 侧留空")
+    else:
+        arxiv = fetch_arxiv(day_s, categories, args.arxiv_limit, primary_cats)
+        warn(f"arXiv {day_s} ({','.join(categories)}): {len(arxiv)} papers before dedupe")
 
-    hf_ids = {p["id"] for p in hf}
-    arxiv = [p for p in arxiv if p["id"] not in hf_ids]
-    warn(f"arXiv after dedupe against HF: {len(arxiv)}")
+        hf_ids = {p["id"] for p in hf}
+        arxiv = [p for p in arxiv if p["id"] not in hf_ids]
+        warn(f"arXiv after dedupe against HF: {len(arxiv)}")
 
-    # 跨天去重:arXiv 侧剔除最近 3 天速递里已展示过的论文;
-    # HF 侧不去重——再次上榜是新的社区热度信号,值得展示
-    seen = recent_ids(args.output_dir, day)
-    if seen:
-        before = len(arxiv)
-        arxiv = [p for p in arxiv if p["id"] not in seen]
-        if before != len(arxiv):
-            warn(f"arXiv cross-day dedupe: {before} -> {len(arxiv)}")
+        # 跨天去重:arXiv 侧剔除最近 3 天速递里已展示过的论文;
+        # HF 侧不去重——再次上榜是新的社区热度信号,值得展示
+        seen = recent_ids(args.output_dir, day)
+        if seen:
+            before = len(arxiv)
+            arxiv = [p for p in arxiv if p["id"] not in seen]
+            if before != len(arxiv):
+                warn(f"arXiv cross-day dedupe: {before} -> {len(arxiv)}")
+
+    # 导读保留:同日重抓时按 id 合并旧文件里的 titleZh/summaryZh/relevant,
+    # 避免重抓后重复调用 AI,也保证同一篇的导读一天内不变
+    existing_path = os.path.join(args.output_dir, f"{day_s}.json")
+    try:
+        with open(existing_path) as f:
+            old = json.load(f)
+        old_zh = {
+            p["id"]: p
+            for p in old.get("hf", []) + old.get("arxiv", [])
+            if p.get("titleZh") and p.get("summaryZh")
+        }
+        kept = 0
+        for p in hf + arxiv:
+            o = old_zh.get(p["id"])
+            if o:
+                p["titleZh"] = o["titleZh"]
+                p["summaryZh"] = o["summaryZh"]
+                if o.get("relevant") is False:
+                    p["relevant"] = False
+                kept += 1
+        if kept:
+            warn(f"kept zh fields for {kept} paper(s) from previous version")
+    except (OSError, json.JSONDecodeError):
+        pass
 
     # 周末/arXiv 入库延迟日天然为空:不落盘,归档里不留空日期;
     # 已有文件的日子即使重跑出空也保留原文件
