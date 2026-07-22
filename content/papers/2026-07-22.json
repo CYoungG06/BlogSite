@@ -1,0 +1,231 @@
+{
+  "date": "2026-07-22",
+  "generatedAt": "2026-07-22T04:08:04.181529+00:00",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2607.18722",
+      "title": "Stale but Stable: Staleness-Adaptive Trust Regions for Stabilizing Asynchronous Reinforcement Learning",
+      "authors": [
+        "Junyao Yang",
+        "Yucheng Shi",
+        "Zongxia Li",
+        "Zhongzhi Li",
+        "Ruhan Wang",
+        "Xiangxin Zhou"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Asynchronous reinforcement learning improves throughput by decoupling rollout generation from optimization, but staleness is an inevitable byproduct compounded by policy lag, engine delays, and mixture-of-experts routing. From a trust-region perspective, this mismatch is critical: training-inference divergence governs approximation error in finite-horizon bounds, whereas PPO clipping only gates sampled outward updates, acting as a sampled surrogate rather than a full-policy constraint. As a result, high-staleness updates remain weakly controlled in the asynchronous regime where stale rollouts matter most. We introduce the Staleness-Adaptive Trust Region (SAT), which uses the detached sampled log-ratio as a practical staleness proxy, identifies high-mismatch tails within each batch via staleness-based kernel scaling, and contracts only the sign-selected endpoint of the nominal PPO interval. This preserves baseline behavior on ordinary tokens while enforcing more conservative updates on newly intercepted outward bands. We prove local interval containment and pointwise pessimism relative to PPO, showing how the adaptive rule reshapes update geometry under heterogeneous staleness. We evaluate SAT in a decoupled asynchronous RL setup built on Qwen3-30B-A3B-Base, using SGLang as the inference engine and Megatron for training. In this setting, SAT-GSPO w/ R3 achieves the best observed AIME24 avg@8, reaching 35.83 at lag 1 and 34.79 at lag 8, while SAT-GSPO reaches 34.17 at lag 1. Adaptive clipping and routing replay act as complementary stabilizers targeting mismatch tails and routing inconsistency, respectively. Overall, aligning clip intervals with staleness heterogeneity effectively stabilizes asynchronous RL.",
+      "published": "2026-07-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.18722",
+        "pdf": "https://arxiv.org/pdf/2607.18722"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/jyyang26/SAT",
+      "numComments": 1,
+      "titleZh": "陈旧而稳定：异步强化学习中的陈旧自适应信任域",
+      "summaryZh": "异步强化学习通过解耦 rollout 与优化提升吞吐，但策略滞后、引擎延迟和 MoE 路由导致陈旧性不可避免，高陈旧更新使得训练-推理发散，而 PPO 截断仅作为采样代理，约束有限。SAT 方法以分离采样的对数比作为陈旧代理，通过陈旧核尺度在内批量中识别高不匹配尾部，并收缩名义 PPO 区间的符号选择端点，从而在常规 token 上保持基线行为，同时对新拦截的外向区间施加更保守的更新。在 Qwen3-30B-A3B-Base 上，结合 SGLang 推理和 Megatron 训练，SAT-GSPO w/ R3 在 lag 1 达到 AIME24 avg@8 35.83，lag 8 达到 34.79；SAT-GSPO 在 lag 1 达到 34.17。该方法通过将截断区间与陈旧异质性对齐，有效稳定异步 RL，适用于大规模 MoE 模型训练场景。"
+    },
+    {
+      "id": "2607.18367",
+      "title": "AlayaWorld: Interactive Long-Horizon World Modeling -- Full Technical Report",
+      "authors": [
+        "AlayaWorld Team",
+        "Kaipeng Zhang",
+        "Chuanhao Li",
+        "Yifan Zhan",
+        "Yongtao Ge",
+        "Yuanyang Yin"
+      ],
+      "authorsTotal": 18,
+      "abstract": "Unlike conventional video game development, which relies on labor-intensive pipelines for asset production, animation, physics, and programming, video world models generate interactive environments from user inputs instantly. It enable us to create customized, explorable, and continuously evolving virtual world from text, an image, or video. Realizing this vision requires four tightly coupled capabilities: interaction, persistent spatiotemporal consistency, stable long-horizon generation, and efficient response. We present AlayaWorld, an interactive long-horizon video world model that generates 24-fps video at 540p and 720p. Built on a 15B video diffusion transformer, AlayaWorld generates short latent chunks autoregressively under camera trajectories and switchable text prompts. Its bounded visual context combines a persistent sink frame, compressed temporal history, geometry-aligned spatial memory, and recent-frame conditioning. To reduce long-term drift, the model is trained with corrupted histories and prediction residuals collected from its own roll-outs. We further introduce a discrete autoregressive distillation formulation that combines distribution-matching distillation, self-forcing++, and consistency distillation, reducing inference from approximately 30 sampling steps to four steps per chunk. On iWorld-Bench, AlayaWorld achieves the best performance over long-horizon generation. Conceived as a full-stack, open-source, and long-term project, AlayaWorld is intended to provide an extensible foundation for future research on interactive video world models.",
+      "published": "2026-07-20T17:15:41.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.18367",
+        "pdf": "https://arxiv.org/pdf/2607.18367"
+      },
+      "upvotes": 16,
+      "githubRepo": "https://github.com/AlayaLab/AlayaWorld",
+      "projectPage": "https://alaya-lab.github.io/AlayaWorld/",
+      "numComments": 1,
+      "titleZh": "AlayaWorld：交互式长时程世界建模——完整技术报告",
+      "summaryZh": "解决视频世界模型在交互性、时空一致性、长时程生成和高效推理方面的挑战。方法基于15B视频扩散Transformer，自回归生成短潜在块，结合持久sink帧、压缩时序历史、几何对齐空间记忆和近期帧条件的有界视觉上下文，并利用自演轨迹的损坏历史和预测残差训练以减少长期漂移；进一步提出离散自回归蒸馏，融合分布匹配蒸馏、self-forcing++和一致性蒸馏，将每块推理从约30步降至4步。在iWorld-Bench长时程生成任务上取得最优性能。该开原全栈项目为交互式视频世界模型研究提供了可扩展基础。",
+      "relevant": false
+    },
+    {
+      "id": "2607.16617",
+      "title": "DataFlow-Harness: A Grounded Code-Agent Platform for Constructing Editable LLM Data Pipelines",
+      "authors": [
+        "Runming He",
+        "Zhen Hao Wong",
+        "Hao Liang",
+        "Zimo Meng",
+        "Chengyu Shen",
+        "Xiaochen Ma"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Large language models (LLMs) are increasingly used to automate data-processing workflows, yet coding agents typically produce scripts that are not automatically materialized as persistent, editable platform artifacts. We call this disconnect the NL2Pipeline gap. To bridge it, we introduce DataFlow-Harness, a platform that guides an LLM agent to construct platform-native directed acyclic graphs (DAGs) through typed, incremental mutations rather than free-form scripts. The platform combines DataFlow-Skills for procedural guidance, a Model Context Protocol (MCP) layer that exposes the live operator registry and current pipeline state, and DataFlow-WebUI, which synchronizes conversational authoring with a visual DAG editor. On a 12-task data-engineering benchmark, DataFlow-Harness achieves a 93.3\\% observed end-to-end pass rate. Relative to Vanilla Claude Code, it reduces measured monetary cost by 72.5\\% and generation latency by 49.9\\%; its observed pass rate is within 0.9 percentage points of the Context-Aware Claude Code baseline while its cost is 42.8\\% lower. Per-task analysis indicates that Skills are most useful when construction depends on implicit procedural knowledge. These results show that live platform grounding can produce persistent, editable workflow artifacts with an observed reliability close to script-generation baselines and with lower measured construction cost and latency.",
+      "published": "2026-07-18T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.16617",
+        "pdf": "https://arxiv.org/pdf/2607.16617"
+      },
+      "upvotes": 14,
+      "numComments": 1,
+      "titleZh": "DataFlow-Harness：构建可编辑LLM数据管道的平台接地代码代理平台",
+      "summaryZh": "为解决LLM代理生成的数据处理脚本难以转为持久可编辑平台工件的问题，DataFlow-Harness引导LLM代理通过类型化增量变更构建平台原生DAG，结合过程指导技能、MCP层和同步Web界面。在12项数据工程任务上端到端通过率93.3%，较Vanilla Claude Code成本降低72.5%、延迟减半，且通过率接近上下文感知基线但成本更低。该平台为生成可编辑工作流提供了可靠且高效的方法。"
+    },
+    {
+      "id": "2607.19064",
+      "title": "Mage-Flow: An Efficient Native-Resolution Foundation Model for Image Generation and Editing",
+      "authors": [
+        "Xinjie Zhang",
+        "Peng Zhang",
+        "Shicheng Zheng",
+        "Jinghao Guo",
+        "Zhaoyang Jia",
+        "Yifei Shen"
+      ],
+      "authorsTotal": 24,
+      "abstract": "Large-scale visual generators are increasingly capable but costly to train, fine-tune, and deploy. We introduce Mage-Flow, a compact 4B-scale generative stack for efficient text-to-image generation and instruction-based image editing. The stack is built from two co-designed components: Mage-VAE, a lightweight high-fidelity latent tokenizer, and a Native-Resolution Multimodal Diffusion Transformer trained with rectified flow matching. Mage-VAE uses one-step diffusion-style encoding and decoding with anchor-latent regularization, preserving the reconstruction quality of strong public VAEs while reducing tokenization cost by more than an order of magnitude. Together with native-resolution packing and stack-level CUDA kernel fusion, the stack supports flexible-resolution training and improves end-to-end training throughput by about 2.5times. Built on this foundation, we develop a complete model family with Base, RL-aligned, and Turbo variants for both generation and editing. Diffusion-NFT improves prompt following, text rendering, aesthetic quality, and editing fidelity, while few-step distillation with adversarial perceptual guidance produces 4-step Turbo models for low-latency inference. Despite its compact scale, Mage-Flow and Mage-Flow-Edit achieves competitive performance across standard generation and editing benchmarks. More importantly, the Turbo variants make high-resolution generation and editing practical for interactive use: at 1024^2 resolution on a single NVIDIA A100 GPU, Mage-Flow-Turbo generates an image in 0.59s, and Mage-Flow-Edit-Turbo edits an image in 1.02s, while maintaining a small memory footprint. These results show that careful tokenizer--backbone--system co-design can deliver strong high-resolution generation and editing within an efficient 4B model family.",
+      "published": "2026-07-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.19064",
+        "pdf": "https://arxiv.org/pdf/2607.19064"
+      },
+      "upvotes": 7,
+      "githubRepo": "https://github.com/microsoft/Mage",
+      "githubStars": 4,
+      "projectPage": "https://microsoft.github.io/Mage/",
+      "numComments": 1,
+      "titleZh": "Mage-Flow：一种用于图像生成与编辑的高效原生分辨率基础模型",
+      "summaryZh": "针对大规模视觉生成模型训练和部署成本高的问题，提出4B规模的Mage-Flow堆栈，由轻量高保真Mage-VAE分词器和原生分辨率多模态扩散Transformer组成，通过整流流匹配训练。Mage-VAE采用一步扩散编解码和锚潜变量正则化，分词成本降低一个数量级以上，配合原生分辨率打包与CUDA核融合，端到端训练吞吐提升约2.5倍。在此基础上构建Base、RL对齐和Turbo变体，其中Turbo模型使用对抗感知蒸馏实现4步推理，在A100上1024分辨率生成仅需0.59秒、编辑1.02秒，在标准基准上达到竞争力性能，使高分辨率交互式生成和编辑更实用。",
+      "relevant": false
+    },
+    {
+      "id": "2607.18091",
+      "title": "SciForma: Structure-Faithful Generation of Scientific Diagrams",
+      "authors": [
+        "Yuxuan Luo",
+        "Peng Zhang",
+        "Xinjie Zhang",
+        "Xun Guo",
+        "Zhouhui Lian",
+        "Yan Lu"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Structural fidelity is essential to scientific methodology diagrams. To communicate research logic, these diagrams must faithfully render components, directional relations, and textual annotations. Since a single error, such as a reversed arrow or an unreadable equation, can invalidate the entire figure, structural fidelity is inherently conjunctive: correctness on one axis cannot compensate for failure on another. Current open-source models fail to satisfy this criterion. Supervised fine-tuning (SFT) learns plausible layouts but cannot reliably ensure structural correctness, while scalar reward-based post-training obscures which structural dimension has failed. To address this, we introduce SciForma, a framework for the structure faithful generation of scientific methodology diagrams. Specifically, SciForma decomposes diagram quality into three structural axes: Component, Arrow, and Text, guided by a structural inventory. Built on this foundation, we curate SciFormaData-700K for structured training and SciFormaBench-2K for logic-verified evaluation. To close the gap left by SFT, we develop Multi-Dimensional Conjunctive Preference Optimization (M-DPO), which enforces simultaneous correctness across all axes and adaptively routes gradients to the most deficient dimension in post-training. The same structural inventory also enables iterative editing at inference time to correct residual errors. This combination allows SciForma-9B to exceed all open-source baselines and GPT-Image-1.5 on both SciFormaBench-2K and AIBench, bringing open scientific diagram generation close to proprietary-level structural fidelity. Our code and data will be available at: https://github.com/microsoft/SciForma.",
+      "published": "2026-07-20T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.18091",
+        "pdf": "https://arxiv.org/pdf/2607.18091"
+      },
+      "upvotes": 4,
+      "numComments": 1,
+      "titleZh": "SciForma: 科学图表结构保真生成",
+      "summaryZh": "针对科学方法论图表生成中结构保真度不足的问题，将图表质量分解为组件、箭头和文本三个结构轴，构建了结构化训练数据集SciFormaData-700K和逻辑验证基准SciFormaBench-2K。提出多维联合偏好优化方法M-DPO，在监督微调后强制跨轴同时正确，并通过自适应梯度路由弥补最欠缺的维度；推理时利用同一结构清单进行迭代编辑以修正残余错误。SciForma-9B在SciFormaBench-2K和AIBench上全面超越开源模型及GPT-Image-1.5，将开源科学图表生成的结构保真度提升至接近专有水平，适用于需精确传达研究逻辑的图表自动生成。"
+    },
+    {
+      "id": "2607.18955",
+      "title": "H^2SD: Hybrid Hindsight Self-Distillation",
+      "authors": [
+        "Qiye Cai",
+        "Yichuan Ma",
+        "Linyang Li",
+        "Peiji Li",
+        "Yongkang Chen",
+        "Qipeng Guo"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Reinforcement learning with verifiable rewards (RLVR) has substantially improved the reasoning capabilities of large language models on tasks such as mathematical reasoning and code generation. However, most RLVR methods assign a scalar outcome reward to an entire trajectory, resulting in sparse supervision and limited token-level credit assignment. On-policy distillation (OPD) provides denser supervision by distilling token-level distributions from a stronger teacher model, but requires an additional teacher and typically assumes a shared vocabulary. On-policy self-distillation (OPSD) removes this dependency by conditioning the same model on privileged information to construct a teacher policy. However, directly matching the teacher distribution may cause information leakage and unstable optimization. RLSD avoids direct matching by using the teacher signal only to modulate update magnitudes, but it cannot provide an explicit correction direction when the sampled reasoning fails. To address this tradeoff, we introduce H^{2}SD, a hybrid hindsight self distillation framework that uses the teacher differently according to trajectory correctness. For successful trajectories, the teacher receives the student response confirmed as correct together with a rephrasing instruction, and its probabilities on the original response tokens are used to modulate update magnitudes without changing the direction determined by the reward. For failed trajectories, we condition the teacher on a reference hint containing key reasoning steps and a verified answer, and minimize the reverse KL divergence from the student to the teacher. Experiments on multiple challenging reasoning benchmarks show that H^2SD consistently outperforms representative RLVR, OPSD, and RLSD baselines while maintaining stable optimization and favorable generation efficiency.",
+      "published": "2026-07-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.18955",
+        "pdf": "https://arxiv.org/pdf/2607.18955"
+      },
+      "upvotes": 1,
+      "numComments": 0,
+      "titleZh": "H^2SD: 混合后见自蒸馏",
+      "summaryZh": "面向大语言模型推理的强化学习可验证奖励通常只提供轨迹级稀疏监督，导致信用分配困难。该工作提出混合后见自蒸馏框架H^2SD，根据轨迹正确性差异化利用教师信号：对成功轨迹，用教师对原始响应的概率调制更新幅度而不改变奖励方向；对失败轨迹，以关键步骤与验证答案为条件，通过最小化学生到教师的反向KL散度提供明确纠正方向。在多个数学与代码推理基准上，H^2SD一致超越现有RLVR、OPSD和RLSD基线，并保持训练稳定与生成效率。"
+    },
+    {
+      "id": "2607.19343",
+      "title": "Masked Visual Actions for Unified World Modeling",
+      "authors": [
+        "Hadi Alzayer",
+        "Wenlong Huang",
+        "Haonan Chen",
+        "Christopher Luey",
+        "Lvmin Zhang",
+        "Maneesh Agrawala"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Video models absorb rich priors over how the visual world moves, interacts, and responds to contact, making them promising substrates for robotic world modeling. The central challenge is how to communicate action to such models in a form aligned with the visual space in which they learned these interaction priors, yet still grounded in physical manipulation. We introduce Masked Visual Actions, a pixel-space control interface that expresses action as a partially revealed trajectory of an arbitrary entity in a video. Revealing robot motion makes the model act as a forward dynamics model that predicts the scene's response to low-level robot actions, while revealing desired object motion makes the same model recover robot behavior consistent with that outcome. Finetuned with only 15 hours of masked examples from real videos and simulation, a single checkpoint achieves strong visual fidelity and controllability across diverse scenes and multiple embodiments. In downstream manipulation settings, the model produces imagined rollouts whose outcomes correlate with real-world execution for policy evaluation, improves decision making by ranking candidate futures in model-based planning, and supports inverse modeling by synthesizing robot motion from desired object motion.",
+      "published": "2026-07-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.19343",
+        "pdf": "https://arxiv.org/pdf/2607.19343"
+      },
+      "upvotes": 0,
+      "githubRepo": "https://github.com/HadiZayer/masked-visual-actions",
+      "githubStars": 1,
+      "projectPage": "https://masked-visual-actions.github.io/",
+      "numComments": 0,
+      "titleZh": "面向统一世界建模的Masked Visual Actions",
+      "summaryZh": "解决如何将动作信息以视觉形式融入视频模型进行机器人世界建模的问题。提出Masked Visual Actions，一种像素空间控制接口，通过部分揭示视频中任意实体的轨迹来表达动作，使同一个模型既能作为前向动力学模型预测场景对底层动作的响应，又能根据目标物体运动反向恢复机器人行为。仅用15小时真实和仿真掩码示例微调，单一检查点实现了跨场景和多种实体的高视觉保真度与可控性。在下游操纵任务中，该模型生成的想象视频与真实执行结果相关，可用于策略评估、基于模型的规划和从目标运动合成机器人动作的逆向建模。"
+    },
+    {
+      "id": "2607.19344",
+      "title": "Appearance Pointers -- Multimodal Region Control of Diffusion Transformers",
+      "authors": [
+        "Rahul Sajnani",
+        "Yulia Gryaditskaya",
+        "Radomír Měch",
+        "Srinath Sridhar",
+        "Matheus Gadelha"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Controllable image generation remains challenging for creative professionals, who often require precise regional control over materials, object identities, and spatial arrangements that cannot be reliably achieved through text prompting alone. Diffusion Transformers (DiTs) can natively ingest heterogeneous tokens stemming from texts and images, but they lack mechanisms for determining where and how these tokens should influence the output. We introduce appearance pointers, compact tokens that guide DiTs toward the correct appearance cues at the correct spatial locations by aligning text or image inputs with user-specified masks. Appearance pointers are produced by a region correspondence network and refined through a spatial aggregation mechanism, enabling the model to handle multiple regional descriptions without significantly increasing token load. Our approach introduces the first modality-agnostic interface for localized multimodal control in a DiT without retraining the base model from scratch. Across a range of metrics, our single model reaches or surpasses the performance of modality-specific state of the art methods, offering a simple and extensible path toward precise, region-aware, multimodal guidance in generative image synthesis.",
+      "published": "2026-07-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.19344",
+        "pdf": "https://arxiv.org/pdf/2607.19344"
+      },
+      "upvotes": 0,
+      "projectPage": "https://ivl.cs.brown.edu/research/appearance_pointers.html",
+      "numComments": 0,
+      "titleZh": "外观指针——扩散Transformer的多模态区域控制",
+      "summaryZh": "解决扩散Transformer在图像生成中缺乏精确区域控制的问题，提出外观指针（appearance pointers），通过区域对应网络生成并与用户掩码对齐的紧凑标记，经空间聚合后引导模型在正确位置应用外观线索。该方法支持多模态、多区域描述，无需从零开始重新训练基础模型。在多项指标上，单个模型达到或超越当前特定模态的方法，为生成式图像合成提供了精确、区域感知的多模态引导方案。",
+      "relevant": false
+    },
+    {
+      "id": "2607.17599",
+      "title": "ConsiSpace: Learning Geometric Consistency Matters for Video Spatial Reasoning",
+      "authors": [
+        "Ting Huang",
+        "Zhenyu Zhang",
+        "Wenyuan Huang",
+        "Jian Yang",
+        "Hao Tang"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Video spatial reasoning is essential for navigation-oriented perception and long-video question answering, where models must infer spatial relations across long horizons under changing viewpoints. However, existing multimodal large language models (MLLMs) remain largely semantic-centric, and often fail to reliably aggregate consistent spatial evidence from redundant video observations, leading to inefficient or unstable reasoning. To address these issues, we propose ConsiSpace, a geometry-consistency-aware framework for geometry-sensitive video spatial reasoning that turns spatial consistency into both an evidence organization principle and an explicit post-SFT learning signal. We build a geometry-consistent memory (GCM) including implicit evidence tokens and explicit geometric cues, and leverage efficient organization strategies to compactly preserve task-related spatial evidence. Furthermore, we utilize unified consistency self-supervised reinforcement learning (UC-SSRL) after supervised fine-tuning to improve cross-view stability, with answer-, metric-, and topology-consistency rewards. Extensive experiments on three spatial-reasoning benchmarks, VSI-Bench, OSI-Bench, and MMSI-Video-Bench, show consistent gains, improving the average score by 12.6 points over the strongest baselines.",
+      "published": "2026-07-20T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.17599",
+        "pdf": "https://arxiv.org/pdf/2607.17599"
+      },
+      "upvotes": 0,
+      "projectPage": "https://believeht029.github.io/ConsiSpace/",
+      "numComments": 1,
+      "titleZh": "ConsiSpace: 学习几何一致性对视频空间推理至关重要",
+      "summaryZh": "现有视频空间推理模型多侧重语义，难以从冗余观测中可靠聚合一致的空间证据，导致推理不稳定。ConsiSpace 框架将空间一致性作为证据组织原则和显式学习信号，构建几何一致记忆（GCM）融合隐式证据令牌与显式几何线索，并通过统一一致性自监督强化学习（UC-SSRL）优化跨视角稳定性，奖励包括答案、度量与拓扑一致性。在 VSI-Bench、OSI-Bench 和 MMSI-Video-Bench 三个空间推理基准上，平均得分比最强基线提高 12.6 个百分点。该方法为多模态大模型的空间推理提供了有效后训练方案。"
+    }
+  ],
+  "arxiv": []
+}
