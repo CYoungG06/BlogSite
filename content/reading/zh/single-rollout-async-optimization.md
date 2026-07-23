@@ -69,15 +69,15 @@ $$ \hat{A}_{t}^{\text{GAE}}=\sum_{l=0}^{|y|-t-1}(\gamma\lambda)^{l}\delta_{t+l} 
 
 形式上,带 token 级裁剪的优化目标为:
 
-$$ L(\theta)=\hat{\mathbb{E}}_{t}\left[f(r_{t}(\theta),\epsilon_{l},\epsilon_{h})\hat{A}_{t}\log\pi_{\theta}(a_{t}|s_{t})\right] \tag{1}$$
+$$ L(\theta)=\hat{\mathbb{E}}_{t}\left[f(r_{t}(\theta),\epsilon_{l},\epsilon_{h})\hat{A}_{t}\log\pi_{\theta}(a_{t}|s_{t})\right]$$
 
 其中概率比直接由 rollout 日志计算,绕开历史策略追踪:
 
-$$ r_{t}(\theta)=\exp\left(\log\pi_{\theta}(a_{t}|s_{t})-\log\pi_{\text{rollout}}(a_{t}|s_{t})\right) \tag{2}$$
+$$ r_{t}(\theta)=\exp\left(\log\pi_{\theta}(a_{t}|s_{t})-\log\pi_{\text{rollout}}(a_{t}|s_{t})\right)$$
 
 稳定性进一步由校准函数 $f(x;\epsilon_{\ell},\epsilon_{h})$ 保证:
 
-$$ f(x;\epsilon_{\ell},\epsilon_{h})=\begin{cases}x,&\text{if }1-\epsilon_{\ell}<x<1+\epsilon_{h}\\ 0,&\text{otherwise}\end{cases} \tag{3}$$
+$$ f(x;\epsilon_{\ell},\epsilon_{h})=\begin{cases}x,&\text{if }1-\epsilon_{\ell}<x<1+\epsilon_{h}\\ 0,&\text{otherwise}\end{cases}$$
 
 > **译注**:这个设计的本质是用「可控的离策略偏差」换「计算复杂度的大幅下降」。注意实验中的取值:TIR 任务 $\epsilon_{\text{low}}=0.3,\epsilon_{\text{high}}=5.0$——下限收得紧(概率下降超 30% 就掩掉),上限放得宽(概率涨 5 倍才掩),对「快速消亡」的 token 远比「野蛮生长」的更不信任。
 
@@ -97,11 +97,11 @@ $$ f(x;\epsilon_{\ell},\epsilon_{h})=\begin{cases}x,&\text{if }1-\epsilon_{\ell}
 
 为此,我们推导了「跳过观测」GAE:显式修改 Bellman 目标,绕过环境反馈 token,把当前动作的价值直接链接到下一个动作的价值。形式上,记 $a_{i,N}$ 为动作 $i$ 的最后一个 token,$a_{i+1,0}$ 为下一个动作的第一个 token,定义优势为:
 
-$$ \hat{A}(a_{i,N})=\delta+\gamma\lambda\hat{A}(a_{i+1,0}) \tag{4}$$
+$$ \hat{A}(a_{i,N})=\delta+\gamma\lambda\hat{A}(a_{i+1,0})$$
 
 其中时序差分残差 $\delta$ 跨越观测间隙计算:
 
-$$ \delta=r_{t}+\gamma V(a_{i+1,0})-V(a_{i,N}) \tag{5}$$
+$$ \delta=r_{t}+\gamma V(a_{i+1,0})-V(a_{i,N})$$
 
 这一形式让优势估计只依赖模型自身的输出,滤掉环境反馈的随机性。作为对比,一些工作可能考虑使用 step 级价值函数与 GAE 替代 token 级价值,但实验表明 step 级价值会导致次优表现。我们还测试了其他面向 agentic 轨迹的优势设计,结果见附录。
 

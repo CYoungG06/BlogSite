@@ -143,7 +143,7 @@ $$ g_{q,n,t,\ell}=\sigma\left(\beta_{\mathrm{opd}}\Delta_{q,n,t,\ell}\right),$$
 
 OPD 损失定义为置信门控的采样 token 蒸馏目标:
 
-$$\mathcal{L}_{\mathrm{opd}}(\theta)=\mathbb{E}_{q,n,t,\ell}\left[m_{q,n,t,\ell}\cdot g_{q,n,t,\ell}\cdot\left(\operatorname{sg}\left[\ell^{\mathrm{skill}}_{q,n,t,\ell}\right]-\ell^{\theta}_{q,n,t,\ell}\right)\right], \tag{1}$$
+$$\mathcal{L}_{\mathrm{opd}}(\theta)=\mathbb{E}_{q,n,t,\ell}\left[m_{q,n,t,\ell}\cdot g_{q,n,t,\ell}\cdot\left(\operatorname{sg}\left[\ell^{\mathrm{skill}}_{q,n,t,\ell}\right]-\ell^{\theta}_{q,n,t,\ell}\right)\right]$$
 
 其中 $m_{q,n,t,\ell}\in\{0,1\}$ 为有效 token 掩码。由于门与教师对数概率都是脱离梯度的,教师项对 $\theta$ 为常数,于是
 
