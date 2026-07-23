@@ -24,14 +24,21 @@ export default function ArticleDetail({
   locale,
 }: {
   item: CollectionItem;
-  kind: "blog" | "notes" | "distilled";
+  kind: "blog" | "notes" | "distilled" | "reading";
   locale: Locale;
 }) {
   const t = useTranslations(kind);
   const toc = extractHeadings(item.content);
   const showToc = toc.length >= 3; // 标题 < 3 个不显示
   const otherLocale: Locale = locale === "zh" ? "en" : "zh";
-  const base = kind === "blog" ? "/blog" : kind === "notes" ? "/notes" : "/distilled";
+  const base =
+    kind === "blog"
+      ? "/blog"
+      : kind === "notes"
+        ? "/notes"
+        : kind === "distilled"
+          ? "/distilled"
+          : "/reading";
 
   return (
     <>

@@ -9,7 +9,7 @@ export default function FallbackNotice({
 }: {
   expected: Locale;
   actual: Locale;
-  namespace: "blog" | "notes" | "distilled";
+  namespace: "blog" | "notes" | "distilled" | "reading";
 }) {
   const t = useTranslations(namespace);
   return (

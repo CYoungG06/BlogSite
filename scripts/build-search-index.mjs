@@ -25,6 +25,7 @@ const COLLECTIONS = [
   { dir: "blog", type: "post" },
   { dir: "notes", type: "note" },
   { dir: "distilled", type: "distilled" },
+  { dir: "reading", type: "reading" },
 ];
 
 async function collectDocuments(locale) {

@@ -71,7 +71,9 @@ export default function HeaderSearch() {
         ? `/blog/${item.slug}`
         : item.type === "distilled"
           ? `/distilled/${item.slug}`
-          : `/notes/${item.slug}`,
+          : item.type === "reading"
+            ? `/reading/${item.slug}`
+            : `/notes/${item.slug}`,
     );
     close();
   };

@@ -18,7 +18,7 @@ const STORE_FIELDS = ["type", "slug", "title", "description"];
 
 interface SearchDocument {
   id: string;
-  type: "post" | "note" | "distilled";
+  type: "post" | "note" | "distilled" | "reading";
   slug: string;
   title: string;
   description: string;
@@ -27,7 +27,7 @@ interface SearchDocument {
 }
 
 export interface SearchResultItem {
-  type: "post" | "note" | "distilled";
+  type: "post" | "note" | "distilled" | "reading";
   slug: string;
   title: string;
   description: string;

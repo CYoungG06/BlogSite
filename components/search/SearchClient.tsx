@@ -49,7 +49,9 @@ export default function SearchClient() {
                         ? `/blog/${item.slug}`
                         : item.type === "distilled"
                           ? `/distilled/${item.slug}`
-                          : `/notes/${item.slug}`
+                          : item.type === "reading"
+                            ? `/reading/${item.slug}`
+                            : `/notes/${item.slug}`
                     }
                     className="group block border-b border-hairline py-4"
                   >

@@ -7,6 +7,7 @@ export const navItems = [
   { href: "/", key: "home" },
   { href: "/blog", key: "blog" },
   { href: "/distilled", key: "distilled" },
+  { href: "/reading", key: "reading" },
   { href: "/papers", key: "papers" },
   { href: "/notes", key: "notes" },
   { href: "/projects", key: "projects" },

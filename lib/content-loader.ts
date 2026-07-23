@@ -10,7 +10,7 @@ import { routing, type Locale } from "@/i18n/routing";
 
 export const CONTENT_ROOT = path.join(process.cwd(), "content");
 
-export type Collection = "blog" | "notes" | "distilled";
+export type Collection = "blog" | "notes" | "distilled" | "reading";
 
 export interface RawEntry {
   slug: string;
