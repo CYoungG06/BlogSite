@@ -222,7 +222,9 @@ $$\mathcal L_{\mathrm{SFT}} = -\sum_{j=1}^{|Y|} \log p_{\phi,\theta}(y_j \mid Q,
 
 **推理效率与显存**:δ-mem 的 GPU 显存占用与 Vanilla、Context2LoRA 几乎相同(prompt 到 32K 时在线状态的额外开销可忽略),而 MLP Memory、MemGen 显著更吃显存;解码吞吐上,δ-mem 因每步都要读写在线状态而慢于 Vanilla 与 Context2LoRA,但在所有测试设定下都明显比 MemGen 更快更稳——以很轻的计算足迹换取记忆能力。
 
-![图 3:不同 prompt 与解码长度下的推理效率(解码吞吐与显存占用)。](/images/reading/delta-mem/tps.png)
+![图 3:不同 prompt 与解码长度下的推理效率(左:解码吞吐;右:显存占用)。](/images/reading/delta-mem/tps.png)
+
+![图 3(续):显存占用对比。](/images/reading/delta-mem/mem.png)
 
 **参数开销**:SSW/TSW 仅引入 487 万可训练参数(占基座 0.12%),多状态的 MSW 也只有 1,947 万(0.48%);对比 MemGen 的 4,620 万和 MLP Memory 的 30.78 亿(占基座 76.40%),δ-mem 以低得多的参数开销实现在线记忆增强。
 
