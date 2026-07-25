@@ -40,6 +40,10 @@ On-Policy Distillation(OPD,在线策略蒸馏)用一句话说,就是**让学生�
 | RL / RLVR | on-policy(学生 rollout) | 稀疏(序列级标量奖励) |
 | **OPD** | **on-policy(学生 rollout)** | **稠密(教师逐 token 分布)** |
 
+![后训练方法坐标系:SFT、离线蒸馏、RL 与 OPD 的四象限分布](/images/blog/on-policy-distillation/quadrant.png)
+
+*图 1:后训练方法的两个自由度。OPD 占据了此前空出的第四象限——on-policy 的轨迹 + 稠密的监督。*
+
 这张表来自 Thinking Machines 原文(我们加了"离线蒸馏"一行),它是理解 OPD 全部优势与全部局限的钥匙:
 
 - **RL 的痛点在"稀疏"**:一条几百 token 的推理链,对错只在末端给一个 0/1,信用分配(credit assignment)无从谈起——学生知道答案错了,却不知道错在哪一步;
@@ -167,7 +171,13 @@ $$\forall\, \hat{y}_{<n} \text{ 在学生可达前缀集上}: \quad p_S(\cdot \m
 - **Reverse KL**($\mathrm{KL}(p_S \| p_T)$,学生在前)是 **zero-forcing / mode-seeking** 的:教师概率为零的地方,学生必须也趋零,否则惩罚无穷;但允许学生放弃教师的部分众数。净效果是学生**收缩到教师的主众数**上——放弃多样性,保住正确性与忠实度;
 - **Forward KL**($\mathrm{KL}(p_T \| p_S)$,教师在前)是 **zero-avoiding / mass-covering** 的:教师有质量的地方学生必须都有质量;容量不够时,学生只能把概率摊薄到教师的低概率区,结果是在自由生成时采出"教师分布下极不可能"的序列——蒸馏版幻觉就是这么来的。
 
-MiniLLM 论文里的高斯混合 toy 实验是这个对照的经典演示:forward KL 学出一个盖住所有众数的胖高斯(均值化),reverse KL 收缩到单一众数。Thinking Machines 选择 reverse KL 正是基于这个论证,他们还指出 reverse KL 的两个实用性质:**mode-seeking** 让学生只学一种确定行为(教师的)而非在多个次优选项间摊派,以及天然缓解 exposure bias。
+MiniLLM 论文里的高斯混合 toy 实验是这个对照的经典演示,我们把它复现如下——教师是一个双峰混合分布,学生被限定在单高斯族里:forward KL 学出一个盖住所有众数的胖高斯(均值化),reverse KL 则收缩到单一众数:
+
+![Forward KL 的 mass-covering 与 Reverse KL 的 mode-seeking 对比:双峰教师分布与单高斯学生的拟合结果](/images/blog/on-policy-distillation/kl-gmm.png)
+
+*图 2:同一个教师分布下,两种 KL 方向学到的学生分布。左:forward KL 被迫覆盖全部众数,概率摊薄到教师的低概率区;右:reverse KL 放弃次要众数,收缩到主众数上。*
+
+Thinking Machines 选择 reverse KL 正是基于这个论证,他们还指出 reverse KL 的两个实用性质:**mode-seeking** 让学生只学一种确定行为(教师的)而非在多个次优选项间摊派,以及天然缓解 exposure bias。
 
 ### 4.3 Forking tokens:惩罚集中在哪
 
