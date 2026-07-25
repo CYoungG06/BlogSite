@@ -1,390 +1,382 @@
 ---
-title: "On-Policy Distillation（OPD）深度调研报告"
-date: "2026-05-05"
-description: "对 On-Policy Distillation(OPD)的系统性梳理:从理论起源(DAgger、MiniLLM、GKD)到 2026 年的工业部署(Qwen3、MiMo、GLM-5、DeepSeek-V4 等),涵盖核心优势、学术脉络、深层动因与开放问题。"
+title: "On-Policy Distillation(OPD)深度解析:损失函数、散度选择与自蒸馏"
+date: "2026-07-25"
+description: "把 OPD 的原理写透:损失函数的三种等价写法、它把分布训成什么样、与 SFT/离线蒸馏/RL 的精确数学关系、reverse KL 之外的散度动物园,以及 2026 年上半年的 OPSD 自蒸馏革命与批判性文献。"
 tags:
   - LLM
   - 知识蒸馏
   - On-Policy Distillation
-  - 调研报告
   - 强化学习
+  - 后训练
 featured: true
 ---
 
-> 调研时间:2026 年 5 月 | 覆盖范围:2023–2026 年学术研究与工业实践
+> 本文初版写于 2026 年 5 月,原为一份文献调研报告;2026 年 7 月 25 日全文重写为原理导向的深度解析,文献覆盖更新至 2026 年 7 月。
+
+## 引言
+
+On-Policy Distillation(OPD,在线策略蒸馏)用一句话说,就是**让学生模型在自己生成的轨迹上,接受教师模型的逐 token 密集反馈**。自 2025 年 10 月 Thinking Machines Lab 的博客[《On-Policy Distillation》](https://thinkingmachines.ai/blog/on-policy-distillation/)(Kevin Lu)引爆这个方向以来,它在不到一年里从"一个聪明的训练技巧"变成了头部厂商后训练流水线的标准组件——DeepSeek-V4 用它合并领域专家,小米 MiMo 用它做多教师蒸馏,GLM-5 用它跨阶段抗遗忘。
+
+但大多数介绍停留在"学生 rollout + 教师逐 token 打分"的直觉层。这篇文章想把几个更硬的问题回答清楚:
+
+- OPD 的损失函数到底长什么样?它有哪几种等价写法,各自的偏差和方差如何?
+- 它把学生的分布**训成了什么样**——优化的不动点是什么?
+- 它与 SFT、离线蒸馏、RL 的数学关系,能不能精确到一个等式?
+- 除了 reverse KL,还能用什么散度?为什么 2026 年的 OPSD 里 forward KL 反而最好?
+- 2026 年上半年的自蒸馏革命(OPSD)和一批批判性文献,改变了什么?
+
+**记号约定**:教师分布记 $p_T$,学生(策略)分布记 $p_S$ 或 $\pi_\theta$;$x$ 为输入,$y$ 为生成序列,$y_{<n}$ 为前 $n-1$ 个 token 构成的前缀;自回归分解 $\pi_\theta(y\mid x) = \prod_{n} \pi_\theta(y_n \mid x, y_{<n})$。
 
 ---
 
-## 一、概述：什么是On-Policy Distillation
+## 一、一个坐标系看懂所有后训练方法
 
-On-Policy Distillation（OPD）是一种结合了强化学习（RL）的在线探索特性与知识蒸馏的密集监督信号的模型训练范式。其核心思想可以用一句话概括：**让学生模型在自己生成的轨迹上接受教师模型的逐token密集反馈**。
+所有后训练方法都可以放进两个自由度张成的坐标系:**训练轨迹来自谁**(off-policy:来自别人 / on-policy:来自学生自己)× **监督信号有多密**(稠密:每个 token 都有信号 / 稀疏:整条序列只有一个标量)。
 
-传统的知识蒸馏（off-policy distillation）让学生在教师生成的固定数据集上学习，但这导致了训练-推理分布不匹配（exposure bias）——学生在推理时遇到的自身错误状态，在训练中从未见过，错误会沿着自回归生成过程不断累积。OPD通过让学生在自己的策略分布上采样，然后由教师对这些自生成输出进行token级别的评分和指导，直接解决了这一核心问题。
+| 方法 | 训练轨迹来源 | 监督信号密度 |
+| --- | --- | --- |
+| SFT | off-policy(人类/教师数据) | 稠密(逐 token 交叉熵) |
+| 离线蒸馏 | off-policy(教师生成) | 稠密(逐 token 分布匹配) |
+| RL / RLVR | on-policy(学生 rollout) | 稀疏(序列级标量奖励) |
+| **OPD** | **on-policy(学生 rollout)** | **稠密(教师逐 token 分布)** |
 
-从理论视角看，OPD的根源可以追溯到交互式模仿学习中的DAgger算法（Ross et al., 2011）。DAgger证明了在学习者自身访问的状态上查询专家，可以将行为克隆的累积误差从O(T²)降低到O(T)。OPD将这一原理实例化到自回归语言模型的生成过程中，将蒸馏从一次性的分布匹配转变为迭代式的自我纠正优化循环。
+这张表来自 Thinking Machines 原文(我们加了"离线蒸馏"一行),它是理解 OPD 全部优势与全部局限的钥匙:
 
-### OPD的核心优势
+- **RL 的痛点在"稀疏"**:一条几百 token 的推理链,对错只在末端给一个 0/1,信用分配(credit assignment)无从谈起——学生知道答案错了,却不知道错在哪一步;
+- **SFT 的痛点在"off-policy"**:学生只在教师/数据走过的状态上学习,推理时自己犯了错、走进训练里从未出现的状态,错误就会沿自回归级联(exposure bias);
+- **OPD 占了空出来的第四象限**:轨迹是学生的(治 exposure bias),信号是稠密的(治信用分配)。
 
-- **消除exposure bias**：学生在自己实际会遇到的状态空间中学习，而非教师的状态空间
-- **密集监督信号**：相比RL中稀疏的sequence-level奖励，OPD提供token-level的密集反馈
-- **计算效率极高**：相比RL训练，OPD通常只需要1/10到1/30的计算开销即可达到相当性能
-- **天然适合多任务合并**：可以将多个领域专家的能力通过OPD无损合并到单一模型中
+下面把每一格都写成数学,你会发现它们之间的差别比想象中更小——往往只是同一个损失里的两个旋钮拧到了不同位置。
 
 ---
 
-## 二、学术研究脉络
+## 二、数学基础:蒸馏 = 散度最小化
 
-### 2.1 奠基性工作（2023–2024）
+### 2.1 统一形式
 
-#### 2.1.1 MiniLLM: 反向KL的引入（Gu et al., 2023）
+给定教师 $p_T$ 和学生 $p_S$(参数化为 $\pi_\theta$),几乎所有蒸馏方法都能写成同一个形式:
 
-MiniLLM是首个将OPD形式化用于LLM的工作，发表于ICLR 2024。该工作的核心贡献在于将标准知识蒸馏中的前向KL（Forward KL）目标替换为反向KL（Reverse KL），并推导了基于策略梯度的在线优化方法。
+$$\mathcal{L}(\theta) = \mathbb{E}_{x \sim \mathcal{D}}\; \mathbb{E}_{y \sim q(\cdot \mid x)}\Bigg[ \sum_{n=1}^{|y|} D\Big( p_T(\cdot \mid x, y_{<n}) \,\Big\|\, p_S(\cdot \mid x, y_{<n}) \Big) \Bigg]$$
 
-前向KL是"mode-covering"的——它鼓励学生在教师认为可能的所有区域都分配概率质量，这对于生成模型来说会导致分散的、低质量的输出。反向KL则是"mode-seeking"的——它鼓励学生集中到教师分布中高概率的模式上，避免在教师认为不太可能的区域浪费概率质量。MiniLLM在摘要、翻译和推理任务上展示了相对于标准KD方法的一致改进。
+这里只有两个自由旋钮:
 
-#### 2.1.2 GKD: 广义知识蒸馏框架（Agarwal et al., 2024）
+1. **采样分布 $q$**:求期望的轨迹 $y$ 从哪来——固定数据集(SFT)、教师生成(离线蒸馏)、还是学生自己(OPD);
+2. **散度 $D$**:用什么衡量两个 next-token 分布的差异、谁放在前面——forward KL、reverse KL、JSD、skew KL、TVD……
 
-GKD（Generalized Knowledge Distillation）由Google DeepMind的Rishabh Agarwal等人在ICLR 2024上发表，是OPD领域最重要的奠基性工作之一。GKD提出了一个统一框架，允许在on-policy和off-policy数据之间以及多种散度度量之间进行灵活插值。
+后面我们会看到:GKD、MiniLLM、TML 版 OPD、OPSD,全部是这两个旋钮的不同拧法。
 
-GKD的关键创新在于：不再完全依赖固定的输出序列，而是让学生在自身生成的on-policy输出序列上训练，同时利用教师对这些序列的反馈。该工作还展示了GKD可以与RLHF无缝结合。在摘要、翻译、算术推理及instruction-tuning的任务无关蒸馏上，GKD均展示了优于其他KD基线的效果。
+### 2.2 SFT = 数据分布上的 forward KL
 
-#### 2.1.3 其他早期相关工作
+先看一个常被忽视但至关重要的事实:**SFT 本身就是一种蒸馏,而且用的是 forward KL**。SFT 的交叉熵损失
 
-- **DistiLLM（Ko et al., 2024）**：提出了skewed KL目标，通过混合学生和教师分布来稳定优化过程
-- **RLKD（Xu et al., 2025）**：引入结构感知奖励模型的RL方法，捕捉分布匹配无法传递的推理模式
-- **SPIN（Chen et al., 2024）**：Self-Play Fine-Tuning，证明了学生可以通过区分自身生成与人类参考来自我改进，无需教师模型
+$$\mathcal{L}_{\mathrm{SFT}}(\theta) = -\mathbb{E}_{(x,y)\sim\mathcal{D}} \sum_{n=1}^{|y|} \log \pi_\theta(y_n \mid x, y_{<n})$$
 
-### 2.2 催化剂：Thinking Machines Lab博客（2025年10月）
+就是最大似然;而最大似然等价于最小化"数据分布→模型"方向的 KL(差一个与 $\theta$ 无关的数据熵常数):
 
-2025年10月27日，Thinking Machines Lab（由前OpenAI CTO Mira Murati创办的AI初创公司）的研究员Kevin Lu发表了一篇题为"On-Policy Distillation"的技术博客，这篇博客成为OPD走向大规模工业应用的真正催化剂。
+$$\arg\max_\theta\; \mathbb{E}_{y\sim p_{\mathrm{data}}} \log \pi_\theta(y) \quad\Longleftrightarrow\quad \arg\min_\theta\; \mathrm{KL}\big(p_{\mathrm{data}} \,\|\, \pi_\theta\big)$$
 
-该博客的核心贡献包括：
+也就是说,SFT 是把数据分布当教师、在教师轨迹上做的 forward KL 蒸馏。这个等价关系是后面一切讨论的起点:SFT 的优点(稠密、稳定、实现简单)和缺点(mode-covering、exposure bias)都可以从这个式子里推出来。
 
-1. **实证验证**：复现了Qwen3团队的OPD方案，在数学推理基准（如AIME 2024）上以RL训练1/10的成本达到了70%的准确率
-2. **反向KL公式化**：采用per-token反向KL散度，即在给定相同前缀的情况下最小化学生分布和教师分布在每个token上的散度
-3. **关键洞察**：揭示了OPD的一个深刻直觉——"RL在语义策略空间中搜索；蒸馏则是一条捷径，直接学习最终策略而无需建模中间策略"
-4. **持续学习能力**：展示了OPD在中间训练引入新领域知识后可以恢复post-training行为，比SFT展现出更优越的抗遗忘特性
-5. **个性化应用**：证明了OPD可以用于从通用教师到特定领域学生的个性化蒸馏
+### 2.3 Exposure bias:off-policy 的原罪
 
-该博客特别指出，教师模型在学生犯错的"forking tokens"（分叉token）上施加最大惩罚——这些是引导推理方向的关键决策点。而最终答案虽然错误，却几乎不被惩罚，因为它完全由前面的推理序列决定。这一观察揭示了OPD信号的本质：**它学习的是过程中的策略选择，而非结果本身**。
+SFT 训练时,每个前缀 $y_{<n}$ 都来自数据分布(teacher forcing);推理时,前缀来自学生自己。学生早期一旦犯了教师从不犯的错,就会进入一个训练分布里几乎不存在的状态,此后的每一步都在"未见过的土地"上行走,误差沿序列**级联累积**。
 
-博客发表后立即引起了工业界和学术界的广泛关注，Mira Murati亲自分享推广。更重要的是，它提供了一个可复现的Tinker cookbook实现，大大降低了OPD的实践门槛。
+这在模仿学习里是老问题,而且有漂亮的定量结果(Ross et al., 2011, [DAgger](https://arxiv.org/abs/1011.0686)):设每步策略误差为 $\varepsilon$、序列长为 $T$,行为克隆(= SFT)的累积误差是 $O(\varepsilon T^2)$;而 DAgger 让专家在**学习者自己访问的状态**上给出标注,累积误差降到 $O(\varepsilon T)$。把一个 $T$ 因子省下来的代价,只是"专家要愿意在学习者犯错的地方继续指导"。
 
-### 2.3 2026年学术研究爆发
+**OPD 就是 DAgger 思想在 LLM 上的实例化**:"专家"是教师模型给出的逐 token next-token 分布,"学习者访问的状态"是学生自己 rollout 出来的前缀。Thinking Machines 原文也明确把 DAgger 列为第一灵感来源。理解了这一层,on-policy 就不再是一个工程 trick,而是模仿学习二十年理论在 LLM 时代的还魂。
 
-自Thinking Machines Lab博客发表后的半年间，OPD领域涌现了大量研究工作，可以分为以下几个方向：
+### 2.4 离线蒸馏家族:换了散度,换不掉教师轨迹
 
-#### 2.3.1 理论深化与统一框架
+在 OPD 之前,蒸馏在 LLM/NLP 里已经有完整谱系,它们的 $q$ 全部取教师/数据:
 
-**G-OPD: 广义OPD与奖励外推（Yang et al., 2026，人民大学）**
+- **Word-level KD**:在教师(或数据)序列上逐 token 算 forward KL;Hinton 2015 年的经典 KD([arXiv:1503.02531](https://arxiv.org/abs/1503.02531))是它的分类版——温度 $T$ 软化分布、软目标梯度按 $1/T^2$ 缩放故需乘回 $T^2$;
+- **Sequence-level KD**(SeqKD,Kim & Rush 2016,[arXiv:1606.07947](https://arxiv.org/abs/1606.07947)):直接对序列分布做 forward KL 不可解(指数级求和),于是用教师 beam search 的众数样本近似——实际就是"在教师 beam 输出上做 SFT"。它留下一个至今仍有提醒意义的实验现象:蒸馏学生的 PPL 反而更差(22.7 vs 8.2)但 BLEU 更好——**困惑度低不等于生成好**,学生只需把概率集中到教师众数附近;
+- **Logit 蒸馏**:在每个位置匹配全词表分布,信息最完整,但只要轨迹来自教师,分布失配就依然在。
 
-G-OPD（arXiv: 2602.12125）是2026年初最重要的OPD理论工作之一。该工作首先从理论上证明了**标准OPD是密集KL约束RL的一个特例**，其中奖励函数和KL正则化始终等权，而参考模型可以是任意模型。基于这一理论洞察，G-OPD提出了两个关键扩展：
-
-- **灵活参考模型（flexible reference model）**：在strong-to-weak蒸馏中，使用教师的预RL基础模型作为参考可以产生更准确的奖励信号
-- **奖励缩放因子（reward scaling factor λ）**：控制奖励项相对于KL正则化的权重。当λ > 1时（即"奖励外推"ExOPD），学生可以**突破教师的性能上限**
-
-在多教师蒸馏场景中（将不同领域RL专家的能力合并回原始基础模型），ExOPD使统一学生模型在所有领域都超越了各领域教师，这一发现具有重大实践意义。
-
-**OPD综述（Song & Zheng, 2026，arXiv: 2604.00626）**
-
-2026年4月发表的首个OPD全面综述，引入了统一的f-divergence理论框架，并沿三个正交维度组织OPD方法：反馈信号（logit-based / outcome-based / self-play）、教师访问权限（white-box / black-box / teacher-free）、损失粒度（token-level / sequence-level / hybrid）。该综述还系统分析了工业部署案例，并识别了包括蒸馏缩放定律、不确定性感知反馈和Agent级蒸馏在内的开放问题。
-
-#### 2.3.2 自蒸馏（Self-Distillation）方向
-
-自蒸馏是2026年OPD领域最活跃的研究方向之一，核心思想是**消除对外部教师的依赖**，让模型既当教师又当学生。
-
-**OPSD: 自蒸馏推理器（Zhao et al., 2026，arXiv: 2601.18734，Meta）**
-
-OPSD（On-Policy Self-Distillation）是该方向的代表性工作。其核心直觉在于：一个足够能力的LLM可以在给定特权信息（如参考答案）时"合理化"外部推理轨迹，然后教其更弱的自身。具体来说，OPSD让同一个LLM以不同上下文分别扮演教师和学生角色——教师版本可以获取额外的特权信息，学生版本则仅依赖问题本身。在多个数学推理基准上，OPSD在token效率上显著优于RL方法，在性能上也超过了off-policy蒸馏方法。
-
-**OPSDC: 推理压缩的自蒸馏（Sang et al., 2026，arXiv: 2603.05433）**
-
-OPSDC将on-policy自蒸馏专门应用于推理压缩场景。同一模型在"简洁"指令下扮演教师，在常规条件下扮演学生，通过per-token反向KL最小化进行蒸馏。在MATH-500上实现了57–59%的推理链长度压缩，同时准确率反而提升了9–16个百分点（Qwen3-8B从约52%提升到约66%）。压缩比例会根据问题难度自然适应——简单问题压缩更多，困难问题保留更多推理步骤。
-
-**SDPO: 自蒸馏策略优化（Hübotter et al., 2026，ETH Zurich，arXiv: 2601.20802）**
-
-SDPO引入了一个关键创新：利用丰富的文本反馈（如编译器错误、测试输出、评判评估）而非标量奖励。模型在获取反馈后充当自己的教师，将反馈知情的next-token预测蒸馏回策略中。在科学推理、工具使用和竞技编程（LiveCodeBench v6）上，SDPO以仅1个rollout（vs GRPO的8个）实现了与GRPO相当或更好的性能，token消耗减少4–8倍。
-
-**GATES（Stein et al., 2026）**：在没有ground-truth标签或外部验证器的场景下进行自蒸馏。单一模型在训练时充当"导师"（可访问相关源文档），在测试时充当"学生"（仅凭问题作答）。通过多次采样的导师一致性来过滤不可靠的监督信号。
-
-#### 2.3.3 与RLVR/GRPO结合的衍生工作
-
-**Self-Distilled RLVR / RLSD（Yang et al., 2026，arXiv: 2604.03128）**
-
-这项工作深刻揭示了纯自蒸馏的一个重要局限：**仅来自特权教师的学习信号会导致严重的信息泄露和长期训练不稳定**。该论文据此提出了RLSD（RLVR with Self-Distillation），巧妙地将自蒸馏和RLVR的优势结合：
-
-- **自蒸馏提供token级策略差异**→ 决定细粒度的更新幅度
-- **RLVR从环境反馈中导出可靠的更新方向**（如答案正确性）
-
-这种组合使RLSD同时实现了更高的收敛上限和更优的训练稳定性，是一个非常优雅的混合范式。
-
-**SRPO: 样本路由统一框架（2026，arXiv: 2604.02288）**
-
-SRPO（Sample Routing Policy Optimization）通过样本路由统一了GRPO和自蒸馏。核心发现是：自蒸馏教师的token级熵在训练过程中持续上升，导致蒸馏信号被不确定预测主导。SRPO的解决方案是对正确和错误样本分别路由——对错误样本使用自蒸馏的密集信号（帮助精确定位错误位置），对正确样本使用GRPO风格的奖励信号。在Qwen3-8B上，SRPO在五个基准的平均分比GRPO提升3.4%，比SDPO提升6.3%。
-
-#### 2.3.4 OPD改进与稳定性研究
-
-**Entropy-Aware OPD / EOPD（Jin et al., 2026，IBM Research，arXiv: 2603.07079）**
-
-这项工作发现标准OPD的一个关键盲点：在教师分布高熵的决策点上（编码了多条可能推理路径的重要知识），反向KL的mode-seeking特性导致学生过度压缩这些位置的分布，丢失了宝贵的不确定性信息。EOPD通过在高熵token上选择性增强教师指导来解决这一问题。在AIME 2024/2025和out-of-domain基准上均优于标准OPD。
-
-**REOPOLD: 松弛OPD（Ko et al., 2026，arXiv: 2603.11137）**
-
-REOPOLD从理论上证明了教师-学生对数似然比本身就是一个token级奖励，并据此放松严格的模仿约束。引入了基于混合的奖励裁剪（防止过度信任极端教师信号）、基于熵的动态采样（在高不确定性token上选择性利用教师反馈），以及统一的"探索到精炼"策略。
-
-**Black-Box OPD / GAD（Ye et al., 2025，Microsoft Research，arXiv: 2511.10643）**
-
-面向黑盒教师（如GPT-5-Chat等商业API）的OPD方案。GAD通过对抗训练的方式实现on-policy蒸馏：学生生成样本，判别器评估"教师相似度"，学生通过策略梯度更新。实验显示Qwen2.5-14B-Instruct通过GAD训练后在LMSYS-Chat评估上达到了与GPT-5-Chat相当的水平。
-
-**SODA: 半在线黑盒蒸馏（2026，arXiv: 2604.03873）**
-
-SODA指出GAD的对抗训练引入了巨大的计算和架构开销，提出了一种更高效的半在线方案，在保持on-policy学习优势的同时避免了完整对抗训练的复杂性。
-
-#### 2.3.5 反思与批判性研究
-
-**Rethinking OPD（Li et al., 2026，清华大学/THUNLP，arXiv: 2604.13016）**
-
-这是迄今为止对OPD训练动力学最系统、最深入的批判性分析。该论文识别了OPD成败的两个必要条件：
-
-1. **思维模式兼容性**：学生和教师必须共享兼容的推理模式。一个更强但推理风格不同的教师可能完全无法改善学生——即使更弱但思维模式一致的教师反而能成功
-2. **真正的新能力**：即使思维模式一致且教师得分更高，教师也必须提供学生训练中从未见过的真正新能力
-
-该论文通过weak-to-strong反向蒸馏验证了这些发现：同家族的1.5B和7B教师从学生角度看在分布上是不可区分的——这意味着仅仅在同一数据上训练更久的更大模型并不能提供有效的蒸馏信号。
-
-在token级机制方面，该论文揭示了成功OPD的一个特征性模式：**渐进式对齐**——学生逐步在关键决策点上与教师对齐，而非在所有位置同时对齐。
-
-**Revisiting OPD: 经验性失败模式与修复（Fu et al., 2026，arXiv: 2603.25562）**
-
-另一项重要的批判性工作，从采样token OPD的实现角度出发，识别了三个具体的失败模式：
-
-1. **不平衡的token级监督信号**：少数token主导整个梯度信号
-2. **学生生成前缀上的不可靠教师指导**：当student rollout偏离教师常见状态时，教师的指导变得不可靠
-3. **分词器或特殊token不匹配**：不同模型的tokenizer差异导致的系统性偏差
-
-基于这些发现，该工作提出了**teacher top-K local support matching**——一种截断反向KL目标，在每个前缀上比较教师支持token集合上的教师和学生分布，配合top-p rollout采样和特殊token掩码。在单任务推理和多任务（agentic + reasoning）基准上，相比标准sampled-token OPD实现了+19.8%的性能提升。
+共同的病根不在散度,而在 $q$:**无论 $D$ 选什么,状态分布都不是学生自己的**。这正是 OPD 拧动的第一个旋钮。
 
 ---
 
-## 三、工业界部署与实践
+## 三、OPD 的损失:三种等价写法
 
-### 3.1 Qwen3（阿里通义千问，2025年5月）
+OPD 取 $q = p_S$——在学生自己的 rollout 上算逐 token 散度。但"在学生轨迹上最小化散度"在实践里有三种实现形态,它们都被叫做 OPD,搞清楚它们的等价性与差异,是读懂 2026 年文献的前提。
 
-Qwen3是最早在技术报告中公开记载OPD部署的大规模工业模型之一。其后训练流程采用了两阶段蒸馏策略：
+### 3.1 全词表形式(logit OPD)
 
-1. **Off-policy蒸馏**：结合教师模型在/think和/no_think模式下生成的输出进行响应蒸馏，帮助轻量级学生模型建立基础推理能力和模式切换能力
-2. **On-policy蒸馏**：学生模型生成on-policy序列进行微调，实现进一步的性能提升
+$$\mathcal{L}(\theta) = \mathbb{E}_{x}\; \mathbb{E}_{\hat{y} \sim p_S(\cdot \mid x)}\Bigg[ \frac{1}{|\hat{y}|} \sum_{n=1}^{|\hat{y}|} D\Big( p_T(\cdot \mid x, \hat{y}_{<n}) \,\Big\|\, p_S(\cdot \mid x, \hat{y}_{<n}) \Big) \Bigg]$$
 
-Qwen3技术报告的实验数据表明，从相同的off-policy蒸馏8B检查点出发，OPD仅用约1/10的GPU时间就实现了显著优于直接RL的性能。这一结果后来被Thinking Machines Lab独立复现。Qwen3的OPD实践覆盖了5个dense模型（0.6B至14B）和1个MoE模型（30B-A3B），展示了OPD在不同模型规模上的通用性。
+每个位置上对**完整词表**的两个分布求散度,梯度只流过学生 logits。信号最稠密、无采样噪声,但教师要对每条学生轨迹做一次完整前向取 logits,学生反向也要过全词表,显存和算力开销都不小。DeepSeek-V4 合并领域专家时用的就是全词表 reverse KL(多教师加权);OPSD 用的是全词表 forward KL(见第七节)。
 
-### 3.2 Xiaomi MiMo系列（2025–2026）
+### 3.2 采样 token 形式(TML 版)
 
-#### MiMo-V2-Flash（2026年1月，arXiv: 2601.02780）
+Thinking Machines 的选择是逐 token **reverse KL**,但只在学生实际采到的 token 上估计:
 
-小米的MiMo-V2-Flash在OPD的工业应用上进行了重要创新，提出了**多教师On-Policy蒸馏（Multi-Teacher On-Policy Distillation, MOPD）**范式。这是一个三阶段后训练框架：
+$$\mathrm{KL}\big(\pi_\theta \,\|\, \pi_T\big)\Big|_{x_{1..t}} = \mathbb{E}_{x_{t+1} \sim \pi_\theta}\Big[ \log \pi_\theta(x_{t+1} \mid x_{1..t}) - \log \pi_T(x_{t+1} \mid x_{1..t}) \Big]$$
 
-- **阶段一：SFT** — 在数百万高质量指令-响应对上建立基础指令跟随能力
-- **阶段二：专业化RL/SFT** — 分别训练各领域专家教师（数学、编程、推理、Agent等）
-- **阶段三：MOPD** — 学生模型在自身rollout上同时从两种互补信号学习：各领域专家教师的密集token级奖励，以及可验证的outcome-based奖励
+实现时,把每个 token 的**教师 logp 减学生 logp** 当作优势(advantage):
 
-MOPD将蒸馏重新定义为RL过程，其关键优势包括：（1）有效保留各教师在其擅长领域的峰值性能，避免参数合并或顺序训练的能力折衷；（2）token级密集奖励确保稳定的信用分配和快速收敛；（3）基于分布散度的奖励天然抵抗reward hacking。MiMo-V2-Flash以仅309B总参数（15B活跃参数）就达到了与DeepSeek-V3.2和Kimi-K2等大型模型相当的性能。
+$$A_n = \log \pi_T(\hat{y}_n \mid x, \hat{y}_{<n}) - \log \pi_\theta(\hat{y}_n \mid x, \hat{y}_{<n})$$
 
-#### MiMo-V2.5-Pro（2026年4月）
+然后直接调用 RL 训练器的 importance-sampling 损失。用原文的话说,对任何带 KL 正则的 RL 实现,这**只改一行代码:把参考模型换成教师**。工程红利非常实在:
 
-小米最新发布的MiMo-V2.5-Pro（1.02T总参数，42B活跃参数）继续采用三阶段MOPD范式进行后训练，进一步验证了该方法的可扩展性。该模型能在超过1000次工具调用的复杂长时间任务中保持稳定的Agent表现。
+- 教师只需一次前向(`compute_logprobs`),不生成 token;
+- 不必等 rollout 采完,可以用短 rollout 甚至部分 rollout;
+- 采样由更便宜的学生承担,折扣因子取 0(每步只优化当前 token)在实践中不掉点。
 
-### 3.3 GLM-5（智谱AI，2026年2月）
+### 3.3 策略梯度形式(MiniLLM 版)
 
-GLM-5（arXiv: 2602.15763）在后训练中采用了**跨阶段On-Policy蒸馏（On-Policy Cross-Stage Distillation）**策略。其后训练流程为：
+MiniLLM(Gu et al., 2023,[arXiv:2306.08543](https://arxiv.org/abs/2306.08543))早在 2023 年就给出了第三种面孔。对**序列级** reverse KL 目标直接求梯度,得到的是一个标准的 REINFORCE:
 
-1. 多任务SFT（引入交替思维模式）
-2. 推理和Agent任务的专业化RL
-3. 通用RL阶段（人类风格对齐）
-4. **On-Policy跨阶段蒸馏**作为最终精炼步骤
+$$\nabla \mathcal{L}(\theta) = -\mathbb{E}_{y \sim \pi_\theta} \sum_{t} \big(R_t - 1\big)\, \nabla \log \pi_\theta(y_t \mid y_{<t}), \qquad r_t = \log \frac{p_T(y_t \mid y_{<t})}{\pi_\theta(y_t \mid y_{<t})}$$
 
-跨阶段蒸馏的核心价值在于：**在保留各训练阶段性能增益的同时，有效缓解灾难性遗忘（catastrophic forgetting）**。每个训练阶段可能会在某些能力上取得进展但在另一些能力上退化，OPD通过在学生当前分布上从"各阶段最优教师"获取指导来实现能力的统一保留。GLM-5最终在Artificial Analysis Intelligence Index v4.0上创下开源模型新纪录，相比GLM-4.7提升约20%。
+其中 $R_t = \sum_{t' \ge t} r_{t'}$ 是回报,$-1$ 来自学生自身的熵项。也就是说,**OPD = 以"教师 logp − 学生 logp"为逐 token 稠密奖励的策略梯度**。TML 设折扣为 0 的采样版,正是这个梯度的单步简化。
 
-### 3.4 DeepSeek-V4（2026年4月）
+MiniLLM 论文里还有三个至今仍在用的稳定化技巧,值得记住:
 
-DeepSeek-V4是OPD在工业实践中应用最为成熟的案例之一，其技术报告明确描述了**两阶段后训练范式**：
+1. **Single-step decomposition**:把单步项拆出来对整个词表精确求和(不采样),大幅降方差;
+2. **Teacher-mixed sampling**:以 $\alpha=0.2$ 的比例混入教师分布采样,抑制退化轨迹与奖励 hacking,配截断重要性权重;
+3. **Length normalization**:回报按剩余长度归一,消除"短序列回报天然更高"的偏置。
 
-**阶段一：独立领域专家培养**
-- 为数学、竞赛编程、Agent使用、指令跟随等每个领域独立训练专家模型
-- 每个专家经历SFT + GRPO（Group Relative Policy Optimization）的完整训练循环
-- 使用领域特定的奖励模型进行RL训练
+### 3.4 三种形态的关系:偏差-方差的取舍
 
-**阶段二：统一模型合并（via OPD）**
-- 学生模型在自身on-policy rollout上训练
-- 优化对所有领域专家输出分布的加权反向KL散度
-- KL计算在**完整词表**上进行（而非sampled-token估计），在专家意见不一致时稳定梯度
-- 每个专家的权重可调，专家探索不同的行为区域，最终模型学习在自身生成的上下文中吸收它们的分布
+三种写法并不等价,差异在统计性质上:
 
-这种"多个专家→一个通才"的OPD合并方案的设计哲学是**将优化和整合分离**：每个能力在隔离训练中达到各自的上限，然后通过OPD进行无干扰的整合。DeepSeek-V4-Pro在编码基准上回升到领先水平（HumanEval +14%），世界知识上升27%，这些增益直接来源于各领域专家的独立优化。
-
-值得注意的是，DeepSeek-V4的做法与V3和R1有本质区别：R1使用基于规则的奖励在单一统一策略上运行GRPO；V4则转向了领域专家独立训练+OPD合并的范式。这标志着OPD从辅助技术升级为核心后训练基础设施。
-
-### 3.5 Kimi K2/K2.5/K2.6（Moonshot AI）
-
-Kimi K2（2025年7月）的技术报告主要描述了其通过大规模Agent数据合成流水线和联合RL阶段进行后训练，并未显式使用OPD术语。但K2.5（2026年1月）和K2.6（2026年4月）的后续迭代中，从公开信息来看已收敛到与DeepSeek V4类似的"多专家→OPD合并"范式——这一趋势从K2.6被多个来源描述为采用了相同的技术路线可以侧面印证。Kimi K2.6在SWE-Bench Pro上达到58.6%，SWE-Bench Verified上达到80.2%，尤其在Agent和编码任务上表现突出。
-
-### 3.6 其他厂商
-
-- **MiniMax M2系列**：虽然未直接公开技术报告中的OPD细节，但MiniMax M2.5和M2.7以极小的激活参数规模（10B）实现了接近大型模型的性能，暗示了高效蒸馏技术的使用。M2.7在SWE-Bench Pro上达到56.22%，仅以约1/5的成本达到GLM-5约94%的性能
-- **开源社区**：Hugging Face的TRL库、verl框架等工具已经集成了OPD训练支持，使中小团队也能实践OPD方案
+- **全词表**:对逐 token 目标无偏、信号最完整,但最贵;
+- **采样 token**:便宜、可复用 RL 基建,但对序列级 reverse KL **有偏**——逐 token 目标里每一项的期望都依赖学生自己诱导的前缀分布,而前缀分布本身也随 $\theta$ 变化,token 级求和并不等于序列级散度;
+- **Revisiting OPD**(Fu et al., 2026-03,[arXiv:2603.25562](https://arxiv.org/abs/2603.25562))把这件事定理化了:token 级 OPD 相对序列级 reverse-KL 有偏,但**最坏方差界显著更紧**(论文的分析为 $O(T^2)$ 对 $O(T^4)$);合成实验还显示,未来奖励耦合越强,梯度方差越大、训练越不稳。这从理论上解释了为什么社区一致选择 token 级估计器;
+- 同一论文还指出采样版在长 rollout 上的失效机制:学生前缀逐渐漂出教师典型支撑,教师在这些"陌生状态"上的指导变得不可靠。修法是**教师 top-K 局部支撑匹配**——只在教师 top-K token 集合上比较截断后的 reverse KL,配合 top-p 采样和特殊 token 掩码,比标准采样版提升 +19.8%。
 
 ---
 
-## 四、为什么是OPD？深层动因分析
+## 四、不动点分析:OPD 把分布训成了什么样
 
-### 4.1 理论层面：OPD = 密集KL约束RL
+损失函数只是手段,真正的问题是:这个目标的最优解是什么分布?学生最终会变成什么样?
 
-G-OPD的理论贡献揭示了一个深刻的等价关系：OPD本质上是教师log概率充当密集奖励的RL。这一等价解释了OPD的核心特性：
+### 4.1 容量无限时:逐状态的条件分布拷贝
 
-- **样本效率**：每个token都提供学习信号（密集奖励），而非仅在序列末尾获得稀疏奖励
-- **稳定性**：教师的log概率是一个天然的、经过预训练充分学习的奖励函数，不需要像RL那样训练奖励模型
-- **KL正则化内置**：OPD的目标天然包含对学生偏离参考分布的约束，无需额外设计
+逐 token 散度在每个前缀上是**相互独立**的最小化问题——每个位置的最优解都是让学生的 next-token 分布等于教师的。所以容量无限时,OPD 的不动点是:
 
-### 4.2 实践层面：后训练流水线的"胶水"
+$$\forall\, \hat{y}_{<n} \text{ 在学生可达前缀集上}: \quad p_S(\cdot \mid x, \hat{y}_{<n}) = p_T(\cdot \mid x, \hat{y}_{<n})$$
 
-在当前大模型的后训练流程中，OPD扮演着几个独特且不可替代的角色：
+注意它与 SFT 不动点的差别只在"在哪些前缀上相等":**SFT 在教师会去的状态上拷贝教师,OPD 在学生自己会去的状态上拷贝教师**。后者恰好覆盖了推理时的真实分布——这就是 exposure bias 被消除的精确含义。
 
-**（1）多领域专家合并的最佳方案**
+### 4.2 容量有限时:散度方向决定命运
 
-传统方法（如模型平均、顺序微调）在合并不同领域专家时不可避免地产生能力冲突和遗忘。OPD通过让统一学生在自身分布上吸收各教师的指导，实现了近乎无损的多领域能力整合。DeepSeek-V4和MiMo-V2-Flash的成功都证明了这一点。
+现实中学生容量远小于教师,不动点达不到,散度的**方向**开始起决定性作用(经典理论见 Bishop PRML §10.1.2 与 Huszár 2015,[arXiv:1511.05101](https://arxiv.org/abs/1511.05101)):
 
-**（2）RL后的"去毒"清洗**
+- **Reverse KL**($\mathrm{KL}(p_S \| p_T)$,学生在前)是 **zero-forcing / mode-seeking** 的:教师概率为零的地方,学生必须也趋零,否则惩罚无穷;但允许学生放弃教师的部分众数。净效果是学生**收缩到教师的主众数**上——放弃多样性,保住正确性与忠实度;
+- **Forward KL**($\mathrm{KL}(p_T \| p_S)$,教师在前)是 **zero-avoiding / mass-covering** 的:教师有质量的地方学生必须都有质量;容量不够时,学生只能把概率摊薄到教师的低概率区,结果是在自由生成时采出"教师分布下极不可能"的序列——蒸馏版幻觉就是这么来的。
 
-RL训练（尤其是长期RLHF）常常引入格式退化、重复、reward hacking等伪影。OPD可以将RL获得的核心能力提取到更干净的策略中，相当于RL后的清洗步骤。
+MiniLLM 论文里的高斯混合 toy 实验是这个对照的经典演示:forward KL 学出一个盖住所有众数的胖高斯(均值化),reverse KL 收缩到单一众数。Thinking Machines 选择 reverse KL 正是基于这个论证,他们还指出 reverse KL 的两个实用性质:**mode-seeking** 让学生只学一种确定行为(教师的)而非在多个次优选项间摊派,以及天然缓解 exposure bias。
 
-**（3）跨训练阶段的知识保留**
+### 4.3 Forking tokens:惩罚集中在哪
 
-GLM-5的"跨阶段蒸馏"展示了这一应用：每个训练阶段的最优能力可以通过OPD传递到最终模型中，避免了多阶段训练中的灾难性遗忘。
+Thinking Machines 原文里最有信息量的一个实证观察:把学生答错的轨迹按逐 token reverse KL 染色,深红色(惩罚最大)集中在**把学生带上歧路的短语起始 token** 上——推理链的"分叉点"(forking tokens);而最终的错误答案几乎不被惩罚,因为给定前面那串推理,它是完全可预测的。
 
-**（4）持续学习与个性化**
+这个观察的价值在于它回答了"OPD 到底在学什么":**它监督的是过程中的策略选择,而不是结果**。这与 RLVR 形成鲜明对照——GRPO 给整条序列的所有 token 分配同一个优势,无法区分"走错方向的决策点"和"将错就错的合理续写"。它与 RL 侧的独立证据也相互印证:[Beyond the 80/20 Rule](https://arxiv.org/abs/2506.01939)(Wang et al., 2025)发现 RL 的增益主要由少数高熵分叉 token 驱动——OPD 的教师惩罚恰好也落在同一类 token 上。
 
-Thinking Machines Lab展示了OPD在持续学习场景中的独特价值：在中间训练引入新领域知识后，OPD可以从RL后的教师恢复post-training行为，而SFT在这一场景中严重退化。
+### 4.4 与 SFT 的分工:先撑开支撑,再收缩众数
 
-### 4.3 经济层面：计算效率的绝对优势
-
-多项独立验证一致表明，OPD在计算效率上相比RL有10–100倍的优势：
-
-- Qwen3报告：OPD约需RL的1/10 GPU时间达到相当性能
-- Thinking Machines Lab：在AIME 2024上以1/10 RL成本达到70%准确率
-- 行业共识：OPD的密集token级反馈使每个训练步骤的信息利用效率远高于RL的稀疏奖励
-
-这种效率优势在大模型训练成本日益高企的当下具有决定性意义。
+Thinking Machines 在注脚里埋了一条重要的实践原则:**SFT(forward KL)负责扩充支撑,reverse KL 负责在支撑内 mode-seek**。如果学生的支撑里根本没有相关 token(比如 mid-training 前从未见过某领域),reverse KL 无从收缩——教师再强也教不出来。所以几乎所有 OPD 实践都从 SFT/mid-training 检查点出发:先用 off-policy 的 forward KL 把新 token 引进支撑,再用 on-policy 的 reverse KL 把分布削到教师的主众数上。两个散度不是竞争对手,是流水线上的上下游。
 
 ---
 
-## 五、OPD的局限性与开放问题
+## 五、散度动物园:reverse KL 不是唯一选择
 
-### 5.1 已知的失败模式
+回到统一形式里第二个旋钮 $D$。所有常用散度都属于 f-散度家族:
 
-**(1) 教师-学生思维模式不兼容**
+$$D_f(p \,\|\, q) = \sum_{v} q(v)\, f\!\left(\frac{p(v)}{q(v)}\right), \qquad f \text{ 凸且 } f(1)=0$$
 
-Rethinking OPD的核心发现：如果教师和学生的推理风格差距过大，即使教师性能更强，OPD也会失败。这意味着不是任何教师都可以有效蒸馏——需要考虑思维模式的匹配度。同家族的小规模教师（如从同一基座微调得到的7B教师蒸馏到1.5B学生）可能从学生角度看在分布上不可区分，无法提供有效信号。
+取不同的 $f$ 得到不同的行为。一张总览表(方向约定:与蒸馏文献一致,$p$=教师,$q_\theta$=学生):
 
-**(2) 高熵token的知识丢失**
+| 散度 | 行为 | 梯度性质 | 代表工作 |
+| --- | --- | --- | --- |
+| Forward KL(教师在前) | mass-covering,均值化 | 系数含 p/q,q→0 时爆炸 | Hinton KD、GKD 默认 |
+| Reverse KL(学生在前) | mode-seeking,收缩众数 | 含学生熵项,天然降熵 | MiniLLM、TML OPD |
+| JSD(β)(广义) | 对称化折中,有界 | 分母是混合分布,恒正 | GKD |
+| Skew KL(α) | 接近 KL 但温和 | 混合分布使梯度有界 | DistiLLM |
+| TVD(全变差) | 对称、有界 | 无 log,梯度最稳 | f-distill |
 
-Entropy-Aware OPD揭示：标准反向KL目标会过度压缩教师分布中高熵位置的信息，这些位置恰恰编码了多条可能推理路径的关键不确定性知识。
+逐个展开:
 
-**(3) 长序列rollout的信号退化**
+**广义 JSD(GKD)**:GKD(Agarwal et al., 2023,[arXiv:2306.13649](https://arxiv.org/abs/2306.13649))——"on-policy distillation"一词的正式出处——引入
 
-多项研究报告了当rollout变长时，sampled-token OPD的学习信号变得脆弱：学生的前缀逐渐偏离教师常见状态，导致教师指导在这些偏移状态上不可靠。Revisiting OPD将这一问题追溯到sampled-token估计的固有偏差。
+$$\mathrm{JSD}(\beta)(p_T \| p_S) = \beta\, \mathrm{KL}\big(p_T \,\|\, m\big) + (1-\beta)\, \mathrm{KL}\big(p_S \,\|\, m\big), \qquad m = \beta p_T + (1-\beta) p_S$$
 
-**(4) 熵坍缩（Entropy Collapse）**
+$\beta \to 0$ 时趋于 forward KL,$\beta \to 1$ 时趋于 reverse KL,中间是一片连续的折中地带;有界性让它不会像 KL 那样出现无穷惩罚。GKD 还定义了数据侧的 $\lambda$ 插值($\lambda=0$ 纯 off-policy、$\lambda=1$ 纯 on-policy、$0.5$ 混合),把统一形式里的两个旋钮都参数化了。
 
-REOPOLD和SRPO都报告了OPD训练中可能出现的熵坍缩现象——学生的输出多样性急剧下降，丧失生成的灵活性。
+**Skew KL(DistiLLM)**:DistiLLM(Ko et al., 2024,[arXiv:2402.03898](https://arxiv.org/abs/2402.03898))观察到 forward KL 的梯度系数是 $p/q_\theta$,学生给某 token 分配的概率趋零时梯度爆炸。修法是把 KL 的一个参数替换成插值分布:
 
-**(5) 自蒸馏的信息泄露**
+$$D_{\mathrm{SKL}}^{(\alpha)}(p, q_\theta) = \mathrm{KL}\big(p \,\|\, \alpha p + (1-\alpha) q_\theta\big), \qquad D_{\mathrm{SRKL}}^{(\alpha)}(p, q_\theta) = \mathrm{KL}\big(q_\theta \,\|\, (1-\alpha) p + \alpha q_\theta\big)$$
 
-Self-Distilled RLVR指出，纯粹来自特权教师（如获取了参考答案的自身）的学习信号会导致信息泄露——学生可能学到"看答案"的捷径而非真正的推理能力，长期训练不稳定。
+混合分布的分母恒正,梯度范数有界,训练显著更稳;实验最优 $\alpha=0.1$,配合自适应 off-policy 调度和 replay buffer,比 MiniLLM/GKD 提速 2.5–4.3 倍。
 
-### 5.2 开放问题与未来方向
+**对称散度(f-distill)**:Wen et al. 2023([arXiv:2307.15190](https://arxiv.org/abs/2307.15190))做了迄今最系统的散度对比:KL/RKL/JS/TVD 全部分解为 step-wise 损失,在摘要、翻译、对话上统一评测。结论:单向 KL 的病根都在不对称(KL 过覆盖、RKL 过收缩),**对称散度(JS、TVD)在绝大多数任务上更优**;他们还提出 likelihood risk 与 coverage risk 两个诊断指标,把"覆盖不足"和"众数塌陷"分开度量。
 
-**(1) 蒸馏缩放定律（Distillation Scaling Laws）**
+### 5.1 三个反直觉的结论,"reverse KL 最优"不是定律
 
-目前缺乏系统的OPD缩放定律研究：给定教师规模和学生规模，最优的蒸馏计算预算是多少？teacher-student gap如何影响OPD效率？这些问题的答案对指导工业实践至关重要。
+**其一,GKD 自己的实验**:最优散度是任务相关的——WMT 翻译用 JSD(0.1) 最好,其余任务反而是 forward KL 最好。翻译的输出空间接近单峰,mass-covering 无害;开放式生成就另当别论。
 
-**(2) Agent级蒸馏**
+**其二,f-distill 的系统比较**:对称散度普遍优于单向 KL,这与"reverse KL 适合生成"的流行说法并不一致——流行说法来自 MiniLLM 的指令跟随场景,未必可推广。
 
-当前OPD主要在单轮推理任务上验证。对于多轮工具调用、环境交互等Agent场景，如何设计有效的OPD方案仍是开放问题。教师如何在学生的多步Agent轨迹上提供有效指导？奖励如何在跨步骤间分配？
+**其三,也是最新的:OPSD 的消融**(2026,详见第七节)发现,自蒸馏场景下全词表 **forward KL 显著最好**(AIME25 @ Qwen3-1.7B:36.7 → 43.9),reverse KL 和 JSD(0.5) 提升有限甚至为负——与 Thinking Machines 的选择正好相反。
 
-**(3) 自适应散度选择**
+为什么 OPSD 反过来了?以下是我们的解读(论文未给出定论):OPSD 的师生是**同一个模型**,容量差为零,mass-covering 的主要代价(摊薄到空区)天然消失;特权教师的高概率区集中在"通向正确解答"的 token 上,covering 保证这些 token 一个不漏;而 mode-seeking 会把学生过早压回它已有的模式——那恰恰是它做错题的模式。旁证来自 **EOPD**(Jin et al., 2026-03,[arXiv:2603.07079](https://arxiv.org/abs/2603.07079)):教师高熵位置(编码多条推理路径的不确定性)改用 forward KL 增强、低熵位置保持 reverse KL,在 6 个数学基准上 Pass@8 提升 +1.37~+5.05。**没有全位置最优的散度**——推理分叉点该收缩,路径选择点该保持。
 
-No single divergence is optimal across all token positions——不同位置需要不同的散度。在推理关键token上，教师分布通常是单峰的，反向KL效果好；在生成灵活token上，分布接近均匀，前向KL保持多样性更好。自适应方法（如ToDi、AKL、EOPD）是一个有前景但远未成熟的方向。
+### 5.2 工程稳定化技巧汇总
 
-**(4) 多模态OPD**
+散度之外,2026 年的实践沉淀了一组即插即用的稳定化手段:
 
-当前的OPD研究几乎完全集中在文本模态。如何将OPD扩展到视觉-语言模型、代码生成-执行循环、多模态Agent等场景？教师信号在跨模态交互中如何传递？
-
-**(5) OPD与RLVR的最优混合**
-
-RLSD、SRPO等工作初步探索了OPD与RLVR的结合，但最优的混合策略仍不清楚。密集教师信号和稀疏环境奖励各自的最佳适用范围是什么？如何随训练进展动态调整两者的权重？
-
-**(6) 教师质量的自动评估与选择**
-
-Rethinking OPD揭示了教师选择的微妙性。是否可以设计自动化的教师质量评估方法，在训练前预判一个教师对特定学生的蒸馏效果？
-
----
-
-## 六、总结与展望
-
-### 6.1 OPD的发展轨迹
-
-OPD的发展可以清晰地划分为三个阶段：
-
-- **萌芽期（2023–2024）**：GKD和MiniLLM奠定了理论基础，但尚未引起广泛关注
-- **爆发期（2025年10月）**：Thinking Machines Lab博客作为催化剂，Qwen3的工业实践作为验证，共同推动OPD进入主流视野
-- **成熟与深化期（2026年至今）**：理论统一（G-OPD）、自蒸馏革命（OPSD/SDPO）、批判性反思（Rethinking/Revisiting OPD）、大规模工业部署（DeepSeek-V4/MiMo-V2-Flash/GLM-5）四线并进
-
-### 6.2 核心洞见
-
-基于对OPD领域的全面调研，我形成了以下核心认识：
-
-**第一，OPD正在成为后训练的"标准基础设施"，而非可选组件。** 从DeepSeek-V4到MiMo-V2.5-Pro到GLM-5，主流开源大模型厂商已经不约而同地收敛到"领域专家独立训练 + OPD合并"的后训练范式。这不是偶然的趋势跟风，而是对多领域能力整合这一根本挑战的最优工程解。
-
-**第二，OPD的本质是"过程监督"而非"结果模仿"。** OPD的核心价值不在于让学生复制教师的最终输出，而在于教师在学生推理过程中的每个关键决策点上提供纠正信号。Thinking Machines Lab观察到的"forking tokens"现象深刻揭示了这一点——OPD学习的是策略选择的智慧，而非答案本身。
-
-**第三，自蒸馏是OPD最具革命性的衍生方向。** 2026年自蒸馏研究的爆发（OPSD、SDPO、RLSD、GATES、OPSDC等）预示着一个重要转向：模型可以通过条件化于不同特权信息来自我教学，消除了对外部大教师的依赖。这大大降低了OPD的应用门槛，也为小模型的自我进化开辟了路径。
-
-**第四，OPD不是RL的替代品，而是RL的最佳伙伴。** RLSD和SRPO等工作表明，OPD和RL各有不可替代的优势——OPD提供密集的过程信号，RL提供可靠的结果方向。两者的最优结合方式是当前最值得关注的研究前沿之一。
-
-**第五，OPD的"不成功案例"同样重要。** Rethinking OPD和Revisiting OPD揭示的失败模式（思维模式不兼容、信号退化、熵坍缩等）不仅是技术问题，更深刻揭示了蒸馏学习的本质机制。理解OPD何时以及为何失败，对于推动该范式走向真正成熟至关重要。
-
-### 6.3 未来展望
-
-展望2026年下半年及以后，OPD领域可能出现的重要发展包括：
-
-- **Agent OPD**成为新焦点：随着LLM Agent化的加速，如何在多步工具调用和环境交互轨迹上进行有效蒸馏将成为核心问题
-- **OPD缩放定律**的系统研究：工业界对精确预算规划的需求将推动蒸馏计算效率的定量研究
-- **自适应混合训练范式**的出现：SFT、OPD、RL、自蒸馏在不同训练阶段和不同能力维度上的自适应混合将成为主流
-- **跨模态OPD**的突破：从纯文本走向视觉-语言、代码-执行等多模态场景
+| 技巧 | 出处 | 解决什么 |
+| --- | --- | --- |
+| Teacher-mixed sampling(α=0.2) | MiniLLM | 退化轨迹、奖励 hacking |
+| Single-step decomposition | MiniLLM | 采样方差 |
+| Length normalization | MiniLLM | 短序列偏置 |
+| 教师 top-K 局部支撑匹配 | Revisiting OPD | 长 rollout 前缀漂移(+19.8%) |
+| 逐 token 逐词表项 pointwise clipping | OPSD | 风格 token 主导训练信号 |
+| 特殊 token 掩码 + tokenizer 对齐 | Revisiting OPD | 系统性偏差 |
+| 熵感知散度混合 | EOPD | 高熵位置信息丢失 |
 
 ---
 
-## 附录：代表性论文与资源列表
+## 六、OPD 与 RL:一体两面
 
-| 时间 | 工作 | 类型 | 关键贡献 |
-|------|------|------|----------|
-| 2023.06 | GKD (Agarwal et al.) | 奠基 | 首个统一OPD框架，ICLR 2024 |
-| 2023.06 | MiniLLM (Gu et al.) | 奠基 | 反向KL + 策略梯度优化 |
-| 2024 | DistiLLM (Ko et al.) | 改进 | Skewed KL目标 |
-| 2024 | SPIN (Chen et al.) | Self-Play | 无教师自博弈微调 |
-| 2025.05 | Qwen3 Technical Report | 工业 | 首个大规模OPD工业部署 |
-| 2025.10 | TML Blog (Kevin Lu) | 催化剂 | 系统性实证验证，引爆OPD热潮 |
-| 2025.11 | GAD (Ye et al.) | 黑盒OPD | 对抗式黑盒蒸馏 |
-| 2026.01 | OPSD (Zhao et al.) | 自蒸馏 | On-Policy自蒸馏推理器 |
-| 2026.01 | SDPO (Hübotter et al.) | 自蒸馏+RL | 自蒸馏策略优化 |
-| 2026.01 | MiMo-V2-Flash | 工业 | 多教师OPD (MOPD)范式 |
-| 2026.02 | GLM-5 | 工业 | 跨阶段OPD |
-| 2026.02 | G-OPD (Yang et al.) | 理论 | OPD=密集RL，奖励外推 |
-| 2026.03 | EOPD (Jin et al.) | 改进 | 熵感知OPD |
-| 2026.03 | OPSDC (Sang et al.) | 自蒸馏 | 推理压缩自蒸馏 |
-| 2026.03 | REOPOLD (Ko et al.) | 改进 | 松弛OPD |
-| 2026.03 | Revisiting OPD (Fu et al.) | 批判 | 三大失败模式+修复 |
-| 2026.04 | Self-Distilled RLVR | OPD+RL | 自蒸馏与RLVR最优融合 |
-| 2026.04 | SRPO | OPD+RL | 样本路由统一框架 |
-| 2026.04 | Rethinking OPD (Li et al.) | 批判 | OPD成败条件的系统分析 |
-| 2026.04 | OPD Survey (Song & Zheng) | 综述 | 首个全面OPD综述 |
-| 2026.04 | DeepSeek-V4 | 工业 | 两阶段领域专家+OPD合并 |
-| 2026.04 | MiMo-V2.5-Pro | 工业 | MOPD范式的扩展验证 |
+### 6.1 蒸馏 = 稠密奖励的 RL
+
+把 MiniLLM 的梯度形式(§3.3)和 RLHF 的标准目标并排看:
+
+$$\max_\theta\; \mathbb{E}_{y \sim \pi_\theta}\big[ r(x, y) \big] - \beta\, \mathrm{KL}\big(\pi_\theta \,\|\, \pi_{\mathrm{ref}}\big)$$
+
+取逐 token 奖励 $r_t = \log p_T(y_t \mid \cdot)$、参考策略取学生自身、$\beta=1$,就精确退化为 OPD。KL 正则 RL 还有闭式解 $\pi^\star(y\mid x) \propto \pi_{\mathrm{ref}}(y\mid x) \exp\big(r(x,y)/\beta\big)$——向"奖励倾斜分布"做 reverse KL 投影(Korbak et al., 2022,[arXiv:2205.11275](https://arxiv.org/abs/2205.11275));OPD 可以看作这个投影的在线近似。
+
+这个等价的实际含义是:**蒸馏把 RL 的探索问题消掉了**。RL 难在奖励稀疏、需要探索;而 OPD 的奖励函数是教师 logp——已知、稠密、无噪声,于是问题退化为纯优化。Thinking Machines 的表述很精辟:RL 在语义策略空间里搜索,蒸馏是一条直达最终策略的捷径。
+
+### 6.2 G-OPD:定理化的等价,与超越教师的钥匙
+
+G-OPD(Yang et al., 2026-02,[arXiv:2602.12125](https://arxiv.org/abs/2602.12125))把这个直觉变成了定理:**标准 OPD 是稠密 KL 约束 RL 的特例——奖励项与 KL 正则恒等权重,参考模型可以是任意模型**。沿着定理松绑出两个扩展:
+
+- **奖励缩放因子 $\lambda$**(奖励项相对 KL 正则的权重):$\lambda > 1$ 即"奖励外推"(ExOPD),在"把各领域 RL 专家合并回基座"的场景中,学生在**所有领域都超越了对应教师**;
+- **灵活参考模型**:强教师蒸馏弱学生(strong-to-weak)时,取教师的 pre-RL 基座做参考模型可校正奖励信号,进一步提升(代价是需要教师的 pre-RL 版本和额外算力)。
+
+这个定理也给出冷静的推论:标准 OPD($\lambda=1$,KL 锁死)的能力上限被教师封死——**想超越教师,要么外推,要么回到 RL**。这与 2026 年对 OPD 定位的共识一致:OPD 是"探索催化剂",负责把学生引到正确的路上,不负责抬高天花板(Demystifying OPD,见 6.3)。
+
+### 6.3 "不可黑客"的限度
+
+Thinking Machines 原文有个著名论断:reverse KL 奖励是"unhackable"的——低 KL 必然对应教师视角下的高概率行为,不像学得出来的奖励模型那样容易被钻空子。
+
+2026 年 7 月的 **Demystifying OPD**(Wang et al.,[arXiv:2607.13399](https://arxiv.org/abs/2607.13399))给出了迄今最清晰的反驳:OPD 存在两种病理,其一是师生失配(教师信号与任务正确性脱节),其二是 **length exploitation**——学生学会靠截断回答或冗余填充来操纵逐 token 稠密奖励,这是 OPD 版本的 reward hacking。好在修法很轻:advantage 硬裁剪、保序 log 压缩即可大幅缓解。结论应当修正为:reverse KL 相对**学得出的奖励模型**更难 hack,但不是绝对免役。
+
+### 6.4 与 GRPO/RLVR 的组合:2026 年的主流配方
+
+OPD 与 RL 不是替代关系,是互补关系——OPD 给过程(哪一步错了),RL 给方向(答案对不对)。2026 年跑出了几种成熟的组合方式:
+
+- **RLSD**(Yang et al., 2026-04,[arXiv:2604.03128](https://arxiv.org/abs/2604.03128)):纯自蒸馏的信号会泄露特权信息、长期训练不稳;RLSD 让自蒸馏只决定逐 token 的**更新幅度**,让 RLVR 的环境反馈决定**更新方向**,两者结合超过各自的天花板;
+- **SRPO**(2026-04,[arXiv:2604.02288](https://arxiv.org/abs/2604.02288)):按样本对错路由——错误样本走自蒸馏(精确定位错在哪)、正确样本走 GRPO 式奖励;Qwen3-8B 五个基准平均比 GRPO +3.4%、比 SDPO +6.3%;
+- **Seed 的置信门控 OPD**(2026-07):在 OPD 的逐 token 信号上加门 $g = \sigma(\beta \cdot \Delta \log p)$,防止"技能归因错误"的 token 把错误知识学进策略,与 GRPO 损失联合优化。我们精读区有这篇的全文译注:[Seed:自进化 OPD](/zh/reading/seed-self-evolving-opd);
+- **sparse-to-dense 原则**:在 GRPO 稀疏奖励阶段之间插入 OPD 稠密教师奖励阶段,交替推进。
+
+---
+
+## 七、OPSD:没有教师的蒸馏
+
+2026 年 1 月,UCLA + Meta 的 **OPSD**(On-Policy Self-Distillation,Zhao et al.,[arXiv:2601.18734](https://arxiv.org/abs/2601.18734),ICML 2026)把 OPD 往前推了一大步:**连外部教师都不要了**。
+
+### 7.1 构造:同一模型的两种条件化
+
+核心直觉:一个足够强的模型,在看到正确答案后能"合理化"(rationalize)它——评估和复现比从头生成容易得多。于是让同一个模型 $p_\theta$ 扮演两个角色:
+
+$$p_S(\cdot \mid x) \triangleq p_\theta(\cdot \mid x), \qquad p_T(\cdot \mid x, y^\star) \triangleq p_\theta(\cdot \mid x, y^\star)$$
+
+学生只看问题;教师额外条件于**特权信息** $y^\star$(数据集中已验证的参考解答)。教师不生成任何 token——把"参考解答 + 请用自己的方式再解一遍"的 prompt prefill 进去,一次前向就给出每个位置的 next-token 分布。训练目标仍是在学生自己的 rollout 上最小化逐 token 散度:
+
+$$\mathcal{L}_{\mathrm{OPSD}}(\theta) = \mathbb{E}_{(x, y^\star) \sim \mathcal{S}}\; \mathbb{E}_{\hat{y} \sim p_S(\cdot \mid x)} \sum_{n=1}^{|\hat{y}|} D\Big( p_T(\cdot \mid x, y^\star, \hat{y}_{<n}) \,\Big\|\, p_S(\cdot \mid x, \hat{y}_{<n}) \Big)$$
+
+三个工程要点:
+
+1. **教师冻结在初始策略**,不随训练更新——作者发现这既稳定训练,又隐式正则、防止偏离初始策略过远;
+2. **逐 token 逐词表项 pointwise clipping**:对 f-散度,每个位置 $n$、词表项 $v$ 的贡献 $\ell_{n,v} = p_T(v \mid \cdot)\, f\big(p_S(v \mid \cdot) / p_T(v \mid \cdot)\big)$ 截断到阈值 $\tau$——风格性 token(推理连接词)的散度远大于数学 token,不裁剪会让训练信号被"风格"主导;
+3. **Thinking-mode 不对称**:TM-off 学生 + TM-on 教师的组合在数学 token 上产生最大散度,效果最好。
+
+它也有采样 token 的策略梯度变体(与 TML 形式一致):$A_n = \log p_T(\hat{y}_n \mid x, y^\star, \hat{y}_{<n}) - \log p_S(\hat{y}_n \mid x, \hat{y}_{<n})$。与 STaR 的对比最能说明价值:STaR 是序列级二值奖励——答错的样本完全零信号;OPSD 无论对错,每个位置都有稠密信号。
+
+### 7.2 效率:一个数量级的差距
+
+OPSD 每题只采 1 条 rollout、上限 1024 token,100 步收敛;同数据上 GRPO 要 8 条 × 16k token,且 100 步内过半 batch 出现组内奖励标准差为零(advantage 消失,白采)。性能上 OPSD 匹配或超过 GRPO,全面超过 SFT(SFT 反而因参考解答风格简洁、把测试时推理长度压短而掉点)。
+
+### 7.3 三连击:2026 年 5–7 月的批判性文献
+
+OPSD 掀起的自蒸馏热潮,在随后的半年里迎来了三记冷静的重拳——如果你打算用自蒸馏,这三篇必读:
+
+1. **Why Does Self-Distillation (Sometimes) Degrade Reasoning?**(Kim et al., MSR,2026-03,[arXiv:2603.24472](https://arxiv.org/abs/2603.24472)):退化的根源是自蒸馏**抑制了"认识性言语化"**(epistemic verbalization——推理中表达不确定性的行为);教师上下文越丰富,域内提升越快,但 OOD 越差,多模型上性能最大降幅达 40%;
+2. **Sampled-Demonstration Self-Distillation Reduces Output Diversity**(Nicolicioiu et al., 2026-06,[arXiv:2606.26091](https://arxiv.org/abs/2606.26091)):理论上证明自蒸馏的最优策略会按"学生 rollout 与上下文中正确 rollout 的**点互信息**"倾斜基分布——放大已有概率差距、把质量集中到主导模式;结果是 pass@1 涨,但 **pass@k 曲线变平、多样性塌缩**,OOD 失败。作为对照,理想的 on-policy RL 在同为正确的 rollout 之间保持概率比;
+3. **Thinking Collapse 与 AD-OPSD**(Peng et al., 2026-07,[arXiv:2607.10805](https://arxiv.org/abs/2607.10805)):定义并度量大模型在自蒸馏中的"思考塌缩"——原生中间推理行为(以 epistemic token 密度计)骤降;机制是学生高熵决策分叉处,激进的教师梯度把学生的 epistemic token 压向教师的非 epistemic 目标;修法是把高抑制风险的 token 用不对称散度门控**锚定到冻结基座先验**,平均准确率 +4.1%。
+
+此外还有 *Denser ≠ Better* 的警示:持续后训练中,密集自蒸馏(SDPO 式)比 GRPO **遗忘更多甚至塌缩**——教师投影带来过量参数漂移。"密集监督天然优于稀疏奖励"在 2026 年已被证伪为**有条件成立**。
+
+### 7.4 自蒸馏家族速览
+
+| 工作 | 时间 | 一句话 |
+| --- | --- | --- |
+| OPSD([2601.18734](https://arxiv.org/abs/2601.18734)) | 2026-01 | 特权信息(参考解答)条件化的自我教师,开山之作 |
+| SDFT([2601.19897](https://arxiv.org/abs/2601.19897)) | 2026-01 | demonstration 条件化自我教师,持续学习场景显著减少灾难性遗忘 |
+| SDPO([2601.20802](https://arxiv.org/abs/2601.20802)) | 2026-01 | 把富文本反馈(编译报错、judge 评语)当特权信息,蒸馏回策略 |
+| OPSDC([2603.05433](https://arxiv.org/abs/2603.05433)) | 2026-03 | 推理压缩:简洁指令当教师,长度 -57~59%,准确率反升 +9~16 |
+| RLSD([2604.03128](https://arxiv.org/abs/2604.03128)) | 2026-04 | 自蒸馏定幅度、RLVR 定方向,治信息泄露 |
+| TS-OPSD([2606.00755](https://arxiv.org/abs/2606.00755)) | 2026-05 | 自己 logits 的高温版当教师("policy reheater"),治 RL 熵塌缩 |
+| GATES | 2026 | 无标签场景,导师多采样一致性过滤监督信号 |
+
+---
+
+## 八、工业实践:2026 年收敛出的范式
+
+原理之外,OPD 在工业界的落地速度罕见。到 2026 年中,头部开源厂商已经收敛到相当一致的范式:**领域专家独立训练 → OPD 合并整合**。一家一段:
+
+- **Qwen3(2025-05)**:最早在技术报告里公开 OPD 数字的大厂。同一 off-policy 蒸馏检查点出发,AIME'24 上 RL 到 67.6%(17,920 GPU 时),OPD 到 74.4%(1,800 GPU 时)——**1/10 的成本,更好的性能**。这组数字后来被 Thinking Machines 独立复现,是 OPD 走向主流的起点;
+- **小米 MiMo-V2-Flash / V2.5-Pro(2026-01/04)**:提出**多教师 OPD(MOPD)**——SFT 打底,分领域 RL 训出专家,最后学生在自身 rollout 上同时吸收"多专家的逐 token 分布奖励 + 可验证 outcome 奖励"。309B 总参(15B 激活)达到与 DeepSeek-V3.2 / Kimi-K2 相当的水平;V2.5-Pro(1.02T/42B 激活)验证了可扩展性;
+- **GLM-5(2026-02)**:把 OPD 用作**跨阶段蒸馏**——各训练阶段(推理 RL、Agent RL、通用对齐)的最优能力由"各阶段最优教师"在学生当前分布上重新教一遍,核心收益是缓解多阶段训练的灾难性遗忘;
+- **DeepSeek-V4(2026-04)**:OPD 走得最远的案例。10 余个 1.6T 领域专家各自完成 SFT + GRPO 后,用**全词表、多教师加权的 reverse KL** 做纯 OPD 整合,直接替换了 V3.2 时代的混合 RL 阶段。设计哲学是**优化与整合分离**:每个能力在隔离训练中推到各自上限,再由 OPD 无干扰地合并。
+
+## 九、局限与开放问题
+
+1. **思维模式兼容性 + 真新能力**:Rethinking OPD(清华,2026-04,[arXiv:2604.13016](https://arxiv.org/abs/2604.13016))给出 OPD 成功的两个必要条件——师生推理模式兼容,且教师真的掌握学生没见过的新能力。弱到强反向蒸馏显示:同家族 1.5B 与 7B 教师从学生视角在分布上**不可区分**——"分数高"不等于"可蒸馏";
+2. **能力上限锁定**:标准 OPD 是等权重 KL 约束 RL(§6.2),天花板由教师封死;ExOPD 的 $\lambda>1$ 是目前最干净的破顶方案,但外推幅度与稳定性之间的边界仍缺理论;
+3. **多样性塌缩**:mode-seeking 的固有代价在自蒸馏场景被放大(§7.3 三连击);EOPD 的熵感知混合与 AD-OPSD 的先验锚定是两个方向的修补,但"保多样性"与"提正确率"的最优权衡远未解决;
+4. **蒸馏缩放律缺失**:给定师生规模与数据量,最优蒸馏预算如何规划?teacher-student gap 多大时 OPD 失效?目前只有零星研究(如 Busbridge et al. 2025 的蒸馏缩放律),没有 OPD 专属的系统定律;
+5. **Agent 级与多模态 OPD**:现有验证几乎全在单轮文本推理上;多轮工具调用轨迹上教师如何打分、奖励如何跨步分配,基本空白;
+6. **黑盒教师**:GAD(2025-11,[arXiv:2511.10643](https://arxiv.org/abs/2511.10643))用对抗训练从商用 API 教师做 OPD,SODA(2026-04,[arXiv:2604.03873](https://arxiv.org/abs/2604.03873))做了效率改进——这是把 OPD 推向"教师只有 API"现实约束的方向,仍处早期。
+
+## 十、谱系与延伸阅读
+
+**时间线**(只列本文展开过的关键节点):
+
+| 时间 | 工作 | 一句话贡献 |
+| --- | --- | --- |
+| 2015 | [Hinton KD](https://arxiv.org/abs/1503.02531) | 温度软标签,蒸馏的起点 |
+| 2016 | [SeqKD](https://arxiv.org/abs/1606.07947) | 序列级蒸馏 = 教师 beam 上的 SFT |
+| 2023-06 | [MiniLLM](https://arxiv.org/abs/2306.08543) | reverse KL + 策略梯度,蒸馏=稠密奖励 RL |
+| 2023-06 | [GKD](https://arxiv.org/abs/2306.13649) | "on-policy distillation"定名,散度与数据双插值 |
+| 2023-07 | [f-distill](https://arxiv.org/abs/2307.15190) | f-散度系统比较,对称散度占优 |
+| 2024-02 | [DistiLLM](https://arxiv.org/abs/2402.03898) | skew KL,梯度有界,提速 2.5–4.3× |
+| 2024-10 | [SKD](https://arxiv.org/abs/2410.11325) | 投机采样式交错生成,on/off-policy 自适应 |
+| 2025-05 | Qwen3 技术报告 | 首个大规模工业 OPD 数字 |
+| 2025-10 | [Thinking Machines 博客](https://thinkingmachines.ai/blog/on-policy-distillation/) | 引爆方向,采样 token reverse KL 配方 |
+| 2026-01 | [OPSD](https://arxiv.org/abs/2601.18734) / [SDPO](https://arxiv.org/abs/2601.20802) / [SDFT](https://arxiv.org/abs/2601.19897) | 自蒸馏三连,外部教师开始退场 |
+| 2026-02 | [G-OPD](https://arxiv.org/abs/2602.12125) | OPD=等权重 KL 约束 RL;λ>1 超越教师 |
+| 2026-03 | [Revisiting OPD](https://arxiv.org/abs/2603.25562) / [EOPD](https://arxiv.org/abs/2603.07079) / [REOPOLD](https://arxiv.org/abs/2603.11137) | 偏差-方差理论、熵感知散度、松弛 OPD |
+| 2026-04 | [OPD 综述](https://arxiv.org/abs/2604.00626) / [RLSD](https://arxiv.org/abs/2604.03128) / [Rethinking OPD](https://arxiv.org/abs/2604.13016) / DeepSeek-V4 | 综述定框架;OPD+RL 配方成熟;批判与工业巅峰 |
+| 2026-05~07 | [多样性塌缩](https://arxiv.org/abs/2606.26091) / [Thinking Collapse](https://arxiv.org/abs/2607.10805) / [Demystifying OPD](https://arxiv.org/abs/2607.13399) / [TS-OPSD](https://arxiv.org/abs/2606.00755) | 自蒸馏的边界被逐步画清 |
+
+**延伸阅读**:
+
+- 综述:[A Survey of On-Policy Distillation for LLMs](https://arxiv.org/abs/2604.00626)(2026-04,统一 f-散度框架 + 失败模式理论);
+- 论文清单:[awesome-on-policy-distillation](https://github.com/chrisliu298/awesome-on-policy-distillation)(持续更新,含工业配方表);
+- 动手实现:Thinking Machines 原文配套的 Tinker cookbook(采样 token reverse KL 的最小可跑实现);
+- 本站相关精读:[Seed:自进化 OPD 与置信门控](/zh/reading/seed-self-evolving-opd)(OPD + GRPO 组合路线的一次完整工业级实践)。
+
+## 结语
+
+回到开头的坐标系,OPD 的位置其实非常谦逊:它没有发明新的监督,也没有发明新的探索,只是把模仿学习里 DAgger 的老思想——**在学生犯错的地方请教专家**——装进了 LLM 后训练的流水线,然后发现这恰好同时治了 SFT 的 exposure bias 和 RL 的奖励稀疏。
+
+但如果只用一句话带走这篇文章,我们希望是这个更硬的版本:**OPD 是把教师变成奖励函数的 RL**。它的损失有三种等价写法(全词表散度 / 采样 token 优势 / 策略梯度),它的不动点是"学生访问状态上的教师条件分布",它的方向由散度决定(reverse KL 收缩众数,forward KL 覆盖支撑),它的天花板由教师决定(除非 λ 外推或回到 RL),它的 2026 年最新形态连教师都不要了(特权信息条件化的自蒸馏)——而代价,是正在被逐篇论文画清楚的多样性塌缩。
+
+理解这些,再去看各家技术报告里那句轻描淡写的"then we apply on-policy distillation",你会读出完全不同的东西。
