@@ -143,8 +143,10 @@ def main() -> None:
         with open(path) as f:
             digest = json.load(f)
     except OSError:
-        warn(f"Error: {path} not found. Run fetch-daily-papers.py first.")
-        sys.exit(1)
+        # 空数据日(周末/源站无收录)fetch 不落盘,属正常情况,安静跳过;
+        # fetch 本身的硬失败会以非零退出码先一步让 workflow 报警
+        warn(f"{path} not found (empty day or fetch skipped write); nothing to summarize.")
+        sys.exit(0)
 
     key = load_env_key()
     if not key:
