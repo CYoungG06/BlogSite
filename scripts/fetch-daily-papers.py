@@ -195,7 +195,16 @@ def fetch_arxiv(day: str, categories: list, limit: int, primary_cats: list) -> l
             "sortOrder": "descending",
         }
     )
-    papers = parse_atom(http_get(f"{ARXIV_API}?{params}"))
+    papers = []
+    # arXiv API 偶发返回 200 但空 feed(负载高或 CI 共享 IP 被限流时),
+    # 工作日空结果先重试再接受;周末/节假日天然为空,直接接受不浪费请求
+    is_weekday = datetime.strptime(day, "%Y-%m-%d").date().weekday() < 5
+    for attempt in range(3):
+        papers = parse_atom(http_get(f"{ARXIV_API}?{params}"))
+        if papers or not is_weekday or attempt == 2:
+            break
+        warn(f"arXiv returned empty feed for weekday {day}; retrying ({attempt + 1}/3)")
+        time.sleep(30)
     # 服务端 submittedDate 区间语法在当前后端不可靠,这里按 v1 published 的
     # UTC 日期做客户端过滤(详见仓库 references 记录,与本地 skill 一致)
     papers = [p for p in papers if p["published"][:10] == day]
