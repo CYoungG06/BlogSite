@@ -26,6 +26,7 @@ import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 
 API_URL = "https://api.deepseek.com/chat/completions"
 TIMEOUT = 180
@@ -143,9 +144,15 @@ def main() -> None:
         with open(path) as f:
             digest = json.load(f)
     except OSError:
-        # 空数据日(周末/源站无收录)fetch 不落盘,属正常情况,安静跳过;
-        # fetch 本身的硬失败会以非零退出码先一步让 workflow 报警
-        warn(f"{path} not found (empty day or fetch skipped write); nothing to summarize.")
+        # 周末/节假日两源天然无收录,fetch 不落盘,属正常情况,安静跳过;
+        # 工作日文件缺失则视为异常(源站故障/双空),exit 1 让 workflow
+        # 开 Issue 报警——保证平日漏抓一定有人知道。fetch 硬失败本身
+        # 也会以非零退出码先一步报警
+        is_weekday = datetime.strptime(day, "%Y-%m-%d").weekday() < 5
+        if is_weekday:
+            warn(f"Error: {path} not found on a weekday; treating as fetch failure.")
+            sys.exit(1)
+        warn(f"{path} not found (weekend/holiday empty day); nothing to summarize.")
         sys.exit(0)
 
     key = load_env_key()
