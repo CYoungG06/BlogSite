@@ -8,11 +8,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { imageUrl } from "@/lib/images";
-import {
-  getResearch,
-  sortPublications,
-  type Contribution,
-} from "@/lib/research";
+import { getResearch, sortPublications } from "@/lib/research";
 
 export async function generateMetadata({
   params,
@@ -24,13 +20,7 @@ export async function generateMetadata({
   return { title: t("title"), description: t("description") };
 }
 
-const CONTRIBUTION_KEYS: Record<Contribution, "first" | "coFirst" | "author"> = {
-  first: "first",
-  "co-first": "coFirst",
-  author: "author",
-};
-
-/** 研究专栏:方向简介 + 论文列表(匿名,不印作者名单)+ News + 组介绍 */
+/** 研究专栏:组介绍 + 方向简介 + 论文列表(匿名,不印作者名单)+ News */
 export default async function ResearchPage({
   params,
 }: {
@@ -89,15 +79,6 @@ export default async function ResearchPage({
                       href={`/research/${pub.slug}`}
                       className="group inline-flex items-baseline gap-1.5"
                     >
-                      {pub.selected ? (
-                        <span
-                          aria-hidden
-                          className="shrink-0 self-center text-accent"
-                          title={t("selected")}
-                        >
-                          ★
-                        </span>
-                      ) : null}
                       <h3 className="font-medium leading-snug tracking-tight transition-colors duration-300 ease-premium group-hover:text-accent">
                         {pub.title}
                       </h3>
@@ -114,15 +95,6 @@ export default async function ResearchPage({
                       rel="noreferrer"
                       className="group inline-flex items-baseline gap-1.5"
                     >
-                      {pub.selected ? (
-                        <span
-                          aria-hidden
-                          className="shrink-0 self-center text-accent"
-                          title={t("selected")}
-                        >
-                          ★
-                        </span>
-                      ) : null}
                       <h3 className="font-medium leading-snug tracking-tight transition-colors duration-300 ease-premium group-hover:text-accent">
                         {pub.title}
                       </h3>
@@ -136,15 +108,6 @@ export default async function ResearchPage({
                   <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted">
                     <span className="rounded-full bg-accent/10 px-2 py-0.5 text-accent">
                       {pub.venue}
-                    </span>
-                    <span
-                      className={
-                        pub.contribution === "author"
-                          ? "rounded-full bg-surface px-2 py-0.5 ring-1 ring-hairline"
-                          : "rounded-full bg-accent px-2 py-0.5 text-white"
-                      }
-                    >
-                      {t(CONTRIBUTION_KEYS[pub.contribution])}
                     </span>
                     <span className="sm:hidden">{pub.date}</span>
                   </p>

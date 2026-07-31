@@ -63,11 +63,6 @@ export default async function ResearchWorkPage({
   const { meta, content } = work;
 
   const t = await getTranslations({ locale, namespace: "research" });
-  const CONTRIBUTION_KEYS = {
-    first: "first",
-    "co-first": "coFirst",
-    author: "author",
-  } as const;
 
   return (
     <Container>
@@ -87,20 +82,6 @@ export default async function ResearchWorkPage({
           <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-accent">
             {meta.venue}
           </span>
-          <span
-            className={
-              meta.contribution === "author"
-                ? "rounded-full bg-background px-2.5 py-0.5 text-muted ring-1 ring-hairline"
-                : "rounded-full bg-accent px-2.5 py-0.5 text-white"
-            }
-          >
-            {t(CONTRIBUTION_KEYS[meta.contribution])}
-          </span>
-          {meta.selected ? (
-            <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-accent">
-              ★ {t("selected")}
-            </span>
-          ) : null}
           <span className="text-muted">{meta.date}</span>
         </p>
 

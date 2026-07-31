@@ -27,21 +27,13 @@ interface WorkEntry {
   shortTitle?: string;
   title: string;
   venue: string;
-  contribution: "first" | "co-first" | "author";
 }
-
-const CONTRIBUTION_KEYS = {
-  first: "first",
-  "co-first": "coFirst",
-  author: "author",
-} as const;
 
 /** 有详情页的工作,进入「研究」下拉菜单 */
 const works = (researchData.publications as WorkEntry[]).filter((p) => p.slug);
 
 export default function NavLinks({ className = "" }: { className?: string }) {
   const t = useTranslations("nav");
-  const tr = useTranslations("research");
   const pathname = usePathname();
 
   return (
@@ -82,7 +74,7 @@ export default function NavLinks({ className = "" }: { className?: string }) {
                         {w.shortTitle ?? w.title}
                       </span>
                       <span className="mt-0.5 block font-mono text-xs text-muted">
-                        {w.venue} · {tr(CONTRIBUTION_KEYS[w.contribution])}
+                        {w.venue}
                       </span>
                     </Link>
                   ))}
