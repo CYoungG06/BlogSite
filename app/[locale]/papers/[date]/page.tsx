@@ -8,6 +8,7 @@ import DigestToc, { type TocItem } from "@/components/papers/DigestToc";
 import PaperCard from "@/components/papers/PaperCard";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { getInsightIds } from "@/lib/insights";
 import {
   getDigest,
   getDigestDates,
@@ -59,7 +60,12 @@ export default async function PaperDigestPage({
     code: t("code"),
     project: t("project"),
     etAl: t("etAl"),
+    insight: t("insightBadge"),
   };
+  // 有深度解读的论文 id 集合,卡片据此渲染徽章
+  const insightIds = getInsightIds();
+  const insightHref = (paperId: string) =>
+    insightIds.has(paperId) ? `/papers/insights/${paperId}` : undefined;
 
   // 相关性过滤:正文只显示相关论文,被过滤的收进底部折叠区
   const hfRel = digest.hf.filter(isRelevant);
@@ -131,6 +137,7 @@ export default async function PaperDigestPage({
                     paper={paper}
                     locale={locale}
                     t={cardT}
+                    insightHref={insightHref(paper.id)}
                   />
                 ))}
               </div>
@@ -151,6 +158,7 @@ export default async function PaperDigestPage({
                   paper={paper}
                   locale={locale}
                   t={cardT}
+                  insightHref={insightHref(paper.id)}
                 />
               ))}
             </div>
@@ -173,6 +181,7 @@ export default async function PaperDigestPage({
                       paper={paper}
                       locale={locale}
                       t={cardT}
+                      insightHref={insightHref(paper.id)}
                     />
                   ))}
                 </div>

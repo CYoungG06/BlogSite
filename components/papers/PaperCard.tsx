@@ -1,19 +1,23 @@
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import type { PaperItem } from "@/lib/papers";
 
 /**
  * 论文卡片 v2:中文环境下优先展示 AI 译名 + 中文导读(英文原题降级为副行),
  * 无中文字段或英文环境回退英文标题 + 摘要节选。upvotes 用 accent pill 突出。
+ * insightHref 存在时,meta 行追加「深度解读」徽章,链到对应解读页。
  */
 export default function PaperCard({
   paper,
   locale,
   t,
+  insightHref,
 }: {
   paper: PaperItem;
   locale: Locale;
-  t: { code: string; project: string; etAl: string };
+  t: { code: string; project: string; etAl: string; insight: string };
+  insightHref?: string;
 }) {
   const zh = locale === "zh" && Boolean(paper.titleZh && paper.summaryZh);
 
@@ -50,6 +54,14 @@ export default function PaperCard({
             <span className="rounded-full bg-accent/10 px-2 py-0.5 text-accent">
               ▲ {paper.upvotes}
             </span>
+          ) : null}
+          {insightHref ? (
+            <Link
+              href={insightHref}
+              className="rounded-full bg-accent/10 px-2 py-0.5 text-accent transition-colors duration-300 ease-premium hover:bg-accent/20"
+            >
+              {t.insight}
+            </Link>
           ) : null}
           {paper.githubStars ? <span>★ {paper.githubStars}</span> : null}
           {paper.primaryCategory ? <span>{paper.primaryCategory}</span> : null}

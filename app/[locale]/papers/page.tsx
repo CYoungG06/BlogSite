@@ -7,6 +7,7 @@ import Container from "@/components/layout/Container";
 import PageHeader from "@/components/layout/PageHeader";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { getAllInsights } from "@/lib/insights";
 import { getDigestDates, getDigest, isRelevant } from "@/lib/papers";
 
 export async function generateMetadata({
@@ -40,6 +41,7 @@ export default async function PapersPage({
   // 文档区块里的完整 URL(对外复制用)
   const SITE = `https://cyoungg06.github.io${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}`;
   const t = await getTranslations({ locale, namespace: "papers" });
+  const insights = getAllInsights();
   const digests = getDigestDates()
     .map((date) => getDigest(date))
     .filter((d) => d !== null)
@@ -61,6 +63,51 @@ export default async function PapersPage({
           {t("rss")} ↗
         </a>
       </p>
+      {insights.length > 0 ? (
+        <section className="pb-16">
+          <h2 className="font-mono text-sm text-muted">{t("insightsTitle")}</h2>
+          <ul className="mt-4">
+            {insights.map((insight) => (
+              <li
+                key={insight.paperId}
+                className="border-b border-hairline first:border-t"
+              >
+                <Link
+                  href={`/papers/insights/${insight.paperId}`}
+                  className="group block py-4"
+                >
+                  <span className="flex items-baseline gap-3">
+                    <span className="font-medium tracking-tight transition-colors duration-300 ease-premium group-hover:text-accent">
+                      {insight.title}
+                    </span>
+                    <time
+                      dateTime={insight.date}
+                      className="shrink-0 font-mono text-xs text-muted"
+                    >
+                      {insight.date}
+                    </time>
+                    <ArrowUpRight
+                      size={14}
+                      aria-hidden
+                      className="ml-auto shrink-0 -translate-x-1 self-center text-accent opacity-0 transition-all duration-300 ease-premium group-hover:translate-x-0 group-hover:opacity-100"
+                    />
+                  </span>
+                  {insight.paperTitle ? (
+                    <span className="mt-1 block truncate text-sm text-muted">
+                      {insight.paperTitle}
+                    </span>
+                  ) : null}
+                  {insight.description ? (
+                    <span className="mt-1 block text-sm leading-relaxed text-muted">
+                      {insight.description}
+                    </span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       {digests.length === 0 ? (
         <p className="pb-16 text-muted">{t("empty")}</p>
       ) : (
