@@ -20,7 +20,9 @@ export interface Publication {
   contribution: Contribution;
   /** 一句话中文简介 */
   tldr?: string;
-  links?: { arxiv?: string; code?: string; project?: string };
+  links?: { arxiv?: string; code?: string; project?: string; poster?: string };
+  /** 海报预览图(点击跳转 links.poster 的 PDF) */
+  posterImage?: string;
   /** 代表作标记,排序时置顶 */
   selected?: boolean;
 }

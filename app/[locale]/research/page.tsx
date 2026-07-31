@@ -116,8 +116,25 @@ export default async function ResearchPage({
                       {pub.tldr}
                     </p>
                   ) : null}
+                  {pub.posterImage ? (
+                    <a
+                      href={pub.links?.poster}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 block max-w-3xl"
+                      title={t("poster")}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={pub.posterImage}
+                        alt={`${pub.title} poster`}
+                        loading="lazy"
+                        className="rounded-2xl ring-1 ring-hairline transition-opacity duration-300 ease-premium hover:opacity-90"
+                      />
+                    </a>
+                  ) : null}
                 </div>
-                {pub.links?.code || pub.links?.project ? (
+                {pub.links?.code || pub.links?.project || pub.links?.poster ? (
                   <p className="mt-2 flex shrink-0 gap-4 font-mono text-xs sm:mt-0 sm:flex-col sm:items-end sm:gap-1.5 sm:pt-0.5">
                     {pub.links?.code ? (
                       <a
@@ -137,6 +154,16 @@ export default async function ResearchPage({
                         className="text-muted transition-colors duration-300 ease-premium hover:text-accent"
                       >
                         {t("project")} ↗
+                      </a>
+                    ) : null}
+                    {pub.links?.poster ? (
+                      <a
+                        href={pub.links.poster}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-muted transition-colors duration-300 ease-premium hover:text-accent"
+                      >
+                        {t("poster")} ↗
                       </a>
                     ) : null}
                   </p>
