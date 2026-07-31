@@ -5,7 +5,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
 import PageHeader from "@/components/layout/PageHeader";
+import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { imageUrl } from "@/lib/images";
 import {
   getResearch,
   sortPublications,
@@ -72,30 +74,55 @@ export default async function ResearchPage({
                   {pub.date}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <a
-                    href={pub.links?.arxiv}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group inline-flex items-baseline gap-1.5"
-                  >
-                    {pub.selected ? (
-                      <span
+                  {pub.slug ? (
+                    <Link
+                      href={`/research/${pub.slug}`}
+                      className="group inline-flex items-baseline gap-1.5"
+                    >
+                      {pub.selected ? (
+                        <span
+                          aria-hidden
+                          className="shrink-0 self-center text-accent"
+                          title={t("selected")}
+                        >
+                          ★
+                        </span>
+                      ) : null}
+                      <h3 className="font-medium leading-snug tracking-tight transition-colors duration-300 ease-premium group-hover:text-accent">
+                        {pub.title}
+                      </h3>
+                      <ArrowUpRight
+                        size={13}
                         aria-hidden
-                        className="shrink-0 self-center text-accent"
-                        title={t("selected")}
-                      >
-                        ★
-                      </span>
-                    ) : null}
-                    <h3 className="font-medium leading-snug tracking-tight transition-colors duration-300 ease-premium group-hover:text-accent">
-                      {pub.title}
-                    </h3>
-                    <ArrowUpRight
-                      size={13}
-                      aria-hidden
-                      className="shrink-0 self-center text-accent opacity-0 transition-opacity duration-300 ease-premium group-hover:opacity-100"
-                    />
-                  </a>
+                        className="shrink-0 self-center text-accent opacity-0 transition-opacity duration-300 ease-premium group-hover:opacity-100"
+                      />
+                    </Link>
+                  ) : (
+                    <a
+                      href={pub.links?.arxiv}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group inline-flex items-baseline gap-1.5"
+                    >
+                      {pub.selected ? (
+                        <span
+                          aria-hidden
+                          className="shrink-0 self-center text-accent"
+                          title={t("selected")}
+                        >
+                          ★
+                        </span>
+                      ) : null}
+                      <h3 className="font-medium leading-snug tracking-tight transition-colors duration-300 ease-premium group-hover:text-accent">
+                        {pub.title}
+                      </h3>
+                      <ArrowUpRight
+                        size={13}
+                        aria-hidden
+                        className="shrink-0 self-center text-accent opacity-0 transition-opacity duration-300 ease-premium group-hover:opacity-100"
+                      />
+                    </a>
+                  )}
                   <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted">
                     <span className="rounded-full bg-accent/10 px-2 py-0.5 text-accent">
                       {pub.venue}
@@ -118,7 +145,7 @@ export default async function ResearchPage({
                   ) : null}
                   {pub.posterImage ? (
                     <a
-                      href={pub.links?.poster}
+                      href={imageUrl(pub.links?.poster ?? pub.posterImage)}
                       target="_blank"
                       rel="noreferrer"
                       className="mt-3 block max-w-3xl"
@@ -126,7 +153,7 @@ export default async function ResearchPage({
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={pub.posterImage}
+                        src={imageUrl(pub.posterImage)}
                         alt={`${pub.title} poster`}
                         loading="lazy"
                         className="rounded-2xl ring-1 ring-hairline transition-opacity duration-300 ease-premium hover:opacity-90"
@@ -158,7 +185,7 @@ export default async function ResearchPage({
                     ) : null}
                     {pub.links?.poster ? (
                       <a
-                        href={pub.links.poster}
+                        href={imageUrl(pub.links.poster)}
                         target="_blank"
                         rel="noreferrer"
                         className="text-muted transition-colors duration-300 ease-premium hover:text-accent"
