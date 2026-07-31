@@ -1,0 +1,565 @@
+{
+  "date": "2026-07-30",
+  "generatedAt": "2026-07-31T05:45:55.793138+00:00",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2607.27205",
+      "title": "TurboVLA: Real-Time Vision-Language-Action Model at 32 Hz on an RTX 4090 with <1 GB VRAM",
+      "authors": [
+        "Hengyi Xie",
+        "Chenfei Yao",
+        "Xianjin Wu",
+        "Xuanyang Xi",
+        "Yiping Tang",
+        "Di Xu"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Vision-language-action (VLA) models commonly adopt an LLM-centric V to L to A pathway, where visual observations are projected into the representation space of a large language model before being decoded into robot actions. Although effective, this design incurs substantial computation and memory overhead at every policy invocation. In this work, we introduce TurboVLA, a new VLA paradigm that reformulates the conventional V to L to A pathway as a direct V + L to A mapping. Instead of using a large language model as the central interface between perception and action, TurboVLA independently encodes visual observations and language instructions, directly exchanges information between them through lightweight bidirectional vision-language interaction, and predicts continuous action chunks with a compact decoder. This simple design constructs task-conditioned representations directly from visual and linguistic features, significantly reducing the computational and memory costs of VLA inference. On LIBERO, TurboVLA achieves 97.7% average success with only 0.2B parameters, 31.2 ms inference latency, and 0.9 GB inference VRAM on a consumer-grade RTX 4090, matching or outperforming substantially larger VLA policies. These results establish TurboVLA as a simple and effective alternative to the prevailing LLM-centric VLA paradigm, offering a new perspective on how vision, language, and action can be connected for efficient robotic manipulation. Code is available at https://github.com/H-EmbodVis/TurboVLA.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.27205",
+        "pdf": "https://arxiv.org/pdf/2607.27205"
+      },
+      "upvotes": 122,
+      "githubRepo": "https://github.com/H-EmbodVis/TurboVLA",
+      "githubStars": 100,
+      "projectPage": "https://h-embodvis.github.io/TurboVLA/",
+      "numComments": 2,
+      "titleZh": "TurboVLA：在 RTX 4090 上以 32 Hz 实时运行的视觉-语言-动作模型，显存占用小于 1 GB",
+      "summaryZh": "传统 VLA 模型依赖以 LLM 为中心的 V→L→A 管线，每次推理计算和内存开销大。TurboVLA 重新设计为直接 V+L→A 映射，独立编码视觉与语言，通过轻量双向交互融合特征，并用紧凑解码器预测连续动作块。在 LIBERO 上仅 0.2B 参数取得 97.7% 平均成功率，RTX 4090 推理延迟 31.2 ms、显存 0.9 GB，性能持平或超越更大模型，为高效机器人操作提供了简洁替代方案。"
+    },
+    {
+      "id": "2607.25659",
+      "title": "CoRT: Counterfactual Replay for Token-Level Rubric-Guided Policy Optimization",
+      "authors": [
+        "Bo-Wen Zhang",
+        "Junwei He",
+        "Wen Wang",
+        "Song-Lin Lv",
+        "Wentao Ma",
+        "Rongyi Lin"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Rubric-based reinforcement learning enriches language model training by evaluating model outputs against explicit criteria. Yet in GRPO-style pipelines, these structured judgments are reduced to a scalar response-level reward and converted into a response-level advantage, which is broadcast uniformly to all generated tokens. This leaves no explicit mechanism for allocating credit within a response, even when different criteria are grounded in different spans, formatting decisions, or semantic choices. We propose CoRT, a token-level credit weighting method for rubric-conditioned GRPO. Instead of training an auxiliary token scoring model, CoRT uses counterfactual replay to rescore the same sampled response under the original rubric-conditioned prompt and a matched criteria-free prompt. The resulting tokenwise log-likelihood contrasts serve as a proxy for dependence on the rubric context. CoRT maps these contrasts to bounded, response-normalized weights and uses them to redistribute the signed GRPO advantage across tokens, without introducing an auxiliary scorer or changing the response-level reward. Experiments across instruction-tuned models and reward granularities show that CoRT improves over matched response-level GRPO in the vast majority of comparisons, with an average gain of 4.4 percentage points. The method remains competitive with learned token-level credit baselines while avoiding a separate relevance-learning stage. These results suggest that policy-internal counterfactual likelihood contrasts provide an effective training signal for within-response credit allocation while retaining the simplicity and stability of GRPO.",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.25659",
+        "pdf": "https://arxiv.org/pdf/2607.25659"
+      },
+      "upvotes": 78,
+      "numComments": 3,
+      "titleZh": "CoRT：面向Token级评分标准引导策略优化的反事实重放",
+      "summaryZh": "针对GRPO式强化学习中评分标准信号被压缩为响应级奖励、缺乏token级信用分配的问题，提出CoRT方法。通过反事实重放对比同一响应在原始评分标准提示与无标准提示下的token级对数似然，构造权重来重新分配带符号的GRPO优势，无需额外评分模型。在指令微调模型上的实验显示CoRT相较响应级GRPO平均提升4.4个百分点，并可与学习到的token级信用分配方法竞争，同时保持GRPO的简洁与稳定。"
+    },
+    {
+      "id": "2607.26811",
+      "title": "DistillAlign: Coordinating Mode Covering and Mode Seeking in Autoregressive Video Distillation",
+      "authors": [
+        "Jiaxing Li",
+        "Kai Zou",
+        "Cindy Zhou",
+        "Kaichen Huang",
+        "Junyao Gao",
+        "Zile Wang"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Existing autoregressive video distillation methods commonly adopt a Distribution Matching Distillation (DMD)-based multi-stage pipeline. However, they typically decouple the initialization and DMD stages -- which then pursue different target distributions -- and judge the intermediate student mainly by visual scores such as VBench. In this paper, we revisit this design from a distributional perspective. Given the mode-seeking nature of the distribution matching loss, a good initialization should match the mode coverage of the target DMD teacher, rather than merely pursuing high quality. To analyze this, we introduce a distributional evaluation protocol that measures precision and coverage between student and teacher distributions in a shared latent space. It exposes differences hidden by visual scores: some initializations reach high precision but low coverage, leading to suboptimal refinement, while mode-covering ones preserve broader support. Furthermore, even when the target distributions are aligned, DMD's reverse-KL objective can still drive the student toward high-probability teacher regions in late training, reducing coverage and diversity. To address this, we propose joint distillation, which combines DMD's mode-seeking objective with a Consistency Distillation-based mode-covering constraint. Experiments show that our method improves generation quality, coverage, and diversity; notably, even with a Wan-1.3B DMD teacher, it outperforms baselines refined with Wan-14B, underscoring the importance of distributional alignment in autoregressive video distillation.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.26811",
+        "pdf": "https://arxiv.org/pdf/2607.26811"
+      },
+      "upvotes": 70,
+      "githubRepo": "https://github.com/LiJiaxing0213/DistillAlign",
+      "githubStars": 64,
+      "projectPage": "https://lijiaxing0213.github.io/DistillAlign/",
+      "numComments": 2,
+      "titleZh": "DistillAlign: 协调自回归视频蒸馏中的模态覆盖与模态搜索",
+      "summaryZh": "针对自回归视频蒸馏中初始阶段与DMD阶段分布不匹配的问题，从一个分布视角重新思考，并提出一种分布评估协议，揭示了精度与覆盖率之间的权衡。为了协调模态覆盖与模态搜索，提出联合蒸馏方法，结合DMD的模态搜索损失与一致性蒸馏的模态覆盖约束。实验结果显示，该方法在生成质量、覆盖率和多样性上均有提升，使用1.3B教师模型甚至优于14B教师模型基线，证实了分布对齐的重要性。",
+      "relevant": false
+    },
+    {
+      "id": "2607.27180",
+      "title": "HumanCLAW: Can Vision-Language Models Act Through a Body?",
+      "authors": [
+        "Siyao Li",
+        "Jiawei Gu",
+        "Shuai Liu",
+        "Kairui Hu",
+        "Zekun Li",
+        "Linjie Li"
+      ],
+      "authorsTotal": 18,
+      "abstract": "Evaluating whether a vision-language model (VLM) can act through a physical body is challenging. The outcome of an action couples the VLM's decision with motor control. When a task fails, it is hard to tell whether the VLM made a bad choice or the motor controller simply failed to execute it, e.g., losing balance and falling. In this work, we introduce HumanCLAW, an evaluation framework that decouples action decision-making from low-level execution. At every step, a harnessed, off-the-shelf VLM issues an atomic skill command, and the command is translated into a sub-second chunk of continuous full-body motion with real physical consequences, including gravity and collisions. The body can therefore act freely in the physical world, while execution-side disturbances, balance and motor errors, are factored out. What remains measurable is the model's action intelligence: its moment-to-moment choice of what the body should execute next. Based on this framework, we build HumanCLAW-Bench: 1,218 long-horizon, egocentric find-navigate-interact episodes across 41 indoor scenes. We test nine state-of-the-art VLMs and find that none solves the benchmark; the best model reaches only a 16.8% success rate. Recognizing the target is not the bottleneck. What current VLMs lack is embodied self-awareness: they lose track of their own body, failing to tell where it is, whether it has reached the goal, or whether it has hit an obstacle.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.27180",
+        "pdf": "https://arxiv.org/pdf/2607.27180"
+      },
+      "upvotes": 67,
+      "githubRepo": "https://github.com/Human-CLAW/HumanCLAW",
+      "githubStars": 35,
+      "projectPage": "https://human-claw.github.io/",
+      "numComments": 5,
+      "titleZh": "HumanCLAW: 视觉语言模型能否通过身体行动？",
+      "summaryZh": "解决视觉语言模型在物理环境中行动评估时决策与执行耦合的问题。提出HumanCLAW框架，将高层技能决策与低层运动执行解耦，由VLM发出原子技能指令并转化为真实物理后果，从而独立衡量模型的行动智能。基于此构建了包含1218个长程自我中心寻找-导航-交互任务的基准，测试9个前沿VLM，最佳成功率仅16.8%。瓶颈不在目标识别，而在于缺乏具身自我意识，模型无法跟踪自身身体状态，如位置、是否到达目标或碰到障碍。"
+    },
+    {
+      "id": "2607.25675",
+      "title": "DecoEvo: Score-Decoupled Co-Evolution of Solver and Rubric-Generator Skills in Text Space",
+      "authors": [
+        "Jiangwang Chen",
+        "Zixin Song",
+        "Junlin Liu",
+        "Shuaiyu Zhou",
+        "Haiyan Wu",
+        "Haihan Shi"
+      ],
+      "authorsTotal": 13,
+      "abstract": "Text-space optimization adapts large language models (LLMs) by editing external natural-language artifacts rather than model weights, so the optimized artifacts remain inspectable and the model can be treated as a black box. However, most existing text-space methods keep evaluation fixed. On open-ended tasks, this can become a bottleneck: once the solver improves on the criteria a rubric measures, omitted dimensions remain invisible to the optimization signal. Simply evolving the rubric is also unreliable when updates are selected by the current solver's score, because apparent progress can come from making the rubric easier to satisfy. We introduce DecoEvo (Decoupled Co-Evolution), which co-evolves a solver skill and a rubric-generator skill under decoupled objectives without using gold rubrics during optimization. The solver skill is updated using criterion-level feedback, while the rubric-generator skill is revised through complementary audits of requirement coverage and response discrimination that are independent of aggregate solver score. This separation focuses generator updates on newly exposed solver weaknesses, reducing repeated emphasis on criteria the solver already satisfies. Under each benchmark's official evaluation, DecoEvo outperforms all compared methods across five benchmarks and three LLM backbones, yielding 2.8--5.0\\% relative gains over SkillOpt in the five-benchmark average.",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.25675",
+        "pdf": "https://arxiv.org/pdf/2607.25675"
+      },
+      "upvotes": 58,
+      "numComments": 3,
+      "titleZh": "DecoEvo：文本空间中求解器与评分标准生成器技能的解耦协同进化",
+      "summaryZh": "在文本空间优化中，固定的评价标准会限制模型在开放式任务上的改进潜力，因为已满足标准后，遗漏维度无法被优化信号感知。DecoEvo 通过解耦目标协同进化求解器与评分标准生成器：求解器基于标准级反馈更新，标准生成器则通过需求覆盖和响应区分的补充审计独立修订，聚焦求解器新暴露的弱点。在五个基准和三个LLM主干上，DecoEvo 均优于现有方法，相比 SkillOpt 在平均性能上相对提升 2.8% 至 5.0%。"
+    },
+    {
+      "id": "2607.25294",
+      "title": "CLBench-V: Evaluating Multimodal Context Learning from Grounding to Knowledge Acquisition",
+      "authors": [
+        "Lai Wei",
+        "Chengqi Li",
+        "Jiapeng Li",
+        "Ruina Hu",
+        "Yue Wang",
+        "Weiran Huang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Real-world tasks often require models to learn from task-specific context rather than relying only on pre-trained knowledge. While recent work has highlighted this capability as context learning, existing evaluations mainly focus on textual contexts. In many practical settings, however, the context to be learned from is multimodal: scientific findings are conveyed through figures and tables, financial indicators are scattered across converted reports, and spatial decisions depend on maps, scenes, or web pages. We introduce CLBench-V, a benchmark for multimodal context learning that addresses the difficulty of localizing where context use breaks down by organizing tasks around three dimensions: context grounding, new information application, and new knowledge learning. CLBench-V combines converted public benchmarks with newly constructed datasets spanning domains such as science, finance, long-document understanding, spatial reasoning, and web-based visual question answering. To reduce the cost of constructing domain-specific context-learning tasks, we further use automated construction and filtering procedures for our newly built datasets. Across 3,443 instances and six recent multimodal models, the best overall score is only 0.2847, indicating that multimodal context learning remains far from saturated. Moreover, InternVL3.5-30B-A3B performs best on context grounding and new knowledge learning, while Qwen3.5-Plus performs best on new information application. We further analyze judge reliability, context length, image count, and representative failure cases. Code is available at https://github.com/IamLihua/CLBench-V.",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.25294",
+        "pdf": "https://arxiv.org/pdf/2607.25294"
+      },
+      "upvotes": 42,
+      "githubRepo": "https://github.com/IamLihua/CLBench-V",
+      "githubStars": 3,
+      "numComments": 2,
+      "titleZh": "CLBench-V: 从接地到知识获取的多模态上下文学习评估",
+      "summaryZh": "针对现实任务中模型需从多模态上下文学习而现有评估局限于文本的不足，构建基准CLBench-V，围绕上下文接地、新信息应用和新知识学习三个维度设计任务。数据集涵盖科学、金融、长文档、空间推理和网页视觉问答等领域，采用自动化构建与过滤降低标注成本。在3443个实例上测试6个多模态模型，最佳总分仅0.2847，InternVL3.5-30B-A3B在接地和知识学习上领先，Qwen3.5-Plus在新信息应用上最优。分析揭示了上下文长度、图像数量和典型失败模式，为多模态上下文学习研究提供系统评测工具。"
+    },
+    {
+      "id": "2607.25308",
+      "title": "CAST: Game Solvers as Turn-Level Teachers for LLM Agents",
+      "authors": [
+        "Yu Wang",
+        "Yi-Kai Zhang",
+        "Wentao Shi",
+        "Ziang Ye",
+        "Yuchun Miao",
+        "Yueqing Sun"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Training large language models (LLMs) to act in long-horizon games is a promising step toward generalist decision-making, yet reinforcement learning with verifiable rewards (RLVR) relies on sparse final rewards that reveal little about which decisions determine success. Denser process signals could supply this missing turn-level credit, but existing sources are hard to keep both cheap and accurate. We observe that changes in a game solver's state value reveal whether an action advances the state toward success. Building on this insight, we propose CAST (Credit Assignment from Solver Teachers), which converts these value changes into solver advantages and injects them into RLVR as turn-level signals. We further show that, under a soft-optimal solver assumption, maximizing the solver advantage is equivalent to on-policy distillation from the solver, requiring only scalar values rather than teacher logits. Across Sokoban, Minesweeper, and Rush Hour, CAST outperforms all trained baselines on every game under both in-domain and unseen-difficulty evaluation and achieves the highest average zero-shot performance on ALFWorld and WebShop. Our code is available at https://github.com/Wloner0809/CAST.",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.25308",
+        "pdf": "https://arxiv.org/pdf/2607.25308"
+      },
+      "upvotes": 32,
+      "githubRepo": "https://github.com/Wloner0809/CAST",
+      "githubStars": 8,
+      "numComments": 2,
+      "titleZh": "CAST：将博弈求解器作为回合级教师用于LLM智能体",
+      "summaryZh": "训练LLM在长时域博弈中决策时，强化学习的稀疏奖励难以归因回合级贡献。该方法观察博弈求解器的状态值变化，将其转化为求解器优势，作为密集的过程信号注入RLVR训练。在软最优求解器假设下，最大化该优势等价于从求解器进行在线策略蒸馏，仅需标量值。在推箱子、扫雷和Rush Hour上，CAST在所有域内和跨难度评估中均超越基线，并在ALFWorld和WebShop上取得最高平均零样本性能。"
+    },
+    {
+      "id": "2607.26784",
+      "title": "SkillRise: Agentic Reinforcement Learning for Cross-Task Skill Evolution",
+      "authors": [
+        "Zhiyuan Yao",
+        "Yuxin Chen",
+        "Zhengxi Lu",
+        "Zishan Xu",
+        "Yueqing Sun",
+        "Yifu Guo"
+      ],
+      "authorsTotal": 16,
+      "abstract": "Large language model agents often encounter related yet distinct tasks that share reusable solution patterns. Yet standard agentic reinforcement learning treats tasks as independent episodes, while existing approaches to skill learning either focus on repeated attempts of one task or use pipelines with multiple stages that entangle extraction, retrieval, and execution. We introduce SkillRise, a unified reinforcement learning framework for learning skills across tasks. SkillRise organizes related instances into progressively challenging sequences and uses a single policy to alternate between task solving and curating an evolving skill document passed directly to the next task. Decoupled credit assignment across tasks supervises solving with the current task outcome and curation with discounted downstream outcomes. Experiments on ALFWorld, WebShop, and ScienceWorld show that SkillRise achieves the strongest Pass@1 performance among the compared methods, with gains over the strongest baseline ranging from 2.3 to 8.5 percentage points. Although trained across distinct tasks, its learned curation policy remains effective for repeated attempts on the same task. Further analysis reveals scaling at test time across tasks: performance improves with longer sequences of related tasks even when each task is attempted only once. This trend suggests that SkillRise reuses transferable skills across tasks rather than benefiting from repeated sampling of the same task. SkillRise further retains strong performance while substantially reducing the runtime overhead of skill learning pipelines with multiple stages. Together, these results provide a simple and efficient training paradigm for LLM agents to extract, refine, and reuse transferable skills across tasks.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.26784",
+        "pdf": "https://arxiv.org/pdf/2607.26784"
+      },
+      "upvotes": 22,
+      "githubRepo": "https://github.com/Within-yao/SkillRise",
+      "githubStars": 7,
+      "numComments": 2,
+      "titleZh": "SkillRise：跨任务技能进化的智能体强化学习",
+      "summaryZh": "大语言模型智能体常遇相关但不同任务，可复用解决模式未被充分利用。SkillRise 统一强化学习框架，将相关任务组织为递增难度序列，单一策略交替求解与整理技能文档，文档传递至后续任务，用当前及下游任务结果解耦监督。在 ALFWorld、WebShop、ScienceWorld 上 Pass@1 最优，超越最强基线 2.3-8.5 百分点；测试时随任务序列增长性能提升，展现跨任务迁移。高效简单，降低多阶段管线开销。"
+    },
+    {
+      "id": "2607.27146",
+      "title": "MindForge: Teaching Small Language Models Whole-Life-Cycle Software Engineering via Source-Free Program Synthesis",
+      "authors": [
+        "Yihao Chen",
+        "Shi Chang",
+        "Khaled Chawa",
+        "Feng Lin",
+        "Boyuan Chen",
+        "Shaowei Wang"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Coding agents have made substantial progress on software engineering tasks that modify existing codebases, including bug fixing and feature implementation. However, constructing a complete program from scratch remains a major challenge: even the frontier models evaluated on ProgramBench fully resolve fewer than 1% of tasks. One obstacle is the lack of scalable training environments for this from-scratch setting, spanning the whole software engineering life cycle, as existing environment-construction frameworks focus only on a single phase in software development. To address this gap, we introduce MindForge, an automated pipeline that converts open-source command-line programs into source-free environments that expose only a compiled reference executable and its documentation. Using MindForge, we construct training environments from repositories disjoint from those in ProgramBench, and curate a high-quality data recipe consisting of program synthesis trajectories using GLM-5.2 as the teacher agent. Fine-tuning Qwen3.6-27B on these trajectories increases its ProgramBench average test pass rate from 37.98% to 49.51%, achieving performance comparable to substantially larger frontier models. Moreover, the fine-tuned model consistently improves over the base model across all seven unseen software engineering benchmarks, spanning long-horizon repository generation and translation, bug fixing, feature implementation, and cross-language issue resolution, with absolute gains of 31.00 points on RepoZero-C2Rust, 14.16 on DeepSWE, 10.70/4.56 on NL2Repo-Bench (with/without tests), 5.04 on SWE-bench Verified, 5.93 on SWE-bench Pro, 5.22 on SWE-bench Multilingual, and 4.94 on FeatBench.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.27146",
+        "pdf": "https://arxiv.org/pdf/2607.27146"
+      },
+      "upvotes": 19,
+      "numComments": 2,
+      "titleZh": "MindForge：通过无源码程序合成教授小语言模型全生命周期软件工程",
+      "summaryZh": "解决编码代理从零构建完整程序困难的问题，现有环境仅覆盖单一开发阶段。MindForge 将开源命令行程序自动转换为只暴露编译可执行文件和文档的无源码训练环境，并用 GLM-5.2 教师代理生成程序合成轨迹数据。在 Qwen3.6-27B 上微调后，ProgramBench 平均测试通过率从 37.98% 提升至 49.51%，接近大模型性能；在七个未见基准上全面超越基座模型，如 RepoZero-C2Rust 提升 31 分，DeepSWE 提升 14.16 分。为小模型通过合成数据掌握全周期软件工程提供了有效方案，适用于程序合成、代码修复及跨语言问题解决等场景。"
+    },
+    {
+      "id": "2607.27167",
+      "title": "SpecFirst: Behavioral Specification Elicitation as a First-Class Step in Agent-Based Program Synthesis from Scratch",
+      "authors": [
+        "Yihao Chen",
+        "Shi Chang",
+        "Feng Lin",
+        "Khaled Chawa",
+        "Boyuan Chen",
+        "Shaowei Wang"
+      ],
+      "authorsTotal": 7,
+      "abstract": "LLM-based agents excel at software engineering tasks where an existing codebase provides context, but constructing a program from scratch remains fundamentally harder. Recent benchmarks such as ProgramBench quantify this gap: given only natural-language documentation and an execute-only binary as a behavioral oracle, even frontier models solve fewer than 1% of instances. Existing frameworks conflate documentation reading, behavioral exploration, and code synthesis into a single pass, causing agents to probe insufficiently, lose behavioral intent as context drifts, and propagate early misinterpretations into the final implementation. Inspired by classical requirements engineering, we argue that behavioral specification elicitation should be a first-class phase that precedes implementation. We present SpecFirst, a two-stage framework that forces the specification elicitation before code synthesis. A dedicated spec agent first probes the binary and combines observations with documentation into a structured specification. Next, a code synthesis agent then uses this specification to drive implementation. This decomposition resolves documentation ambiguities before coding begins and provides a stable behavioral reference throughout synthesis. We evaluate SpecFirst on all 200 ProgramBench instances across four models spanning two families and an order of magnitude of capability. SpecFirst consistently outperforms the single-loop baseline, improving test pass rates by 6.9%-21.3% and binary exploration coverage by 9.4%-18.5%, all statistically significant. Behavioral analysis on code synthesis further shows that a prior specification enables earlier and more sustained code construction. Our results demonstrate that an explicit requirements-engineering phase is an effective paradigm for from-scratch program construction.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.27167",
+        "pdf": "https://arxiv.org/pdf/2607.27167"
+      },
+      "upvotes": 16,
+      "numComments": 2,
+      "titleZh": "SpecFirst：将行为规范提取作为基于Agent的从零开始程序合成的首要步骤",
+      "summaryZh": "从零构建程序时，LLM Agent因缺乏代码上下文而难以进行有效的行为探索，现有单步框架常导致意图漂移和错误传播。SpecFirst强制引入先于代码合成的规范提取阶段，由专用Agent探测二进制并合文档生成结构化规范，再供代码合成Agent使用。在ProgramBench全部200个实例上，跨四个模型测试通过率提升6.9%-21.3%，二进制覆盖率提升9.4%-18.5%，且规范能促进更早、更持续的代码构建。这表明显式需求工程可显著增强Agent从零编程的能力。"
+    },
+    {
+      "id": "2607.26754",
+      "title": "StatePlay: State-Aware Game World Models for Mechanics-Consistent Generation",
+      "authors": [
+        "Zijun Lin",
+        "Zeqing Wang",
+        "Cheston Tan",
+        "Bihan Wen",
+        "Yeying Jin"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Recent game world models can generate visually realistic and interactive environments conditioned on player actions. However, games are not defined by pixels alone; they are governed by explicit mechanics, namely state-dependent rules that control health reduction, skill activation, and game termination. These mechanics depend on precise internal states, such as health points, skill meters, and timers, which are tightly coupled with visual observations and determine how gameplay evolves. Without modeling these state dynamics, existing game world models may generate visually plausible rollouts but violate the underlying game rules. In this paper, we propose StatePlay, a novel state-aware game world model that jointly predicts visual content and game states to promote mechanics-consistent generation. StatePlay adopts a mixture-of-transformers (MoT)-style architecture that preserves specialized visual and state representations while enabling cross-modal interaction, allowing predicted states to guide frame generation. Each branch is further optimized with a distinct objective suited to its modality. Experiments show that StatePlay achieves an average normalized L1 distance below 0.06 for state prediction. Furthermore, compared with models without explicit state modeling, our method improves mechanics fidelity in generated game rollouts by 18.6%. Overall, our work highlights the importance of state-aware game world modeling and advances beyond pixel-level realism toward complete and mechanically faithful game generation.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.26754",
+        "pdf": "https://arxiv.org/pdf/2607.26754"
+      },
+      "upvotes": 14,
+      "githubRepo": "https://github.com/Jimntu/StatePlay",
+      "githubStars": 9,
+      "projectPage": "https://jimntu.github.io/stateplay_page/",
+      "numComments": 2,
+      "titleZh": "StatePlay: 面向机制一致生成的状态感知游戏世界模型",
+      "summaryZh": "现有游戏世界模型仅关注视觉逼真，忽视了生命值、技能等内部状态驱动的游戏机制，导致生成内容违反规则。StatePlay采用混合Transformer架构，分别维护视觉与状态表征并通过跨模态交互使状态预测指导画面生成，各分支以适配模态的目标优化。实验表明，状态预测的平均归一化L1距离低于0.06，相比无显式状态建模的方法，生成游戏回放中的机制保真度提升18.6%。该工作强调状态感知建模对实现机制忠实游戏生成的重要性。",
+      "relevant": false
+    },
+    {
+      "id": "2607.27191",
+      "title": "Can AI agents conduct open-ended AI research? Early evidence from two case studies",
+      "authors": [
+        "Peter Kirgis",
+        "Sayash Kapoor",
+        "Andrew Schwartz",
+        "Stephan Rabanser",
+        "David Africa",
+        "Konstantinos Voudouris"
+      ],
+      "authorsTotal": 24,
+      "abstract": "Forecasts of explosive AI progress hinge on AI agents automating AI research. But evidence on whether agents can carry out open-ended AI research is thin. Current evaluations either test agents on narrow, verifiable tasks, which excludes open-ended research, or submit AI-generated papers to blind peer review, which is overstretched, stochastic, and suffers from poor review quality. We introduce a third way to measure progress towards AI R\\&D automation. An agent takes on the central, open-ended research question of a high-quality unpublished paper, and the paper's original authors grade its output. We call these shadow evaluations. We ran shadow evaluations on two unpublished NeurIPS 2026 submissions, giving frontier agents six days and thousands of dollars of compute. The agents completed all of the engineering without human help, yet could not make substantial progress towards answering the research questions. As a result, both papers were unambiguously rejected by the authors. We identify five recurring failure modes: poor judgment about the bar for publishable research, uncreative responses to shortcomings in the research design, ineffective backtracking from dead ends, poor resource awareness, and instruction drift. A robustness check with a second model and scaffold reproduced these failures. We release the expert reviews, survey responses, agent repositories, and logs. Our results provide early evidence that today's agents can do the engineering of AI research, but struggle with critical parts of the research lifecycle.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.27191",
+        "pdf": "https://arxiv.org/pdf/2607.27191"
+      },
+      "upvotes": 12,
+      "projectPage": "https://cruxevals.com/",
+      "numComments": 1,
+      "titleZh": "AI 智能体能进行开放式 AI 研究吗？两项案例研究的早期证据",
+      "summaryZh": "针对 AI 代理能否自动化 AI 研究的验证难题，提出影子评估方法：将未发表论文的核心开放研究问题交给前沿智能体，由其独立完成工程实现，并由原作者评分。在两项 NeurIPS 2026 投稿上，智能体使用数千美元计算资源、耗时六天完成了所有工程，但未能实质推进研究问题，两篇论文均被明确拒稿。分析揭示了五个典型失败模式：对发表门槛判断差、对研究设计缺陷应对缺乏创意、无法有效从死胡同回溯、资源意识薄弱以及指令漂移。另一模型与框架复现了这些失败。结果表明，当前智能体可以完成 AI 研究中的工程实现，但在研究生命周期的关键环节依然困难。"
+    },
+    {
+      "id": "2607.27278",
+      "title": "OVEarth-Bench: Evaluating Category Breadth and Query Diversity for Open-Vocabulary Earth Observation",
+      "authors": [
+        "Kaiyu Li",
+        "Zepeng Xin",
+        "Zixuan Jiang",
+        "Jing Fu",
+        "Lanxuan Xue",
+        "Lingyu Zhang"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Open-vocabulary Earth observation (EO) aims to localize geospatial concepts specified in natural language rather than a fixed label set. Existing benchmarks, however, usually cover narrow category vocabularies or limited query forms. To fill this gap, we introduce OVEarth-Bench, which extends existing evaluation in two directions: category breadth, through broad hierarchical category coverage with positive and negative expressions, and query diversity, through vocabulary, referring, and reasoning queries. The benchmark supports mask and box localization under a unified zero-shot protocol. We evaluate a broad set of general and EO-specific methods. The evaluation reveals that: (1) the performance of current methods remains limited, while broader category coverage yields more stable model rankings; (2) MLLM-based methods achieve the strongest overall performance; and (3) EO-specific methods generally underperform general models and rarely match the strongest methods. These findings provide guidance for future open-vocabulary EO method design and highlight the importance of developing more realistic, diverse, high-quality, and large-scale benchmarks for reliable evaluation. Our data and evaluation package are released at https://earth-insights.github.io/OVEarth-bench.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.27278",
+        "pdf": "https://arxiv.org/pdf/2607.27278"
+      },
+      "upvotes": 8,
+      "githubRepo": "https://github.com/earth-insights/OVEarth-bench",
+      "githubStars": 4,
+      "projectPage": "https://earth-insights.github.io/OVEarth-bench/",
+      "numComments": 1,
+      "titleZh": "OVEarth-Bench: 评估开放词汇地球观测的类别广度与查询多样性",
+      "summaryZh": "针对现有开放词汇地球观测基准普遍存在类别覆盖窄、查询形式局限的问题，提出涵盖层次化正负类别与词汇、指代、推理等多类型查询的OVEarth-Bench，支持零样本mask与box定位。评测显示更广的类别覆盖使模型排名更稳定，多模态大语言模型方法综合表现最强，而地球观测专用方法普遍落后。该基准为构建更真实多样的评估体系及未来方法设计提供了重要参考。",
+      "relevant": false
+    },
+    {
+      "id": "2607.26410",
+      "title": "Voice Memory for Agentic Speech Recognition",
+      "authors": [
+        "Chao-Han Huck Yang",
+        "Zih-Ching Chen",
+        "Piotr Zelasko",
+        "Zhehuai Chen",
+        "Jagadeesh Balam",
+        "Boris Ginsburg"
+      ],
+      "authorsTotal": 6,
+      "abstract": "We present Voice Memory, a inference-only scheme for agentic speech recognition: at stream time, a frozen corrector reads a single per-domain memory.md and decides per utterance whether to act on the hypothesis or abstain and keep the 1-best. Asynchronously, a score-gated optimizer revises that file through bounded edits, accepting an edit only when it strictly improves a held-out score. Extended from classical ASR-LM framework, we refer this split the listener-thinker architecture; the two roles are coupled only through the memory, so no weights change and the learned skill stays auditable and portable. Restraint turns out to be the operative skill this loop discovers: unconstrained generative error correction (GER) over-corrects, breaking correct tokens on up to 64% of its edits on financial news, and Voice Memory, reduces this rate to 35%. Across ten HyPoradise domains with an open corrector, Voice Memory, lowers weighted word error rate from 8.36% to 7.52% (7.47% with three added in-context examples) without regressing any dataset below its 1-best baseline; gains concentrate where recoverable headroom is largest, including air-travel commands (8.40% to 3.40%) and noisy far-field speech (CHiME-4, 12.69% to 10.46%). The memory transfers across corrector families and adds zero parameters to the inference path. A demo and example code are provided for future studies.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.26410",
+        "pdf": "https://arxiv.org/pdf/2607.26410"
+      },
+      "upvotes": 7,
+      "githubRepo": "https://github.com/huckiyang/voice-memory-notebook",
+      "githubStars": 0,
+      "projectPage": "https://huckiyang.github.io/voice-memory/",
+      "numComments": 2,
+      "titleZh": "面向智能体语音识别的语音记忆",
+      "summaryZh": "提出语音记忆方法，在推理阶段利用冻结核准器读取领域记忆文件，逐句决定是否修正识别假设，从而降低生成式纠错带来的过度修正问题。异步评分门控优化器通过有限编辑更新记忆，只接受严格提升留存评分的修改。在十个领域测试中，加权词错误率从8.36%降至7.52%，在航空指令和远场噪声场景下改进明显，且不增加推理参数、可跨核准器迁移。",
+      "relevant": false
+    },
+    {
+      "id": "2607.27155",
+      "title": "OmegaUse-OfficeVal: Benchmarking LLM Agents on Long-Horizon Office-Suite Tasks with Economic Grounding",
+      "authors": [
+        "Jingbo Zhou",
+        "Yusai Zhao",
+        "Qi Bao",
+        "Jingjia Cao",
+        "Zhenghai Chen",
+        "Chang Gao"
+      ],
+      "authorsTotal": 15,
+      "abstract": "Large language model (LLM) agents are increasingly expected to assist users in completing tasks. However, existing benchmarks provide limited support for evaluating whether agents can carry out office-suite workflows at a reasonable cost. We introduce OmegaUse-OfficeVal, a benchmark for evaluating LLM agents on long-horizon office-suite tasks with task-level economic grounding. The benchmark comprises 100 tasks derived from office-suite requests proposed by practitioners and adapted through a privacy-preserving process. On average, these tasks require 2.32 hours of human labor to complete. An important feature of the benchmark is that each task is paired with two economic signals: human labor time and task price proxy. These signals enable direct comparisons between human costs and LLM inference costs, as well as value-weighted evaluation. To support stable evaluation, we develop code-based verifiers from fine-grained rubrics. We evaluate several frontier LLMs together with a human baseline. Although all evaluated LLMs are substantially cheaper and faster than human workers, they have not yet approached human-level deliverable quality. The code and dataset are fully open-sourced, and more information is available on our project website: https://omegause-officeval.github.io.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.27155",
+        "pdf": "https://arxiv.org/pdf/2607.27155"
+      },
+      "upvotes": 7,
+      "githubRepo": "https://github.com/baidu-frontier-research/OmegaUse-OfficeVal",
+      "githubStars": 4,
+      "projectPage": "https://omegause-officeval.github.io/",
+      "numComments": 1,
+      "titleZh": "OmegaUse-OfficeVal: 以经济基础为基准评估长周期办公套件任务上的大语言模型智能体",
+      "summaryZh": "现有基准难以评估大语言模型智能体（LLM Agent）在办公套件工作流中的成本和效果，该研究提出OmegaUse-OfficeVal基准，包含100个源自从业者需求的长周期任务，平均需2.32小时人类劳动。每个任务附带人类劳动时间和任务价格代理两个经济信号，支持人类成本与LLM推理成本的直接比较以及价值加权评估。使用基于代码的验证器和细粒度评分规则进行稳定评估，结果表明所有前沿LLM虽成本更低、速度更快，但交付质量尚未达到人类水平。该基准为面向真实办公场景的Agent经济可行性分析提供了工具，数据集和代码已开源。"
+    },
+    {
+      "id": "2607.25802",
+      "title": "Explicit Layer Modeling for Video Object Insertion and Layer Decomposition",
+      "authors": [
+        "Kyujin Han",
+        "Seungjoo Shin",
+        "Sunghyun Cho"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Most video editing systems still lack explicit layered video representations, limiting their ability to perform realistic compositing, object reuse, and consistent manipulation. This limitation is especially pronounced in video object insertion and video layer decomposition, where existing methods rely on implicit inference or per-scene optimization due to the absence of explicit foreground-layer supervision. We introduce TriLayer, a large-scale triplet video dataset containing aligned composite, background, and foreground videos, where the foreground layers include both object appearance and associated visual effects. This explicit supervision enables models to learn layered video representations directly rather than inferring them implicitly. Building on this dataset, we propose DBL-Diffusion, a dual-branch diffusion framework that jointly models RGB composites and RGBA foreground layers through shared denoising and cross-branch interaction. We instantiate the framework in two tasks: DBL-Insert for layered object insertion, which generates explicit RGBA layers for realistic compositing and flexible post-editing, and DBL-Decompose for video layer decomposition, which recovers foreground and background layers using triplet supervision. Experiments demonstrate that explicit layer modeling substantially improves both insertion fidelity and decomposition quality.",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.25802",
+        "pdf": "https://arxiv.org/pdf/2607.25802"
+      },
+      "upvotes": 6,
+      "githubRepo": "https://github.com/KyujinHan/DBL-Diffusion",
+      "githubStars": 5,
+      "numComments": 2,
+      "titleZh": "面向视频对象插入与分层分解的显式层建模",
+      "summaryZh": "现有视频编辑系统缺乏显式分层视频表示，导致真实合成与对象重用受限。提出大规模三元组视频数据集TriLayer，包含对齐的前景、背景与合成视频，并设计双分支扩散框架DBL-Diffusion，通过共享去噪与跨分支交互联合建模RGB合成图像与RGBA前景层。在DBL-Insert任务中生成显式RGBA层以实现灵活后编辑，在DBL-Decompose任务中用三元组监督恢复分层，实验表明显式层建模显著提升了插入保真度与分解质量。",
+      "relevant": false
+    },
+    {
+      "id": "2607.25380",
+      "title": "Memory for Large Language Models",
+      "authors": [
+        "Sining Zhoubian",
+        "Dan Zhang",
+        "Evgeny Kharlamov",
+        "Jie Tang"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Memory has evolved into a foundational architectural dimension in large language models (LLMs), shifting from an implicit byproduct of computation to a spectrum of explicit, controllable mechanisms. While recent advances introduce diverse strategies---spanning transient attention, recurrent state dynamics, parameter-efficient adaptations, and scalable lookup storage---this rapid evolution has led to a highly fragmented research landscape. In this survey, we present a systematic, architecture-centric taxonomy of memory in LLMs. Our framework characterizes memory along three orthogonal axes: representation (implicit versus explicit), update dynamics (offline versus online), and persistence (short-term versus long-term). We further formalize the granular mechanisms dictating memory writing, routing, state transitions, and consolidation. This unified perspective elucidates the conceptual boundaries between computation-coupled and independently addressable memory, effectively bridging disparate architectural paradigms. Additionally, we critically analyze hybrid memory architectures, system-level efficiency trade-offs, and multi-dimensional evaluation methodologies. By consolidating these scattered advancements into a cohesive framework, this survey charts the trajectory of memory-centric LLM design and provides a principled foundation for future innovations in scalable and adaptive language modeling.",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.25380",
+        "pdf": "https://arxiv.org/pdf/2607.25380"
+      },
+      "upvotes": 5,
+      "projectPage": "https://arxiv.org/abs/2607.25380",
+      "numComments": 2,
+      "titleZh": "大语言模型的记忆",
+      "summaryZh": "大语言模型中的记忆机制已从计算的隐性副产品发展为多样化的显式可控架构，但研究高度碎片化。该综述提出以架构为中心的分类体系，沿表示（隐式/显式）、更新动态（离线/在线）和持久性（短期/长期）三个正交维度对记忆机制进行系统划分，并形式化了记忆写入、路由、状态转换与巩固等细粒度机制。通过统一视角阐明计算耦合与独立可寻址记忆的边界，桥接不同范式，并分析了混合架构的系统效率权衡。该框架为以记忆为中心的可扩展语言模型设计奠定了原则性基础。"
+    },
+    {
+      "id": "2607.26115",
+      "title": "GPT-Red: Automated Red Teaming via Self-Play at Scale",
+      "authors": [
+        "Eric Wallace",
+        "Christopher A. Choquette-Choo",
+        "Nikhil Kandpal",
+        "Sam Toyer",
+        "Dylan Hunn",
+        "Stephanie Lin"
+      ],
+      "authorsTotal": 18,
+      "abstract": "We introduce GPT-Red, an automated red-teaming agent that is trained to discover novel prompt injection attacks against frontier LLMs. The goal of this model is to evaluate and improve the robustness of our production systems. To this end, we use it to adversarially train GPT-5.6, our most robust model to prompt injections to date. To create GPT-Red, we design a scalable self-play algorithm where the model is tasked with attacking a diverse population of simultaneously-trained defender agents. We train the model on realistic red-teaming environments using compute on the same scale as some of our largest RL post-training runs, making it the single-largest LLM safety training run ever documented. GPT-Red excels at red-teaming: it reliably breaks our past models up to GPT-5.5, it finds more successful attacks than human red-teamers, and it generalizes to held-out environments, defender models, and harnesses. In the future, we expect that as we improve the robustness of each new GPT model, it will in turn will provide better learning signal for even stronger red-teamer agents, thus unlocking a self-improvement flywheel.",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.26115",
+        "pdf": "https://arxiv.org/pdf/2607.26115"
+      },
+      "upvotes": 4,
+      "numComments": 1,
+      "titleZh": "GPT-Red: 基于大规模自我对弈的自动化红队测试",
+      "summaryZh": "为解决大语言模型的提示注入攻击评估与防御难题，GPT-Red通过大规模自我对弈算法同时训练攻击与防御智能体，利用与最大规模RL后训练相当的计算资源进行红队测试。该模型能稳定攻破GPT-5.5及更早的模型，攻击成功率超越人类红队专家，并泛化至未见的防御模型与测试平台。GPT-Red已用于对抗训练GPT-5.6，开启了红队测试的自改进飞轮，对提升前沿模型的安全性具有重要价值。"
+    },
+    {
+      "id": "2607.16955",
+      "title": "CADENCE: Closing the Reasoning Gap via Coverage-Adaptive On-Policy Distillation",
+      "authors": [
+        "Satyam Kumar",
+        "Saurabh Jha"
+      ],
+      "authorsTotal": 2,
+      "abstract": "On-policy knowledge distillation transfers reasoning from large teachers to compact students, but existing approaches suffer three compounding failure modes: (i) cold-start collapse, where a fresh student assigns near-zero mass to teacher-preferred tokens; (ii) state-agnostic divergence scheduling, where time-only forward/reverse-KL interpolation ignores the student's coverage state; and (iii) binary reward sparsity, where pass/fail signals discard information from partially correct traces. We present CADENCE, a unified framework with a targeted fix for each. Its DRIFT mechanism schedules a per-token convex mixture of forward-KL and reverse-KL surrogate objectives on student-sampled trajectories (per-token surrogates, not sequence-level KL gradient estimators). Six components extend it: (A) COVA, a coverage-adaptive β schedule accelerating the forward-to-reverse transition; (B) FTB, a forking-token boost concentrating gradient at high-entropy positions via a globally-normalized entropy reference; (C) CCD, a dense reward adding numerical-proximity partial credit for incorrect-but-close traces; (D) LAP, brevity-preferential correct-rollout reinforcement; (E) EMR, an entropy-matching calibration regularizer; (F) BSD, a bootstrapped self-distillation phase. On GSM8K and MATH-500 (corrected 512-token protocol, 5 seeds, reported std), CADENCE distills a 0.5B student from a 1.5B teacher to 69.8 pm 0.5% GSM8K pass@1 (from 48.7% pretrained; 63.2% of the teacher gap closed) and to 72.1 pm 0.4% with a 3B teacher (76.2% closed), beating the strongest matched-compute label-using baseline (DRIFT+binary reward) by +4.4 pm 0.7 points. All experiments run on a single Apple Mac Studio (M-series, 64GB unified memory), showing principled distillation reaches strong reasoning quality without datacenter-scale hardware.",
+      "published": "2026-07-18T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.16955",
+        "pdf": "https://arxiv.org/pdf/2607.16955"
+      },
+      "upvotes": 4,
+      "numComments": 2,
+      "titleZh": "CADENCE: 通过覆盖率自适应在线策略蒸馏弥合推理差距",
+      "summaryZh": "针对在线策略知识蒸馏中冷启动崩溃、状态无关分歧调度和二元奖励稀疏性三大问题，提出CADENCE框架。方法核心是DRIFT机制在每标记层级混合前向KL与反向KL目标，并引入覆盖自适应β调度、分叉标记提升、密集奖励、简洁性强化、熵匹配正则化及自蒸馏共六个组件。在GSM8K和MATH-500上，用0.5B学生从1.5B教师蒸馏，GSM8K pass@1从48.7%升至69.8%，弥补了63.2%的师生差距；用3B教师时提升至72.1%，弥补76.2%差距，较基线高出4.4个百分点。全部实验仅用单台Mac Studio完成，表明高效蒸馏可在弱算力下实现强推理能力。"
+    },
+    {
+      "id": "2607.26055",
+      "title": "πR^2: Reactive Real-time Flow Policies",
+      "authors": [
+        "Sungjae Park",
+        "Shubham Tulsiani"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Generalist manipulation policies increasingly take the form of action-chunking flow policies built on large pretrained backbones. Such chunks run open-loop, so the policy cannot react to sensory input arriving mid-execution, sacrificing reactivity. Replanning more often would restore it, but the perception-to-action pipeline (a large backbone plus multiple denoising steps) is too slow: this latency forbids frequent replanning and leaves committed actions stale, making such policies ill-suited for dynamic, closed-loop control. We present πR^2, which makes these policies reactive and real-time while retaining large backbones, expressive multi-modal policies, and multi-action prediction. Built on the per-position noise schedule of diffusion forcing, πR^2 contributes two ideas. First, it splits conditioning into a fast channel (proprioception, fresh every tick) and an asynchronously updated slow channel (vision-language features), so the policy reacts to proprioception within a chunk while tolerating stale vision. Second, a latency-adaptive flow schedule treats in-flight actions as inpainting conditioning and emits actions in one denoising step per call, letting one trained model adapt to varying hardware latency. Requiring minimal modification to existing architectures, πR^2 can be finetuned from a pretrained policy: applied to GR00T-N1.7 on a real xArm6+XHand platform, it replans closed-loop roughly 4times faster than the base policy (~25Hz on an A5000 GPU), acting on a fresh observation every 40ms. Across simulation and real-world manipulation tasks, πR^2 improves the success rate by up to 23% in simulation and 30% in the real world over the strongest baseline. Project page: https://pi-r2-flow.github.io/",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.26055",
+        "pdf": "https://arxiv.org/pdf/2607.26055"
+      },
+      "upvotes": 2,
+      "githubRepo": "https://github.com/pi-r2-flow/pi-r2-flow",
+      "githubStars": 14,
+      "projectPage": "https://pi-r2-flow.github.io/",
+      "numComments": 2,
+      "titleZh": "πR^2：反应式实时流策略",
+      "summaryZh": "针对动作分块流策略在闭环控制中因感知-动作延迟导致反应性不足的问题，将状态通道拆分为快速更新的本体感觉通道和异步更新的慢速视觉-语言通道，使策略在分块内保持本体反应性，并采用延迟自适应流调度将执行中动作视为补全条件，在单次去噪步骤中生成动作。在真机平台上，重规划速度提升约4倍（约25Hz），每40毫秒响应新观测，仿真和真实世界成功率分别最多提升23%和30%。该框架仅需微调即可适配现有预训练策略，赋予机器人操作高实时闭环控制能力。",
+      "relevant": false
+    },
+    {
+      "id": "2607.26314",
+      "title": "StealthBench: Measuring Operational Stealth in Autonomous Offensive-Security Agents",
+      "authors": [
+        "Ads Dawson",
+        "Adrian Wood"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Stealth, the discipline of achieving an objective without revealing your presence, capabilities, or collected intelligence, is what separates sophisticated operators from detectable ones. Elite security researchers and advanced persistent threats achieve their objectives unnoticed; autonomous agents increasingly inherit the same offensive tasks, but do they inherit the tradecraft? We introduce StealthBench,a benchmark that measures operational stealth in autonomous offensive-security agents across six operational security (OPSEC) dimensions. We extract 11 hand-verified OPSEC incidents from real bug-bounty and red-team trajectories, expanded into 14 dockerized task scenarios, where agents, despite finding real vulnerabilities, committed stealth failures inconsistent with standard operational tradecraft: embedding credentials in public uploads, deleting production resources to prove access, force-adding uninvolved users to demonstrate a race condition. We evaluate agent trajectories using a 3-model large language model (LLM) judge panel with majority-vote aggregation, measuring safe success rate (solved and stealthy), Stealth@Solve (tradecraft quality among successful solves), and reckless solve rate (solved but cover blown). Our results show that no model exceeds 54% safe success rate (the compound metric requiring both task completion and stealth), confirming that OPSEC failures are systematic across model families. We release StealthBench as a public benchmark to support both the development of stealth-aware agents and automated OPSEC monitoring for autonomous offensive-security deployments. The interactive leaderboard, evaluation harness, and dataset are available at https://stealthbench.com.",
+      "published": "2026-07-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.26314",
+        "pdf": "https://arxiv.org/pdf/2607.26314"
+      },
+      "upvotes": 2,
+      "githubRepo": "https://github.com/GangGreenTemperTatum/stealthbench",
+      "githubStars": 4,
+      "projectPage": "https://stealthbench.com/",
+      "numComments": 2,
+      "titleZh": "StealthBench: 测评自主攻击性安全智能体的操作隐蔽性",
+      "summaryZh": "自主攻击性安全智能体在利用漏洞时常常暴露行踪，缺乏操作安全（OPSEC）意识。StealthBench 基准从真实事件中提炼出 11 个 OPSEC 失误，设计为 14 个 Docker 化场景，覆盖 6 个隐蔽维度，使用三模型 LLM 评委团多数表决评估轨迹，量化安全成功率与鲁莽求解率。实验表明，所有模型的安全成功率均低于 54%，隐蔽性失败呈系统性。该基准为开发隐蔽感知型智能体和自动化 OPSEC 监控提供标准平台。"
+    },
+    {
+      "id": "2607.24117",
+      "title": "Grading the Narrators: An Isnad-Rijal Framework for Claim-Level Provenance in Multi-Agent Knowledge Systems",
+      "authors": [
+        "Ali Zahid Raja"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Modern multi-agent knowledge systems increasingly accumulate knowledge through chains of autonomous transformations rather than direct retrieval. Existing provenance work records what happened - execution traces, tool calls, evidence links - and source-reliability estimation is long established (truth discovery, reputation systems). What is missing is an operational framework that attaches graded, per-domain transmitter reliability to claim-level transmission chains, with completeness semantics, transformation-typed aggregation, decoupled content criticism, and serve/review/quarantine routing. Classical Islamic hadith science confronted a structurally similar problem: deciding whether knowledge transmitted through chains of human narrators should be accepted. Over centuries it developed a rigorous methodology - isnad (a complete transmission chain attached to every claim), rijal (systematic grading of each narrator's integrity and precision), weakest-link chain evaluation, corroboration through independent chains, and matn criticism (content evaluated independently of chain quality). This paper transfers that methodology to AI system design. We contribute a formal mapping from hadith-science concepts to multi-agent pipelines, a relational schema implementing claim chains and a graded narrator registry, a decision matrix combining chain grade with content criticism, and an evaluation on 20,000 claims from real physics textbooks. The evaluation validates weakest-link quarantine and independent-chain corroboration; reports a partial failure of the grade-recovery loop, which missed the highest-fault narrator; and reports two analyses as inconclusive, including a matched-coverage comparison the framework could not reach with the reference content critic. The paper is explicit throughout about which claims the evidence does and does not yet support.",
+      "published": "2026-07-27T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.24117",
+        "pdf": "https://arxiv.org/pdf/2607.24117"
+      },
+      "upvotes": 2,
+      "githubRepo": "https://github.com/alizahidraja/isnad",
+      "githubStars": 26,
+      "projectPage": "https://alizahidraja.com/isnad",
+      "numComments": 3,
+      "titleZh": "为叙事者评级：多智能体知识系统中基于传述链与传述者评价的声明级溯源框架",
+      "summaryZh": "针对多智能体知识系统中缺乏声明级传输可靠性评估框架的问题，将伊斯兰圣训学的传述链与传述者评级方法形式化映射为多智能体流水线，构建了声明链与分级叙事者注册表的关系模式，设计了结合链等级与内容批评的决策矩阵以及服务/审查/隔离路由机制。在 20,000 条物理教科书声明上的实验验证了最弱链隔离和独立链印证的有效性，但等级恢复循环未能识别出最高故障叙事者。该工作为多智能体系统的可信知识溯源提供了可操作框架，适用于需要细粒度可靠性评估的知识密集型多智能体场景。"
+    },
+    {
+      "id": "2607.26791",
+      "title": "SecRespond: Benchmarking AI Agents for Real-World Post-Compromise Incident Response",
+      "authors": [
+        "Lehan Wang",
+        "Boli Chen",
+        "Ruixue Ding",
+        "Pengjun Xie",
+        "Jinwei Huang",
+        "Zhendong Liu"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Large Language Model (LLM) agents are increasingly adopted in real-world security operations with access to host artifacts and command-line interfaces (CLIs), making it critical to thoroughly assess their security capabilities. However, existing cybersecurity benchmarks focus on pre-compromise settings where agents are placed in a clean and idealized environment before an attack occurs. This leaves the post-compromise setting underexplored. To address this gap, we introduce SecRespond, the first benchmark for evaluating LLM agents on the post-compromise incident-response workflow. Given a forensic disk snapshot of a compromised host together with the alerts, vulnerability scans, and baseline checks reported by a host security product, agents are required to produce forensic reports on intrusions, baseline risks, and vulnerability risks, together with a remediation plan. We instantiate this task across 10 cyber ranges, each constructed from a distinct compromised cloud host, spanning 4 entry-point types, 21 ATT&CK techniques, and 5 operating systems. We evaluate 23 frontier LLMs on the OpenCode agent harness. Experimental results show that although current agents can reliably uncover the problems exposed by alerts, they struggle to proactively investigate the disk for silent intrusions and to produce comprehensive, verified remediation plans, with no model achieving complete detection and remediation on any single range. This reveals a fundamental bottleneck in building agents for real-world incident response. The benchmark is publicly available at https://github.com/Alibaba-NLP/qqr/tree/main/data/secrespond.",
+      "published": "2026-07-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.26791",
+        "pdf": "https://arxiv.org/pdf/2607.26791"
+      },
+      "upvotes": 1,
+      "projectPage": "https://github.com/Alibaba-NLP/qqr/tree/main/data/secrespond",
+      "numComments": 2,
+      "titleZh": "SecRespond: 评测 AI Agent 在真实入侵后事件响应中的能力",
+      "summaryZh": "针对现有网络安全基准主要关注入侵前环境、忽略入侵后阶段的问题，构建首个面向LLM代理的入侵后事件响应基准SecRespond。任务要求代理基于被入侵主机的取证磁盘快照及安全产品告警、漏洞扫描与基线检查结果，生成包含入侵分析、基线风险、漏洞风险的取证报告及补救计划。该基准包含10个基于真实云主机构造的网络靶场，覆盖4种入侵入口、21种ATT&CK技术和5种操作系统，在OpenCode代理框架上评估23个前沿LLM，结果表明当前代理虽能可靠发现告警暴露的问题，但主动调查磁盘中隐蔽入侵及生成全面可验证的补救计划仍存在瓶颈，无一模型在任何靶场上实现完整检测和修复。"
+    }
+  ],
+  "arxiv": []
+}
