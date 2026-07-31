@@ -38,6 +38,8 @@ UA="papers-digest-skill/0.1 (+https://cyoungg06.github.io/BlogSite/)"
 - `authors` / `authorsTotal`、`abstract`(英文摘要全文)、`published`、`primaryCategory`
 - `upvotes`(HF 社区热度)、`githubRepo` / `githubStars` / `projectPage`、`comment`(页数/收录信息)
 - `relevant`:仅当为 `false` 时表示被兴趣过滤(音视频生成/视觉重建/扩散模型/物理硬件/生物医药/纯理论/垂直行业应用等方向)
+- `score`:AI 兴趣评分 0–10(越高越贴近 LLM/后训练/Agent 等核心方向;≤4 即被过滤);`reason`:一句中文打分依据
+- `deepDive`:仅当为 `true` 时表示本站编辑视角的「值得深读」候选(每日 ≤10 个,可能已有或将有深度解读长文)
 
 ## 意图路由
 
@@ -52,6 +54,7 @@ UA="papers-digest-skill/0.1 (+https://cyoungg06.github.io/BlogSite/)"
 ## 结果处理
 
 - 默认只展示 `relevant != false` 的论文;用户明确要「全量 / 包括被过滤的」时才带上 `relevant: false` 的条目并标注。
+- 有 `score` 字段时优先按 score 降序挑选;`deepDive: true` 的论文值得放在简报最前并标注「值得深读」。
 - 输出中文简报,不要倾倒原始 JSON:
 
 ```markdown

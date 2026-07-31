@@ -26,6 +26,12 @@ export interface PaperItem {
   /** AI 生成的中文译名与导读(scripts/summarize-digest.py,可能缺失) */
   titleZh?: string;
   summaryZh?: string;
+  /** AI 兴趣评分 0–10(依据 scripts/interest-profile.md);≤4 派生 relevant:false */
+  score?: number;
+  /** AI 打分依据(一句中文) */
+  reason?: string;
+  /** AI 标记的深度解读候选(每日至多 10 个) */
+  deepDive?: boolean;
   /** AI 相关性判定:false = 不在读者关注方向(缺省视为相关) */
   relevant?: boolean;
   urls: { abs: string; pdf: string };

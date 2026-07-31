@@ -61,6 +61,7 @@ export default async function PaperDigestPage({
     project: t("project"),
     etAl: t("etAl"),
     insight: t("insightBadge"),
+    deepDive: t("deepDive"),
   };
   // 有深度解读的论文 id 集合,卡片据此渲染徽章
   const insightIds = getInsightIds();
@@ -76,11 +77,16 @@ export default async function PaperDigestPage({
   const focus = hfRel.slice(0, 3);
   const hfRest = hfRel.slice(3);
 
-  // 保持 JSON 中分类声明的顺序,只展示实际有论文的分类
+  // 保持 JSON 中分类声明的顺序,只展示实际有论文的分类;
+  // 组内按 AI 兴趣评分降序(无分的排在最后)
+  const byScore = (a: PaperItem, b: PaperItem) => (b.score ?? -1) - (a.score ?? -1);
   const byCategory = new Map<string, PaperItem[]>();
   for (const paper of arxivRel) {
     const cat = paper.primaryCategory ?? "other";
     byCategory.set(cat, [...(byCategory.get(cat) ?? []), paper]);
+  }
+  for (const [cat, list] of byCategory) {
+    byCategory.set(cat, [...list].sort(byScore));
   }
   const groups = [
     ...digest.categories.filter((c) => byCategory.has(c)),

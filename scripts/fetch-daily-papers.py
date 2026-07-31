@@ -241,7 +241,7 @@ def main() -> None:
         help="arXiv 主分类白名单(逗号分隔),主类不在其中的论文被过滤",
     )
     ap.add_argument("--hf-limit", type=int, default=30)
-    ap.add_argument("--arxiv-limit", type=int, default=30)
+    ap.add_argument("--arxiv-limit", type=int, default=50)
     ap.add_argument(
         "--skip-arxiv",
         action="store_true",
@@ -283,8 +283,9 @@ def main() -> None:
             if before != len(arxiv):
                 warn(f"arXiv cross-day dedupe: {before} -> {len(arxiv)}")
 
-    # 导读保留:同日重抓时按 id 合并旧文件里的 titleZh/summaryZh/relevant,
-    # 避免重抓后重复调用 AI,也保证同一篇的导读一天内不变
+    # 导读保留:同日重抓时按 id 合并旧文件里的 AI 字段(titleZh/summaryZh/
+    # score/reason/deepDive/relevant),避免重抓后重复调用 AI,
+    # 也保证同一篇的导读与评分一天内不变
     existing_path = os.path.join(args.output_dir, f"{day_s}.json")
     try:
         with open(existing_path) as f:
@@ -300,6 +301,9 @@ def main() -> None:
             if o:
                 p["titleZh"] = o["titleZh"]
                 p["summaryZh"] = o["summaryZh"]
+                for k in ("score", "reason", "deepDive"):
+                    if k in o:
+                        p[k] = o[k]
                 if o.get("relevant") is False:
                     p["relevant"] = False
                 kept += 1

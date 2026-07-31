@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Add AI-generated Chinese fields (titleZh / summaryZh) to a daily papers
-digest, via the DeepSeek API (OpenAI-compatible chat completions).
+"""Add AI-generated Chinese fields (titleZh / summaryZh) and interest scores
+(score / reason / deepDive) to a daily papers digest, via the DeepSeek API
+(OpenAI-compatible chat completions).
 
 - Reads content/papers/<date>.json, fills missing fields, writes back atomically.
-- Idempotent: papers already having both fields are skipped (use --force to redo).
+- Idempotent: papers already having titleZh+summaryZh+score are skipped
+  (use --force to redo).
+- 评分裁判依据 scripts/interest-profile.md(兴趣画像,可持续维护);
+  score ≤ 4 派生 relevant:false(展示层过滤),deepDive 每日至多保留 10 个。
 - Graceful: no API key or per-paper failures just leave fields absent; the site
   renders fine without them (falls back to English title + abstract).
 
@@ -31,17 +35,35 @@ from datetime import datetime
 API_URL = "https://api.deepseek.com/chat/completions"
 TIMEOUT = 180
 RETRIES = 2
+DEEPDIVE_DAILY_CAP = 10  # 每日深度解读候选上限(按 score 取前 N)
+RELEVANT_MIN_SCORE = 5  # score 低于此值判 relevant:false
+
+PROFILE_PATH = os.path.join(os.path.dirname(__file__), "interest-profile.md")
+
+
+def load_interest_profile() -> str:
+    try:
+        with open(PROFILE_PATH, encoding="utf-8") as f:
+            return f.read().strip()
+    except OSError:
+        warn(f"interest profile not found at {PROFILE_PATH}; scoring without it")
+        return ""
+
 
 SYSTEM_PROMPT = """你是技术论文速览编辑,读者是 ML/LLM 方向的研究者与工程师。
 给定一篇论文的标题与摘要,输出一个 JSON 对象(不要输出其他内容):
-{"titleZh": "...", "summaryZh": "...", "relevant": true/false}
+{"titleZh": "...", "summaryZh": "...", "score": 0, "reason": "...", "deepDive": false}
 要求:
 - titleZh:标题的准确中文翻译,保留 Transformer、RL、RAG 等通用术语原文,书名号或引号视需要
-- summaryZh:二到四句话的中文导读(总字数 120–250),依次说清「解决什么问题 + 方法要点(关键机制/组件)+ 关键结果(有数据带数据)+ 意义或适用场景」;直接陈述,不要“本文”“作者提出”式套话开头,不要评价性形容词堆砌
-- relevant:判断论文是否属于读者关注范围。关注:大语言模型与后训练(RL/蒸馏/对齐/推理)、多模态大模型(MLLM/VLM)、Agent(RL/harness/工具调用/规划)、AI for Research、LLM 系统与高效训练推理、MoE、长上下文、代码模型
-  不关注:音频/视频/图像生成与视觉生成统一建模、视觉重建(3D/NeRF/Gaussian Splatting)、扩散模型(包括扩散语言模型在内,一刀切)、偏物理/硬件/光子/量子、生物医药/医疗影像/蛋白质结构/生物信息学、与 LLM 无关的纯理论或经典数值/统计方法、面向经典控制/机器人的强化学习(非基础模型或 LLM agent 方向)、语音识别/口语评测/TTS 等语音应用、能源/交通/农业/气象/教育等垂直行业应用
-  拿不准时判 true
-- 只输出 JSON"""
+- summaryZh:二到四句话的中文导读(总字数 120–250),依次说清「解决什么问题 + 方法要点(关键机制/组件)+ 关键结果(有数据带数据)+ 意义或适用场景」;直接陈述,不要"本文""作者提出"式套话开头,不要评价性形容词堆砌
+- score:0–10 整数,论文与读者兴趣的相关程度,严格依据下面的兴趣画像与打分手则
+- reason:一句中文(≤40 字)说明打分依据,如"GRPO 改进,直接命中后训练方向"
+- deepDive:是否值得做深度解读,严格依据画像中的 deepDive 手则
+- 只输出 JSON
+
+# 兴趣画像
+
+{profile}"""
 
 USER_TEMPLATE = """标题:{title}
 分类:{category}
@@ -69,13 +91,13 @@ def load_env_key() -> str | None:
     return None
 
 
-def call_deepseek(key: str, paper: dict) -> dict | None:
+def call_deepseek(key: str, paper: dict, profile: str) -> dict | None:
     model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-pro")
     thinking = os.environ.get("DEEPSEEK_THINKING", "1") != "0"
     body = {
         "model": model,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": SYSTEM_PROMPT.replace("{profile}", profile)},
             {
                 "role": "user",
                 "content": USER_TEMPLATE.format(
@@ -113,9 +135,19 @@ def call_deepseek(key: str, paper: dict) -> dict | None:
             summary_zh = str(obj.get("summaryZh", "")).strip()
             if not title_zh or not summary_zh:
                 raise ValueError(f"empty fields in response: {content[:120]}")
-            result = {"titleZh": title_zh, "summaryZh": summary_zh}
+            try:
+                score = max(0, min(10, int(obj.get("score"))))
+            except (TypeError, ValueError):
+                raise ValueError(f"bad score in response: {content[:120]}")
+            result = {
+                "titleZh": title_zh,
+                "summaryZh": summary_zh,
+                "score": score,
+                "reason": str(obj.get("reason", "")).strip(),
+                "deepDive": bool(obj.get("deepDive")) and score >= 8,
+            }
             # 只在判为不相关时落字段(缺省视为相关,JSON 更瘦)
-            if obj.get("relevant") is False:
+            if score < RELEVANT_MIN_SCORE:
                 result["relevant"] = False
             return result
         except Exception as e:  # HTTP/JSON/timeout: retry, then give up on this paper
@@ -161,35 +193,58 @@ def main() -> None:
         sys.exit(0)
 
     papers = digest.get("hf", []) + digest.get("arxiv", [])
-    todo = [p for p in papers if args.force or not (p.get("titleZh") and p.get("summaryZh"))]
+    todo = [
+        p
+        for p in papers
+        if args.force
+        or not (p.get("titleZh") and p.get("summaryZh") and p.get("score") is not None)
+    ]
     if not todo:
         warn(f"{day}: all {len(papers)} papers already summarized.")
         return
     warn(f"{day}: summarizing {len(todo)}/{len(papers)} papers with {args.workers} workers...")
 
+    profile = load_interest_profile()
     lock = threading.Lock()
     done = 0
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        futures = {pool.submit(call_deepseek, key, p): p for p in todo}
+        futures = {pool.submit(call_deepseek, key, p, profile): p for p in todo}
         for fut in as_completed(futures):
             paper = futures[fut]
             result = fut.result()
             if result:
-                # 清掉上一轮可能留下的 relevant:false,以本轮判定为准
-                paper.pop("relevant", None)
+                # 清掉上一轮可能留下的旧判定字段,以本轮为准
+                for k in ("relevant", "score", "reason", "deepDive"):
+                    paper.pop(k, None)
                 paper.update(result)
             with lock:
                 done += 1
                 if done % 10 == 0 or done == len(todo):
                     warn(f"  progress {done}/{len(todo)}")
 
+    # deepDive 每日上限:候选超过时按 score 取前 N,其余降级为普通高分
+    picks = sorted(
+        (p for p in papers if p.get("deepDive")),
+        key=lambda p: p.get("score") or 0,
+        reverse=True,
+    )
+    if len(picks) > DEEPDIVE_DAILY_CAP:
+        for p in picks[DEEPDIVE_DAILY_CAP:]:
+            p.pop("deepDive", None)
+        warn(f"deepDive candidates {len(picks)} -> {DEEPDIVE_DAILY_CAP} (capped by score)")
+
     ok = sum(1 for p in papers if p.get("titleZh") and p.get("summaryZh"))
+    scored = sum(1 for p in papers if p.get("score") is not None)
+    flagged = sum(1 for p in papers if p.get("deepDive"))
     tmp = path + ".tmp"
     with open(tmp, "w") as f:
         json.dump(digest, f, ensure_ascii=False, indent=2)
         f.write("\n")
     os.replace(tmp, path)
-    warn(f"{day}: {ok}/{len(papers)} papers have zh fields; wrote {path}")
+    warn(
+        f"{day}: {ok}/{len(papers)} papers have zh fields, {scored} scored, "
+        f"{flagged} deepDive picks; wrote {path}"
+    )
 
 
 if __name__ == "__main__":

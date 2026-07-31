@@ -16,7 +16,7 @@ export default function PaperCard({
 }: {
   paper: PaperItem;
   locale: Locale;
-  t: { code: string; project: string; etAl: string; insight: string };
+  t: { code: string; project: string; etAl: string; insight: string; deepDive: string };
   insightHref?: string;
 }) {
   const zh = locale === "zh" && Boolean(paper.titleZh && paper.summaryZh);
@@ -53,6 +53,26 @@ export default function PaperCard({
           {paper.upvotes ? (
             <span className="rounded-full bg-accent/10 px-2 py-0.5 text-accent">
               ▲ {paper.upvotes}
+            </span>
+          ) : null}
+          {paper.deepDive ? (
+            <span
+              title={paper.reason || undefined}
+              className="rounded-full bg-accent px-2 py-0.5 text-white"
+            >
+              ★ {t.deepDive}
+            </span>
+          ) : null}
+          {paper.score !== undefined ? (
+            <span
+              title={paper.reason || undefined}
+              className={
+                paper.score >= 8
+                  ? "rounded-full bg-accent/10 px-2 py-0.5 text-accent"
+                  : "rounded-full bg-surface px-2 py-0.5 ring-1 ring-hairline"
+              }
+            >
+              {paper.score}
             </span>
           ) : null}
           {insightHref ? (
