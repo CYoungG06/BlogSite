@@ -13,7 +13,7 @@
 
 Env:
   DEEPSEEK_API_KEY   required (auto-loaded from repo .env if present)
-  DEEPSEEK_MODEL     default deepseek-v4-pro
+  DEEPSEEK_MODEL     default deepseek-v4-flash
   DEEPSEEK_THINKING  default 1 (reasoning_effort=high + thinking enabled); 0 disables
 
 Usage:
@@ -92,7 +92,7 @@ def load_env_key() -> str | None:
 
 
 def call_deepseek(key: str, paper: dict, profile: str) -> dict | None:
-    model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-pro")
+    model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
     thinking = os.environ.get("DEEPSEEK_THINKING", "1") != "0"
     body = {
         "model": model,
