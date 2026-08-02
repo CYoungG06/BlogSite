@@ -1,62 +1,20 @@
 "use client";
 
-import MiniSearch from "minisearch";
 import { useLocale } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
-import { basePath } from "@/lib/images";
-import { tokenize } from "@/lib/search/tokenize";
+import {
+  loadSearchIndex,
+  type SearchDocument,
+  type SearchResultItem,
+} from "@/lib/search/load-index";
+import type MiniSearch from "minisearch";
 
 /**
  * 共享搜索 hook — 见 DESIGN.md §5.2 / §6.3。
- * 顶栏 HeaderSearch 与 /search 独立页共用;索引模块级缓存,
- * 同 locale 只 fetch + 反序列化一次。
+ * 顶栏 HeaderSearch 与 /search 独立页共用;索引加载见 lib/search/load-index.ts。
  */
 
-/** 必须与 scripts/build-search-index.mjs 的索引配置一致,否则 loadJSON 反序列化会挂 */
-const FIELDS = ["title", "description", "content", "tags"];
-const STORE_FIELDS = ["type", "slug", "title", "description"];
-
-interface SearchDocument {
-  id: string;
-  type: "post" | "note" | "distilled" | "reading";
-  slug: string;
-  title: string;
-  description: string;
-  content: string;
-  tags: string;
-}
-
-export interface SearchResultItem {
-  type: "post" | "note" | "distilled" | "reading";
-  slug: string;
-  title: string;
-  description: string;
-}
-
-const indexCache = new Map<string, Promise<MiniSearch<SearchDocument>>>();
-
-function loadIndex(locale: string): Promise<MiniSearch<SearchDocument>> {
-  const cached = indexCache.get(locale);
-  if (cached) return cached;
-  const promise = fetch(`${basePath}/search-index/${locale}.json`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`搜索索引加载失败:${response.status}`);
-      }
-      return response.text();
-    })
-    .then((json) =>
-      MiniSearch.loadJSON<SearchDocument>(json, {
-        fields: FIELDS,
-        storeFields: STORE_FIELDS,
-        tokenize,
-      }),
-    );
-  indexCache.set(locale, promise);
-  // 失败则移出缓存,给下次切换/重试留机会
-  promise.catch(() => indexCache.delete(locale));
-  return promise;
-}
+export type { SearchResultItem };
 
 export function useSearch() {
   const locale = useLocale();
@@ -66,7 +24,7 @@ export function useSearch() {
 
   useEffect(() => {
     let cancelled = false;
-    loadIndex(locale).then(
+    loadSearchIndex(locale).then(
       (loaded) => {
         if (!cancelled) setIndex(loaded);
       },
