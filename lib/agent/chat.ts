@@ -7,6 +7,8 @@ import { AGENT_TOOLS, executeTool, type ToolCallRecord } from "./tools";
  * 有 tool_calls 就在浏览器端执行(fetch 站内静态 JSON)并继续循环,
  * 直到模型给出最终回答。单轮对话最多 MAX_ROUNDS 次工具循环,
  * 跨轮历史只保留 user/assistant 文本(tool 交换不带入下一轮,省 token)。
+ * 各轮流出的文本全部保留、按轮拼接(中间过程对用户可见),
+ * 而不是被下一轮覆盖。
  */
 
 const MAX_ROUNDS = 5;
@@ -118,6 +120,10 @@ async function fetchRound(
   return { content, toolCalls };
 }
 
+/** 拼接相邻两轮的流出文本,空轮不产生多余空行 */
+const joinRounds = (prev: string, next: string) =>
+  prev && next ? `${prev}\n\n${next}` : prev || next;
+
 export async function runAgentTurn(options: {
   apiUrl: string;
   history: HistoryMessage[];
@@ -132,17 +138,18 @@ export async function runAgentTurn(options: {
     ...options.history.slice(-MAX_HISTORY),
   ];
   const records: ToolCallRecord[] = [];
-  let answer = "";
+  let accumulated = "";
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
+    const base = accumulated;
     const { content, toolCalls } = await fetchRound(
       apiUrl,
       messages,
       signal,
-      onDelta,
+      (roundContent) => onDelta(joinRounds(base, roundContent)),
     );
-    answer = content;
-    if (!toolCalls.length) return { content: answer, toolCalls: records };
+    accumulated = joinRounds(accumulated, content);
+    if (!toolCalls.length) return { content: accumulated, toolCalls: records };
 
     // 回显 assistant 的 tool_calls,再逐个执行、追加 tool 结果
     messages.push({
@@ -167,5 +174,5 @@ export async function runAgentTurn(options: {
       messages.push({ role: "tool", tool_call_id: call.id, content: result });
     }
   }
-  return { content: answer, toolCalls: records };
+  return { content: accumulated, toolCalls: records };
 }
