@@ -18,6 +18,11 @@ const SITE = (process.env.SITE_URL ?? "https://cyoungg06.github.io") + BASE_PATH
 const FILE_RE = /^\d{4}-\d{2}-\d{2}\.json$/;
 const relevant = (p) => p.relevant !== false;
 
+const truncate = (text, max) =>
+  typeof text === "string" && text.length > max
+    ? `${text.slice(0, max)}…`
+    : (text ?? "");
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const dates = existsSync(papersDir)
@@ -29,6 +34,7 @@ async function main() {
     : [];
 
   const entries = [];
+  const allPapers = [];
   for (const date of dates) {
     const digest = JSON.parse(
       await readFile(path.join(papersDir, `${date}.json`), "utf8"),
@@ -45,6 +51,23 @@ async function main() {
       relevant:
         digest.hf.filter(relevant).length + digest.arxiv.filter(relevant).length,
     });
+    // 跨天检索索引(AI 助手 search_papers 工具用):只收相关论文,摘要截断控体积
+    for (const source of ["hf", "arxiv"]) {
+      for (const p of (digest[source] ?? []).filter(relevant)) {
+        allPapers.push({
+          date,
+          source,
+          id: p.id,
+          title: p.title,
+          titleZh: p.titleZh,
+          summary: truncate(p.summaryZh, 240),
+          score: p.score,
+          deepDive: p.deepDive === true,
+          upvotes: p.upvotes || undefined,
+          url: p.urls?.abs,
+        });
+      }
+    }
   }
 
   const index = {
@@ -55,7 +78,12 @@ async function main() {
     dates: entries,
   };
   await writeFile(path.join(outDir, "index.json"), JSON.stringify(index, null, 2) + "\n");
-  console.log(`[api] wrote public/api/papers/ (${entries.length} digest(s) + index)`);
+  // dates 已按日期倒序,allPapers 随之新→旧
+  await writeFile(
+    path.join(outDir, "all.json"),
+    JSON.stringify({ generatedAt: new Date().toISOString(), papers: allPapers }),
+  );
+  console.log(`[api] wrote public/api/papers/ (${entries.length} digest(s) + index + all:${allPapers.length} papers)`);
 }
 
 await main();

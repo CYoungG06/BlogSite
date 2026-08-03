@@ -7,8 +7,10 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { runAgentTurn } from "@/lib/agent/chat";
+import type { ToolCallRecord } from "@/lib/agent/tools";
 import ChatMessages, { type ChatMessage } from "./ChatMessages";
 
 /**
@@ -46,9 +48,25 @@ const SUGGESTIONS = [
   "suggestion3",
 ] as const;
 
+/**
+ * 隐藏指令彩蛋:本地直接回复,不走模型。
+ * 命中返回 assistant 消息内容(+可选 navigate 卡片),未命中返回 null 走正常对话。
+ */
+const EASTER_EGGS: Record<
+  string,
+  { key: "eggSuis" | "eggYorushika" | "eggHelp"; navMusic?: boolean }
+> = {
+  "/suis": { key: "eggSuis", navMusic: true },
+  "/yorushika": { key: "eggYorushika", navMusic: true },
+  "/夜鹿": { key: "eggYorushika", navMusic: true },
+  "/help": { key: "eggHelp" },
+  "/彩蛋": { key: "eggHelp" },
+};
+
 export default function AgentWidget() {
   const t = useTranslations("agent");
   const locale = useLocale();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -108,6 +126,21 @@ export default function AgentWidget() {
     const text = raw.trim();
     if (!text || busy) return;
     setInput("");
+
+    // 隐藏指令彩蛋:本地回复,不占模型调用
+    const egg = EASTER_EGGS[text.toLowerCase()];
+    if (egg) {
+      const toolCalls: ToolCallRecord[] = egg.navMusic
+        ? [{ name: "navigate", args: { path: "/music/", label: t("eggNavMusic") } }]
+        : [];
+      setMessages((prev) => [
+        ...prev,
+        { id: ++idRef.current, role: "user", content: text },
+        { id: ++idRef.current, role: "assistant", content: t(egg.key), toolCalls },
+      ]);
+      return;
+    }
+
     setBusy(true);
 
     const userMsg: ChatMessage = { id: ++idRef.current, role: "user", content: text };
@@ -131,6 +164,7 @@ export default function AgentWidget() {
         history,
         locale,
         signal: abort.signal,
+        currentPath: pathname,
         onDelta: (content) => updateMessage(assistantId, { content }),
         onToolCall: (call) =>
           setMessages((prev) =>
@@ -144,6 +178,7 @@ export default function AgentWidget() {
       updateMessage(assistantId, {
         content: result.content || t("empty"),
         toolCalls: result.toolCalls,
+        suggestions: result.suggestions,
         pending: false,
       });
     } catch (error) {
@@ -226,7 +261,7 @@ export default function AgentWidget() {
                 </div>
               </div>
             ) : (
-              <ChatMessages messages={messages} />
+              <ChatMessages messages={messages} onSuggestion={send} />
             )}
           </div>
 

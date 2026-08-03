@@ -1,10 +1,20 @@
 "use client";
 
-import { ArrowRight, MagnifyingGlass, Spinner } from "@phosphor-icons/react";
+import {
+  ArrowRight,
+  Check,
+  Copy,
+  DownloadSimple,
+  ImageSquare,
+  MagnifyingGlass,
+  Spinner,
+} from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Link } from "@/i18n/navigation";
+import { downloadShareCard } from "@/lib/agent/share-card";
 import type { ToolCallRecord } from "@/lib/agent/tools";
 
 /** 聊天窗口的一条消息;toolCalls 是该轮回答过程中发生的工具调用 */
@@ -13,6 +23,8 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   toolCalls?: ToolCallRecord[];
+  /** 回答完成后由模型生成的追问建议 */
+  suggestions?: string[];
   /** 流式进行中 */
   pending?: boolean;
 }
@@ -21,19 +33,12 @@ const TOOL_ICON_SIZE = 12;
 
 function ToolLine({ call }: { call: ToolCallRecord }) {
   const t = useTranslations("agent");
-  const detail =
-    call.name === "read_digest"
-      ? String(call.args.date ?? "")
-      : call.name === "search_site"
-        ? String(call.args.query ?? "")
-        : call.name === "read_article"
-          ? String(call.args.slug ?? "")
-          : "";
   return (
     <p className="flex items-center gap-1.5 font-mono text-xs text-muted">
-      <MagnifyingGlass size={TOOL_ICON_SIZE} aria-hidden />
-      {t("toolCall", { name: call.name })}
-      {detail ? ` · ${detail}` : ""}
+      <MagnifyingGlass size={TOOL_ICON_SIZE} aria-hidden className="shrink-0" />
+      <span className="truncate">
+        {call.detail ?? t("toolCall", { name: call.name })}
+      </span>
     </p>
   );
 }
@@ -57,7 +62,61 @@ function NavigateCard({ call }: { call: ToolCallRecord }) {
   );
 }
 
-function MessageBody({ message }: { message: ChatMessage }) {
+/** 回答操作栏:复制 Markdown / 下载 .md / 生成分享卡片 */
+function MessageActions({ content }: { content: string }) {
+  const t = useTranslations("agent");
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // 剪贴板不可用时静默(非安全上下文等)
+    }
+  };
+  const download = () => {
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `acane-${Date.now()}.md`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  const btn =
+    "rounded-md p-1.5 text-muted transition-colors duration-300 ease-premium hover:text-accent";
+  return (
+    <div className="flex items-center gap-0.5">
+      <button type="button" onClick={copy} aria-label={t("copyMd")} title={t("copyMd")} className={btn}>
+        {copied ? <Check size={13} className="text-accent" aria-hidden /> : <Copy size={13} aria-hidden />}
+      </button>
+      <button type="button" onClick={download} aria-label={t("downloadMd")} title={t("downloadMd")} className={btn}>
+        <DownloadSimple size={13} aria-hidden />
+      </button>
+      <button
+        type="button"
+        onClick={() => downloadShareCard(content)}
+        aria-label={t("shareCard")}
+        title={t("shareCard")}
+        className={btn}
+      >
+        <ImageSquare size={13} aria-hidden />
+      </button>
+    </div>
+  );
+}
+
+function MessageBody({
+  message,
+  isLast,
+  onSuggestion,
+}: {
+  message: ChatMessage;
+  isLast: boolean;
+  onSuggestion?: (text: string) => void;
+}) {
   const toolLines = (message.toolCalls ?? []).filter(
     (c) => c.name !== "navigate",
   );
@@ -96,15 +155,35 @@ function MessageBody({ message }: { message: ChatMessage }) {
       {navCards.map((call, i) => (
         <NavigateCard key={i} call={call} />
       ))}
+      {message.content && !message.pending ? (
+        <MessageActions content={message.content} />
+      ) : null}
+      {isLast && !message.pending && message.suggestions?.length ? (
+        <div className="flex flex-wrap gap-1.5 pt-0.5">
+          {message.suggestions.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => onSuggestion?.(s)}
+              className="rounded-full border border-hairline px-2.5 py-1 text-xs text-muted transition-colors duration-300 ease-premium hover:border-accent hover:text-accent"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
 
 export default function ChatMessages({
   messages,
+  onSuggestion,
 }: {
   messages: ChatMessage[];
+  onSuggestion?: (text: string) => void;
 }) {
+  const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
   return (
     <div className="space-y-4">
       {messages.map((message) =>
@@ -116,7 +195,11 @@ export default function ChatMessages({
           </div>
         ) : (
           <div key={message.id} className="pr-2">
-            <MessageBody message={message} />
+            <MessageBody
+              message={message}
+              isLast={message.id === lastAssistantId}
+              onSuggestion={onSuggestion}
+            />
           </div>
         ),
       )}

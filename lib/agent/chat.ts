@@ -1,4 +1,4 @@
-import { buildSystemPrompt } from "./system";
+import { buildSuggestPrompt, buildSystemPrompt } from "./system";
 import { AGENT_TOOLS, executeTool, type ToolCallRecord } from "./tools";
 
 /**
@@ -9,6 +9,7 @@ import { AGENT_TOOLS, executeTool, type ToolCallRecord } from "./tools";
  * 跨轮历史只保留 user/assistant 文本(tool 交换不带入下一轮,省 token)。
  * 各轮流出的文本全部保留、按轮拼接(中间过程对用户可见),
  * 而不是被下一轮覆盖。
+ * 最终回答产出后,再发一次轻量请求生成 3 条追问建议。
  */
 
 const MAX_ROUNDS = 5;
@@ -31,10 +32,11 @@ type ApiMessage =
   | { role: "assistant"; content: string | null; tool_calls?: ApiToolCall[] }
   | { role: "tool"; tool_call_id: string; content: string };
 
-/** 单轮对话的产出:最终回答文本 + 本轮全部工具调用记录(UI 渲染用) */
+/** 单轮对话的产出:最终回答文本 + 本轮全部工具调用记录(UI 渲染用)+ 追问建议 */
 export interface AgentTurnResult {
   content: string;
   toolCalls: ToolCallRecord[];
+  suggestions: string[];
 }
 
 /** 解析一路 SSE 流,返回累积的 content 与 tool_calls;content delta 通过 onDelta 实时上抛 */
@@ -124,21 +126,68 @@ async function fetchRound(
 const joinRounds = (prev: string, next: string) =>
   prev && next ? `${prev}\n\n${next}` : prev || next;
 
+/** 回答完成后,基于问答对生成 3 条追问建议;失败静默降级为空数组 */
+async function fetchSuggestions(
+  apiUrl: string,
+  question: string,
+  answer: string,
+  locale: string,
+  signal: AbortSignal,
+): Promise<string[]> {
+  try {
+    const { content } = await fetchRound(
+      apiUrl,
+      [
+        { role: "system", content: buildSuggestPrompt(locale) },
+        {
+          role: "user",
+          content: `问:${question.slice(0, 500)}\n答:${answer.slice(0, 1500)}`,
+        },
+      ],
+      signal,
+      () => {},
+    );
+    // 优先按 JSON 数组解析,退化到按行解析(模型可能不老实输出纯 JSON)
+    const match = content.match(/\[[\s\S]*\]/);
+    if (match) {
+      const parsed: unknown = JSON.parse(match[0]);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .filter((s): s is string => typeof s === "string")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .slice(0, 3);
+      }
+    }
+    return content
+      .split("\n")
+      .map((line) => line.replace(/^[-*\d.、\s]+/, "").trim())
+      .filter((line) => line.length >= 4 && line.length <= 60)
+      .slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
 export async function runAgentTurn(options: {
   apiUrl: string;
   history: HistoryMessage[];
   locale: string;
   signal: AbortSignal;
+  /** 用户当前浏览的站内路径(含 locale 前缀),注入 system prompt 提供页面上下文 */
+  currentPath?: string;
   onDelta: (content: string) => void;
   onToolCall?: (call: ToolCallRecord) => void;
 }): Promise<AgentTurnResult> {
   const { apiUrl, locale, signal, onDelta, onToolCall } = options;
   const messages: ApiMessage[] = [
-    { role: "system", content: buildSystemPrompt(locale) },
+    { role: "system", content: buildSystemPrompt(locale, options.currentPath) },
     ...options.history.slice(-MAX_HISTORY),
   ];
   const records: ToolCallRecord[] = [];
   let accumulated = "";
+
+  const finish = (): AgentTurnResult => ({ content: accumulated, toolCalls: records, suggestions: [] });
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
     const base = accumulated;
@@ -149,7 +198,13 @@ export async function runAgentTurn(options: {
       (roundContent) => onDelta(joinRounds(base, roundContent)),
     );
     accumulated = joinRounds(accumulated, content);
-    if (!toolCalls.length) return { content: accumulated, toolCalls: records };
+    if (!toolCalls.length) {
+      const question = [...options.history].reverse().find((m) => m.role === "user")?.content ?? "";
+      const suggestions = accumulated
+        ? await fetchSuggestions(apiUrl, question, accumulated, locale, signal)
+        : [];
+      return { content: accumulated, toolCalls: records, suggestions };
+    }
 
     // 回显 assistant 的 tool_calls,再逐个执行、追加 tool 结果
     messages.push({
@@ -164,15 +219,16 @@ export async function runAgentTurn(options: {
       } catch {
         // 参数 JSON 不完整(理论上不应发生,流已结束),按空调用处理
       }
+      const { result, detail } = await executeTool(call.function.name, args, locale);
       const record = {
         name: call.function.name as ToolCallRecord["name"],
         args,
+        detail,
       };
       records.push(record);
       onToolCall?.(record);
-      const result = await executeTool(call.function.name, args, locale);
       messages.push({ role: "tool", tool_call_id: call.id, content: result });
     }
   }
-  return { content: accumulated, toolCalls: records };
+  return finish();
 }
