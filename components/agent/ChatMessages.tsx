@@ -18,26 +18,13 @@ import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { Link } from "@/i18n/navigation";
-import type { AgentPart } from "@/lib/agent/chat";
+import type { ChatMessage } from "@/lib/agent/chat";
 import { downloadShareCard } from "@/lib/agent/share-card";
 import type { ToolCallRecord } from "@/lib/agent/tools";
 import RefCard from "./RefCard";
 
-/** 聊天窗口的一条消息;parts 是按发生顺序交错的文本/工具片段 */
-export interface ChatMessage {
-  id: number;
-  role: "user" | "assistant";
-  content: string;
-  parts?: AgentPart[];
-  /** 回答完成后由模型生成的追问建议 */
-  suggestions?: string[];
-  /** 流式进行中 */
-  pending?: boolean;
-  /** 本轮请求失败(显示重试入口) */
-  failed?: boolean;
-  /** 失败原因(如 agent proxy error: 429),小字展示便于排查 */
-  errorReason?: string;
-}
+/** ChatMessage 已移到 lib/agent/chat.ts(会话模型),这里 re-export 保持兼容 */
+export type { ChatMessage } from "@/lib/agent/chat";
 
 const TOOL_ICON_SIZE = 12;
 

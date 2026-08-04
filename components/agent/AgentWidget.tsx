@@ -14,6 +14,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { runAgentTurn, type AgentPart } from "@/lib/agent/chat";
 import { AGENT_OPEN_EVENT, type AgentOpenRequest } from "@/lib/agent/bus";
+import { clearHistory, loadHistory, saveHistory } from "@/lib/agent/history";
 import { basePath } from "@/lib/images";
 import AcaneAvatar from "./AcaneAvatar";
 import ChatMessages, { type ChatMessage } from "./ChatMessages";
@@ -84,7 +85,8 @@ function AgentWidgetInner() {
   const locale = useLocale();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // 会话历史:启动时从 localStorage 恢复(刷新/重开浏览器不丢),回答结束自动落盘
+  const [messages, setMessages] = useState<ChatMessage[]>(loadHistory);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [size, setSize] = useState(loadSize);
@@ -96,7 +98,9 @@ function AgentWidgetInner() {
   const [digestBubble, setDigestBubble] = useState<string | null>(null);
   /** 服务可达性:面板打开时探测 /health,不通则挂提示横幅 */
   const [netDown, setNetDown] = useState(false);
-  const idRef = useRef(0);
+  // id 计数从恢复的最大 id 续起,避免撞号
+  const [initialMaxId] = useState(() => Math.max(0, ...loadHistory().map((m) => m.id)));
+  const idRef = useRef(initialMaxId);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -148,6 +152,11 @@ function AgentWidgetInner() {
   }, [messages, open]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  // 会话历史落盘:每轮回答结束(busy→false)才写,流式中途不写;空会话由 clear() 显式清
+  useEffect(() => {
+    if (!busy && messages.length) saveHistory(messages);
+  }, [messages, busy]);
 
   // 全局打开总线:划词/按钮/首页输入框/⌘K 等入口统一从这里进。
   // send 依赖最新 messages(历史),用 ref 转发避免闭包过期
@@ -296,6 +305,7 @@ function AgentWidgetInner() {
     abortRef.current?.abort();
     setMessages([]);
     setBusy(false);
+    clearHistory();
   };
 
   const markDigestSeen = (date: string) => {

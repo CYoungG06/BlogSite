@@ -32,6 +32,22 @@ type ApiMessage =
   | { role: "assistant"; content: string | null; tool_calls?: ApiToolCall[] }
   | { role: "tool"; tool_call_id: string; content: string };
 
+/** 聊天窗口的一条消息;parts 是按发生顺序交错的文本/工具片段 */
+export interface ChatMessage {
+  id: number;
+  role: "user" | "assistant";
+  content: string;
+  parts?: AgentPart[];
+  /** 回答完成后由模型生成的追问建议 */
+  suggestions?: string[];
+  /** 流式进行中 */
+  pending?: boolean;
+  /** 本轮请求失败(显示重试入口) */
+  failed?: boolean;
+  /** 失败原因(如 agent proxy error: 429),小字展示便于排查 */
+  errorReason?: string;
+}
+
 /** 单轮对话的产出:最终回答文本 + 本轮全部工具调用记录(UI 渲染用)+ 追问建议 */
 export interface AgentTurnResult {
   content: string;
