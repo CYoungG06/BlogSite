@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import Analytics from "@/components/Analytics";
 import AgentWidgetLoader from "@/components/agent/AgentWidgetLoader";
+import SelectionAsk from "@/components/agent/SelectionAsk";
 import MouseSpotlight from "@/components/MouseSpotlight";
 import ThemeProvider from "@/components/ThemeProvider";
 import Footer from "@/components/layout/Footer";
@@ -71,6 +72,7 @@ export default async function LocaleLayout({
             <main>{children}</main>
             <Footer />
             <AgentWidgetLoader />
+            <SelectionAsk />
           </ThemeProvider>
           <Analytics />
         </NextIntlClientProvider>

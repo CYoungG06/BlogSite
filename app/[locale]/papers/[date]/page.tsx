@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
 import PageHeader from "@/components/layout/PageHeader";
+import AskAcaneButtons from "@/components/agent/AskAcaneButtons";
 import DigestToc, { type TocItem } from "@/components/papers/DigestToc";
 import PaperCard from "@/components/papers/PaperCard";
 import { Link } from "@/i18n/navigation";
@@ -122,6 +123,18 @@ export default async function PaperDigestPage({
         title={t("digestTitle", { date: digest.date })}
         description={`${t("hfCount", { count: hfRel.length })} · ${t("arxivCount", { count: arxivRel.length })}${filtered.length > 0 ? ` · ${t("filteredCount", { count: filtered.length })}` : ""}`}
       />
+
+      {/* 情境化入口:让阿卡内按口味筛一遍今天 */}
+      <div className="mb-10">
+        <AskAcaneButtons
+          items={[
+            {
+              label: t("askFilterBtn"),
+              prompt: t("askFilterPrompt", { date: digest.date }),
+            },
+          ]}
+        />
+      </div>
 
       <div className="relative">
         {/* 宽屏右侧 sticky 索引 */}

@@ -10,6 +10,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { runAgentTurn, type AgentPart } from "@/lib/agent/chat";
+import { AGENT_OPEN_EVENT, type AgentOpenRequest } from "@/lib/agent/bus";
 import ChatMessages, { type ChatMessage } from "./ChatMessages";
 
 /**
@@ -62,7 +63,7 @@ const EASTER_EGGS: Record<
   "/彩蛋": { key: "eggHelp" },
 };
 
-export default function AgentWidget() {
+function AgentWidgetInner() {
   const t = useTranslations("agent");
   const locale = useLocale();
   const pathname = usePathname();
@@ -114,7 +115,19 @@ export default function AgentWidget() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  if (!API_URL) return null;
+  // 全局打开总线:划词/按钮/首页输入框/⌘K 等入口统一从这里进。
+  // send 依赖最新 messages(历史),用 ref 转发避免闭包过期
+  const sendRef = useRef<(text: string) => void>(() => {});
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const detail = (e as CustomEvent<AgentOpenRequest>).detail ?? {};
+      setOpen(true);
+      if (detail.prompt) sendRef.current(detail.prompt);
+      else if (detail.prefill) setInput(detail.prefill);
+    };
+    window.addEventListener(AGENT_OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(AGENT_OPEN_EVENT, onOpen);
+  }, []);
 
   const updateMessage = (id: number, patch: Partial<ChatMessage>) =>
     setMessages((prev) =>
@@ -189,6 +202,11 @@ export default function AgentWidget() {
     }
   };
 
+  // ref 转发最新的 send(每次渲染后同步,lint 不允许渲染期写 ref)
+  useEffect(() => {
+    sendRef.current = send;
+  });
+
   const clear = () => {
     abortRef.current?.abort();
     setMessages([]);
@@ -199,6 +217,7 @@ export default function AgentWidget() {
     <div className="fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6">
       {open ? (
         <div
+          data-selection-ask="off"
           className="group/panel relative flex max-h-[calc(100dvh-6rem)] w-[calc(100vw-2.5rem)] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-hairline bg-background shadow-2xl shadow-black/10"
           style={{ width: size.w, height: size.h }}
         >
@@ -298,4 +317,10 @@ export default function AgentWidget() {
       )}
     </div>
   );
+}
+
+/** 未配置 NEXT_PUBLIC_AGENT_API 时不渲染(保持原有早退语义,且不违反 hooks 顺序) */
+export default function AgentWidget() {
+  if (!API_URL) return null;
+  return <AgentWidgetInner />;
 }

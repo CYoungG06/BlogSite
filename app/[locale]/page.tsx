@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import NoteCard from "@/components/notes/NoteCard";
 import ProjectCard from "@/components/projects/ProjectCard";
+import HeroAsk from "@/components/agent/HeroAsk";
 import Container from "@/components/layout/Container";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
@@ -98,6 +99,10 @@ export default async function HomePage({
           >
             {t("home.secondaryCta")}
           </Link>
+        </div>
+        {/* AI 助手大门:首页直接问阿卡内 */}
+        <div className="animate-fade-up mt-6" style={stagger(3)}>
+          <HeroAsk />
         </div>
       </section>
 

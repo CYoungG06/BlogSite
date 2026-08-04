@@ -1,5 +1,6 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { useTranslations } from "next-intl";
+import AskAcaneButtons from "@/components/agent/AskAcaneButtons";
 import FallbackNotice from "@/components/blog/FallbackNotice";
 import Container from "@/components/layout/Container";
 import Lightbox from "@/components/mdx/Lightbox";
@@ -28,6 +29,7 @@ export default function ArticleDetail({
   locale: Locale;
 }) {
   const t = useTranslations(kind);
+  const tAgent = useTranslations("agent");
   const toc = extractHeadings(item.content);
   const showToc = toc.length >= 3; // 标题 < 3 个不显示
   const otherLocale: Locale = locale === "zh" ? "en" : "zh";
@@ -156,6 +158,23 @@ export default function ArticleDetail({
                 </div>
               </aside>
             ) : null}
+          </div>
+
+          {/* 情境化入口:读完让阿卡内总结 / 出题 */}
+          <div className="mx-auto mt-16 max-w-3xl border-t border-hairline pt-8">
+            <AskAcaneButtons
+              heading={tAgent("articleAskHeading")}
+              items={[
+                {
+                  label: tAgent("summarizeBtn"),
+                  prompt: tAgent("summarizePrompt", { title: item.title }),
+                },
+                {
+                  label: tAgent("quizBtn"),
+                  prompt: tAgent("quizPrompt", { title: item.title }),
+                },
+              ]}
+            />
           </div>
         </div>
       </Container>
