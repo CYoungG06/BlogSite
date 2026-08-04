@@ -1,12 +1,14 @@
 "use client";
 
 import {
-  ArrowCounterClockwise,
+  ClockCounterClockwise,
+  NotePencil,
   PaperPlaneRight,
   PictureInPicture,
   SidebarSimple,
   Sparkle,
   Binoculars,
+  Trash,
   X,
 } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
@@ -14,7 +16,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { runAgentTurn, type AgentPart } from "@/lib/agent/chat";
 import { AGENT_OPEN_EVENT, type AgentOpenRequest } from "@/lib/agent/bus";
-import { clearHistory, loadHistory, saveHistory } from "@/lib/agent/history";
+import {
+  createSessionId,
+  deleteSession,
+  loadLatestSession,
+  loadSessions,
+  saveSession,
+  type ChatSession,
+} from "@/lib/agent/history";
 import { basePath } from "@/lib/images";
 import AcaneAvatar from "./AcaneAvatar";
 import ChatMessages, { type ChatMessage } from "./ChatMessages";
@@ -85,8 +94,21 @@ function AgentWidgetInner() {
   const locale = useLocale();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  // 会话历史:启动时从 localStorage 恢复(刷新/重开浏览器不丢),回答结束自动落盘
-  const [messages, setMessages] = useState<ChatMessage[]>(loadHistory);
+  // 会话历史:启动时恢复最近会话(刷新/重开浏览器不丢),回答结束自动落盘
+  const [boot] = useState(() => {
+    const latest = loadLatestSession();
+    return {
+      sessionId: latest?.id ?? null,
+      messages: latest?.messages ?? [],
+      maxId: Math.max(0, ...(latest?.messages ?? []).map((m) => m.id)),
+    };
+  });
+  const [messages, setMessages] = useState<ChatMessage[]>(boot.messages);
+  const [sessionId, setSessionId] = useState<string | null>(boot.sessionId);
+  /** 历史会话列表(抽屉展示),抽屉打开/删除时从存储加载 */
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  /** 历史抽屉开关 */
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [size, setSize] = useState(loadSize);
@@ -99,8 +121,7 @@ function AgentWidgetInner() {
   /** 服务可达性:面板打开时探测 /health,不通则挂提示横幅 */
   const [netDown, setNetDown] = useState(false);
   // id 计数从恢复的最大 id 续起,避免撞号
-  const [initialMaxId] = useState(() => Math.max(0, ...loadHistory().map((m) => m.id)));
-  const idRef = useRef(initialMaxId);
+  const idRef = useRef(boot.maxId);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -153,10 +174,12 @@ function AgentWidgetInner() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  // 会话历史落盘:每轮回答结束(busy→false)才写,流式中途不写;空会话由 clear() 显式清
+  // 会话历史落盘:每轮回答结束(busy→false)才写,流式中途不写。
+  // sessionId 由 send() 在发消息时确保存在,这里只写不建
   useEffect(() => {
-    if (!busy && messages.length) saveHistory(messages);
-  }, [messages, busy]);
+    if (busy || !messages.length || !sessionId) return;
+    saveSession(sessionId, messages);
+  }, [messages, busy, sessionId]);
 
   // 全局打开总线:划词/按钮/首页输入框/⌘K 等入口统一从这里进。
   // send 依赖最新 messages(历史),用 ref 转发避免闭包过期
@@ -258,6 +281,8 @@ function AgentWidgetInner() {
     const text = raw.trim();
     if (!text || busy) return;
     setInput("");
+    // 新会话在首次发消息时建 id,落盘 effect 只写不建
+    if (!sessionId) setSessionId(createSessionId());
 
     // 隐藏指令彩蛋:本地回复,不占模型调用
     const egg = EASTER_EGGS[text.toLowerCase()];
@@ -301,12 +326,48 @@ function AgentWidgetInner() {
     sendRef.current = send;
   });
 
-  const clear = () => {
+  /** 新对话:清空当前视图开新会话;旧对话已落盘,留在历史列表里 */
+  const newChat = () => {
     abortRef.current?.abort();
     setMessages([]);
+    setSessionId(null);
     setBusy(false);
-    clearHistory();
+    setHistoryOpen(false);
   };
+
+  /** 切到历史会话:id 计数对齐全,避免新消息撞号 */
+  const openSession = (session: ChatSession) => {
+    abortRef.current?.abort();
+    setBusy(false);
+    setMessages(session.messages);
+    setSessionId(session.id);
+    idRef.current = Math.max(idRef.current, ...session.messages.map((m) => m.id));
+    setHistoryOpen(false);
+  };
+
+  const removeSession = (id: string) => {
+    deleteSession(id);
+    setSessions(loadSessions());
+    // 删的是正开着的会话:视图一并清掉
+    if (id === sessionId) {
+      setMessages([]);
+      setSessionId(null);
+    }
+  };
+
+  /** 打开抽屉时从存储刷新列表(平时不常驻同步) */
+  const toggleHistory = () => {
+    if (!historyOpen) setSessions(loadSessions());
+    setHistoryOpen((v) => !v);
+  };
+
+  const formatSessionDate = (ts: number) =>
+    new Date(ts).toLocaleString(locale === "zh" ? "zh-CN" : "en-US", {
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
 
   const markDigestSeen = (date: string) => {
     try {
@@ -378,12 +439,24 @@ function AgentWidgetInner() {
               </button>
               <button
                 type="button"
-                onClick={clear}
-                aria-label={t("clear")}
-                title={t("clear")}
+                onClick={toggleHistory}
+                aria-label={t("history")}
+                title={t("history")}
+                aria-pressed={historyOpen}
+                className={`rounded-md p-1.5 transition-colors duration-300 ease-premium hover:text-accent ${
+                  historyOpen ? "text-accent" : "text-muted"
+                }`}
+              >
+                <ClockCounterClockwise size={15} aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={newChat}
+                aria-label={t("newChat")}
+                title={t("newChat")}
                 className="rounded-md p-1.5 text-muted transition-colors duration-300 ease-premium hover:text-accent"
               >
-                <ArrowCounterClockwise size={15} aria-hidden />
+                <NotePencil size={15} aria-hidden />
               </button>
               <button
                 type="button"
@@ -395,6 +468,57 @@ function AgentWidgetInner() {
               </button>
             </div>
           </header>
+
+          {historyOpen ? (
+            <div className="absolute inset-0 z-20 flex flex-col bg-background">
+              <header className="flex items-center justify-between border-b border-hairline px-4 py-3">
+                <p className="text-sm font-medium tracking-tight">{t("history")}</p>
+                <button
+                  type="button"
+                  onClick={() => setHistoryOpen(false)}
+                  aria-label={t("close")}
+                  className="rounded-md p-1.5 text-muted transition-colors duration-300 ease-premium hover:text-accent"
+                >
+                  <X size={15} aria-hidden />
+                </button>
+              </header>
+              <div className="flex-1 overflow-y-auto p-2">
+                {sessions.length === 0 ? (
+                  <p className="px-2 py-8 text-center text-xs text-muted">
+                    {t("emptyHistory")}
+                  </p>
+                ) : (
+                  <ul className="space-y-0.5">
+                    {sessions.map((s) => (
+                      <li key={s.id} className="group/item relative">
+                        <button
+                          type="button"
+                          onClick={() => openSession(s)}
+                          className={`w-full rounded-lg px-2.5 py-2 pr-8 text-left transition-colors duration-300 ease-premium hover:bg-foreground/5 ${
+                            s.id === sessionId ? "bg-foreground/5" : ""
+                          }`}
+                        >
+                          <span className="block truncate text-sm">{s.title}</span>
+                          <span className="mt-0.5 block font-mono text-[0.7rem] text-muted">
+                            {formatSessionDate(s.updatedAt)}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeSession(s.id)}
+                          aria-label={t("deleteSession")}
+                          title={t("deleteSession")}
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted transition-all duration-300 ease-premium hover:text-accent sm:opacity-0 sm:group-hover/item:opacity-100"
+                        >
+                          <Trash size={13} aria-hidden />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          ) : null}
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
             {netDown ? (
