@@ -159,7 +159,12 @@ function NavigateCard({ call }: { call: ToolCallRecord }) {
  * 闭合类符号(」)】等)保留,避免拆散配对。
  */
 const CARD_HREF_RE = /arxiv\.org\/abs\/\d{4}\.\d{4,5}|^\/papers\/\d{4}-\d{2}-\d{2}/;
-const LEADING_PUNCT_RE = /^[。、,，;；:：!?！？]+\s*/;
+const LEADING_PUNCT_RE = /^\s*[。、,，;；:：!?！？]+\s*/;
+
+/** 裸站内路径兜底:模型偶尔把 /papers/2026-08-03/ 这类路径写成纯文本,
+ *  这里识别并升级成 RefCard(速递页 → 卡片,文章页 → 内链) */
+const BARE_PATH_RE =
+  /(\/(?:papers\/\d{4}-\d{2}-\d{2}|blog|reading|distilled|notes|projects|research)\/[\w-]*\/?)/g;
 
 function isBlockCard(node: ReactNode): boolean {
   if (!isValidElement(node)) return false;
@@ -167,19 +172,41 @@ function isBlockCard(node: ReactNode): boolean {
   return typeof href === "string" && CARD_HREF_RE.test(href);
 }
 
-function Paragraph({ children }: { children?: ReactNode }) {
+function linkifyBarePaths(text: string): ReactNode[] {
+  const parts = text.split(BARE_PATH_RE);
+  if (parts.length === 1) return [text];
+  return parts.map((part, i) =>
+    i % 2 === 1 ? (
+      <RefCard key={i} href={part}>
+        {part}
+      </RefCard>
+    ) : (
+      part
+    ),
+  );
+}
+
+/** 行内内容统一后处理(p / li 共用):裸路径升级 + 块卡后标点缝合 */
+function processInline(children: ReactNode): ReactNode[] {
   const arr = Children.toArray(children);
   const out: ReactNode[] = [];
   for (const cur of arr) {
-    if (typeof cur === "string" && out.length > 0 && isBlockCard(out[out.length - 1])) {
-      const stripped = cur.replace(LEADING_PUNCT_RE, "");
-      if (!stripped) continue; // 两卡之间整段都是标点,丢弃
-      out.push(stripped);
+    if (typeof cur !== "string") {
+      out.push(cur);
       continue;
     }
-    out.push(cur);
+    let text = cur;
+    if (out.length > 0 && isBlockCard(out[out.length - 1])) {
+      text = text.replace(LEADING_PUNCT_RE, "");
+      if (!text) continue; // 两卡之间整段都是标点,丢弃
+    }
+    out.push(...linkifyBarePaths(text));
   }
-  return <p>{out}</p>;
+  return out;
+}
+
+function Paragraph({ children }: { children?: ReactNode }) {
+  return <p>{processInline(children)}</p>;
 }
 
 function MarkdownBlock({ content, cursor }: { content: string; cursor?: boolean }) {
@@ -192,8 +219,10 @@ function MarkdownBlock({ content, cursor }: { content: string; cursor?: boolean 
           // 链接卡片化:arXiv → 论文卡,/papers/date/ → 速递卡,站内走 Link
           a: ({ href, children }) =>
             href ? <RefCard href={href}>{children}</RefCard> : <>{children}</>,
-          // 段落:剥掉紧跟块级卡片的句读标点(见 Paragraph)
+          // 段落:剥掉紧跟块级卡片的句读标点(见 processInline)
           p: ({ children }) => <Paragraph>{children}</Paragraph>,
+          // 紧凑列表项没有 p 包裹,同样做裸路径升级与标点缝合
+          li: ({ children }) => <li>{processInline(children)}</li>,
           // 代码块:语言标签 + 复制按钮的头栏
           pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
         }}

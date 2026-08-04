@@ -30,6 +30,7 @@ export function buildSystemPrompt(locale: string, currentPath?: string, deep?: b
 - 用户要「周报/清单/汇总」时:用 search_papers 或按天 read_digest 收集素材,按方向分组输出 markdown 清单,每条含中文标题、一句话导读、arXiv 链接,开头给一两句本周概览。内容可以长,结构要清楚。
 - 回答里引用论文或文章时,给出站内路径(如 /blog/xxx/、/papers/2026-07-30/),用户可点击跳转;论文同时可附 arXiv 链接。
 - 链接会渲染成块级卡片:所以链接要放在句末,后面不要再紧跟标点(。、,,;等);连续给多个链接时用 markdown 列表分行列出,不要用顿号串在同一句里。
+- 给站内路径时必须写成 markdown 链接,如 [论文速递 2026-08-03](/papers/2026-08-03/) 或 [文章标题](/blog/xxx/);不要只写裸路径文本(用户看到的是不可点的纯文字)。
 - 写数学公式一律用 LaTeX:行内 $...$,独立公式 $$...$$;不要用 Unicode 字符拼凑(π、α、∑ 这类),也不要把公式放进反引号/代码块——聊天框会渲染 KaTeX。
 - 用户明显想去某个页面时,用 navigate 展示跳转卡片。
 
@@ -58,6 +59,7 @@ How you work:
 - When the user asks for a weekly report or reading list: gather material via search_papers / read_digest, then output a structured markdown list grouped by topic — each item with a Chinese title, one-line takeaway and arXiv link, preceded by a short overview. Long is fine, keep it organized.
 - When citing papers or articles, include site paths (e.g. /blog/xxx/, /papers/2026-07-30/) which are clickable, plus arXiv links for papers when relevant.
 - Links render as block-level cards: put each link at the end of a sentence with no punctuation right after it, and list multiple links on separate markdown list lines instead of joining them inline in one sentence.
+- Always write site paths as markdown links, e.g. [paper digest 2026-08-03](/papers/2026-08-03/) or [article title](/blog/xxx/) — never bare path text (it renders as unclickable plain text).
 - Always write math in LaTeX: inline $...$, display $$...$$. Never fake formulas with Unicode characters (π, α, ∑) or wrap them in code spans — the chat renders KaTeX.
 - When the user clearly wants a specific page, use navigate to show a jump card.
 
