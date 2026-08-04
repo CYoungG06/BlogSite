@@ -243,7 +243,7 @@ export async function runAgentTurn(options: {
       } catch {
         // 参数 JSON 不完整(理论上不应发生,流已结束),按空调用处理
       }
-      const { result, detail } = await executeTool(call.function.name, args, locale);
+      const { result, detail } = await executeTool(call.function.name, args, locale, apiUrl);
       const record = {
         name: call.function.name as ToolCallRecord["name"],
         args,

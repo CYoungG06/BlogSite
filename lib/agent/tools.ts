@@ -145,6 +145,24 @@ export const AGENT_TOOLS = [
   {
     type: "function",
     function: {
+      name: "read_paper",
+      description:
+        "读取 arXiv 论文全文(经代理从 alphaXiv / arXiv HTML 提取的纯文本,截断到约 1.6 万字符)。速递导读/摘要不足以回答细节问题(公式、算法步骤、实验设置、消融结果)时用;没有全文会返回错误,此时告诉用户只能依据摘要回答并附 PDF 链接。",
+      parameters: {
+        type: "object",
+        properties: {
+          arxiv_id: {
+            type: "string",
+            description: "arXiv id,形如 2607.28568(不带 abs/ 前缀)",
+          },
+        },
+        required: ["arxiv_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "navigate",
       description:
         "向用户展示一个站内跳转卡片(用户点击后跳转)。当用户明确想找某个页面/栏目时使用,path 必须是站内路径。",
@@ -171,6 +189,7 @@ export type AgentToolName =
   | "read_digest"
   | "search_papers"
   | "compare_articles"
+  | "read_paper"
   | "navigate";
 
 /** 一次工具调用的记录,UI 用来渲染「正在查资料」与跳转卡片;detail 是给人看的过程描述 */
@@ -375,6 +394,24 @@ async function compareArticles(
   return JSON.stringify({ articles: docs });
 }
 
+/** 喂给模型的全文字符上限:覆盖方法/实验主体,又不至于撑爆上下文 */
+const PAPER_TEXT_TOOL_LIMIT = 16_000;
+
+async function readPaper(arxivId: string, apiUrl: string): Promise<string> {
+  if (!apiUrl) return JSON.stringify({ error: "paper proxy not configured" });
+  const res = await fetch(`${apiUrl}/paper?arxiv=${encodeURIComponent(arxivId)}`);
+  if (!res.ok) return JSON.stringify({ error: "full text not available" });
+  const data = await res.json();
+  const text = String(data.text ?? "");
+  return JSON.stringify({
+    arxiv: arxivId,
+    source: data.source,
+    chars: text.length,
+    truncated: text.length > PAPER_TEXT_TOOL_LIMIT,
+    text: truncate(text, PAPER_TEXT_TOOL_LIMIT),
+  });
+}
+
 /** 工具执行产出:result 喂给模型,detail 给 UI 展示「查了什么、命中多少」 */
 export interface ToolExecution {
   result: string;
@@ -412,6 +449,12 @@ function detailOf(name: string, args: Record<string, unknown>, result: string, l
           .filter(Boolean);
         return titles.length ? titles.map((ti: string) => `《${ti}》`).join(" × ") : undefined;
       }
+      case "read_paper": {
+        const chars = typeof data.chars === "number" ? data.chars : 0;
+        return zh
+          ? `${args.arxiv_id} · 全文 ${chars} 字`
+          : `${args.arxiv_id} · full text, ${chars} chars`;
+      }
       default:
         return undefined;
     }
@@ -425,6 +468,7 @@ export async function executeTool(
   name: string,
   args: Record<string, unknown>,
   locale: string,
+  apiUrl = "",
 ): Promise<ToolExecution> {
   let result: string;
   try {
@@ -455,6 +499,9 @@ export async function executeTool(
           Array.isArray(args.articles) ? (args.articles as { type: string; slug: string }[]) : [],
           locale,
         );
+        break;
+      case "read_paper":
+        result = await readPaper(String(args.arxiv_id ?? ""), apiUrl);
         break;
       case "navigate": {
         const path = String(args.path ?? "");
