@@ -37,7 +37,14 @@ export interface AgentTurnResult {
   content: string;
   toolCalls: ToolCallRecord[];
   suggestions: string[];
+  /** 按发生顺序排列的渲染片段:各轮文本与工具调用交错,UI 按序渲染 */
+  parts: AgentPart[];
 }
+
+/** 渲染片段:一轮流出的文本,或一次工具调用 */
+export type AgentPart =
+  | { type: "text"; content: string }
+  | { type: "tool"; call: ToolCallRecord };
 
 /** 解析一路 SSE 流,返回累积的 content 与 tool_calls;content delta 通过 onDelta 实时上抛 */
 async function fetchRound(
@@ -176,26 +183,43 @@ export async function runAgentTurn(options: {
   signal: AbortSignal;
   /** 用户当前浏览的站内路径(含 locale 前缀),注入 system prompt 提供页面上下文 */
   currentPath?: string;
-  onDelta: (content: string) => void;
-  onToolCall?: (call: ToolCallRecord) => void;
+  /** 渲染片段流:每次文本增量或工具执行完成时,以全量快照回调(新数组引用) */
+  onParts: (parts: AgentPart[]) => void;
 }): Promise<AgentTurnResult> {
-  const { apiUrl, locale, signal, onDelta, onToolCall } = options;
+  const { apiUrl, locale, signal, onParts } = options;
   const messages: ApiMessage[] = [
     { role: "system", content: buildSystemPrompt(locale, options.currentPath) },
     ...options.history.slice(-MAX_HISTORY),
   ];
   const records: ToolCallRecord[] = [];
+  const parts: AgentPart[] = [];
+  const emit = () => onParts([...parts]);
   let accumulated = "";
 
-  const finish = (): AgentTurnResult => ({ content: accumulated, toolCalls: records, suggestions: [] });
+  const finish = (): AgentTurnResult => ({
+    content: accumulated,
+    toolCalls: records,
+    suggestions: [],
+    parts,
+  });
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
-    const base = accumulated;
+    // 每轮的文本是独立片段,不与上一轮拼接渲染
+    let textPart: { type: "text"; content: string } | null = null;
     const { content, toolCalls } = await fetchRound(
       apiUrl,
       messages,
       signal,
-      (roundContent) => onDelta(joinRounds(base, roundContent)),
+      (roundContent) => {
+        if (!roundContent) return;
+        if (textPart) {
+          textPart.content = roundContent;
+        } else {
+          textPart = { type: "text", content: roundContent };
+          parts.push(textPart);
+        }
+        emit();
+      },
     );
     accumulated = joinRounds(accumulated, content);
     if (!toolCalls.length) {
@@ -203,7 +227,7 @@ export async function runAgentTurn(options: {
       const suggestions = accumulated
         ? await fetchSuggestions(apiUrl, question, accumulated, locale, signal)
         : [];
-      return { content: accumulated, toolCalls: records, suggestions };
+      return { content: accumulated, toolCalls: records, suggestions, parts };
     }
 
     // 回显 assistant 的 tool_calls,再逐个执行、追加 tool 结果
@@ -226,7 +250,8 @@ export async function runAgentTurn(options: {
         detail,
       };
       records.push(record);
-      onToolCall?.(record);
+      parts.push({ type: "tool", call: record });
+      emit();
       messages.push({ role: "tool", tool_call_id: call.id, content: result });
     }
   }

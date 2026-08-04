@@ -9,8 +9,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { runAgentTurn } from "@/lib/agent/chat";
-import type { ToolCallRecord } from "@/lib/agent/tools";
+import { runAgentTurn, type AgentPart } from "@/lib/agent/chat";
 import ChatMessages, { type ChatMessage } from "./ChatMessages";
 
 /**
@@ -130,13 +129,17 @@ export default function AgentWidget() {
     // 隐藏指令彩蛋:本地回复,不占模型调用
     const egg = EASTER_EGGS[text.toLowerCase()];
     if (egg) {
-      const toolCalls: ToolCallRecord[] = egg.navMusic
-        ? [{ name: "navigate", args: { path: "/music/", label: t("eggNavMusic") } }]
-        : [];
+      const parts: AgentPart[] = [{ type: "text", content: t(egg.key) }];
+      if (egg.navMusic) {
+        parts.push({
+          type: "tool",
+          call: { name: "navigate", args: { path: "/music/", label: t("eggNavMusic") } },
+        });
+      }
       setMessages((prev) => [
         ...prev,
         { id: ++idRef.current, role: "user", content: text },
-        { id: ++idRef.current, role: "assistant", content: t(egg.key), toolCalls },
+        { id: ++idRef.current, role: "assistant", content: t(egg.key), parts },
       ]);
       return;
     }
@@ -148,7 +151,7 @@ export default function AgentWidget() {
     setMessages((prev) => [
       ...prev,
       userMsg,
-      { id: assistantId, role: "assistant", content: "", toolCalls: [], pending: true },
+      { id: assistantId, role: "assistant", content: "", parts: [], pending: true },
     ]);
 
     const abort = new AbortController();
@@ -165,19 +168,11 @@ export default function AgentWidget() {
         locale,
         signal: abort.signal,
         currentPath: pathname,
-        onDelta: (content) => updateMessage(assistantId, { content }),
-        onToolCall: (call) =>
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId
-                ? { ...m, toolCalls: [...(m.toolCalls ?? []), call] }
-                : m,
-            ),
-          ),
+        onParts: (parts) => updateMessage(assistantId, { parts }),
       });
       updateMessage(assistantId, {
         content: result.content || t("empty"),
-        toolCalls: result.toolCalls,
+        parts: result.parts,
         suggestions: result.suggestions,
         pending: false,
       });

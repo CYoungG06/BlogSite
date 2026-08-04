@@ -14,15 +14,16 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Link } from "@/i18n/navigation";
+import type { AgentPart } from "@/lib/agent/chat";
 import { downloadShareCard } from "@/lib/agent/share-card";
 import type { ToolCallRecord } from "@/lib/agent/tools";
 
-/** 聊天窗口的一条消息;toolCalls 是该轮回答过程中发生的工具调用 */
+/** 聊天窗口的一条消息;parts 是按发生顺序交错的文本/工具片段 */
 export interface ChatMessage {
   id: number;
   role: "user" | "assistant";
   content: string;
-  toolCalls?: ToolCallRecord[];
+  parts?: AgentPart[];
   /** 回答完成后由模型生成的追问建议 */
   suggestions?: string[];
   /** 流式进行中 */
@@ -59,6 +60,25 @@ function NavigateCard({ call }: { call: ToolCallRecord }) {
         className="shrink-0 transition-transform duration-300 ease-premium group-hover:translate-x-0.5"
       />
     </Link>
+  );
+}
+
+function MarkdownBlock({ content }: { content: string }) {
+  return (
+    <div className="prose prose-sm max-w-none text-sm leading-relaxed [&_a]:text-accent [&_code]:text-[0.85em] [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-accent/5 [&_pre]:p-2.5 [&_ul]:my-1 [&_ol]:my-1 [&_p]:my-1.5">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          a: ({ href, children }) => (
+            <a href={href} target="_blank" rel="noreferrer">
+              {children}
+            </a>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 }
 
@@ -117,44 +137,28 @@ function MessageBody({
   isLast: boolean;
   onSuggestion?: (text: string) => void;
 }) {
-  const toolLines = (message.toolCalls ?? []).filter(
-    (c) => c.name !== "navigate",
-  );
-  const navCards = (message.toolCalls ?? []).filter(
-    (c) => c.name === "navigate",
-  );
+  const parts = message.parts ?? [];
   return (
     <div className="space-y-2">
-      {toolLines.length ? (
-        <div className="space-y-1">
-          {toolLines.map((call, i) => (
-            <ToolLine key={i} call={call} />
-          ))}
-        </div>
+      {parts.length ? (
+        // 交错渲染:文本与工具调用按实际发生顺序排列
+        parts.map((part, i) =>
+          part.type === "text" ? (
+            <MarkdownBlock key={i} content={part.content} />
+          ) : part.call.name === "navigate" ? (
+            <NavigateCard key={i} call={part.call} />
+          ) : (
+            <ToolLine key={i} call={part.call} />
+          ),
+        )
+      ) : message.content ? (
+        <MarkdownBlock content={message.content} />
       ) : null}
-      {message.content ? (
-        <div className="prose prose-sm max-w-none text-sm leading-relaxed [&_a]:text-accent [&_code]:text-[0.85em] [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-accent/5 [&_pre]:p-2.5 [&_ul]:my-1 [&_ol]:my-1 [&_p]:my-1.5">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              a: ({ href, children }) => (
-                <a href={href} target="_blank" rel="noreferrer">
-                  {children}
-                </a>
-              ),
-            }}
-          >
-            {message.content}
-          </ReactMarkdown>
-        </div>
-      ) : message.pending ? (
+      {message.pending ? (
         <p className="flex items-center gap-1.5 text-sm text-muted">
           <Spinner size={14} className="animate-spin" aria-hidden />
         </p>
       ) : null}
-      {navCards.map((call, i) => (
-        <NavigateCard key={i} call={call} />
-      ))}
       {message.content && !message.pending ? (
         <MessageActions content={message.content} />
       ) : null}
