@@ -224,6 +224,40 @@ body::after {
   }
 }
 
+/* 聊天消息入场:轻位移,不带 blur(流式高频重绘,保性能) */
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 助手历史抽屉:从右沿滑入 */
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 「正在思考」微光:muted→foreground 流光扫过文字 */
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   /* 入场:首页按 --stagger 级联(100ms 步进) */
   .animate-fade-up {
@@ -262,6 +296,32 @@ body::after {
   /* 图片灯箱入场 */
   .animate-lightbox {
     animation: lightbox-in 0.3s var(--ease-premium) both;
+  }
+
+  /* 聊天消息/工具行入场,支持 --stagger 级联 */
+  .animate-msg-in {
+    animation: msg-in 0.45s var(--ease-premium) both;
+    animation-delay: var(--stagger, 0ms);
+  }
+
+  /* 助手历史抽屉滑入 */
+  .animate-drawer-in {
+    animation: drawer-in 0.3s var(--ease-premium) both;
+  }
+
+  /* 「正在思考」微光文字;reduced-motion 下此类不定义,回退为普通 muted 色 */
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 25%,
+      var(--foreground) 50%,
+      var(--muted) 75%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 1.6s linear infinite;
   }
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowDown,
   ClockCounterClockwise,
   NotePencil,
   PaperPlaneRight,
@@ -13,7 +14,7 @@ import {
 } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { runAgentTurn, type AgentPart } from "@/lib/agent/chat";
 import { AGENT_OPEN_EVENT, type AgentOpenRequest } from "@/lib/agent/bus";
 import {
@@ -120,10 +121,13 @@ function AgentWidgetInner() {
   const [digestBubble, setDigestBubble] = useState<string | null>(null);
   /** 服务可达性:面板打开时探测 /health,不通则挂提示横幅 */
   const [netDown, setNetDown] = useState(false);
+  /** 滚动跟随:true=贴底自动滚;用户上翻置 false,出「回到底部」钮 */
+  const [stick, setStick] = useState(true);
   // id 计数从恢复的最大 id 续起,避免撞号
   const idRef = useRef(boot.maxId);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const toggleMode = () => {
     const next = mode === "float" ? "dock" : "float";
@@ -167,10 +171,51 @@ function AgentWidgetInner() {
     window.addEventListener("pointerup", onUp);
   };
 
+  // 贴底时新内容自动滚到底;上翻阅读时不打扰
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, open]);
+    if (el && open && stick) el.scrollTop = el.scrollHeight;
+  }, [messages, open, stick]);
+
+  const onChatScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setStick(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
+  };
+
+  const jumpToBottom = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setStick(true);
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  };
+
+  // 输入框随内容自动长高(上限 7rem,与 textarea max-h-28 一致)
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 112)}px`;
+  }, [input]);
+
+  // 打开面板时聚焦输入框(仅桌面,移动端避免弹起键盘)
+  useEffect(() => {
+    if (open && window.matchMedia("(pointer: fine)").matches) {
+      inputRef.current?.focus();
+    }
+  }, [open]);
+
+  // Esc 逐层关闭:先关历史抽屉,再关面板
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (historyOpen) setHistoryOpen(false);
+      else setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, historyOpen]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -281,6 +326,7 @@ function AgentWidgetInner() {
     const text = raw.trim();
     if (!text || busy) return;
     setInput("");
+    setStick(true); // 发消息时强制回到底部
     // 新会话在首次发消息时建 id,落盘 effect 只写不建
     if (!sessionId) setSessionId(createSessionId());
 
@@ -332,6 +378,7 @@ function AgentWidgetInner() {
     setMessages([]);
     setSessionId(null);
     setBusy(false);
+    setStick(true);
     setHistoryOpen(false);
   };
 
@@ -342,6 +389,7 @@ function AgentWidgetInner() {
     setMessages(session.messages);
     setSessionId(session.id);
     idRef.current = Math.max(idRef.current, ...session.messages.map((m) => m.id));
+    setStick(true);
     setHistoryOpen(false);
   };
 
@@ -361,13 +409,45 @@ function AgentWidgetInner() {
     setHistoryOpen((v) => !v);
   };
 
-  const formatSessionDate = (ts: number) =>
-    new Date(ts).toLocaleString(locale === "zh" ? "zh-CN" : "en-US", {
-      month: "numeric",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
+  /** 空状态问候:按时段变化 */
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 6) return t("greetingNight");
+    if (h < 12) return t("greetingMorning");
+    if (h < 18) return t("greetingAfternoon");
+    return t("greetingEvening");
+  };
+
+  /** 历史会话按 今天/昨天/本周/更早 分组(列表已按时间倒序) */
+  const groupOf = (ts: number) => {
+    const start = new Date().setHours(0, 0, 0, 0);
+    if (ts >= start) return t("groupToday");
+    if (ts >= start - 86400000) return t("groupYesterday");
+    if (ts >= start - 6 * 86400000) return t("groupThisWeek");
+    return t("groupEarlier");
+  };
+
+  const sessionGroups = (() => {
+    const groups: { label: string; items: ChatSession[] }[] = [];
+    for (const s of sessions) {
+      const label = groupOf(s.updatedAt);
+      const last = groups[groups.length - 1];
+      if (last?.label === label) last.items.push(s);
+      else groups.push({ label, items: [s] });
+    }
+    return groups;
+  })();
+
+  /** 当天的会话只显时分,更早的带月日 */
+  const formatSessionDate = (ts: number) => {
+    const sameDay = ts >= new Date().setHours(0, 0, 0, 0);
+    return new Date(ts).toLocaleString(
+      locale === "zh" ? "zh-CN" : "en-US",
+      sameDay
+        ? { hour: "numeric", minute: "2-digit" }
+        : { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" },
+    );
+  };
 
   const markDigestSeen = (date: string) => {
     try {
@@ -470,7 +550,7 @@ function AgentWidgetInner() {
           </header>
 
           {historyOpen ? (
-            <div className="absolute inset-0 z-20 flex flex-col bg-background">
+            <div className="animate-drawer-in absolute inset-0 z-20 flex flex-col bg-background">
               <header className="flex items-center justify-between border-b border-hairline px-4 py-3">
                 <p className="text-sm font-medium tracking-tight">{t("history")}</p>
                 <button
@@ -488,30 +568,43 @@ function AgentWidgetInner() {
                     {t("emptyHistory")}
                   </p>
                 ) : (
-                  <ul className="space-y-0.5">
-                    {sessions.map((s) => (
-                      <li key={s.id} className="group/item relative">
-                        <button
-                          type="button"
-                          onClick={() => openSession(s)}
-                          className={`w-full rounded-lg px-2.5 py-2 pr-8 text-left transition-colors duration-300 ease-premium hover:bg-foreground/5 ${
-                            s.id === sessionId ? "bg-foreground/5" : ""
-                          }`}
-                        >
-                          <span className="block truncate text-sm">{s.title}</span>
-                          <span className="mt-0.5 block font-mono text-[0.7rem] text-muted">
-                            {formatSessionDate(s.updatedAt)}
-                          </span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeSession(s.id)}
-                          aria-label={t("deleteSession")}
-                          title={t("deleteSession")}
-                          className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted transition-all duration-300 ease-premium hover:text-accent sm:opacity-0 sm:group-hover/item:opacity-100"
-                        >
-                          <Trash size={13} aria-hidden />
-                        </button>
+                  <ul className="space-y-1">
+                    {sessionGroups.map((g) => (
+                      <li key={g.label}>
+                        <p className="px-2.5 pb-1 pt-2.5 font-mono text-[0.65rem] uppercase tracking-wider text-muted/70">
+                          {g.label}
+                        </p>
+                        <ul className="space-y-0.5">
+                          {g.items.map((s, i) => (
+                            <li
+                              key={s.id}
+                              style={{ "--stagger": `${Math.min(i, 8) * 40}ms` } as CSSProperties}
+                              className="group/item animate-msg-in relative"
+                            >
+                              <button
+                                type="button"
+                                onClick={() => openSession(s)}
+                                className={`w-full rounded-lg px-2.5 py-2 pr-8 text-left transition-colors duration-300 ease-premium hover:bg-foreground/5 ${
+                                  s.id === sessionId ? "bg-foreground/5" : ""
+                                }`}
+                              >
+                                <span className="block truncate text-sm">{s.title}</span>
+                                <span className="mt-0.5 block font-mono text-[0.7rem] text-muted">
+                                  {formatSessionDate(s.updatedAt)}
+                                </span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeSession(s.id)}
+                                aria-label={t("deleteSession")}
+                                title={t("deleteSession")}
+                                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted transition-all duration-300 ease-premium hover:text-accent sm:opacity-0 sm:group-hover/item:opacity-100"
+                              >
+                                <Trash size={13} aria-hidden />
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
                       </li>
                     ))}
                   </ul>
@@ -520,7 +613,8 @@ function AgentWidgetInner() {
             </div>
           ) : null}
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="relative flex min-h-0 flex-1 flex-col">
+            <div ref={scrollRef} onScroll={onChatScroll} className="flex-1 overflow-y-auto px-4 py-4">
             {netDown ? (
               <p className="mb-3 rounded-lg border border-hairline bg-foreground/[0.03] px-3 py-2 text-xs leading-relaxed text-muted">
                 {t("networkBanner")}
@@ -528,6 +622,7 @@ function AgentWidgetInner() {
             ) : null}
             {messages.length === 0 ? (
               <div className="space-y-3">
+                <p className="text-sm font-medium tracking-tight">{greeting()}</p>
                 <p className="text-sm leading-relaxed text-muted">
                   {t("welcome")}
                 </p>
@@ -549,19 +644,39 @@ function AgentWidgetInner() {
               <ChatMessages messages={messages} onSuggestion={send} onRetry={regenerate} />
             )}
           </div>
+            {!stick && messages.length > 0 ? (
+              <button
+                type="button"
+                onClick={jumpToBottom}
+                className="animate-msg-in absolute bottom-3 right-4 z-10 flex items-center gap-1 rounded-full border border-hairline bg-background px-2.5 py-1 text-xs text-muted shadow-md shadow-black/5 transition-colors duration-300 ease-premium hover:text-accent"
+              >
+                <ArrowDown size={11} aria-hidden />
+                {t("scrollBottom")}
+              </button>
+            ) : null}
+          </div>
 
           <form
-            className="flex items-center gap-2 border-t border-hairline px-3 py-2.5"
+            className="flex items-end gap-2 border-t border-hairline px-3 py-2.5"
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
             }}
           >
-            <input
+            <textarea
+              ref={inputRef}
+              rows={1}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                // Enter 发送,Shift+Enter 换行;中文输入法组词中的 Enter 不触发
+                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  send(input);
+                }
+              }}
               placeholder={t("placeholder")}
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
+              className="max-h-28 min-w-0 flex-1 resize-none bg-transparent py-1 text-sm leading-relaxed outline-none placeholder:text-muted"
               // 面板内输入不需要浏览器自动纠错
               autoComplete="off"
             />
@@ -569,7 +684,7 @@ function AgentWidgetInner() {
               type="submit"
               disabled={busy || !input.trim()}
               aria-label={t("send")}
-              className="rounded-full bg-accent p-2 text-white transition-opacity duration-300 ease-premium disabled:opacity-40"
+              className="mb-0.5 rounded-full bg-accent p-2 text-white transition-opacity duration-300 ease-premium disabled:opacity-40"
             >
               <PaperPlaneRight size={14} aria-hidden />
             </button>
