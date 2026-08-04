@@ -12,9 +12,9 @@ const ALLOWED_ORIGINS = new Set([
 
 const UPSTREAM_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-v4-flash";
-const MAX_MESSAGES = 22; // system + 10 条历史 + 单轮内的 tool 交换
-const MAX_MESSAGE_CHARS = 60_000; // read_digest 的工具结果可能到几十 KB
-const MAX_COMPLETION_TOKENS = 4096;
+const MAX_MESSAGES = 40; // 深度调研:多轮工具交换 + 历史,预留余量
+const MAX_MESSAGE_CHARS = 80_000; // read_paper 全文工具结果可到数万字符
+const MAX_COMPLETION_TOKENS = 8192; // 深度模式的结构化长报告
 
 // /paper 全文代理:主源 alphaXiv 全文 md,回退 arXiv HTML(HTMLRewriter 抽正文)
 const ARXIV_ID_RE = /^\d{4}\.\d{4,5}(v\d+)?$/;

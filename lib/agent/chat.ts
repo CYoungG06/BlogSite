@@ -5,16 +5,16 @@ import { AGENT_TOOLS, executeTool, type ToolCallRecord } from "./tools";
  * Agent 对话循环:
  * 请求 Worker 代理(SSE 流式)→ 累积 content 与 tool_calls →
  * 有 tool_calls 就在浏览器端执行(fetch 站内静态 JSON)并继续循环,
- * 直到模型给出最终回答。单轮对话最多 MAX_ROUNDS 次工具循环,
- * 跨轮历史只保留 user/assistant 文本(tool 交换不带入下一轮,省 token)。
- * 各轮流出的文本全部保留、按轮拼接(中间过程对用户可见),
- * 而不是被下一轮覆盖。
+ * 直到模型给出最终回答。跨轮历史只保留 user/assistant 文本
+ * (tool 交换不带入下一轮,省 token)。各轮流出的文本全部保留、
+ * 按片段流交错渲染(中间过程对用户可见)。
+ * 深度调研模式(deep):更多工具轮数、更长输出、调研者 prompt;
+ * 工具轮数用满后补一轮「无工具」请求强制模型给结论,不烂尾。
  * 最终回答产出后,再发一次轻量请求生成 3 条追问建议。
  */
 
-const MAX_ROUNDS = 5;
-const MAX_HISTORY = 10;
-const MAX_TOKENS = 4096;
+const NORMAL_LIMITS = { rounds: 5, history: 10, maxTokens: 4096 };
+const DEEP_LIMITS = { rounds: 10, history: 12, maxTokens: 8192 };
 
 export interface HistoryMessage {
   role: "user" | "assistant";
@@ -52,6 +52,7 @@ async function fetchRound(
   messages: ApiMessage[],
   signal: AbortSignal,
   onDelta: (content: string) => void,
+  options: { maxTokens: number; withTools?: boolean },
 ): Promise<{ content: string; toolCalls: ApiToolCall[] }> {
   const res = await fetch(apiUrl, {
     method: "POST",
@@ -59,9 +60,9 @@ async function fetchRound(
     body: JSON.stringify({
       model: "deepseek-v4-flash",
       messages,
-      tools: AGENT_TOOLS,
+      tools: options.withTools === false ? undefined : AGENT_TOOLS,
       stream: true,
-      max_tokens: MAX_TOKENS,
+      max_tokens: options.maxTokens,
     }),
     signal,
   });
@@ -153,6 +154,7 @@ async function fetchSuggestions(
       ],
       signal,
       () => {},
+      { maxTokens: 512, withTools: false },
     );
     // 优先按 JSON 数组解析,退化到按行解析(模型可能不老实输出纯 JSON)
     const match = content.match(/\[[\s\S]*\]/);
@@ -183,30 +185,29 @@ export async function runAgentTurn(options: {
   signal: AbortSignal;
   /** 用户当前浏览的站内路径(含 locale 前缀),注入 system prompt 提供页面上下文 */
   currentPath?: string;
+  /** 深度调研模式:更多工具轮数、更长输出、调研者 prompt */
+  deep?: boolean;
   /** 渲染片段流:每次文本增量或工具执行完成时,以全量快照回调(新数组引用) */
   onParts: (parts: AgentPart[]) => void;
 }): Promise<AgentTurnResult> {
   const { apiUrl, locale, signal, onParts } = options;
+  const limits = options.deep ? DEEP_LIMITS : NORMAL_LIMITS;
   const messages: ApiMessage[] = [
-    { role: "system", content: buildSystemPrompt(locale, options.currentPath) },
-    ...options.history.slice(-MAX_HISTORY),
+    {
+      role: "system",
+      content: buildSystemPrompt(locale, options.currentPath, options.deep),
+    },
+    ...options.history.slice(-limits.history),
   ];
   const records: ToolCallRecord[] = [];
   const parts: AgentPart[] = [];
   const emit = () => onParts([...parts]);
   let accumulated = "";
 
-  const finish = (): AgentTurnResult => ({
-    content: accumulated,
-    toolCalls: records,
-    suggestions: [],
-    parts,
-  });
-
-  for (let round = 0; round < MAX_ROUNDS; round++) {
-    // 每轮的文本是独立片段,不与上一轮拼接渲染
+  /** 流出一轮文本并累积;作为独立片段追加渲染 */
+  const streamTextRound = async (withTools: boolean) => {
     let textPart: { type: "text"; content: string } | null = null;
-    const { content, toolCalls } = await fetchRound(
+    const result = await fetchRound(
       apiUrl,
       messages,
       signal,
@@ -220,15 +221,23 @@ export async function runAgentTurn(options: {
         }
         emit();
       },
+      { maxTokens: limits.maxTokens, withTools },
     );
-    accumulated = joinRounds(accumulated, content);
-    if (!toolCalls.length) {
-      const question = [...options.history].reverse().find((m) => m.role === "user")?.content ?? "";
-      const suggestions = accumulated
-        ? await fetchSuggestions(apiUrl, question, accumulated, locale, signal)
-        : [];
-      return { content: accumulated, toolCalls: records, suggestions, parts };
-    }
+    accumulated = joinRounds(accumulated, result.content);
+    return result;
+  };
+
+  const conclude = async (): Promise<AgentTurnResult> => {
+    const question = [...options.history].reverse().find((m) => m.role === "user")?.content ?? "";
+    const suggestions = accumulated
+      ? await fetchSuggestions(apiUrl, question, accumulated, locale, signal)
+      : [];
+    return { content: accumulated, toolCalls: records, suggestions, parts };
+  };
+
+  for (let round = 0; round < limits.rounds; round++) {
+    const { content, toolCalls } = await streamTextRound(true);
+    if (!toolCalls.length) return conclude();
 
     // 回显 assistant 的 tool_calls,再逐个执行、追加 tool 结果
     messages.push({
@@ -255,5 +264,8 @@ export async function runAgentTurn(options: {
       messages.push({ role: "tool", tool_call_id: call.id, content: result });
     }
   }
-  return finish();
+
+  // 工具轮数用满:补一轮无工具请求,强制基于已收集的资料给结论
+  await streamTextRound(false);
+  return conclude();
 }

@@ -6,6 +6,7 @@ import {
   PictureInPicture,
   SidebarSimple,
   Sparkle,
+  Binoculars,
   X,
 } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
@@ -89,6 +90,8 @@ function AgentWidgetInner() {
   const [size, setSize] = useState(loadSize);
   /** 面板形态:float 浮窗(锚定右下)/ dock 贴边伴读(贴右全高) */
   const [mode, setMode] = useState<"float" | "dock">(loadMode);
+  /** 深度调研模式:更多工具轮数、更长输出、调研者 prompt */
+  const [deep, setDeep] = useState(false);
   /** 主动冒泡:检测到新一期速递且用户没见过时,展示其日期 */
   const [digestBubble, setDigestBubble] = useState<string | null>(null);
   const idRef = useRef(0);
@@ -228,6 +231,7 @@ function AgentWidgetInner() {
         locale,
         signal: abort.signal,
         currentPath: pathname,
+        deep,
         onParts: (parts) => updateMessage(assistantId, { parts }),
       });
       updateMessage(assistantId, {
@@ -299,6 +303,20 @@ function AgentWidgetInner() {
             <p className="flex items-center gap-1.5 text-sm font-medium tracking-tight">
               <AcaneAvatar busy={busy} />
               {t("title")}
+              <button
+                type="button"
+                onClick={() => setDeep((d) => !d)}
+                aria-pressed={deep}
+                title={t("deepModeHint")}
+                className={`ml-1 flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[0.7rem] transition-colors duration-300 ease-premium ${
+                  deep
+                    ? "bg-accent text-white"
+                    : "bg-foreground/5 text-muted hover:text-accent"
+                }`}
+              >
+                <Binoculars size={11} aria-hidden />
+                {t("deepMode")}
+              </button>
             </p>
             <div className="flex items-center gap-1">
               <button
