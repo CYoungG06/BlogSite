@@ -94,6 +94,8 @@ function AgentWidgetInner() {
   const [deep, setDeep] = useState(false);
   /** 主动冒泡:检测到新一期速递且用户没见过时,展示其日期 */
   const [digestBubble, setDigestBubble] = useState<string | null>(null);
+  /** 服务可达性:面板打开时探测 /health,不通则挂提示横幅 */
+  const [netDown, setNetDown] = useState(false);
   const idRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -215,8 +217,10 @@ function AgentWidgetInner() {
       });
     } catch (error) {
       if (!abort.signal.aborted) {
+        // fetch 的 TypeError 是连接级失败(网络阻断/DNS),和 HTTP 错误码分开提示
+        const isNetwork = error instanceof TypeError;
         updateMessage(assistantId, {
-          content: t("error"),
+          content: isNetwork ? t("errorNetwork") : t("error"),
           failed: true,
           errorReason: error instanceof Error ? error.message : String(error),
           pending: false,
@@ -269,6 +273,19 @@ function AgentWidgetInner() {
     setMessages((prev) => [...prev, userMsg]);
     await runTurn(history);
   };
+
+  // 服务可达性探测:每次打开面板 ping 一次 /health(不消耗聊天限流)
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/health`);
+        setNetDown(!res.ok);
+      } catch {
+        setNetDown(true);
+      }
+    })();
+  }, [open]);
 
   // ref 转发最新的 send(每次渲染后同步,lint 不允许渲染期写 ref)
   useEffect(() => {
@@ -370,6 +387,11 @@ function AgentWidgetInner() {
           </header>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+            {netDown ? (
+              <p className="mb-3 rounded-lg border border-hairline bg-foreground/[0.03] px-3 py-2 text-xs leading-relaxed text-muted">
+                {t("networkBanner")}
+              </p>
+            ) : null}
             {messages.length === 0 ? (
               <div className="space-y-3">
                 <p className="text-sm leading-relaxed text-muted">
