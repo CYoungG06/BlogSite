@@ -14,7 +14,9 @@ import {
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import { Link } from "@/i18n/navigation";
 import type { AgentPart } from "@/lib/agent/chat";
 import { downloadShareCard } from "@/lib/agent/share-card";
@@ -72,9 +74,10 @@ function NavigateCard({ call }: { call: ToolCallRecord }) {
 
 function MarkdownBlock({ content }: { content: string }) {
   return (
-    <div className="prose prose-sm max-w-none text-sm leading-relaxed [&_a]:text-accent [&_code]:text-[0.85em] [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-accent/5 [&_pre]:p-2.5 [&_ul]:my-1 [&_ol]:my-1 [&_p]:my-1.5">
+    <div className="prose prose-sm max-w-none text-sm leading-relaxed [&_a]:text-accent [&_code]:text-[0.85em] [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-accent/5 [&_pre]:p-2.5 [&_ul]:my-1 [&_ol]:my-1 [&_p]:my-1.5 [&_.katex-display]:my-2 [&_.katex-display]:overflow-x-auto">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
         components={{
           // 链接卡片化:arXiv → 论文卡,/papers/date/ → 速递卡,站内走 Link
           a: ({ href, children }) =>
