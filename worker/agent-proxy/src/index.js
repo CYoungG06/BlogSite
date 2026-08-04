@@ -217,7 +217,33 @@ function sanitize(payload) {
 const proxy = {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") ?? "";
+    // 顶层兜底:任何未捕获异常(上游 DNS/TLS 失败等)都返回带 CORS 的 502,
+    // 否则 CF 的默认 500 没有 CORS 头,浏览器只报 "Failed to fetch",无法排查
+    try {
+      return await handle(request, env, origin);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const safeOrigin = ALLOWED_ORIGINS.has(origin) ? origin : "";
+      return jsonError(502, `proxy internal error: ${message}`, safeOrigin);
+    }
+  },
+};
+
+async function handle(request, env, origin) {
     const url = new URL(request.url);
+
+    // 健康检查:GET /health,区分 worker 挂了还是上游挂了(不占限流额度)
+    if (request.method === "GET" && url.pathname === "/health") {
+      if (!ALLOWED_ORIGINS.has(origin)) {
+        return new Response(JSON.stringify({ error: "forbidden origin" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ ok: true, ts: Date.now() }), {
+        headers: { "Content-Type": "application/json", ...corsHeaders(origin) },
+      });
+    }
 
     if (request.method === "OPTIONS") {
       if (!ALLOWED_ORIGINS.has(origin)) return new Response(null, { status: 403 });
@@ -275,7 +301,6 @@ const proxy = {
         ...corsHeaders(origin),
       },
     });
-  },
-};
+}
 
 export default proxy;
