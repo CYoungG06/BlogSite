@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowClockwise,
   ArrowRight,
   CaretRight,
   Check,
@@ -30,6 +31,10 @@ export interface ChatMessage {
   suggestions?: string[];
   /** 流式进行中 */
   pending?: boolean;
+  /** 本轮请求失败(显示重试入口) */
+  failed?: boolean;
+  /** 失败原因(如 agent proxy error: 429),小字展示便于排查 */
+  errorReason?: string;
 }
 
 const TOOL_ICON_SIZE = 12;
@@ -82,8 +87,14 @@ function MarkdownBlock({ content }: { content: string }) {
   );
 }
 
-/** 回答操作栏:复制 Markdown / 下载 .md / 生成分享卡片 */
-function MessageActions({ content }: { content: string }) {
+/** 回答操作栏:重发(仅最后一条)/ 复制 Markdown / 下载 .md / 生成分享卡片 */
+function MessageActions({
+  content,
+  onRetry,
+}: {
+  content: string;
+  onRetry?: () => void;
+}) {
   const t = useTranslations("agent");
   const [copied, setCopied] = useState(false);
 
@@ -109,6 +120,11 @@ function MessageActions({ content }: { content: string }) {
     "rounded-md p-1.5 text-muted transition-colors duration-300 ease-premium hover:text-accent";
   return (
     <div className="flex items-center gap-0.5">
+      {onRetry ? (
+        <button type="button" onClick={onRetry} aria-label={t("regenerate")} title={t("regenerate")} className={btn}>
+          <ArrowClockwise size={13} aria-hidden />
+        </button>
+      ) : null}
       <button type="button" onClick={copy} aria-label={t("copyMd")} title={t("copyMd")} className={btn}>
         {copied ? <Check size={13} className="text-accent" aria-hidden /> : <Copy size={13} aria-hidden />}
       </button>
@@ -132,10 +148,12 @@ function MessageBody({
   message,
   isLast,
   onSuggestion,
+  onRetry,
 }: {
   message: ChatMessage;
   isLast: boolean;
   onSuggestion?: (text: string) => void;
+  onRetry?: () => void;
 }) {
   const t = useTranslations("agent");
   // 回答完成后工具过程默认折叠,点击展开;流式进行中始终展开
@@ -198,8 +216,23 @@ function MessageBody({
           <Spinner size={14} className="animate-spin" aria-hidden />
         </p>
       ) : null}
-      {message.content && !message.pending ? (
-        <MessageActions content={message.content} />
+      {message.failed ? (
+        <div className="space-y-1.5">
+          {message.errorReason ? (
+            <p className="font-mono text-[0.7rem] text-muted/70">{message.errorReason}</p>
+          ) : null}
+          <button
+            type="button"
+            onClick={onRetry}
+            className="flex items-center gap-1.5 rounded-full border border-hairline px-2.5 py-1 text-xs text-muted transition-colors duration-300 ease-premium hover:border-accent hover:text-accent"
+          >
+            <ArrowClockwise size={11} aria-hidden />
+            {t("retry")}
+          </button>
+        </div>
+      ) : null}
+      {message.content && !message.pending && !message.failed ? (
+        <MessageActions content={message.content} onRetry={isLast ? onRetry : undefined} />
       ) : null}
       {isLast && !message.pending && message.suggestions?.length ? (
         <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -222,9 +255,11 @@ function MessageBody({
 export default function ChatMessages({
   messages,
   onSuggestion,
+  onRetry,
 }: {
   messages: ChatMessage[];
   onSuggestion?: (text: string) => void;
+  onRetry?: () => void;
 }) {
   const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
   return (
@@ -242,6 +277,7 @@ export default function ChatMessages({
               message={message}
               isLast={message.id === lastAssistantId}
               onSuggestion={onSuggestion}
+              onRetry={onRetry}
             />
           </div>
         ),

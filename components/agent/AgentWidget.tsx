@@ -184,6 +184,63 @@ function AgentWidgetInner() {
       prev.map((m) => (m.id === id ? { ...m, ...patch } : m)),
     );
 
+  /** 跑一轮对话:history 含触发本轮的用户消息;不追加 user 气泡(调用方已处理) */
+  const runTurn = async (history: ChatMessage[]) => {
+    setBusy(true);
+    const assistantId = ++idRef.current;
+    setMessages((prev) => [
+      ...prev,
+      { id: assistantId, role: "assistant", content: "", parts: [], pending: true },
+    ]);
+
+    const abort = new AbortController();
+    abortRef.current = abort;
+    const apiHistory = history.map(({ role, content }) => ({ role, content }));
+
+    try {
+      const result = await runAgentTurn({
+        apiUrl: API_URL,
+        history: apiHistory,
+        locale,
+        signal: abort.signal,
+        currentPath: pathname,
+        deep,
+        onParts: (parts) => updateMessage(assistantId, { parts }),
+      });
+      updateMessage(assistantId, {
+        content: result.content || t("empty"),
+        parts: result.parts,
+        suggestions: result.suggestions,
+        pending: false,
+      });
+    } catch (error) {
+      if (!abort.signal.aborted) {
+        updateMessage(assistantId, {
+          content: t("error"),
+          failed: true,
+          errorReason: error instanceof Error ? error.message : String(error),
+          pending: false,
+        });
+        console.error("[agent] turn failed:", error);
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** 重发:撤掉最后一条 assistant(失败或不满意的),基于其前最后一条 user 重跑 */
+  const regenerate = () => {
+    if (busy) return;
+    const lastUserIdx = messages.map((m) => m.role).lastIndexOf("user");
+    if (lastUserIdx === -1) return;
+    const lastAssistantIdx = messages.map((m) => m.role).lastIndexOf("assistant");
+    const history = messages.slice(0, lastUserIdx + 1);
+    if (lastAssistantIdx > lastUserIdx) {
+      setMessages(messages.slice(0, lastAssistantIdx));
+    }
+    runTurn(history);
+  };
+
   const send = async (raw: string) => {
     const text = raw.trim();
     if (!text || busy) return;
@@ -207,50 +264,10 @@ function AgentWidgetInner() {
       return;
     }
 
-    setBusy(true);
-
     const userMsg: ChatMessage = { id: ++idRef.current, role: "user", content: text };
-    const assistantId = ++idRef.current;
-    setMessages((prev) => [
-      ...prev,
-      userMsg,
-      { id: assistantId, role: "assistant", content: "", parts: [], pending: true },
-    ]);
-
-    const abort = new AbortController();
-    abortRef.current = abort;
-    const history = [...messages, userMsg].map(({ role, content }) => ({
-      role,
-      content,
-    }));
-
-    try {
-      const result = await runAgentTurn({
-        apiUrl: API_URL,
-        history,
-        locale,
-        signal: abort.signal,
-        currentPath: pathname,
-        deep,
-        onParts: (parts) => updateMessage(assistantId, { parts }),
-      });
-      updateMessage(assistantId, {
-        content: result.content || t("empty"),
-        parts: result.parts,
-        suggestions: result.suggestions,
-        pending: false,
-      });
-    } catch (error) {
-      if (!abort.signal.aborted) {
-        updateMessage(assistantId, {
-          content: t("error"),
-          pending: false,
-        });
-        console.error("[agent] turn failed:", error);
-      }
-    } finally {
-      setBusy(false);
-    }
+    const history = [...messages, userMsg];
+    setMessages((prev) => [...prev, userMsg]);
+    await runTurn(history);
   };
 
   // ref 转发最新的 send(每次渲染后同步,lint 不允许渲染期写 ref)
@@ -373,7 +390,7 @@ function AgentWidgetInner() {
                 </div>
               </div>
             ) : (
-              <ChatMessages messages={messages} onSuggestion={send} />
+              <ChatMessages messages={messages} onSuggestion={send} onRetry={regenerate} />
             )}
           </div>
 
