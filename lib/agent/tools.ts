@@ -286,7 +286,7 @@ async function readDigest(date: string, source: string | undefined): Promise<str
 }
 
 /** all.json 里的跨天论文索引条目(scripts/generate-papers-api.mjs 产出) */
-interface IndexedPaper {
+export interface IndexedPaper {
   date: string;
   source: "hf" | "arxiv";
   id: string;
@@ -299,9 +299,9 @@ interface IndexedPaper {
   url?: string;
 }
 
-/** 索引只在工具被调用时拉取,模块级缓存;失败时清缓存以便下次重试 */
+/** 索引只在工具被调用时拉取,模块级缓存;失败时清缓存以便下次重试(富引用卡片也复用) */
 let papersIndexPromise: Promise<IndexedPaper[]> | null = null;
-function loadPapersIndex(): Promise<IndexedPaper[]> {
+export function loadPapersIndex(): Promise<IndexedPaper[]> {
   if (!papersIndexPromise) {
     papersIndexPromise = fetch(`${basePath}/api/papers/all.json`)
       .then((res) => {

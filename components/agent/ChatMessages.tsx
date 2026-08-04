@@ -2,6 +2,7 @@
 
 import {
   ArrowRight,
+  CaretRight,
   Check,
   Copy,
   DownloadSimple,
@@ -17,6 +18,7 @@ import { Link } from "@/i18n/navigation";
 import type { AgentPart } from "@/lib/agent/chat";
 import { downloadShareCard } from "@/lib/agent/share-card";
 import type { ToolCallRecord } from "@/lib/agent/tools";
+import RefCard from "./RefCard";
 
 /** 聊天窗口的一条消息;parts 是按发生顺序交错的文本/工具片段 */
 export interface ChatMessage {
@@ -69,11 +71,9 @@ function MarkdownBlock({ content }: { content: string }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noreferrer">
-              {children}
-            </a>
-          ),
+          // 链接卡片化:arXiv → 论文卡,/papers/date/ → 速递卡,站内走 Link
+          a: ({ href, children }) =>
+            href ? <RefCard href={href}>{children}</RefCard> : <>{children}</>,
         }}
       >
         {content}
@@ -137,20 +137,59 @@ function MessageBody({
   isLast: boolean;
   onSuggestion?: (text: string) => void;
 }) {
+  const t = useTranslations("agent");
+  // 回答完成后工具过程默认折叠,点击展开;流式进行中始终展开
+  const [showProcess, setShowProcess] = useState(false);
   const parts = message.parts ?? [];
+
+  // 连续的工具调用合并成一段(navigate 卡片保持独立内联)
+  type Segment =
+    | { type: "text"; content: string }
+    | { type: "nav"; call: ToolCallRecord }
+    | { type: "tools"; calls: ToolCallRecord[] };
+  const segments: Segment[] = [];
+  for (const part of parts) {
+    if (part.type === "text") {
+      segments.push({ type: "text", content: part.content });
+    } else if (part.call.name === "navigate") {
+      segments.push({ type: "nav", call: part.call });
+    } else {
+      const last = segments[segments.length - 1];
+      if (last?.type === "tools") last.calls.push(part.call);
+      else segments.push({ type: "tools", calls: [part.call] });
+    }
+  }
+
   return (
     <div className="space-y-2">
-      {parts.length ? (
+      {segments.length ? (
         // 交错渲染:文本与工具调用按实际发生顺序排列
-        parts.map((part, i) =>
-          part.type === "text" ? (
-            <MarkdownBlock key={i} content={part.content} />
-          ) : part.call.name === "navigate" ? (
-            <NavigateCard key={i} call={part.call} />
+        segments.map((segment, i) => {
+          if (segment.type === "text") {
+            return <MarkdownBlock key={i} content={segment.content} />;
+          }
+          if (segment.type === "nav") {
+            return <NavigateCard key={i} call={segment.call} />;
+          }
+          const expanded = message.pending || showProcess;
+          return expanded ? (
+            <div key={i} className="space-y-1">
+              {segment.calls.map((call, j) => (
+                <ToolLine key={j} call={call} />
+              ))}
+            </div>
           ) : (
-            <ToolLine key={i} call={part.call} />
-          ),
-        )
+            <button
+              key={i}
+              type="button"
+              onClick={() => setShowProcess(true)}
+              className="flex items-center gap-1.5 font-mono text-xs text-muted transition-colors duration-300 ease-premium hover:text-accent"
+            >
+              <CaretRight size={TOOL_ICON_SIZE} aria-hidden />
+              {t("toolsFold", { count: segment.calls.length })}
+            </button>
+          );
+        })
       ) : message.content ? (
         <MarkdownBlock content={message.content} />
       ) : null}

@@ -11,7 +11,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { runAgentTurn, type AgentPart } from "@/lib/agent/chat";
 import { AGENT_OPEN_EVENT, type AgentOpenRequest } from "@/lib/agent/bus";
+import { basePath } from "@/lib/images";
+import AcaneAvatar from "./AcaneAvatar";
 import ChatMessages, { type ChatMessage } from "./ChatMessages";
+import DailyBrief from "./DailyBrief";
 
 /**
  * 全站 AI 助手悬浮窗:右下角按钮 + 聊天面板。
@@ -26,6 +29,7 @@ const DEFAULT_SIZE = { w: 380, h: 560 };
 const MIN_W = 320;
 const MIN_H = 400;
 const SIZE_KEY = "agent-panel-size";
+const SEEN_DIGEST_KEY = "acane-seen-digest";
 
 function loadSize() {
   try {
@@ -72,6 +76,8 @@ function AgentWidgetInner() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [size, setSize] = useState(loadSize);
+  /** 主动冒泡:检测到新一期速递且用户没见过时,展示其日期 */
+  const [digestBubble, setDigestBubble] = useState<string | null>(null);
   const idRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -127,6 +133,24 @@ function AgentWidgetInner() {
     };
     window.addEventListener(AGENT_OPEN_EVENT, onOpen);
     return () => window.removeEventListener(AGENT_OPEN_EVENT, onOpen);
+  }, []);
+
+  // 主动冒泡:对比最新速递日期与 localStorage 里的已读日期
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`${basePath}/api/papers/index.json`);
+        if (!res.ok) return;
+        const index = await res.json();
+        const latest = index.latest as string | undefined;
+        if (!latest) return;
+        if (localStorage.getItem(SEEN_DIGEST_KEY) !== latest) {
+          setDigestBubble(latest);
+        }
+      } catch {
+        // 冒泡是锦上添花,失败静默
+      }
+    })();
   }, []);
 
   const updateMessage = (id: number, patch: Partial<ChatMessage>) =>
@@ -213,6 +237,15 @@ function AgentWidgetInner() {
     setBusy(false);
   };
 
+  const markDigestSeen = (date: string) => {
+    try {
+      localStorage.setItem(SEEN_DIGEST_KEY, date);
+    } catch {
+      // 存不上就每次冒一下,无妨
+    }
+    setDigestBubble(null);
+  };
+
   return (
     <div className="fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6">
       {open ? (
@@ -231,7 +264,7 @@ function AgentWidgetInner() {
           />
           <header className="flex items-center justify-between border-b border-hairline py-3 pl-7 pr-4">
             <p className="flex items-center gap-1.5 text-sm font-medium tracking-tight">
-              <Sparkle size={15} className="text-accent" aria-hidden />
+              <AcaneAvatar busy={busy} />
               {t("title")}
             </p>
             <div className="flex items-center gap-1">
@@ -261,6 +294,7 @@ function AgentWidgetInner() {
                 <p className="text-sm leading-relaxed text-muted">
                   {t("welcome")}
                 </p>
+                <DailyBrief onAsk={send} />
                 <div className="flex flex-wrap gap-1.5">
                   {SUGGESTIONS.map((key) => (
                     <button
@@ -305,15 +339,42 @@ function AgentWidgetInner() {
           </form>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label={t("open")}
-          title={t("title")}
-          className="rounded-full bg-accent p-3.5 text-white shadow-lg shadow-accent/25 transition-transform duration-300 ease-premium hover:scale-105"
-        >
-          <Sparkle size={20} aria-hidden />
-        </button>
+        <div className="relative">
+          {digestBubble ? (
+            <div className="animate-fade-up absolute bottom-full right-0 mb-3 flex w-56 items-start gap-1.5 rounded-xl border border-hairline bg-background p-3 shadow-lg">
+              <button
+                type="button"
+                onClick={() => {
+                  const date = digestBubble;
+                  markDigestSeen(date);
+                  setOpen(true);
+                  sendRef.current(t("newDigestAsk", { date }));
+                }}
+                className="flex-1 text-left text-xs leading-relaxed text-muted transition-colors duration-300 ease-premium hover:text-accent"
+              >
+                {t("newDigestBubble")}
+                <span className="mt-0.5 block font-mono text-[0.7rem]">{digestBubble}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => markDigestSeen(digestBubble)}
+                aria-label={t("close")}
+                className="rounded p-0.5 text-muted transition-colors duration-300 ease-premium hover:text-foreground"
+              >
+                <X size={11} aria-hidden />
+              </button>
+            </div>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label={t("open")}
+            title={t("title")}
+            className="rounded-full bg-accent p-3.5 text-white shadow-lg shadow-accent/25 transition-transform duration-300 ease-premium hover:scale-105"
+          >
+            <Sparkle size={20} aria-hidden />
+          </button>
+        </div>
       )}
     </div>
   );
