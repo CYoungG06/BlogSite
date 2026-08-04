@@ -1,10 +1,11 @@
 "use client";
 
-import { MagnifyingGlass, X } from "@phosphor-icons/react";
+import { MagnifyingGlass, Sparkle, X } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { openAgent } from "@/lib/agent/bus";
 import { useSearch, type SearchResultItem } from "./use-search";
 
 /**
@@ -78,6 +79,23 @@ export default function HeaderSearch() {
     close();
   };
 
+  // 「?」开头的查询直通 AI 助手;Enter:有结果去第一条,没结果问阿卡内
+  const askMode = /^[?？]/.test(query.trim());
+  const askText = query.trim().replace(/^[?？]\s*/, "");
+  const ask = (text: string) => {
+    const q = text.trim();
+    if (!q) return;
+    openAgent({ prompt: q });
+    close();
+  };
+
+  const onInputKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    if (askMode) ask(askText);
+    else if (results.length > 0) goTo(results[0]);
+    else ask(query);
+  };
+
   return (
     <div className="relative flex items-center">
       {/* 触发按钮:打开后放大镜原位保留,胶囊连续变宽 */}
@@ -109,6 +127,7 @@ export default function HeaderSearch() {
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={onInputKeyDown}
             placeholder={t("searchPlaceholder")}
             aria-label={t("search")}
             className="min-w-0 flex-1 bg-transparent font-mono text-sm outline-none placeholder:text-muted/70"
@@ -127,29 +146,43 @@ export default function HeaderSearch() {
         </div>
       </div>
 
-      {/* 结果面板:垂在胶囊下方(absolute,不推挤布局),最多 8 条 */}
-      {open && results.length > 0 && (
+      {/* 结果面板:垂在胶囊下方(absolute,不推挤布局),最多 8 条 + 底部「问阿卡内」 */}
+      {open && (results.length > 0 || query.trim()) && (
         <div className="absolute inset-x-0 top-full mt-2 overflow-hidden rounded-3xl bg-background/95 shadow-soft ring-1 ring-hairline backdrop-blur-xl">
-          <ul className="max-h-80 overflow-y-auto py-2">
-            {results.map((item) => (
-              <li key={`${item.type}/${item.slug}`}>
-                <button
-                  type="button"
-                  onClick={() => goTo(item)}
-                  className="group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-300 ease-premium hover:bg-foreground/5"
-                >
-                  <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 font-mono text-xs text-muted ring-1 ring-hairline">
-                    {item.type === "post"
-                      ? tSearch("typePost")
-                      : tSearch("typeNote")}
-                  </span>
-                  <span className="truncate text-sm transition-colors duration-300 ease-premium group-hover:text-accent">
-                    {item.title}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {results.length > 0 ? (
+            <ul className="max-h-80 overflow-y-auto py-2">
+              {results.map((item) => (
+                <li key={`${item.type}/${item.slug}`}>
+                  <button
+                    type="button"
+                    onClick={() => goTo(item)}
+                    className="group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-300 ease-premium hover:bg-foreground/5"
+                  >
+                    <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 font-mono text-xs text-muted ring-1 ring-hairline">
+                      {item.type === "post"
+                        ? tSearch("typePost")
+                        : tSearch("typeNote")}
+                    </span>
+                    <span className="truncate text-sm transition-colors duration-300 ease-premium group-hover:text-accent">
+                      {item.title}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {askText ? (
+            <button
+              type="button"
+              onClick={() => ask(askText)}
+              className="flex w-full items-center gap-2.5 border-t border-hairline px-4 py-2.5 text-left text-sm text-muted transition-colors duration-300 ease-premium hover:bg-accent/5 hover:text-accent"
+            >
+              <Sparkle size={14} className="shrink-0 text-accent" aria-hidden />
+              <span className="truncate">
+                {tSearch("askAcane", { query: askText })}
+              </span>
+            </button>
+          ) : null}
         </div>
       )}
 

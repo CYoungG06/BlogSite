@@ -3,6 +3,8 @@
 import {
   ArrowCounterClockwise,
   PaperPlaneRight,
+  PictureInPicture,
+  SidebarSimple,
   Sparkle,
   X,
 } from "@phosphor-icons/react";
@@ -29,6 +31,7 @@ const DEFAULT_SIZE = { w: 380, h: 560 };
 const MIN_W = 320;
 const MIN_H = 400;
 const SIZE_KEY = "agent-panel-size";
+const MODE_KEY = "agent-panel-mode";
 const SEEN_DIGEST_KEY = "acane-seen-digest";
 
 function loadSize() {
@@ -44,6 +47,14 @@ function loadSize() {
     // 隐私模式等场景 localStorage 不可用,用默认尺寸
   }
   return DEFAULT_SIZE;
+}
+
+function loadMode(): "float" | "dock" {
+  try {
+    return localStorage.getItem(MODE_KEY) === "dock" ? "dock" : "float";
+  } catch {
+    return "float";
+  }
 }
 
 const SUGGESTIONS = [
@@ -76,13 +87,25 @@ function AgentWidgetInner() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [size, setSize] = useState(loadSize);
+  /** 面板形态:float 浮窗(锚定右下)/ dock 贴边伴读(贴右全高) */
+  const [mode, setMode] = useState<"float" | "dock">(loadMode);
   /** 主动冒泡:检测到新一期速递且用户没见过时,展示其日期 */
   const [digestBubble, setDigestBubble] = useState<string | null>(null);
   const idRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  /** 左上角把手拖拽改尺寸:面板锚定右下,向左拖变宽、向上拖变高 */
+  const toggleMode = () => {
+    const next = mode === "float" ? "dock" : "float";
+    setMode(next);
+    try {
+      localStorage.setItem(MODE_KEY, next);
+    } catch {
+      // 存不下就算了
+    }
+  };
+
+  /** 左上角把手拖拽改尺寸:浮窗锚定右下双向拖;dock 全高,只向左拖变宽 */
   const onResizeStart = (e: { clientX: number; clientY: number; preventDefault: () => void }) => {
     e.preventDefault();
     const start = { x: e.clientX, y: e.clientY, ...size };
@@ -91,10 +114,10 @@ function AgentWidgetInner() {
     const onMove = (ev: PointerEvent) => {
       const maxW = Math.min(window.innerWidth - 40, 760);
       const maxH = Math.min(window.innerHeight - 96, 880);
-      setSize({
+      setSize((current) => ({
         w: Math.min(Math.max(start.w + (start.x - ev.clientX), MIN_W), maxW),
-        h: Math.min(Math.max(start.h + (start.y - ev.clientY), MIN_H), maxH),
-      });
+        h: mode === "dock" ? current.h : Math.min(Math.max(start.h + (start.y - ev.clientY), MIN_H), maxH),
+      }));
     };
     const onUp = () => {
       document.body.style.userSelect = "";
@@ -247,12 +270,22 @@ function AgentWidgetInner() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6">
+    <div
+      className={
+        mode === "dock" && open
+          ? "fixed inset-y-0 right-0 z-50"
+          : "fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6"
+      }
+    >
       {open ? (
         <div
           data-selection-ask="off"
-          className="group/panel relative flex max-h-[calc(100dvh-6rem)] w-[calc(100vw-2.5rem)] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-hairline bg-background shadow-2xl shadow-black/10"
-          style={{ width: size.w, height: size.h }}
+          className={
+            mode === "dock"
+              ? "group/panel relative flex h-full w-[calc(100vw-2.5rem)] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden border-0 border-l border-hairline bg-background shadow-2xl shadow-black/10"
+              : "group/panel relative flex max-h-[calc(100dvh-6rem)] w-[calc(100vw-2.5rem)] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-hairline bg-background shadow-2xl shadow-black/10"
+          }
+          style={{ width: size.w, height: mode === "dock" ? "100%" : size.h }}
         >
           <div
             role="button"
@@ -268,6 +301,19 @@ function AgentWidgetInner() {
               {t("title")}
             </p>
             <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={toggleMode}
+                aria-label={mode === "float" ? t("dockMode") : t("floatMode")}
+                title={mode === "float" ? t("dockMode") : t("floatMode")}
+                className="rounded-md p-1.5 text-muted transition-colors duration-300 ease-premium hover:text-accent"
+              >
+                {mode === "float" ? (
+                  <SidebarSimple size={15} aria-hidden />
+                ) : (
+                  <PictureInPicture size={15} aria-hidden />
+                )}
+              </button>
               <button
                 type="button"
                 onClick={clear}
