@@ -31,5 +31,11 @@ npx wrangler deploy
 - **论文全文代理**:`GET /paper?arxiv=<id>` 返回 `{ source, text }` —— 主源 alphaXiv 全文
   markdown,404 回退 arXiv HTML(HTMLRewriter 抽正文);id 有格式白名单,边缘缓存 1h。
   前端 `read_paper` 工具走这里。
+- **外部论文检索**:`GET /search-papers?query=...&limit=8` —— Semantic Scholar 主源(带引用数/TLDR),429 回退 arXiv API。
+- **访客统计**(D1 数据库 `blogsite-stats`):
+  - `POST /pv` —— 前端 beacon 打点(text/plain body `{vid, path}` 免预检);爬虫 UA 过滤,
+    vid/path 格式白名单;PV 累加到 kv 表,访客按匿名 vid 记一行。
+  - `GET /stats` —— 返回 `{ pv, uv }`,响应缓存 60s,页脚 SiteStats 组件用。
+  - schema 变更:`npx wrangler d1 migrations apply blogsite-stats --remote`(本地自测换 `--local`)。
 - **费用兜底**:限流 + 前端单轮最多 5 次工具循环 + max_tokens ≤ 4096。
 - **密钥**:只存在于 Cloudflare secrets,不进本仓库。

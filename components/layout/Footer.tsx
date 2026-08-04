@@ -1,6 +1,7 @@
 import { GithubLogo } from "@phosphor-icons/react/dist/ssr";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import SiteStats from "../SiteStats";
 import Container from "./Container";
 
 export default async function Footer() {
@@ -72,9 +73,12 @@ export default async function Footer() {
             </ul>
           </div>
         </div>
-        <p className="mt-10 border-t border-hairline pt-6 font-mono text-xs text-muted">
-          {t("footer.copyright", { year, name: t("site.name") })}
-        </p>
+        <div className="mt-10 flex flex-wrap items-baseline justify-between gap-2 border-t border-hairline pt-6">
+          <p className="font-mono text-xs text-muted">
+            {t("footer.copyright", { year, name: t("site.name") })}
+          </p>
+          <SiteStats />
+        </div>
       </Container>
     </footer>
   );

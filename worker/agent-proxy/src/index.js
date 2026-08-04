@@ -1,7 +1,8 @@
 /**
- * blogsite-agent-proxy —— 博客 AI 助手的 DeepSeek 代理。
- * 职责只有三件事:藏 API key、CORS 白名单、按 IP 限流。
- * 不含业务逻辑;所有工具数据都是站内公开静态 JSON,由浏览器直接 fetch。
+ * blogsite-agent-proxy —— 博客 AI 助手的 DeepSeek 代理 + 全站访客统计。
+ * 代理职责只有三件事:藏 API key、CORS 白名单、按 IP 限流。
+ * 统计职责:/pv 打点(D1 计数)、/stats 查询;不含其他业务逻辑。
+ * 工具数据都是站内公开静态 JSON,由浏览器直接 fetch。
  */
 
 const ALLOWED_ORIGINS = new Set([
@@ -180,6 +181,60 @@ async function handleSearchPapers(request, origin) {
   });
 }
 
+// 访客统计:爬虫 UA 过滤(打点由站内 JS 触发,这只是兜底)
+const BOT_UA_RE =
+  /bot|crawler|spider|slurp|headless|phantom|curl|wget|python|axios|go-http/i;
+const VID_RE = /^[0-9a-f-]{8,64}$/i;
+
+/** PV 打点:POST /pv,body {vid, path}(text/plain 发送以免 CORS 预检);前端按会话去重 */
+async function handlePv(request, env, origin) {
+  const ua = request.headers.get("User-Agent") ?? "";
+  if (BOT_UA_RE.test(ua)) {
+    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonError(400, "invalid json", origin);
+  }
+  const vid = typeof body?.vid === "string" ? body.vid : "";
+  const path = typeof body?.path === "string" ? body.path : "";
+  if (!VID_RE.test(vid) || !path.startsWith("/") || path.length > 200) {
+    return jsonError(400, "invalid payload", origin);
+  }
+
+  const now = Date.now();
+  await env.STATS_DB.batch([
+    env.STATS_DB.prepare(
+      "INSERT INTO kv (key, value) VALUES ('total_pv', 1) ON CONFLICT(key) DO UPDATE SET value = value + 1",
+    ),
+    env.STATS_DB.prepare(
+      `INSERT INTO visitors (vid, first_seen, last_seen, visits) VALUES (?, ?, ?, 1)
+       ON CONFLICT(vid) DO UPDATE SET last_seen = excluded.last_seen, visits = visits + 1`,
+    ).bind(vid, now, now),
+  ]);
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+}
+
+/** 全站统计:GET /stats → { pv, uv };响应可缓存 60s */
+async function handleStats(env, origin) {
+  const [pvResult, uvResult] = await env.STATS_DB.batch([
+    env.STATS_DB.prepare("SELECT value FROM kv WHERE key = 'total_pv'"),
+    env.STATS_DB.prepare("SELECT COUNT(*) AS n FROM visitors"),
+  ]);
+  const pv = pvResult.results[0]?.value ?? 0;
+  const uv = uvResult.results[0]?.n ?? 0;
+  return new Response(JSON.stringify({ pv, uv }), {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "public, max-age=60",
+      ...corsHeaders(origin),
+    },
+  });
+}
+
 function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin,
@@ -267,6 +322,13 @@ async function handle(request, env, origin) {
     // 外部论文检索:GET /search-papers?query=...&limit=8
     if (request.method === "GET" && url.pathname === "/search-papers") {
       return handleSearchPapers(request, origin);
+    }
+    // 访客统计:GET /stats 查询;POST /pv 打点
+    if (request.method === "GET" && url.pathname === "/stats") {
+      return handleStats(env, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/pv") {
+      return handlePv(request, env, origin);
     }
 
     if (request.method !== "POST") {

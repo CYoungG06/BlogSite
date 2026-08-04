@@ -8,6 +8,7 @@ import Analytics from "@/components/Analytics";
 import AgentWidgetLoader from "@/components/agent/AgentWidgetLoader";
 import SelectionAsk from "@/components/agent/SelectionAsk";
 import MouseSpotlight from "@/components/MouseSpotlight";
+import PvBeacon from "@/components/PvBeacon";
 import ThemeProvider from "@/components/ThemeProvider";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -75,6 +76,7 @@ export default async function LocaleLayout({
             <SelectionAsk />
           </ThemeProvider>
           <Analytics />
+          <PvBeacon />
         </NextIntlClientProvider>
       </body>
     </html>
