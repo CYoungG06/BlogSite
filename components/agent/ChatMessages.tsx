@@ -12,7 +12,14 @@ import {
   Spinner,
 } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
-import { isValidElement, useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  Children,
+  isValidElement,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
@@ -145,6 +152,36 @@ function NavigateCard({ call }: { call: ToolCallRecord }) {
   );
 }
 
+/**
+ * 段落级标点缝合:块级引用卡(arXiv 论文卡/速递日卡)会截断文本流,
+ * 紧跟其后的句读标点(。、,,;等)会孤悬一行或落到行首(违反中文行首禁则)。
+ * 这里在段落渲染前把这些标点剥掉——块边界本身已承担停顿语义;
+ * 闭合类符号(」)】等)保留,避免拆散配对。
+ */
+const CARD_HREF_RE = /arxiv\.org\/abs\/\d{4}\.\d{4,5}|^\/papers\/\d{4}-\d{2}-\d{2}/;
+const LEADING_PUNCT_RE = /^[。、,，;；:：!?！？]+\s*/;
+
+function isBlockCard(node: ReactNode): boolean {
+  if (!isValidElement(node)) return false;
+  const href = (node.props as { href?: unknown }).href;
+  return typeof href === "string" && CARD_HREF_RE.test(href);
+}
+
+function Paragraph({ children }: { children?: ReactNode }) {
+  const arr = Children.toArray(children);
+  const out: ReactNode[] = [];
+  for (const cur of arr) {
+    if (typeof cur === "string" && out.length > 0 && isBlockCard(out[out.length - 1])) {
+      const stripped = cur.replace(LEADING_PUNCT_RE, "");
+      if (!stripped) continue; // 两卡之间整段都是标点,丢弃
+      out.push(stripped);
+      continue;
+    }
+    out.push(cur);
+  }
+  return <p>{out}</p>;
+}
+
 function MarkdownBlock({ content, cursor }: { content: string; cursor?: boolean }) {
   return (
     <div className="prose prose-sm max-w-none text-sm leading-relaxed [&_a]:text-accent [&_code]:text-[0.85em] [&_ul]:my-1 [&_ol]:my-1 [&_p]:my-1.5 [&_.katex-display]:my-2 [&_.katex-display]:overflow-x-auto">
@@ -155,6 +192,8 @@ function MarkdownBlock({ content, cursor }: { content: string; cursor?: boolean 
           // 链接卡片化:arXiv → 论文卡,/papers/date/ → 速递卡,站内走 Link
           a: ({ href, children }) =>
             href ? <RefCard href={href}>{children}</RefCard> : <>{children}</>,
+          // 段落:剥掉紧跟块级卡片的句读标点(见 Paragraph)
+          p: ({ children }) => <Paragraph>{children}</Paragraph>,
           // 代码块:语言标签 + 复制按钮的头栏
           pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
         }}
