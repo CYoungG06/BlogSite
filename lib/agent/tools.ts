@@ -147,7 +147,7 @@ export const AGENT_TOOLS = [
     function: {
       name: "read_paper",
       description:
-        "读取 arXiv 论文全文(经代理从 alphaXiv / arXiv HTML 提取的纯文本,截断到约 1.6 万字符)。速递导读/摘要不足以回答细节问题(公式、算法步骤、实验设置、消融结果)时用;没有全文会返回错误,此时告诉用户只能依据摘要回答并附 PDF 链接。",
+        "读取 arXiv 论文全文的一段(纯文本)。默认从头返回 1.6 万字符;用 offset+limit 分页读后续段落。长论文推荐先用 search_in_paper 定位关键词位置,再按 offset 精读那一段。全文在浏览器端缓存,多次调用不重复下载。",
       parameters: {
         type: "object",
         properties: {
@@ -155,8 +155,53 @@ export const AGENT_TOOLS = [
             type: "string",
             description: "arXiv id,形如 2607.28568(不带 abs/ 前缀)",
           },
+          offset: {
+            type: "number",
+            description: "起始字符偏移,默认 0;接 search_in_paper 返回的 offset 或上一段的末尾",
+          },
+          limit: {
+            type: "number",
+            description: "本段长度,默认 16000,上限 16000",
+          },
         },
         required: ["arxiv_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_in_paper",
+      description:
+        "在 arXiv 论文全文里检索关键词,返回命中处的上下文片段与字符偏移。读长论文的特定内容(某个公式、算法步骤、实验表格、消融)时先调它定位,再用 read_paper 带 offset 精读。",
+      parameters: {
+        type: "object",
+        properties: {
+          arxiv_id: { type: "string", description: "arXiv id,形如 2607.28568" },
+          query: {
+            type: "string",
+            description: "定位关键词,空格分隔(英文术语命中率更高),如「KL divergence」「ablation」",
+          },
+        },
+        required: ["arxiv_id", "query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_external_papers",
+      description:
+        "检索外部论文库(Semantic Scholar,覆盖全部 arXiv 与经典文献,带引用数与 TLDR)。站内速递只覆盖近期,问经典工作、源头论文、横向相关工作时用它;命中结果含 arXiv id,可用 read_paper / search_in_paper 继续深读。",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description: "英文检索词,如「on-policy distillation language model」",
+          },
+        },
+        required: ["query"],
       },
     },
   },
@@ -190,6 +235,8 @@ export type AgentToolName =
   | "search_papers"
   | "compare_articles"
   | "read_paper"
+  | "search_in_paper"
+  | "search_external_papers"
   | "navigate";
 
 /** 一次工具调用的记录,UI 用来渲染「正在查资料」与跳转卡片;detail 是给人看的过程描述 */
@@ -394,22 +441,105 @@ async function compareArticles(
   return JSON.stringify({ articles: docs });
 }
 
-/** 喂给模型的全文字符上限:覆盖方法/实验主体,又不至于撑爆上下文 */
+/** 喂给模型的单段全文字符上限:覆盖方法/实验主体,又不至于撑爆上下文 */
 const PAPER_TEXT_TOOL_LIMIT = 16_000;
 
-async function readPaper(arxivId: string, apiUrl: string): Promise<string> {
+/** 全文按 arXiv id 缓存(同一篇多次分段读/检索只拉一次);失败清缓存可重试 */
+const paperTextCache = new Map<string, Promise<{ text: string; source: string }>>();
+
+function fetchPaperTextCached(
+  arxivId: string,
+  apiUrl: string,
+): Promise<{ text: string; source: string }> {
+  let cached = paperTextCache.get(arxivId);
+  if (!cached) {
+    cached = (async () => {
+      const res = await fetch(`${apiUrl}/paper?arxiv=${encodeURIComponent(arxivId)}`);
+      if (!res.ok) throw new Error("full text not available");
+      const data = await res.json();
+      return { text: String(data.text ?? ""), source: String(data.source ?? "") };
+    })();
+    cached.catch(() => {
+      paperTextCache.delete(arxivId);
+    });
+    paperTextCache.set(arxivId, cached);
+  }
+  return cached;
+}
+
+async function readPaper(
+  arxivId: string,
+  apiUrl: string,
+  offset: number,
+  limit: number,
+): Promise<string> {
   if (!apiUrl) return JSON.stringify({ error: "paper proxy not configured" });
-  const res = await fetch(`${apiUrl}/paper?arxiv=${encodeURIComponent(arxivId)}`);
-  if (!res.ok) return JSON.stringify({ error: "full text not available" });
-  const data = await res.json();
-  const text = String(data.text ?? "");
+  let paper: { text: string; source: string };
+  try {
+    paper = await fetchPaperTextCached(arxivId, apiUrl);
+  } catch (error) {
+    return JSON.stringify({ error: String(error) });
+  }
+  const start = Math.max(0, Math.floor(offset));
+  const size = Math.min(Math.max(1000, Math.floor(limit || PAPER_TEXT_TOOL_LIMIT)), PAPER_TEXT_TOOL_LIMIT);
   return JSON.stringify({
     arxiv: arxivId,
-    source: data.source,
-    chars: text.length,
-    truncated: text.length > PAPER_TEXT_TOOL_LIMIT,
-    text: truncate(text, PAPER_TEXT_TOOL_LIMIT),
+    source: paper.source,
+    totalChars: paper.text.length,
+    offset: start,
+    returnedChars: Math.min(size, Math.max(0, paper.text.length - start)),
+    text: paper.text.slice(start, start + size),
   });
+}
+
+/** 在全文里按关键词定位:返回命中片段(±220 字符)与偏移量,供 read_paper 按段精读 */
+async function searchInPaper(
+  arxivId: string,
+  apiUrl: string,
+  query: string,
+): Promise<string> {
+  if (!apiUrl) return JSON.stringify({ error: "paper proxy not configured" });
+  let paper: { text: string; source: string };
+  try {
+    paper = await fetchPaperTextCached(arxivId, apiUrl);
+  } catch (error) {
+    return JSON.stringify({ error: String(error) });
+  }
+  const tokens = query.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 4);
+  if (!tokens.length) return JSON.stringify({ error: "empty query" });
+  const haystack = paper.text.toLowerCase();
+  const hits: { offset: number; snippet: string }[] = [];
+  for (const token of tokens) {
+    let idx = haystack.indexOf(token);
+    while (idx !== -1 && hits.length < 12) {
+      hits.push({
+        offset: idx,
+        snippet: paper.text.slice(Math.max(0, idx - 220), idx + 220).replace(/\s+/g, " ").trim(),
+      });
+      idx = haystack.indexOf(token, idx + token.length);
+    }
+  }
+  hits.sort((a, b) => a.offset - b.offset);
+  return JSON.stringify({
+    arxiv: arxivId,
+    query,
+    totalChars: paper.text.length,
+    hits: hits.slice(0, 8),
+    hint: hits.length
+      ? "用 read_paper 带上感兴趣片段的 offset 继续精读该段"
+      : "未命中,换个关键词(英文术语命中率更高)",
+  });
+}
+
+/** 外部论文检索(Semantic Scholar,经 Worker 代理):站内速递之外的经典/相关工作 */
+async function searchExternalPapers(query: string, apiUrl: string): Promise<string> {
+  if (!apiUrl) return JSON.stringify({ error: "paper proxy not configured" });
+  const res = await fetch(
+    `${apiUrl}/search-papers?query=${encodeURIComponent(query)}&limit=8`,
+  );
+  if (!res.ok) return JSON.stringify({ error: `external search failed: ${res.status}` });
+  const data = await res.json();
+  return JSON.stringify(data);
 }
 
 /** 工具执行产出:result 喂给模型,detail 给 UI 展示「查了什么、命中多少」 */
@@ -450,10 +580,21 @@ function detailOf(name: string, args: Record<string, unknown>, result: string, l
         return titles.length ? titles.map((ti: string) => `《${ti}》`).join(" × ") : undefined;
       }
       case "read_paper": {
-        const chars = typeof data.chars === "number" ? data.chars : 0;
+        const total = typeof data.totalChars === "number" ? data.totalChars : 0;
+        const offset = typeof data.offset === "number" ? data.offset : 0;
         return zh
-          ? `${args.arxiv_id} · 全文 ${chars} 字`
-          : `${args.arxiv_id} · full text, ${chars} chars`;
+          ? `${args.arxiv_id} · 全文 ${total} 字 · 段@${offset}`
+          : `${args.arxiv_id} · ${total} chars · chunk@${offset}`;
+      }
+      case "search_in_paper": {
+        const n = data.hits?.length ?? 0;
+        return zh
+          ? `${args.arxiv_id} 内「${args.query}」· ${n} 处`
+          : `${args.arxiv_id} "${args.query}" · ${n} spot(s)`;
+      }
+      case "search_external_papers": {
+        const n = data.results?.length ?? 0;
+        return zh ? `外部检索「${args.query}」· ${n} 篇` : `S2 "${args.query}" · ${n} paper(s)`;
       }
       default:
         return undefined;
@@ -501,7 +642,22 @@ export async function executeTool(
         );
         break;
       case "read_paper":
-        result = await readPaper(String(args.arxiv_id ?? ""), apiUrl);
+        result = await readPaper(
+          String(args.arxiv_id ?? ""),
+          apiUrl,
+          Number(args.offset) || 0,
+          Number(args.limit) || 0,
+        );
+        break;
+      case "search_in_paper":
+        result = await searchInPaper(
+          String(args.arxiv_id ?? ""),
+          apiUrl,
+          String(args.query ?? ""),
+        );
+        break;
+      case "search_external_papers":
+        result = await searchExternalPapers(String(args.query ?? ""), apiUrl);
         break;
       case "navigate": {
         const path = String(args.path ?? "");

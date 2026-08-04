@@ -101,6 +101,85 @@ async function handlePaper(request, origin) {
   );
 }
 
+/** arXiv API(Atom XML)正则抽条目:S2 限流时的兜底检索源 */
+async function searchArxivApi(query, limit) {
+  const terms = query.split(/\s+/).filter(Boolean).slice(0, 6);
+  const q = terms.map((t) => `all:${encodeURIComponent(t)}`).join("+AND+");
+  const res = await fetch(
+    `https://export.arxiv.org/api/query?search_query=${q}&start=0&max_results=${limit}&sortBy=relevance`,
+    { cf: { cacheTtl: PAPER_CACHE_TTL, cacheEverything: true } },
+  );
+  if (!res.ok) return null;
+  const xml = await res.text();
+  const entries = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)];
+  return entries.map((m) => {
+    const entry = m[1];
+    const pick = (tag) => {
+      const hit = entry.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`));
+      return hit ? hit[1].trim() : "";
+    };
+    const arxivId = pick("id").replace(/^https?:\/\/arxiv\.org\/abs\//, "").replace(/v\d+$/, "");
+    return {
+      arxivId: arxivId || undefined,
+      title: pick("title").replace(/\s+/g, " "),
+      year: pick("published").slice(0, 4) || undefined,
+      abstract: pick("summary").replace(/\s+/g, " ").slice(0, 400),
+      authors: [...entry.matchAll(/<name>([^<]+)<\/name>/g)].slice(0, 3).map((a) => a[1]),
+      url: arxivId ? `https://arxiv.org/abs/${arxivId}` : undefined,
+    };
+  }).filter((r) => r.arxivId);
+}
+
+/** 外部论文检索:Semantic Scholar 主源(JSON 带引用数/TLDR),429 等失败回退 arXiv API */
+async function handleSearchPapers(request, origin) {
+  const url = new URL(request.url);
+  const query = (url.searchParams.get("query") ?? "").trim().slice(0, 200);
+  const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 8, 1), 10);
+  if (!query) return jsonError(400, "empty query", origin);
+
+  const s2Url =
+    "https://api.semanticscholar.org/graph/v1/paper/search" +
+    `?query=${encodeURIComponent(query)}&limit=${limit}` +
+    "&fields=title,abstract,year,citationCount,externalIds,tldr,authors";
+  const res = await fetch(s2Url, {
+    cf: { cacheTtl: PAPER_CACHE_TTL, cacheEverything: true },
+    headers: { "User-Agent": "blogsite-agent-proxy/1.0" },
+  });
+
+  let payload;
+  if (res.ok) {
+    const data = await res.json();
+    payload = {
+      query,
+      source: "semanticscholar",
+      total: data.total ?? 0,
+      results: (data.data ?? []).map((p) => ({
+        arxivId: p.externalIds?.ArXiv ?? undefined,
+        title: p.title,
+        year: p.year,
+        citations: p.citationCount,
+        tldr: p.tldr?.text ?? undefined,
+        abstract: typeof p.abstract === "string" ? p.abstract.slice(0, 400) : undefined,
+        authors: (p.authors ?? []).slice(0, 3).map((a) => a.name),
+        url: p.externalIds?.ArXiv ? `https://arxiv.org/abs/${p.externalIds.ArXiv}` : undefined,
+      })),
+    };
+  } else {
+    // S2 公共池经常 429:回退 arXiv API(无引用数/TLDR,但稳定)
+    const results = await searchArxivApi(query, limit);
+    if (!results) return jsonError(res.status === 429 ? 429 : 502, "upstream search failed", origin);
+    payload = { query, source: "arxiv", total: results.length, results };
+  }
+
+  return new Response(JSON.stringify(payload), {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": `public, max-age=${PAPER_CACHE_TTL}`,
+      ...corsHeaders(origin),
+    },
+  });
+}
+
 function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin,
@@ -158,6 +237,10 @@ const proxy = {
     // 论文全文代理:GET /paper?arxiv=2607.28568
     if (request.method === "GET" && url.pathname === "/paper") {
       return handlePaper(request, origin);
+    }
+    // 外部论文检索:GET /search-papers?query=...&limit=8
+    if (request.method === "GET" && url.pathname === "/search-papers") {
+      return handleSearchPapers(request, origin);
     }
 
     if (request.method !== "POST") {
