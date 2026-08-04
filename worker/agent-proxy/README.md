@@ -26,7 +26,7 @@ npx wrangler deploy
 
 ## 说明
 
-- **限流**:`wrangler.toml` 里 `[[ratelimits]]`,每 IP 20 次/分钟;改 `limit`/`period` 后重新 deploy 即可。
+- **限流**:`wrangler.toml` 里 `[[ratelimits]]`,每 IP 40 次/分钟(深度调研单轮就要 ~18 次);改 `limit`/`period` 后重新 deploy 即可。
 - **CORS**:只放行 `https://cyoungg06.github.io` 与本地开发端口,源码 `ALLOWED_ORIGINS` 里维护。
 - **论文全文代理**:`GET /paper?arxiv=<id>` 返回 `{ source, text }` —— 主源 alphaXiv 全文
   markdown,404 回退 arXiv HTML(HTMLRewriter 抽正文);id 有格式白名单,边缘缓存 1h。

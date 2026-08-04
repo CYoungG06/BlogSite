@@ -13,8 +13,8 @@ import { AGENT_TOOLS, executeTool, type ToolCallRecord } from "./tools";
  * 最终回答产出后,再发一次轻量请求生成 3 条追问建议。
  */
 
-const NORMAL_LIMITS = { rounds: 5, history: 10, maxTokens: 4096 };
-const DEEP_LIMITS = { rounds: 10, history: 12, maxTokens: 8192 };
+const NORMAL_LIMITS = { rounds: 8, history: 10, maxTokens: 4096 };
+const DEEP_LIMITS = { rounds: 16, history: 12, maxTokens: 8192 };
 
 export interface HistoryMessage {
   role: "user" | "assistant";

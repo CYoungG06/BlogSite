@@ -12,7 +12,7 @@ const ALLOWED_ORIGINS = new Set([
 
 const UPSTREAM_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-v4-flash";
-const MAX_MESSAGES = 40; // 深度调研:多轮工具交换 + 历史,预留余量
+const MAX_MESSAGES = 64; // 深度调研 16 轮工具交换 + 历史,预留余量
 const MAX_MESSAGE_CHARS = 80_000; // read_paper 全文工具结果可到数万字符
 const MAX_COMPLETION_TOKENS = 8192; // 深度模式的结构化长报告
 
