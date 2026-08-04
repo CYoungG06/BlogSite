@@ -186,28 +186,54 @@ def parse_atom(data: bytes) -> list:
 def fetch_arxiv(day: str, categories: list, limit: int, primary_cats: list) -> list:
     cat_clause = " OR ".join(f"cat:{c}" for c in categories)
     sq = f"({cat_clause})" if len(categories) > 1 else cat_clause
-    params = urllib.parse.urlencode(
-        {
-            "search_query": sq,
-            "start": 0,
-            "max_results": 500,
-            "sortBy": "submittedDate",
-            "sortOrder": "descending",
-        }
-    )
-    papers = []
+
     # arXiv API 偶发返回 200 但空 feed(负载高或 CI 共享 IP 被限流时),
-    # 工作日空结果先重试再接受;周末/节假日天然为空,直接接受不浪费请求
+    # 空结果按退避重试;周末/节假日天然为空,重试一轮后接受
     is_weekday = datetime.strptime(day, "%Y-%m-%d").date().weekday() < 5
-    for attempt in range(3):
-        papers = parse_atom(http_get(f"{ARXIV_API}?{params}"))
-        if papers or not is_weekday or attempt == 2:
+    empty_sleeps = [15, 45, 90] if is_weekday else [15]
+
+    def query_page(start: int) -> list:
+        params = urllib.parse.urlencode(
+            {
+                "search_query": sq,
+                "start": start,
+                "max_results": 500,
+                "sortBy": "submittedDate",
+                "sortOrder": "descending",
+            }
+        )
+        return parse_atom(http_get(f"{ARXIV_API}?{params}"))
+
+    # 分页:目标日期在 submittedDate 倒序窗口里的深度不固定(周一双批次
+    # 可能把前一日挤出首 500),一直翻到整页都比目标日期旧为止
+    matched = []
+    for start in (0, 500, 1000, 1500):
+        page = []
+        for attempt, sleep_s in enumerate([0] + empty_sleeps):
+            if sleep_s:
+                time.sleep(sleep_s)
+            page = query_page(start)
+            if page or not is_weekday or attempt == len(empty_sleeps):
+                break
+            warn(f"arXiv returned empty feed for weekday {day}; retrying ({attempt + 1}/{len(empty_sleeps) + 1})")
+        if not page:
+            if is_weekday:
+                # 工作日持续空 = 抖动或限流,大声失败(开 Issue)而不是静默写 0
+                fail(f"arXiv feed stayed empty for weekday {day} after retries")
             break
-        warn(f"arXiv returned empty feed for weekday {day}; retrying ({attempt + 1}/3)")
-        time.sleep(30)
+        day_hits = [p for p in page if p["published"][:10] == day]
+        matched.extend(day_hits)
+        newest = max(p["published"][:10] for p in page)
+        if newest < day:
+            break  # 窗口已越过目标日期
+        time.sleep(3)  # 分页间隔,礼貌限速
+        if len(page) < 500:
+            break
+
     # 服务端 submittedDate 区间语法在当前后端不可靠,这里按 v1 published 的
     # UTC 日期做客户端过滤(详见仓库 references 记录,与本地 skill 一致)
-    papers = [p for p in papers if p["published"][:10] == day]
+    # 分页间 feed 可能轻微位移导致跨页重复,按 id 去重保序
+    papers = list({p["id"]: p for p in matched}.values())
     # 主分类白名单:query 的 cat: 会命中 cross-list,这里把主类不在白名单的
     # (eess/物理/数学/q-bio/cs.CV 等)挡掉,减少垂直领域噪声
     allowed = set(primary_cats)
