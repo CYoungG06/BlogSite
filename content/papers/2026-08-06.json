@@ -1,0 +1,817 @@
+{
+  "date": "2026-08-06",
+  "generatedAt": "2026-08-07T04:32:44.786907+00:00",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2608.05102",
+      "title": "ABSeeker: Training Long-Horizon Search Agents via Answer-Backtracked Credit Assignment",
+      "authors": [
+        "Yijun Lu",
+        "Rui Ye",
+        "Jiajun Wang",
+        "Yuwen Du",
+        "Tian Jin",
+        "Songhua Liu"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Long-horizon search agents must make multiple sequential actions (steps) to search, retrieve, verify, and integrate evidence to reach a final answer. However, existing methods for training these agents typically treat all steps within a trajectory uniformly during both supervised fine-tuning (SFT) and reinforcement learning (RL), failing to distinguish useful actions from erroneous or redundant ones. In this paper, we propose Answer-Backtracked Credit Assignment (ABC), a fine-grained credit assignment framework for training long-horizon search agents by converting sparse trajectory-level outcomes into dense step-level supervision that rewards useful actions (even in failed trajectories) while suppressing erroneous or redundant actions. Specifically, given a potentially obscure query and its corresponding ground-truth answer, ABC first performs Answer-Backtracked Clue Recovery, which traces back from the answer to recover intermediate clues required to solve the question. It then applies Clue-Anchored Step Scoring to evaluate each search step against these clues, converting sparse binary outcome supervision into dense step-level rewards. Based on these rewards, we develop ABC-SFT, which reweights the loss of each turn, and ABC-GRPO, which uses the step-level scores as rewards in GRPO. Building on this framework, we train ABSeeker based on Qwen3.5-4B with only 8.5k examples. ABSeeker achieves 37.3% on BrowseComp and 39.1% on BrowseComp-ZH. With context management, the scores further improve to 55.3% and 52.9%, respectively, significantly outperforming same-scale (4B) agents and even matching the performance of larger ones (approximately 30B). These results demonstrate the effectiveness of answer-backtracked step-level credit assignment for training long-horizon search agents.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05102",
+        "pdf": "https://arxiv.org/pdf/2608.05102"
+      },
+      "upvotes": 57,
+      "numComments": 2,
+      "titleZh": "ABSeeker: 通过答案回溯信用分配训练长程搜索智能体",
+      "summaryZh": "长程搜索智能体需要在多步动作中搜索、检索、验证并整合证据,但现有训练方法将轨迹内所有步骤等同对待,无法区分有效与错误/冗余动作。提出答案回溯信用分配(ABC)框架,将稀疏的轨迹级结果转化为稠密的步骤级监督:先通过答案回溯线索恢复从最终答案反推中间线索,再用线索锚定步骤评分评估每步与线索的匹配度,并据此构建ABC-SFT与ABC-GRPO。基于Qwen3.5-4B仅用8.5k样例训练,ABSeeker在BrowseComp和BrowseComp-ZH上分别达37.3%和39.1%,加入上下文管理后提升至55.3%和52.9%,显著超越同规模智能体并接近约30B大模型。该方法为长程搜索智能体的细粒度信用分配提供了有效范式,适用于推理搜索类Agent的RL训练。",
+      "score": 9,
+      "reason": "直接命中Agent后训练方向,方法新颖且结果显著",
+      "deepDive": true
+    },
+    {
+      "id": "2608.04436",
+      "title": "ToolArtist: Tool-Using Unified Multimodal Models for Agentic Image Generation",
+      "authors": [
+        "Jiahao Zhao",
+        "Xiaomin Yu",
+        "Zhongxiang Sun",
+        "Fengwei Teng",
+        "Chengwei Qin",
+        "Xiaobin Hu"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Text-to-image (T2I) models can produce visually compelling images, yet they remain limited on open-world tasks that require complex semantic understanding, multi-step reasoning, and the integration of external world knowledge. Existing efforts introduce agent capabilities into image generation, but they either prescribe a fixed workflow or place only a subset of the open-world image generation process under agent control. Consequently, reasoning, tool invocation, and image generation are not coordinated by a single policy. We propose ToolArtist, a fully agentic image generation model obtained by post-training a Unified Multimodal Model (UMM). ToolArtist dynamically orchestrates reasoning, external tool use, and native image generation within one unified policy. During Supervised Fine-Tuning (SFT), we equip a teacher agent with search tools alongside an image-generation tool. We then convert the collected trajectories into a UMM compatible format, where the image-generation tool is concealed while the resulting generated images are retained. During Reinforcement Learning (RL), we develop an agentic RL infrastructure for UMMs and introduce Reason-Act-Draw GRPO (RAD-GRPO), which uses complementary intent and quality rewards to jointly optimize the model. Experiments show that placing the entire open-world image-generation process under an agent policy consistently outperforms approaches with fixed pipelines or only partially agent-controlled components. We release the training data and the complete post-training infrastructure.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04436",
+        "pdf": "https://arxiv.org/pdf/2608.04436"
+      },
+      "upvotes": 48,
+      "numComments": 1,
+      "titleZh": "ToolArtist：使用工具的统一多模态智能体图像生成模型",
+      "summaryZh": "文本到图像模型虽能生成视觉上吸引人的图像，但在需要复杂语义理解、多步推理和外部世界知识融合的开放世界任务上表现受限。现有方法要么预设固定工作流，要么仅将部分生成环节置于智能体控制下，导致推理、工具调用与图像生成无法由单一策略统一协调。ToolArtist 通过对统一多模态模型进行后训练，将推理、外部工具调用和原生图像生成整合到一个统一策略中：SFT 阶段利用带搜索与图像生成工具的教师智能体合成轨迹并转换为兼容格式，RL 阶段提出 Reason-Act-Draw GRPO，用意图奖励与质量奖励联合优化。实验表明，将完整图像生成流程纳入智能体策略一致优于固定流水线或部分智能体控制的方案，并已开源训练数据与后训练基础设施。",
+      "score": 5,
+      "reason": "智能体图像生成涉及工具调用与RL，但整体落在图像生成方向",
+      "deepDive": false
+    },
+    {
+      "id": "2608.05000",
+      "title": "Towards Physics of Multimodal Pretraining: Knowledge Flow, Modality Synergy, Early Unification, and Recipes",
+      "authors": [
+        "Junlin Han",
+        "Shengbang Tong",
+        "David Fan",
+        "Minghao Chen",
+        "Philip Torr",
+        "Filippos Kokkinos"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Vision offers a critical axis for advancing foundation models, driving a shift towards natively unified multimodal pretraining. Despite this momentum, the design space and the fundamental mechanisms of how modalities interact during unified training remain underexplored. We provide empirical clarity through a systematic exploration of multimodal pretraining. Our controlled experiments on both synthetic and large-scale real-world datasets yield four key insights into the physics of multimodal pretraining: (i) Knowledge Flow: We disentangle how language, visual understanding, and visual generation transfer knowledge across modalities, revealing distinct patterns of influence and asymmetry; (ii) Synergy vs. Competition: We show that data \"complexity\" largely determines whether modalities are synergistic, identify architectural choices that promote synergy: such as shared attention and normalization with modality-specific feed-forward layers, and find that these behaviors generalize across different visual tokenizer designs; (iii) Early Unification: Unifying modalities from the very early stages and training them jointly is shown to be more effective than late alignment or sequential training. This process uncovers a vision laziness phenomenon, where delayed integration leads models to rely on language priors; (iv) Recipes: We derive efficient pretraining recipes that achieve strong generative performance using only 5% of the compute budget. These core findings are subsequently validated at scale by training multiple 13.5B MoE models on 2T tokens. We hope this study provides a principled foundation for understanding and scaling multimodal pretraining.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05000",
+        "pdf": "https://arxiv.org/pdf/2608.05000"
+      },
+      "upvotes": 46,
+      "projectPage": "https://junlinhan.github.io/projects/physics_of_mm_pretrain/",
+      "numComments": 2,
+      "titleZh": "多模态预训练的物理：知识流动、模态协同、早期统一与训练配方",
+      "summaryZh": "系统探究多模态预训练中模态交互的底层机制，通过合成与大规模真实数据上的受控实验揭示四条规律：语言、视觉理解与视觉生成之间的知识流动呈现不对称传导；数据复杂度决定模态协同或竞争，共享注意力与模态独立前馈层等架构选择可促进协同；从早期即联合训练优于晚期对齐，延迟融合会引发“视觉惰性”并依赖语言先验；基于上述规律可仅用5%计算预算取得强生成性能。结论在2T token上训练的13.5B MoE模型上得到验证，为多模态预训练架构与训练策略提供原则性指导。",
+      "score": 9,
+      "reason": "多模态预训练机制系统研究，直接命中MLLM架构与训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2608.04570",
+      "title": "The Personalization Mirage: How LLMs Fabricate User Profiles, and Why Self-Monitoring Misleads",
+      "authors": [
+        "Yushi Sun",
+        "Yanjie Zhang",
+        "Rui Sheng"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Personalized LLMs with persistent memory are increasingly deployed, yet the faithfulness of their user models remains unexamined. We study over-inference (OI): the phenomenon where LLMs fabricate user attributes beyond what evidence supports. We introduce MirageBench, comprising 150 personas balanced across stereotypical, counter-stereotypical, and neutral profiles, 6 personalization tasks spanning an ``imagination gradient'', a four-way faithfulness taxonomy operationalized by an independent judge (validated against a blind human annotator on 400 claims: Cohen's kappa = 0.863 four-class, kappa = 0.900 binary), and a leaderboard of 12 models across 7 families on 143616 judged claims. We find that over-inference is pervasive: every one of the 12 models over-infers 35%--49% of its claims (cross-model mean 41.6%; claim-weighted 41.8%), with no model in this evaluation escaping it. Most strikingly, we surface a Self-Monitoring Inversion: at the model-selection level, models' self-assessed OI is negatively rank-correlated with their judge-measured OI (rho = -0.60, p = 0.044; exploratory, wide bootstrap CI [-0.90, +0.06], n = 12). The models that report the least over-inference tend to be flagged as fabricating the most, so self-reported confidence is a misleading signal for comparing models, even though within a single model self-audit still ranks that model's own claims moderately well (AUROC 0.58--0.83). We further show that OI is task-dependent (27%--59%) and that, in a multi-turn pilot, inferred attributes accumulate approximately linearly with little revision. MirageBench positions external verification, rather than model self-report, as a more reliable foundation for trustworthy personalization.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04570",
+        "pdf": "https://arxiv.org/pdf/2608.04570"
+      },
+      "upvotes": 37,
+      "numComments": 3,
+      "titleZh": "个性化幻象：LLM 如何捏造用户画像，以及为何自我监控具有误导性",
+      "summaryZh": "个性化 LLM 虽广泛部署，但其用户模型的可信度未被检验。提出 MirageBench 基准，覆盖 150 个跨刻板/反刻板/中性画像、6 个沿想象梯度分布的任务，并用四类忠实度分类法与独立评判者评估。在 12 个模型、143616 条判断上发现过度推断普遍存在：所有模型均对 35%–49% 的论断过度推断（均值 41.6%），且模型自我评估与外部评判呈负相关（rho=-0.60），自我报告不可靠。工作表明外部验证是比模型自述更可靠的可信个性化基础，为评测与方法学提供新方向。",
+      "score": 8,
+      "reason": "个性化忠实度基准，系统性强，直接命中评测方向",
+      "deepDive": true
+    },
+    {
+      "id": "2608.05013",
+      "title": "OneDayAgent: Towards a Long-Horizon Harness for Autonomous Agents",
+      "authors": [
+        "Jingsheng Zheng",
+        "Xinyuan Fang",
+        "Jintian Zhang",
+        "Zhengke Gui",
+        "Huajun Chen",
+        "Ningyu Zhang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "LLM agents are increasingly applied to open-ended everyday requests that span work, study, and life. These tasks are long-horizon, cross-environment, and multimodal, forcing the agent to preserve goals and constraints across many steps while navigating heterogeneous tools and attachments. While prior work has addressed individual failure modes such as goals drift, states loss, and context overflow, whether a single harness can manage them jointly and remain effective across backends has received less study. We present OneDayAgent, a long-horizon harness for autonomous agents. OneDayAgent turns an open-ended request into a managed execution process that decomposes tasks into bounded subtasks, maintains execution memory under context pressure, and verifies and repairs the final deliverable. We evaluate OneDayAgent on AgentIF-OneDay across 104 tasks. With the GLM-5.2 backend, OneDayAgent sets a new state of the art with an overall score of 0.821. The same harness runs across five backend LLMs from three model families, indicating the harness generalizes across backends without tuning, even as different models induce distinct execution styles under the same workflow.",
+      "published": "2026-08-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05013",
+        "pdf": "https://arxiv.org/pdf/2608.05013"
+      },
+      "upvotes": 28,
+      "githubRepo": "https://github.com/zjunlp/OneDayAgent",
+      "githubStars": 9,
+      "numComments": 3,
+      "titleZh": "OneDayAgent：迈向长时程自主智能体 Harness",
+      "summaryZh": "开放式日常请求跨环境、多模态且时间跨度长，现有工作只分别处理目标漂移、状态丢失和上下文溢出。OneDayAgent 将开放请求转为受管执行过程：分解为有界子任务、在上下文压力下维护执行记忆，并对最终交付物进行校验与修复。在 AgentIF-OneDay 的 104 个任务上，配合 GLM-5.2 后端取得 0.821 的整体 SOTA；同一 Harness 无需调参即可跨 3 个模型家族的 5 个后端运行，并保持稳定效果。",
+      "score": 8,
+      "reason": "长时程 Agent Harness，直接命中 Agent 方向，跨后端泛化有实证",
+      "deepDive": true
+    },
+    {
+      "id": "2608.02580",
+      "title": "Ego2Robot: Scalable Robot Data Synthesis from Egocentric Human Data",
+      "authors": [
+        "Ye Wang",
+        "Pei Lin",
+        "Xiong-Hui Chen",
+        "Haoqi Yuan",
+        "Zhixuan Liang",
+        "Yiyang Huang"
+      ],
+      "authorsTotal": 15,
+      "abstract": "Learning generalizable robot manipulation policies requires large-scale and diverse demonstration data. Egocentric human manipulation videos offer rich scene and task diversity, and prior work has shown that retargeting and rendering such videos into robot-format data can yield effective per-task policies at small scale. However, whether this approach can provide pretraining benefits for vision-language-action models at scale remains unexplored. We present Ego2Robot, a scalable pipeline that converts egocentric human manipulation videos into robot training data through action retargeting, robot-arm visual synthesis, and multi-level quality curation. Ego2Robot supports both curated datasets and in-the-wild videos, producing 18,561 hours of robot training data spanning 15 robot morphologies, making it the largest ego-to-robot dataset to date. To evaluate generalization, we extend RoboTwin2.0 with disentangled perturbation axes covering visual appearance, scene layout, embodiment morphology, and task semantics. Experiments show that joint pretraining on Ego2Robot-synthesized and robot data consistently improves out-of-distribution generalization across multiple perturbation types, with benefits validated on real-robot deployment. Project page: https://www-ye.github.io/ego2robot_blog/",
+      "published": "2026-08-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.02580",
+        "pdf": "https://arxiv.org/pdf/2608.02580"
+      },
+      "upvotes": 22,
+      "projectPage": "https://www-ye.github.io/ego2robot_blog/",
+      "numComments": 2,
+      "titleZh": "Ego2Robot:从第一人称人类数据规模化合成机器人数据",
+      "summaryZh": "针对通用机器人操作策略依赖大规模多样化演示数据的问题,提出 Ego2Robot 流水线,将第一人称人类操作视频转换为机器人训练数据,核心包括动作重定向、机械臂视觉合成与多级质量筛选。支持 curated 数据集与野外视频,产出 18,561 小时、覆盖 15 种机器人形态的训练数据,为迄今最大规模 ego-to-robot 数据集。实验通过扩展 RoboTwin2.0 引入外观、布局、形态与任务语义等多维扰动,证明该合成数据与真实机器人数据联合预训练可提升多种分布外泛化,并在真实机器人部署中验证。该工作面向 VLA 策略预训练,属于具身智能数据工程范畴。",
+      "score": 1,
+      "reason": "机器人数据合成,属具身智能低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.05466",
+      "title": "Recursive Synthesis for Long-Horizon Terminal Tasks",
+      "authors": [
+        "Zhongzhi Li",
+        "Yucheng Shi",
+        "Zongxia Li",
+        "Ruhan Wang",
+        "Anhao Li",
+        "Zixun Huang"
+      ],
+      "authorsTotal": 11,
+      "abstract": "High-quality long-horizon training data for terminal agents is expensive to produce, often costing hundreds to thousands of dollars per task, because each task must keep the instruction, environment, reference solution, and verifier mutually consistent. Human authoring does not scale, and direct generation with large language models (LLMs) often breaks these dependencies. We present Recursive Synthetic Terminal Tasks (RST), a recursive verified synthesis framework for constructing long-horizon terminal-agent tasks at scale. Starting from verified seed tasks, RST extends the reference solution, realigns the verifier and instruction to the new workflow, validates the result in a fresh sandbox, and reuses accepted tasks as seeds for subsequent rounds. Across fifteen recursive rounds, RST produces 37,484 synthesized terminal-agent tasks at roughly \\0.05 per task. Task difficulty increases substantially over rounds: the median reference solution grows from 67 to 374 lines, the median number of executed commands grows from 40 to 244, and DeepSeek-V4-Pro pass@4 drops from 90% at R_1 to 2.5% at R_{15}$. To demonstrate training utility, we collect rejection-sampled Qwen3.5 trajectories on the synthesized tasks and use them for supervised fine-tuning. Fine-tuning on these trajectories improves Qwen3.5-27B and Qwen3.5-122B-A10B by up to 10 points on Terminal-Bench~2, Terminal-Bench Hard, and Long-Horizon Terminal Bench, while agentic PPO lifts Qwen3.5-27B to 49.44\\%, 32.00\\%, and 22.07\\% on the three benchmarks, corresponding to relative gains of 20.0\\%, 41.2\\%, and 21.9\\% over the base model. Moreover, after 15 rounds, the recursion shows no ceiling: synthesis yield and validation rates remain stable as difficulty keeps climbing, indicating that the process can continue well beyond the scale reported here.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05466",
+        "pdf": "https://arxiv.org/pdf/2608.05466"
+      },
+      "upvotes": 21,
+      "projectPage": "https://zhongzhi660.github.io/recursive-verified-synthesis-site/?case=jobs-diff-01-3341b098",
+      "numComments": 1,
+      "titleZh": "长时程终端任务的递归合成",
+      "summaryZh": "解决终端智能体长时程任务训练数据昂贵、且指令/环境/参考解/验证器难以保持一致的问题。RST 从已验证的种子任务出发，递归扩展参考解、重新对齐验证器与指令，并在全新沙箱中验证，通过后再作为下一轮种子。15 轮生成 37,484 个任务，单任务成本约 0.05 美元；任务难度随轮次显著攀升，DeepSeek-V4-Pro pass@4 从 90% 降至 2.5%。在合成数据上做 SFT 和 agentic PPO，使 Qwen3.5-27B 在 Terminal-Bench 2、Terminal-Bench Hard 和 Long-Horizon Terminal Bench 上分别相对提升 20.0%、41.2%、21.9%，且 15 轮后未见天花板，为终端智能体后训练提供可扩展的高质量数据合成方案。",
+      "score": 9,
+      "reason": "递归合成终端任务数据，直接命中 Agent 后训练方向且系统性完整。",
+      "deepDive": true
+    },
+    {
+      "id": "2608.05139",
+      "title": "Toward Skill-Native LLMs: Skill Entropy for Benchmarking and Training Long-Horizon Reasoning",
+      "authors": [
+        "Yinghui He",
+        "Ling Yang",
+        "Jiarui Liu",
+        "Yongjin Yang",
+        "Lechen Zhang",
+        "Yingcheng Wu"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Long-horizon reasoning in recent LLMs demands that the model switch between distinct skills inside a reasoning chain, such as first doing a math derivation, then using the result to plan a schedule. We call such problems cross-skill long-horizon tasks: multi-step tasks whose steps require different reasoning skills and depend on earlier outputs. Existing benchmarks often evaluate individual skills, lacking a principled way to measure how well a model switches between skills. We address this gap from both the evaluation and training sides. We introduce Skill Entropy, a measure of the difficulty of switching from one skill to another. We then propose Skill^2-Bench, a benchmark of cross-skill long-horizon tasks built over 558 skills across 9 verifiable and open-ended domains. Each task is assigned a task-level skill-entropy score and grouped into three difficulty levels. Evaluating 8 frontier and 4 open-source models on Skill^2-Bench reveals a skill-switching gap: accuracy decreases on higher-entropy tasks. We then turn skill entropy from a benchmark scale into a training signal. We propose Skill-Entropy RL, an RL framework where the model predicts not only the answer at each step but also the skill used to produce it. The reward combines step-level correctness with a skill-entropy reward that measures the alignment between the model-predicted skill sequence and the gold skill sequence. On Qwen3-4B-Instruct and Qwen3-1.7B, Skill-Entropy RL improves the Skill^2-Bench score from 34.4% to 68.4% and from 14.6% to 40.1%, respectively, outperforming competitive baselines. The same pipeline can be applied to off-the-shelf training data such as OpenR1-Math, indicating that skill entropy is a reusable training signal. Code available at: https://github.com/Gen-Verse/Skill-Entropy-RL",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05139",
+        "pdf": "https://arxiv.org/pdf/2608.05139"
+      },
+      "upvotes": 21,
+      "githubRepo": "https://github.com/Gen-Verse/Skill-Entropy-RL",
+      "githubStars": 9,
+      "projectPage": "https://huggingface.co/datasets/Gen-Verse/Skill2-Bench",
+      "numComments": 2,
+      "titleZh": "面向技能原生的 LLM：用于长程推理基准评测与训练的技能熵",
+      "summaryZh": "长程推理要求模型在推理链中切换不同技能，现有基准缺乏对技能切换难度的度量。提出技能熵（Skill Entropy）量化技能切换难度，构建覆盖558个技能、9个可验证领域的Skill^2-Bench，并揭示模型在更高熵任务上准确率下降。进一步提出Skill-Entropy RL，让模型每步同时预测答案与技能，奖励结合步骤正确性与技能序列对齐；在Qwen3-4B上得分从34.4%提升至68.4%，且该训练信号可复用于现有数据，为长程推理评测与后训练提供新工具。",
+      "score": 8,
+      "reason": "技能熵与Skill-Entropy RL，直接命中长程推理与后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2608.03764",
+      "title": "GDPevo: Evaluating Agent Self-Evolution on Real Business Tasks",
+      "authors": [
+        "Leijun Zhou",
+        "Zhihao Liu",
+        "Xiang Qu",
+        "Chenxu Liu",
+        "Yifei Liu",
+        "Yanke Yu"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Agent self-evolution updates an agent's persistent state from prior experience and reuses it to solve related tasks more effectively. Evaluating self-evolution is difficult: existing benchmarks provide limited coverage of economically valuable task domains, do not always design training and test tasks such that test-time gains can be attributed to training experience, and remain vulnerable to data contamination. We present GDPevo, an evolution-native benchmark grounded in GDP-related enterprise workflows, together with the fully automated data pipeline that generates it. Its core mechanism, rule hybridization, decomposes each enterprise workflow into atomic business rules, distributes subsets of these rules across training tasks, and recombines them in held-out test tasks so that test-time gains are attributable. GDPevo spans CRM, ERP, finance, healthcare, legal, and data-centric workflows. Its V1 release contains 120 tasks in 12 groups, with five training and five held-out test tasks per group. Full automation enables the pipeline to expand the suite to 240 tasks in 24 groups (V2) within two days, providing a practical response to contamination. Using GDPevo, we evaluate four agents, each comprising a harness and a model, under four supervision types. Self-evolution consistently improves held-out accuracy by up to 16.44 percentage points. But the best evolved agents remain far below the fully informed oracle ceiling of 91.6%, indicating that the self-evolution ability of current agents remains far from fully realized. We publicly release the pipeline, benchmark, and full evaluation results at https://github.com/Prism-Shadow/GDPevo.",
+      "published": "2026-08-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.03764",
+        "pdf": "https://arxiv.org/pdf/2608.03764"
+      },
+      "upvotes": 21,
+      "githubRepo": "https://github.com/Prism-Shadow/GDPevo",
+      "githubStars": 48,
+      "projectPage": "https://prism-shadow.github.io/GDPevo/",
+      "numComments": 2,
+      "titleZh": "GDPevo: 评估真实业务任务上的智能体自进化",
+      "summaryZh": "自进化通过更新智能体持久状态提升相关任务表现，但现有基准覆盖不足、训练与测试任务设计难以归因且易受数据污染。GDPevo 基于 GDP 相关企业工作流构建，其规则混合机制将工作流分解为原子业务规则，分布到训练任务并在留出测试任务中重组，实现可归因评估。V1 含 12 组 120 任务，自动化管线可两天内扩展至 V2 的 24 组 240 任务以应对污染。四个智能体在四种监督下自进化最多提升留出准确率 16.44 个百分点，但仍远低于 91.6% 的有信息上限，表明当前智能体的自进化能力远未充分实现。该基准与管线为 Agent 自进化研究提供了可扩展、抗污染的评测基础。",
+      "score": 8,
+      "reason": "自进化评测基准，机制新颖且自动化抗污染，命中Agent与评测方向",
+      "deepDive": true
+    },
+    {
+      "id": "2608.03632",
+      "title": "When Teachers Mislead: Spurious-Signal-Aware On-Policy Distillation",
+      "authors": [
+        "Yinuo Jiang",
+        "Yongjie Ye",
+        "Zhou Tao",
+        "Xiang Zhuang",
+        "Qiang Zhang",
+        "Huajun Chen"
+      ],
+      "authorsTotal": 7,
+      "abstract": "On-Policy distillation (OPD) transfers teacher capabilities by supervising student-sampled trajectories with dense token-level teacher signals. Recent selective OPD methods improve this process by prioritizing signals that are confident, informative, or learnable. However, the assumptions overlook a fundamental failure mode of language models: their token-level judgments can be driven by input-agnostic language priors, formatting conventions, or stereotyped reasoning templates rather than task-specific evidence. We refer to such optimization-relevant but weakly input-grounded supervision as spurious signals in OPD, which may produce large gradients while contributing little task-improving direction. To mitigate this issue, we propose SA-OPD, a Spurious-Signal-Aware On-Policy Distillation framework that identifies and filters misleading token-level supervision based on input-groundedness and optimization impact. SA-OPD introduces a lightweight input-groundedness proxy estimating whether a token-level distillation signal truly depends on the input. It then filters only tokens that simultaneously exhibit low input-groundedness and extreme distillation divergence, thereby removing high-impact spurious updates and achieving fine-grained OPD optimization. Extensive experiments on both large language model (LLM) and vision-language model (VLM) settings demonstrate that SA-OPD consistently outperforms Vanilla OPD and competitive selective methods. These results establish input-groundedness as a key dimension for OPD supervision selection and offer a simple, effective strategy for mitigating spurious updates.",
+      "published": "2026-08-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.03632",
+        "pdf": "https://arxiv.org/pdf/2608.03632"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/jjjyinuo/SA-OPD",
+      "githubStars": 1,
+      "numComments": 2,
+      "titleZh": "当教师误导：虚假信号感知的在线策略蒸馏",
+      "summaryZh": "在线策略蒸馏（OPD）通过密集的 token 级教师信号监督学生采样的轨迹，但现有选择性方法忽略了一个关键失败模式：模型的 token 级判断常受输入无关的语言先验、格式惯例或刻板推理模板驱动，而非任务特定证据，此类虚假信号会产生大梯度却贡献甚少。提出 SA-OPD 框架，用轻量级输入接地性代理估计信号是否真正依赖输入，并仅过滤同时具备低输入接地性和极端蒸馏差异的 token，从而去除高影响的虚假更新。在 LLM 与 VLM 实验上，SA-OPD 稳定优于 Vanilla OPD 及多种选择性方法，表明输入接地性是 OPD 监督选择的关键维度。",
+      "score": 8,
+      "reason": "蒸馏方向新机制，有效改进 OPD，直接命中后训练",
+      "deepDive": true
+    },
+    {
+      "id": "2608.04397",
+      "title": "NOLLI: A Difficulty-Calibrated Puzzle Benchmark for Diagnosing the English-Korean Performance Gap",
+      "authors": [
+        "Dasol Choi",
+        "Joonyong Park",
+        "Daegon Yu",
+        "Soo Yong Kim",
+        "Youngsook Song",
+        "Seunghyeok Hong"
+      ],
+      "authorsTotal": 6,
+      "abstract": "We introduce NOLLI, a procedurally generated English-Korean puzzle benchmark designed to diagnose where Korean performance gaps arise. It comprises 15 puzzle types (25 tasks; 7,500 items), with every instance seed-regenerable, verified to have a unique solution, and scored deterministically. Rather than equating harder with bigger, we calibrate difficulty behaviorally, tuning each generator until a fixed reference model lands in target accuracy bands. Its three-level design combines matched direct translations, script adaptations over Hangul jamo (sub-syllabic letters), and Korean-only tasks grounded in Korean culture or orthography. We evaluate 15 frontier, open-weight, and Korean-developed models; among the 12 above a 3% overall-accuracy floor, matched English-Korean accuracy is statistically equivalent within a +/- 10 pp margin (TOST), suggesting little cost from presentation language alone. Writing-system-intensive tasks show sharper gaps: Korean Cipher falls behind English by up to 68.7 pp, whereas Cryptarithmetic over the same jamo shows no systematic penalty, and Jamo Composition accuracy predicts Korean Cipher accuracy. These contrasts are diagnostic rather than causal, consistent with difficulty in multi-step sub-syllabic execution. Korean-only tasks separate rule-application deficits, which vary in sign, from a Kinship deficit positive in all 12. Finally, a salient size measure fails to grow from Easy to Hard in 7 of 15 types, making structural size an unreliable proxy for empirical difficulty.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04397",
+        "pdf": "https://arxiv.org/pdf/2608.04397"
+      },
+      "upvotes": 18,
+      "githubRepo": "https://github.com/HAE-RAE/NOLLI",
+      "githubStars": 4,
+      "numComments": 4,
+      "titleZh": "NOLLI:用于诊断英语-韩语性能差距的难度校准谜题基准",
+      "summaryZh": "NOLLI 是一个程序化生成的英韩谜题基准,包含 15 类谜题、25 个任务、7500 个实例,所有实例可重生成、唯一解、确定性评分;难度经行为校准而非按规模推定。评测 15 个前沿、开源及韩国自研模型,12 个超过 3% 准确率下限的模型中,英韩匹配翻译准确率在 ±10 个百分点内统计等价,而书写系统密集型任务差距显著,韩文密码落后英文最多 68.7 个百分点。基准的韩语独有任务可区分规则应用缺陷与亲属关系缺陷,并揭示结构规模在 15 类中 7 类无法预测经验难度。",
+      "score": 7,
+      "reason": "英韩谜题基准,评测设计扎实,命中评测方法论方向",
+      "deepDive": false
+    },
+    {
+      "id": "2608.04505",
+      "title": "K-EXAONE 2.0 Technical Report",
+      "authors": [
+        "Eunbi Choi",
+        "Kibong Choi",
+        "Sehyun Chun",
+        "Seokhee Hong",
+        "Junwon Hwang",
+        "Hyojin Jeon"
+      ],
+      "authorsTotal": 77,
+      "abstract": "This technical report presents K-EXAONE 2.0, an open-weight multilingual foundation model developed by LG AI Research as a step in our effort toward global frontier-scale foundation models. Rather than training from scratch, we upcycle K-EXAONE and expand its architecture, yielding a Mixture-of-Experts (MoE) model with 750B total parameters and approximately 37B activated per token---more than three times the capacity of its predecessor. K-EXAONE 2.0 supports context lengths of up to 256K tokens and expands multilingual coverage from six to ten languages. Its training pipeline combines continual pre-training, difficulty-focused mid-training, and post-training to strengthen reasoning, agentic coding, multilingual capability, and safety grounded in Korean sociocultural contexts. Across nine evaluation categories selected to reflect the conditions of practical use, K-EXAONE 2.0 improves over K-EXAONE and remains competitive with open-weight models, showing its largest gains in agentic coding and long-context understanding and its clearest strengths in long-context retrieval and safety. Released under the Apache 2.0 license, K-EXAONE 2.0 enables the wider AI ecosystem to evaluate, deploy, adapt, and build upon it, while marking the beginning---rather than the endpoint---of our challenge toward the global frontier.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04505",
+        "pdf": "https://arxiv.org/pdf/2608.04505"
+      },
+      "upvotes": 15,
+      "numComments": 1,
+      "titleZh": "K-EXAONE 2.0 技术报告",
+      "summaryZh": "K-EXAONE 2.0 是 LG AI Research 开源的 750B 参数 MoE 多语言基础模型,通过上循环(upcycling)扩展自 K-EXAONE,每个 token 激活约 37B 参数,支持 256K 上下文,语言覆盖从六种扩展到十种。训练流程包括持续预训练、难度聚焦的中期训练和后训练,以增强推理、智能体编码、多语言能力与基于韩国社会文化背景的安全性。在九个面向实际使用的评测类别上,K-EXAONE 2.0 显著超越前代,并在智能体编码和长上下文理解上提升最大,长上下文检索与安全性表现突出。模型以 Apache 2.0 协议开源,可服务于多语言与智能体相关的研究与部署。",
+      "score": 8,
+      "reason": "大型 MoE 模型技术报告,直接命中架构与后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2607.24821",
+      "title": "AVE-Compass: Towards Holistic Evaluation for Audio-Video Editing Abilities",
+      "authors": [
+        "Yuqing Wen",
+        "Yukai Huang",
+        "Qianqian Xie",
+        "Jiangtao Wu",
+        "Yibin Lin",
+        "Yikai Gu"
+      ],
+      "authorsTotal": 9,
+      "abstract": "While instruction-based video editing has advanced rapidly, real-world videos contain tightly coupled audio and visual signals, and editing one modality often requires coordinated changes in the other. Existing benchmarks primarily evaluate visual transformations on silent clips or isolated audio editing, leaving complex audio-visual editing and cross-modal consistency underexplored. We introduce AVE-Compass, a comprehensive benchmark with 145 curated source videos, 196 audio-visually coupled editing instructions, and 2,688 fine-grained checklist items. It evaluates Instruction Following, Fidelity Preserving, Realism, and Editing Intent through checklist-based MLLM judging and a dedicated realism rubric, complemented by automated cross-modal, video, and audio metrics. Extensive evaluation shows that state-of-the-art models still struggle to execute cross-modal instructions while preserving non-target content. We further propose AVE-Agent, a modular agent framework that decomposes complex instructions into dependent subtasks and iteratively improves editing results through self-reflection and evaluator feedback. AVE-Agent improves instruction execution, Fidelity Preserving, and audio-visual alignment in joint editing while maintaining competitive perceptual quality.",
+      "published": "2026-07-17T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.24821",
+        "pdf": "https://arxiv.org/pdf/2607.24821"
+      },
+      "upvotes": 15,
+      "githubRepo": "https://github.com/NJU-LINK/AVE-Compass",
+      "githubStars": 5,
+      "projectPage": "https://ave-compass.github.io/",
+      "numComments": 2,
+      "titleZh": "AVE-Compass: 面向音频-视频编辑能力的综合评估",
+      "summaryZh": "现有视频编辑评测多局限于无声片段的视觉变换或独立音频编辑,缺乏对音频-视觉联合编辑和跨模态一致性的考察。AVE-Compass 构建了包含 145 个源视频、196 条视听耦合编辑指令和 2688 个细粒度检查项的综合基准,通过基于 MLLM 的清单式评判和专用真实性规则评估指令跟随、保真度、真实感与编辑意图,并辅以自动跨模态指标。评测显示现有模型在跨模态指令执行和非目标内容保持上仍存在明显不足;进一步提出的 AVE-Agent 模块化智能体框架将复杂指令分解为依赖子任务,结合自反思与评估器反馈迭代优化,在联合编辑中显著改善指令执行、保真度和视听对齐。该工作主要面向音视频编辑生成领域,与关注方向的交集有限。",
+      "score": 2,
+      "reason": "音视频编辑属生成类低分方向,仅评测与Agent思路略有交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.05070",
+      "title": "HelloWorld: Enabling Socially Interactive Characters in Video World Models",
+      "authors": [
+        "Liangyang Ouyang",
+        "Ruicong Liu",
+        "Xuangeng Chu",
+        "Kaipeng Zhang",
+        "Yoichi Sato"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Despite the remarkable recent progress of video world models, social interaction between users and the characters within these worlds remains unsupported. To fill this gap, we present HelloWorld, a video world model that enables social interaction with in-world characters. With a single button press, users can prompt the on-screen character to respond toward the camera, e.g., turning to the viewer, waving, nodding, or speaking a short greeting. To make these interactions natural, we propose a self-distillation pipeline that finetunes the video generation model on data synthesized by itself. Each synthesized clip contains both social interactions and camera motion, allowing the model to learn camera-pose conditioning without degrading interaction quality. At inference, we further introduce a training-free module that determines when the interaction occurs. Upon a button press, it modulates the cross-attention masks of the DiT so that the interaction-related text prompt attends only to the frames within the press window, temporally localizing the character's response. We further build HelloWorldBench, a 400-sample benchmark with three social interaction metrics alongside three conventional metrics, for evaluation. Experiments demonstrate that HelloWorld surpasses a variety of baselines in interaction quality, while maintaining state-of-the-art picture aesthetics and camera-pose following. Project page: https://github.com/AlayaLab/HelloWorld",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05070",
+        "pdf": "https://arxiv.org/pdf/2608.05070"
+      },
+      "upvotes": 14,
+      "githubRepo": "https://github.com/AlayaLab/HelloWorld",
+      "githubStars": 14,
+      "numComments": 1,
+      "titleZh": "HelloWorld：让视频世界模型中的角色具备社交互动能力",
+      "summaryZh": "视频世界模型虽进展迅速，但用户与画面中角色的社交互动仍不受支持。HelloWorld 通过一次按钮即可让角色面向镜头回应，如转身、挥手、点头或说短问候语。方法上，提出自蒸馏流程，在模型自身合成的含社交互动与相机运动的数据上微调，从而在不损失交互质量的前提下学习相机姿态条件；推理阶段引入无训练模块，通过调节 DiT 的交叉注意力掩码，使交互相关文本提示只作用于按压窗口内的帧，实现时间定位。构建的 HelloWorldBench 包含 400 个样本与三项社交交互指标和三项常规指标，实验显示 HelloWorld 在交互质量上超过多种基线，同时保持领先的画面美学与相机姿态跟随能力。",
+      "score": 1,
+      "reason": "视频生成方向，与 LLM 后训练/Agent 无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.00782",
+      "title": "Distill Where You Fail: Recovering Learning Signals of Negative RL-Groups from Adaptive Teacher Guidance",
+      "authors": [
+        "Zhuowen Han",
+        "Jinwei Xiao",
+        "Zhengxi Lu",
+        "Renren Jin",
+        "Zhiyuan Yao",
+        "Yuxin Liu"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Reinforcement learning with verifiable rewards (RLVR) has become a standard paradigm for post-training large language models (LLMs). While Group Relative Policy Optimization (GRPO) is widely adopted, it suffers from sparse reward signals and loses gradients entirely when all responses within a group receive identical rewards. On-policy distillation (OPD) offers a natural remedy by providing dense, token-level supervision from a teacher model. However, naively combining GRPO with OPD leads to degraded performance, due to three underlying causes: not all samples benefit from distillation; fitting too quickly to the teacher undermines the exploratory capacity of RL; and OPD's advantages are asymmetric, suppressing most tokens. To address these challenges, we propose RSTG (Recovering Learning Signals via Adaptive Teacher Guidance), which applies distillation selectively and precisely where it matters most. At the sample level, OPD is restricted to negative zero-variance prompts with each sample weighted by the teacher's confidence score. At the token level, distillation targets only tokens with high student entropy or large teacher-student divergence. We further augment training with SFT on correct trajectories generated by the teacher model, injecting positive gradient signals where RL yields none. Experiments demonstrate that RSTG substantially outperforms naive GRPO+OPD by +4.02% on math and +3.05% on code.",
+      "published": "2026-08-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.00782",
+        "pdf": "https://arxiv.org/pdf/2608.00782"
+      },
+      "upvotes": 13,
+      "numComments": 2,
+      "titleZh": "在失败处蒸馏:从自适应教师引导中恢复负 RL 组的学习信号",
+      "summaryZh": "GRPO 在组内响应奖励相同时梯度完全消失,奖励信号稀疏;而朴素 GRPO 与 on-policy 蒸馏(OPD)直接结合会导致部分样本无益、过快拟合教师、抑制探索等问题。RSTG 在样本层仅对负零方差提示做蒸馏,并按教师置信度加权;在 token 层只蒸馏高学生熵或师生分歧大的 token;同时用教师生成的正解轨迹做 SFT,补充 RL 无法提供的正梯度。在数学和代码任务上,RSTG 相对朴素 GRPO+OPD 分别提升 +4.02% 和 +3.05%,为 RLVR 后训练提供了选择性、自适应的教师引导蒸馏方案。",
+      "score": 8,
+      "reason": "GRPO+蒸馏改进,直接命中后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2608.04574",
+      "title": "When Memory Lies: An Empirical Study of Spatial Memory Staleness in VLM Agents",
+      "authors": [
+        "Yushi Sun",
+        "Yanjie Zhang"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Memory-augmented VLM agents act on persistent spatial knowledge, yet that knowledge silently goes stale as the environment changes. We ask what happens when an agent must reconcile a confident memory claim with a contradicting observation, and whether current models can catch the conflict before it becomes a safety-relevant mistake. Using a dynamic FrozenLake testbed, we pair a staleness-detection task with a downstream navigation task across three closed-source models and three open-weight VLMs under both text and image inputs (1,800 detection runs, and 12,000 text-mode navigation episodes over four LLM navigators at a shared 50-seed scale). Three findings emerge. First, text solvability does not imply visual grounding: models that flag stale entries reliably from text nonetheless span vision F1 from 0.887 down to 0.067 on the identical grids, and the weakest keeps making fluent, confident decisions that ignore the image. Second, consuming stale memory without an audit is a safety liability: in our primary GPT-4o setting, an agent that trusts raw memory dies more than twice as often as the same agent given no memory at all. Third, auditing helps but does not close the gap: a transparent read-time filter removes much of the safety cost in text mode, yet even oracle stale labels bring no further significant gain on the current grid size, and when visual auditing is unreliable, filtering yields no consistent benefit. Together these results frame spatial-memory staleness as a safety failure mode and isolate reliable visual grounding and action selection under memory--observation conflict as the central open challenges for memory-augmented agents.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04574",
+        "pdf": "https://arxiv.org/pdf/2608.04574"
+      },
+      "upvotes": 12,
+      "numComments": 2,
+      "titleZh": "当记忆撒谎：VLM 智能体中空间记忆陈旧性的实证研究",
+      "summaryZh": "针对记忆增强型 VLM 智能体在环境变化后仍依赖过期空间记忆而引发安全失误的问题，构建动态 FrozenLake 测试平台，将陈旧性检测任务与下游导航任务配对，在三种闭源和三种开源 VLM 上分别以文本和图像输入开展 1,800 次检测与 12,000 次导航实验。结果发现：文本可解性不等于视觉接地，模型在视觉 F1 上从 0.887 直落至 0.067；直接信任陈旧记忆会使 GPT-4o 智能体的死亡率比无记忆时高一倍以上；读取时过滤能缓解文本模式的安全代价，但无法弥补视觉审计不可靠时的缺口。研究将空间记忆陈旧性界定为安全失败模式，并指出可靠视觉接地与记忆-观测冲突下的行动选择是核心开放挑战。",
+      "score": 7,
+      "reason": "Agent 与评测方向的实证研究，方法清晰但增量有限",
+      "deepDive": false
+    },
+    {
+      "id": "2608.04530",
+      "title": "FocusMem: Factorizing Content, Readout, and Trust in Latent GUI Memory",
+      "authors": [
+        "Zhuoran Zhang",
+        "Bowen Li",
+        "Jingcheng Ju",
+        "Yang Shi",
+        "Qixun Wang",
+        "Haotian Wang"
+      ],
+      "authorsTotal": 8,
+      "abstract": "GUI agents must remember both useful experience from earlier tasks and unfinished progress in the current interaction. Latent memory offers a compact solution by compressing multimodal trajectories into a few continuous tokens. Existing methods, however, usually map each trajectory to one fixed memory block and train it mainly through next-action supervision. This creates three practical problems: important details may be lost during compression, the same memory block must serve different decision stages, and irrelevant retrieved trajectories may still mislead the agent. We introduce FocusMem, which separates these responsibilities within a compact latent-memory interface. A role-aware content basis encourages episodic memory to retain reusable experience and working memory to retain task progress. A state-conditioned readout generates a decision-specific view of the same stored evidence, while a lightweight trust gate can suppress memory blocks that appear irrelevant to the current step. All components are trained while the GUI policy remains frozen. Across five GUI-agent benchmarks, FocusMem consistently outperforms a fully matched action-only fixed-memory baseline and prior latent memory adaptations. Further analysis shows that semantic and functional supervision preserve complementary information, state-conditioned readout is more robust as surrounding trajectory context grows, and the trust gate reduces the harm caused by injected irrelevant episodic evidence. These results show that effective latent memory depends not only on compressing past interaction, but also on what is retained, what is exposed, and what is allowed.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04530",
+        "pdf": "https://arxiv.org/pdf/2608.04530"
+      },
+      "upvotes": 10,
+      "githubRepo": "https://github.com/stanley-ju/FocusMem",
+      "githubStars": 0,
+      "numComments": 2,
+      "titleZh": "FocusMem: 分解潜在GUI记忆中的内容、读取与信任",
+      "summaryZh": "GUI智能体需同时利用历史任务经验和当前交互进度,潜在记忆以少量连续令牌压缩多模态轨迹,但现有方法将每条轨迹映射为固定记忆块并仅靠下一步动作监督,导致细节丢失、同一记忆难适配不同决策阶段、无关检索记忆误导智能体。FocusMem 在紧凑的潜在记忆接口中分离这些职责:角色感知内容基元让情节记忆保留可复用经验、工作记忆保留任务进度;状态条件化读取为同一存储证据生成决策特定视图;轻量信任门抑制与当前步无关的记忆块,且全程冻结 GUI 策略。在五个 GUI 智能体基准上,FocusMem 一致超越匹配的动作监督固定记忆基线及先前的潜在记忆适配方法,分析还表明语义与功能监督互补、状态条件化读取随上下文增长更鲁棒、信任门可降低无关情节证据的损害。这说明有效潜在记忆不仅取决于压缩,还取决于保留什么、暴露什么、允许什么。",
+      "score": 8,
+      "reason": "Agent记忆机制创新,直接命中智能体方向且多基准验证"
+    },
+    {
+      "id": "2608.04964",
+      "title": "WorldCycle: Self-Verifiable Reinforcement Learning for Long-Horizon Video World Models",
+      "authors": [
+        "Bohai Gu",
+        "Yueyang Yuan",
+        "Taiyi Wu",
+        "Dazhao Du",
+        "Jian Liu",
+        "Xiaoyi Pang"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Interactive video world models are essential for long-horizon planning and exploration, yet they suffer from compounding errors. Post-training methods such as reinforcement learning (RL) can improve these models, but they hit a verification bottleneck: for arbitrary action sequences, no ground-truth future state exists to measure long-term drift. Our key insight is that reversible action cycles make this verification possible: a sequence composed with its inverse must analytically return to the initial state, yielding annotation-free supervision on long-horizon correctness. Building on this, we introduce WorldCycle, a self-verifiable RL framework that constructs closed action cycles and their repeated executions from ordinary action sequences, and optimizes two complementary rewards: a spatial closure reward enforcing symmetry between mirrored forward and reverse segments, and a temporal consistency reward aligning states across repeated cycle executions. These rewards force the model to learn actions as consistent state operators rather than memorized temporal patterns, and extend naturally to out-of-distribution composite action cycles that the base model handles poorly. We further release CycleBench, a diagnostic benchmark for state-returning ability under complex action structures. WorldCycle reduces state returning drift by up to 44% and lifts composite-action accuracy nearly 4x over the base model, providing a vital foundation for physically grounded world models.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04964",
+        "pdf": "https://arxiv.org/pdf/2608.04964"
+      },
+      "upvotes": 9,
+      "projectPage": "https://nevsnev.github.io/Worldcycle/",
+      "numComments": 2,
+      "titleZh": "WorldCycle: 面向长程视频世界模型的自验证强化学习",
+      "summaryZh": "长程视频世界模型在预测未来时误差累积且缺乏可验证的监督信号。WorldCycle 利用可逆动作循环——动作序列与其逆序列组合后必须还原初始状态——构造无标注的闭环监督,并设计空间闭合奖励与时间一致性奖励,迫使模型将动作学习为一致的状态算子。该方法将状态返回漂移降低最多 44%,复合动作准确率提升近 4 倍,并发布了 CycleBench 诊断基准。",
+      "score": 3,
+      "reason": "视频世界模型属视觉生成方向,RL 自验证思路略沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2607.28048",
+      "title": "SKILL-KD: Contrastive Skill Distillation for LLM Agents",
+      "authors": [
+        "Qiming Shi",
+        "Yibo Dou",
+        "Jiawen Zhu",
+        "Yulong Tao",
+        "Linbo Jin",
+        "Zhaolu Kang"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Skill-based prompting has become a practical mechanism for improving large language model (LLM) agents, yet existing skill acquisition methods often treat skills as experience summaries, memory entries, or direct summaries of successful demonstrations. This creates a mismatch for weaker student agents: when a student fails because it lacks task knowledge or operational strategy, its failed trajectory may not contain enough evidence to infer the missing behavior, while the teacher trajectory may be too implicit to be internalized as reusable guidance. We propose SKILL-KD, a contrastive skill distillation framework that treats skills as an explicit distillation medium between agents of different capabilities. Given a student failure and the teacher trajectory on the same task, SKILL-KD distills their actionable discrepancy into a textual skill patch, evaluates the patch by re-running the student, and iteratively refines the patch when the student still fails. To prevent repeated local updates from causing skill drift, SKILL-KD further maintains trace-linked edit histories and performs Drift-Aware Skill Consolidation, deciding whether each patch should add a new rule, delete or modify an existing rule, or be skipped. Across five agent benchmarks and two student settings, SKILL-KD consistently improves frozen student agents over fixed-model adaptation baselines.",
+      "published": "2026-08-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.28048",
+        "pdf": "https://arxiv.org/pdf/2607.28048"
+      },
+      "upvotes": 9,
+      "numComments": 2,
+      "titleZh": "SKILL-KD：面向 LLM 智能体的对比式技能蒸馏",
+      "summaryZh": "针对学生智能体因缺乏任务知识或策略而失败、教师轨迹又难以内化为可复用指导的问题，提出将技能作为跨能力智能体间显式蒸馏媒介的 SKILL-KD。通过对比学生失败轨迹与教师轨迹，抽取可操作的技能补丁，用学生重跑评估并迭代修正直至成功；同时维护痕迹关联编辑历史，进行漂移感知技能整合，决定补丁是新增、删除、修改规则还是跳过。在五个智能体基准和两种学生设置下，一致优于固定模型自适应基线，可用于提升冻结学生智能体的技能获取效率。",
+      "score": 8,
+      "reason": "对比技能蒸馏，直接命中 Agent 技能获取方向"
+    },
+    {
+      "id": "2608.04349",
+      "title": "Poly-OPD: Heterogeneous Multi-Teacher On-Policy Distillation for Capability-Selectable Flow Models",
+      "authors": [
+        "Siming Fu",
+        "Haojun Xu",
+        "Ruizhe He",
+        "Zheming Fu",
+        "Hualiang Wang",
+        "Jie Huang"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Leading open text-to-image models often carry complementary strengths: one may lead on preference-aligned aesthetics while another follows compositional instructions more faithfully. However, differences in their autoencoders and noise schedules make it difficult to transfer these strengths across models. In this paper, we present Poly-OPD, a framework that can consolidate complementary strengths of heterogeneous teachers into a single compact flow-matching student. To bridge the incompatible latent spaces of different teachers, Poly-OPD performs on-policy distillation through a pixel bridge. Each student-generated image is re-encoded by a selected teacher's encoder and refined from a noise level matched by magnitude under the teacher's noise schedule. The resulting target is further matched to the student in frozen DINOv2 space, enabling supervision across incompatible latent spaces. To retain complementary capabilities without cross-teacher interference, Poly-OPD uses a gradient compatibility diagnostic to organize its adapters: attention LoRA modules are shared across teachers, whereas feed-forward adapters remain teacher-specific. During distillation, a gap-aware curriculum devotes more training to compositional categories where the student still falls short of the teacher. As each gap narrows, training shifts toward categories with larger remaining gaps. By distilling FLUX.1-dev and Z-Image into a 2.5B SD3.5-Medium student, Poly-OPD improves GenEval from 67.3 to 73.3, surpassing both larger teachers, and raises DrawBench HPSv3 from 9.34 to 11.35, consolidating both strengths within a switchable model.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04349",
+        "pdf": "https://arxiv.org/pdf/2608.04349"
+      },
+      "upvotes": 8,
+      "numComments": 3,
+      "titleZh": "Poly-OPD:面向能力可选择的流模型异构多教师在线策略蒸馏",
+      "summaryZh": "开放文生图模型各有互补优势,但自编码器与噪声调度差异阻碍能力迁移。Poly-OPD 通过像素桥与 DINOv2 特征匹配,将多个异构教师模型的能力蒸馏进单一流匹配学生模型,并用梯度兼容性诊断区分共享与教师特定的适配器,配合差距感知课程逐步补齐短板。将 FLUX.1-dev 与 Z-Image 蒸馏进 2.5B 的 SD3.5-Medium 后,GenEval 从 67.3 提升至 73.3,超过两个更大的教师,DrawBench HPSv3 亦从 9.34 升至 11.35。该方法为能力可选择的文生图模型提供了可行的多教师蒸馏方案。",
+      "score": 1,
+      "reason": "文生图流模型蒸馏,落在图像生成低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.05131",
+      "title": "OPD-V: Visual On-Policy Self-Distillation with Modality Balance",
+      "authors": [
+        "Aniri",
+        "Jinhe Bi",
+        "Peng Liao",
+        "Zengjie Jin",
+        "Volker Tresp",
+        "Fei Shen"
+      ],
+      "authorsTotal": 8,
+      "abstract": "On-Policy Self-Distillation (OPSD) has become a standard post-training approach for improving visual reasoning in multimodal large language models (MLLMs). Existing methods draw privileged information from diverse input sources to guide self-distillation. Yet these designs overlook Modality Imbalance, a challenge inherent to MLLM reasoning. When textual information dominates generation, the model cannot fully integrate its multimodal input. Consequently, carefully designed privileged information remains underused, limiting the effectiveness of OPSD. To examine this limitation, we construct a Positive Teacher with the Zoom-In Image and a Negative Teacher with the Mask Image, which exhibit different degrees of Modality Imbalance. Changes in their reasoning correctness and token logits reveal that Modality Balance can itself serve as privileged information. Motivated by this finding, we introduce OPD-V, a visual OPSD paradigm that instantiates such information through the Positive Teacher and Negative Teacher. Positive Modality-Balance Logits Margins define a Modality-Balance Trust Region that selects the on-policy tokens used for self-distillation. Experiments across 6 benchmarks, 4 MLLM backbones, and 5 post-training methods show that OPD-V consistently improves reasoning performance while reducing training cost.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05131",
+        "pdf": "https://arxiv.org/pdf/2608.05131"
+      },
+      "upvotes": 8,
+      "numComments": 1,
+      "titleZh": "OPD-V：模态平衡的视觉在策略自蒸馏",
+      "summaryZh": "针对多模态大语言模型中的在策略自蒸馏（OPSD）忽视模态不平衡、文本主导导致多模态输入利用不足的问题，提出 OPD-V 范式。通过 Zoom-In 图像构建正教师、Mask 图像构建负教师，以两者模态平衡对数间隔定义可信区域，筛选用于自蒸馏的在策略 token。在 6 个基准、4 种 MLLM 骨干和 5 种后训练方法上，OPD-V 一致提升推理性能并降低训练成本。适用于多模态推理后训练中的高效自蒸馏场景。",
+      "score": 8,
+      "reason": "MLLM 后训练自蒸馏改进，直接命中多模态与后训练方向"
+    },
+    {
+      "id": "2608.02162",
+      "title": "Lossless Tensor Compression as Program Synthesis",
+      "authors": [
+        "Jieke Shi",
+        "Junda He",
+        "Wenjia Jiang",
+        "Weifeng Sun",
+        "Shidong Pan",
+        "Zhensu Sun"
+      ],
+      "authorsTotal": 14,
+      "abstract": "Model checkpoints are growing in both number and size, which makes archival, transfer, and deployment increasingly costly. General-purpose compressors can reduce storage requirements but ignore tensor structure, whereas existing tensor-specific compressors rely on fixed and format-specific pipelines. We present Brevis, which formulates lossless tensor compression as program synthesis. We design a typed domain-specific language (DSL) that captures recurring tensor structures, such as repeated regions and floating-point fields, through a set of reversible operators. Given a tensor, Brevis synthesizes a self-contained DSL program that reconstructs it bit-exactly. A checkpoint-specific production prior, learned from a small representative sample of tensors, guides a bounded A* search to synthesize compact programs, which can later be executed directly for bit-exact decompression. On 10 public checkpoints spanning language, audio, and image generation models, Brevis reduces 2.13 TB of checkpoint data to 1.41 TB, a 33.93% storage reduction. It produces archives up to 30.87% smaller than those of four general-purpose compressors, including zstd and gzip, and smaller archives than the tensor-specific compressors ZipNN and DFloat11. Under a practical concurrency configuration, Brevis achieves 3.60 GB/s compression and 6.61 GB/s decompression while preserving every source byte.",
+      "published": "2026-08-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.02162",
+        "pdf": "https://arxiv.org/pdf/2608.02162"
+      },
+      "upvotes": 8,
+      "githubRepo": "https://github.com/jiekeshi/Brevis",
+      "githubStars": 1,
+      "numComments": 2,
+      "titleZh": "无损张量压缩作为程序合成",
+      "summaryZh": "模型检查点数量与体量快速增长，使归档、传输和部署成本高昂。通用压缩器忽略张量结构，现有张量专用压缩器又依赖固定且格式特定的流程。Brevis 将无损张量压缩建模为程序合成：它设计了一个带类型的领域专用语言（DSL），用可逆算子捕获重复区域、浮点字段等常见张量结构；基于少量张量样本学习检查点专属的先验，引导有界 A* 搜索合成紧凑的 DSL 程序，执行该程序可逐比特精确重构原张量。在 10 个公开检查点（覆盖语言、音频和图像生成模型）上，Brevis 将 2.13 TB 数据压缩至 1.41 TB（节省 33.93%），归档体积比 zstd、gzip 等四种通用压缩器最多小 30.87%，也优于 ZipNN 和 DFloat11；在实用并发配置下达到 3.60 GB/s 压缩和 6.61 GB/s 解压速度。该方法适合模型检查点的高效存储与传输，可应用于大规模 LLM 的训练与部署流程。",
+      "score": 7,
+      "reason": "张量压缩属于系统效率方向，程序合成方法新颖且有数据支撑",
+      "deepDive": false
+    },
+    {
+      "id": "2608.05042",
+      "title": "BridgeVLA++: A Data-Efficient, Generalizable, and Memory-Augmented Vision-Language-Action Framework for 3D Manipulation",
+      "authors": [
+        "Peiyan Li",
+        "Yuze Zhu",
+        "Yixiang Chen",
+        "Qisen Ma",
+        "Yuan Xu",
+        "Jiabing Yang"
+      ],
+      "authorsTotal": 13,
+      "abstract": "Leveraging pre-trained vision-language models (VLMs) to construct vision-language-action (VLA) models has emerged as a promising paradigm for 3D robot manipulation. However, existing 3D VLA methods remain data-hungry, exhibit limited generalization under distribution shifts, and lack explicit memory of past observations. These limitations hinder their application to data-scarce, open-world, and memory-dependent manipulation scenarios. Our previous work, BridgeVLA, improves data efficiency and generalization by preserving the input--output alignment of a pre-trained VLM during 3D action learning: raw point clouds are projected into multi-view images, and intermediate heatmaps are predicted before generating robot actions. In this work, we develop BridgeVLA++ by equipping BridgeVLA with a unified spatio-temporal memory architecture that models persistent spatial context and temporal interaction history. The resulting memory-augmented framework can reason over observation histories while preserving BridgeVLA's data efficiency and generalization capabilities. Extensive experiments show that our framework achieves strong performance on spatial manipulation tasks while exhibiting robust generalization. BridgeVLA++ further achieves state-of-the-art performance on two challenging memory-dependent manipulation benchmarks without sacrificing the data efficiency and generalization of the original BridgeVLA. In addition, BridgeVLA++ performs effectively in bimanual manipulation settings and is validated on an additional real-world robotic platform, demonstrating its scalability across tasks, environments, and robotic platforms. These results establish BridgeVLA++ as a unified 3D vision-language-action framework that simultaneously supports data-efficient learning, robust generalization, and effective memory-aware robot manipulation. Project website: https://bridgevla-plus.github.io/.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05042",
+        "pdf": "https://arxiv.org/pdf/2608.05042"
+      },
+      "upvotes": 7,
+      "projectPage": "https://bridgevla-plus.github.io/",
+      "numComments": 2,
+      "titleZh": "BridgeVLA++：一种数据高效、可泛化且记忆增强的 3D 操作视觉-语言-动作框架",
+      "summaryZh": "针对现有 3D VLA 模型数据依赖强、分布偏移下泛化差、且缺乏对历史观测的显式记忆的问题，BridgeVLA++ 在 BridgeVLA 的输入-输出对齐基础上引入统一的时空记忆架构，建模持久空间上下文与时间交互历史，使模型能在保留数据效率与泛化能力的同时对观测历史进行推理。实验表明该方法在空间操作任务上表现强劲，在两个具有挑战性的记忆依赖操作基准上达到最优，且不牺牲原始 BridgeVLA 的数据效率与泛化性；同时支持双臂操作并已在额外真实机器人平台上验证，展现了跨任务、跨环境与跨平台的可扩展性。该框架面向数据稀缺、开放世界与依赖记忆的机器人操作场景。",
+      "score": 1,
+      "reason": "VLA 机器人操作方向，按画像一刀切归低分",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.04701",
+      "title": "UniWorld-View: Large-Baseline View Synthesis via Video Diffusion Models",
+      "authors": [
+        "Haiyang Zhou",
+        "Wangbo Yu",
+        "Chaoran Feng",
+        "Xunyu Zhou",
+        "Yonghong Tian",
+        "Li Yuan"
+      ],
+      "authorsTotal": 6,
+      "abstract": "The abundance of casually captured monocular videos and images on social media provides a valuable source for immersive content creation, where generating novel views from such sparse observations can greatly enhance user experiences. However, producing photorealistic and geometrically consistent views with precise camera control remains challenging when input coverage is extremely limited. Reconstruction-based approaches such as NeRF and 3D Gaussian Splatting (3DGS) deteriorate severely under sparse inputs and fail to explicitly handle occlusions. Generative methods ease data requirements but still struggle with large-baseline view synthesis due to inaccurate or implicit geometric guidance. To overcome these limitations, we introduce UniWorld-View, a unified framework for controllable large-baseline novel view synthesis from monocular inputs. UniWorld-View integrates explicit 3D guidance with generative diffusion modeling to enable precise camera control and geometrically consistent view generation. The geometric guidance is obtained through an occlusion-aware point cloud rendering strategy that resolves visibility ambiguities and provides accurate priors for diffusion-based synthesis. By coupling this rendering strategy with powerful video diffusion backbones, UniWorld-View achieves high-fidelity novel view generation even under extreme camera motions and wide-baseline changes, and can further provide multi-view videos for downstream dynamic 3DGS reconstruction. Experiments on the WorldScore benchmark and zero-shot NVS benchmarks demonstrate the effectiveness of UniWorld-View in controllability, geometric consistency, and visual fidelity.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04701",
+        "pdf": "https://arxiv.org/pdf/2608.04701"
+      },
+      "upvotes": 6,
+      "githubRepo": "https://github.com/PKU-YuanGroup/UniWorld-View",
+      "githubStars": 102,
+      "projectPage": "https://zhouhyocean.github.io/uniworld-view/",
+      "numComments": 2,
+      "titleZh": "UniWorld-View：基于视频扩散模型的大基线视图合成",
+      "summaryZh": "针对稀疏单目输入下大基线新视角合成中几何不一致与遮挡难处理的问题，提出统一框架 UniWorld-View，将显式三维引导与生成式扩散建模结合。通过遮挡感知的点云渲染策略提供精确几何先验，并耦合视频扩散骨干，在极端相机运动与宽基线条件下仍能生成高保真、几何一致的新视图，且可输出多视角视频用于动态 3DGS 重建。WorldScore 基准与零样本 NVS 基准上的实验验证了其可控性、几何一致性与视觉保真度。",
+      "score": 1,
+      "reason": "扩散模型与视觉重建，偏离 LLM 关注方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.05108",
+      "title": "Agent Against Agent: An Agentic System for Automatic Prompt Injection Red Teaming",
+      "authors": [
+        "Yanting Wang",
+        "Chenlong Yin",
+        "Runpeng Geng",
+        "Jinyuan Jia"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Prompt injection poses significant security risks to LLM agents. Efficient and effective red-teaming is therefore critical, both for evaluating these risks and for collecting training data to improve defenses. Existing state-of-the-art prompt injection red-teaming methods primarily rely on reinforcement learning (RL), producing attacker models that often generalize poorly to new target LLMs. In this work, we develop PIMiner, an agentic system for prompt injection red-teaming. During training, PIMiner is trained on a sequence of (dataset, target model) pairs and builds a strategy library from scratch. At test time, the learned strategy library can be directly transferred to a previously unseen target LLM without additional training. PIMiner requires only a small number of queries to a target agent (e.g., 10) per test sample. Experimental results demonstrate that PIMiner achieves strong performance. On IPIArena, it attains a 76.2% ASR against Gemini-2.5-Pro, 61.9% ASR against GPT-5.1, and 42.9% ASR against Claude-Sonnet-4.5. On AgentDojo, it achieves an 86.7% ASR against Gemini-2.5-Pro, 53.3% ASR against GPT-5.1, and 40.0% ASR against Claude-Sonnet-4.5.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.05108",
+        "pdf": "https://arxiv.org/pdf/2608.05108"
+      },
+      "upvotes": 5,
+      "githubRepo": "https://github.com/wang-yanting/PIMiner",
+      "githubStars": 3,
+      "numComments": 2,
+      "titleZh": "智能体对抗智能体:面向自动提示注入红队测试的智能体系统",
+      "summaryZh": "针对现有基于 RL 的提示注入红队方法难以泛化到新目标 LLM 的问题,PIMiner 在 (数据集, 目标模型) 序列上训练,并从零构建策略库;测试时无需额外训练即可将策略库迁移至未见过的目标模型,每个样本仅需约 10 次查询。在 IPIArena 上对 Gemini-2.5-Pro、GPT-5.1、Claude-Sonnet-4.5 分别达到 76.2%、61.9%、42.9% 的攻击成功率,在 AgentDojo 上对应为 86.7%、53.3%、40.0%。该方案为智能体提示注入风险评测与防御训练数据收集提供了高效、可迁移的自动化手段。",
+      "score": 7,
+      "reason": "提示注入红队测试,直接关联 Agent 安全与评测",
+      "deepDive": false
+    },
+    {
+      "id": "2608.04926",
+      "title": "Consistency-Driven Co-Evolution for Self-Supervised Cross-Representation Learning",
+      "authors": [
+        "Xuehang Guo",
+        "Pengyuan Li",
+        "Tom Hope",
+        "Tirthankar Ghosal",
+        "Manling Li",
+        "Qingyun Wang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "As chart images, tabular data, and visualization code play increasingly important roles across diverse domains, cross-representation understanding across these modalities poses fundamental challenges for AI systems: the relationships across representations are inherently one-to-many, supervision is ambiguous and costly, and model optimization lacks a principled signal that is both direction-adaptive and representation-generalizable beyond task-specific objectives. We introduce CoCoEvolve to improve consistency across chart, table, and code representations. Instead of treating cross-representation mapping as a one-to-many problem, we define explicit one-to-one correspondences and optimize models using agreement between representations, without additional annotations. During training, CoCoEvolve@Train performs co-evolution across the chart-table-code cycle, while CoCoEvolve@Test applies the same consistency objective at inference time for test-time co-optimization. We also present CoCoEvolve@Eval, an evaluation suite covering all six cross-representation tasks. Across four benchmarks, CoCoEvolve improves performance in both training-time and test-time settings. Our project page: https://xhguo7.github.io/CoCoEvolve/.",
+      "published": "2026-08-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.04926",
+        "pdf": "https://arxiv.org/pdf/2608.04926"
+      },
+      "upvotes": 5,
+      "numComments": 2,
+      "titleZh": "一致性驱动的协同进化：面向自监督跨表征学习",
+      "summaryZh": "图表图像、表格数据与可视化代码之间存在一对多的跨表征映射，传统监督信号成本高且难以泛化。CoCoEvolve 通过显式构造图表-表格-代码之间的一一对应关系，以表征间一致性作为自监督优化目标，无需额外标注；训练时在三种表征循环上协同进化，测试时用同一目标做 test-time 优化，并配套覆盖六类跨表征任务的评测集。在四个基准上，训练期与测试期的 CoCoEvolve 均取得稳定提升，为多模态理解与表征对齐提供了一种免标注的一致性训练范式。",
+      "score": 7,
+      "reason": "跨图表、表格、代码的多模态表征一致性方法，契合多模态理解兴趣",
+      "deepDive": false
+    },
+    {
+      "id": "2607.22143",
+      "title": "TriGlue: a Biology-Inspired Generative Model for Generating Molecular Glue-Induced Ternary Complex",
+      "authors": [
+        "Yuliang Yan",
+        "Shuo Yan",
+        "Haochun Tang",
+        "Yiqin Sun",
+        "Enyan Dai"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Molecular glue degraders have emerged as a promising strategy for targeted protein degradation by inducing ternary complex formation between an E3 ubiquitin ligase and a target protein. Despite their therapeutic potential, computational design of molecular glues remains largely unexplored. Unlike conventional structure-based drug design, molecular glue design is governed by the unknown protein-protein interface and requires the simultaneous modeling of ligand generation, protein-protein docking, and ternary complex assembly. In this work, we formulate molecular glue design as a ternary complex generation problem and propose a biology-inspired generative framework, TriGlue. Motivated by the mechanism of molecular glue action, we decompose ternary complex generation into two coupled stages: interface estimation and interface-conditioned complex generation. First, we develop an SE(3)-equivariant interface estimation module that predicts a geometrically constrained protein-protein interface from unbound monomer structures. Second, we introduce an interface-conditioned ternary flow matching network that jointly generates the molecular glue and predicts the rigid-body transformation required to assemble the ternary complex. Extensive experiments demonstrate that TriGlue generates chemically valid molecules and produces plausible ternary complexes, which highlight the potential of biology-inspired generative modeling for accelerating molecular glue discovery. Our code is available at https://github.com/yuliangyan0807/molecular-glue-design.",
+      "published": "2026-08-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.22143",
+        "pdf": "https://arxiv.org/pdf/2607.22143"
+      },
+      "upvotes": 5,
+      "githubRepo": "https://github.com/yuliangyan0807/molecular-glue-design",
+      "githubStars": 2,
+      "numComments": 2,
+      "titleZh": "TriGlue:一种受生物学启发的分子胶诱导三元复合物生成模型",
+      "summaryZh": "分子胶降解剂通过诱导E3泛素连接酶与靶蛋白形成三元复合物实现靶向蛋白降解,但计算设计仍鲜有探索。与常规基于结构的药物设计不同,分子胶设计受未知蛋白-蛋白界面支配,需同时建模配体生成、蛋白对接与三元复合物组装。TriGlue将该问题形式化为三元复合物生成,分为界面估计与界面条件复合物生成两个耦合阶段:前者用SE(3)等变模块从单体结构预测几何约束的蛋白-蛋白界面,后者用界面条件的流匹配网络联合生成分子胶并预测组装三元复合物的刚性变换。实验表明TriGlue能生成化学有效分子并产生合理三元复合物,为加速分子胶发现提供生成建模新思路。",
+      "score": 1,
+      "reason": "分子胶药物设计属生物医药方向,与LLM无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2607.27853",
+      "title": "FinanceHarness: Autonomous Financial Deep Research Framework",
+      "authors": [
+        "Yijia Xiao",
+        "Rujun Han",
+        "Yanfei Chen",
+        "Zifeng Wang",
+        "Ke Jiang",
+        "Zhongying CuiZhu"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Powered by advances in LLMs and autonomous agents, deep research has become one of the most widely adopted agentic products. However, most deep research systems write general-purpose reports, which are inadequate for financial deep research. Financial research demands specialized knowledge to analyze historical patterns and forecast upcoming events. Automating financial deep research therefore requires both a layered harness to drive the research agent and a verifiable, point-in-time benchmark that prevents leakage of future information. We present FinanceHarness, a harness that runs finance-oriented tools and practitioner-guided workflows, automating financial deep research end to end: environment and data construction, the agent execution loop, and reward modeling. We further propose FinanceGym, comprising thesis-driven research questions and rubrics that combine pre-cutoff and post-cutoff criteria. Professional expert validation yields an 82% pass rate. Even leading LLMs and agents score below 40% on the rubrics, showing that FinanceGym is challenging and leaves substantial headroom. With the same open-weight backbone, FinanceHarness improves the overall rubric score from 25.3% to 32.4%. FinanceHarness is available at https://github.com/Yijia-Xiao/FinanceHarness.",
+      "published": "2026-07-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2607.27853",
+        "pdf": "https://arxiv.org/pdf/2607.27853"
+      },
+      "upvotes": 5,
+      "projectPage": "https://financegym.github.io/",
+      "numComments": 2,
+      "titleZh": "FinanceHarness:自主金融深度研究框架",
+      "summaryZh": "通用深度研究系统难以满足金融领域对历史规律分析与事件预测的专业需求。FinanceHarness 提供分层 harness,整合金融专用工具与实践者工作流,覆盖环境与数据构建、agent 执行循环和奖励建模;配套 FinanceGym 基准采用 thesis-driven 问题与结合 pre/post-cutoff 的评分 rubrics,防止未来信息泄漏。专家验证通过率达 82%,而领先 LLM 在 rubrics 上仅低于 40%;使用相同开源骨干,FinanceHarness 将整体 rubric 分数从 25.3% 提升至 32.4%。该工作为金融深度研究自动化提供了可复现的系统框架与评价基准。",
+      "score": 4,
+      "reason": "金融垂直领域的 agent 框架与基准,沾边但非核心方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.03207",
+      "title": "DRIFT: Derailing Denoising Trajectories of Flow-Matching VLAs with Adversarial Patch Attack",
+      "authors": [
+        "Hoseong Tae",
+        "Jong-Seok Lee"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Flow-matching vision-language-action (VLA) models such as pi0 generate robot actions by integrating a learned denoising velocity field, and have been reported to resist adversarial perturbations that readily fool autoregressive VLAs. We show that this robustness is largely illusory: it stems from prior attacks ignoring the multi-step denoising ODE. We introduce DRIFT (Denoising Redirection via Input perturbation of the Flow-matching Trajectory), a test-time universal adversarial patch placed on the robot's gripper that attacks the denoising velocity field of an off-the-shelf policy. Our central finding is counterintuitive: attacking only the first denoising step is both stronger and cheaper than attacking a wider window of steps, which we explain through a gradient conflict unique to input-space optimization and which is exactly opposite to the training-time backdoor regime. On pi0 and pi0.5 across four LIBERO suites, DRIFT breaks essentially all originally-solvable tasks with a small single patch, far exceeding action- and embedding-space attack baselines.",
+      "published": "2026-08-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.03207",
+        "pdf": "https://arxiv.org/pdf/2608.03207"
+      },
+      "upvotes": 3,
+      "numComments": 2,
+      "titleZh": "DRIFT：利用对抗性补丁攻击使流匹配VLA的去噪轨迹偏离",
+      "summaryZh": "流匹配视觉-语言-动作（VLA）模型（如pi0）通过积分学习的去噪速度场生成机器人动作，此前被认为能抵御对抗扰动。DRIFT通过攻击机器人夹爪上的通用对抗补丁，干扰去噪速度场，打破这种鲁棒性。关键发现是仅攻击第一步去噪比攻击多步更有效且更廉价，其梯度冲突机制与训练时后门场景相反。在pi0和pi0.5的四个LIBERO任务套件上，单个小补丁几乎使所有原本可解任务失效，远超动作空间和嵌入空间攻击基线。该工作揭示了流匹配VLA在测试时的脆弱性，但对机器人对抗鲁棒性研究的意义有限。",
+      "score": 2,
+      "reason": "VLA/机器人方向，按画像一刀切低分",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.03392",
+      "title": "Self-Evolving Coding Agents",
+      "authors": [
+        "Hao Zhou",
+        "Haichuan Hu",
+        "Ye Shang",
+        "Quanjun Zhang"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Large language models are increasingly embedded in software engineering workflows as coding agents that can inspect repositories, invoke tools, execute tests, debug failures, and generate patches. Yet most existing agents remain largely static after deployment, even though software development is a dynamic, feedback-rich process in which repositories evolve, dependencies change, tests fail, and repair attempts leave reusable experience. This tension has motivated a growing body of work on self-evolving coding agents, where the agent improves its future behavior by updating its framework, memory, skills, tools, models, or collaboration structures from prior coding interactions. In this survey, we provide a systematic synthesis of this emerging area. We first define self-evolving coding agents and distinguish them from conventional coding agents and general self-evolving agents. We then develop an object-centered taxonomy that characterizes what evolves in these systems, and complement it with two orthogonal perspectives: when evolution occurs and what software-specific evidence drives it. Across the literature, we find that executable feedback, repository-level context, and coding trajectories give software engineering a distinctive role as a natural domain for agent self-evolution, but also introduce new challenges in feedback reliability, benchmark overfitting, safety, maintainability, cost, and generalization. By organizing existing work around these dimensions, this survey aims to clarify the conceptual boundaries of self-evolving coding agents and provide a foundation for designing more adaptive, reliable, and software-aware agentic systems. The papers we collect can be found at https://github.com/zhouhao1024/Awesome-Self-Evolving-Coding-Agents.",
+      "published": "2026-08-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.03392",
+        "pdf": "https://arxiv.org/pdf/2608.03392"
+      },
+      "upvotes": 3,
+      "githubRepo": "https://github.com/zhouhao1024/Awesome-Self-Evolving-Coding-Agents",
+      "githubStars": 9,
+      "numComments": 2,
+      "titleZh": "自进化编码智能体",
+      "summaryZh": "大型语言模型驱动的编码智能体在部署后大多保持静态,难以适应仓库演进、依赖变化与测试失败等动态反馈。该综述系统梳理自进化编码智能体领域,定义其与常规编码智能体及通用自进化智能体的区别,提出以对象为中心的演化分类法,并从演化时机与软件特定证据两个正交视角补充分析。研究发现可执行反馈、仓库级上下文与编码轨迹使软件工程成为智能体自进化的天然场景,但也带来反馈可靠性、基准过拟合、安全与成本等挑战。整理开源论文列表,为设计更自适应、可靠的智能体系统提供基础。",
+      "score": 8,
+      "reason": "编码智能体自进化综述,直接命中 Agent 与自我改进方向"
+    }
+  ],
+  "arxiv": []
+}
