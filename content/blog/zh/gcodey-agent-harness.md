@@ -14,6 +14,8 @@ tags:
 
 这篇文章是设计拆解。为了写它,我又把代码通读了一遍,有几处发现和我原先的记忆对不上,后面会讲到。GCodey 最用力的地方,是它删掉了什么。
 
+一句话定位,**交互会话与一次性任务共用同一个持久内核。Harness 负责能力边界、工具执行、事件持久化、上下文整理和恢复,规划、验证、交付的工作方式由 Agent 自己决定。**
+
 ## 克制是设计出来的
 
 GCodey 的 Runtime 只做六类事情。
@@ -37,7 +39,7 @@ GCodey 的 Runtime 只做六类事情。
 
 前三条都给不出具体依据,默认不加。只服务某个 benchmark 或评分方式的机制,永远不能进产品内核。
 
-首个公开版本之前,这个项目其实长过另一副样子。它有 general/code 两套 profile,有 Execution Contract 和 Contract Draft,有固定的规划、执行、验证、修复四阶段,有 Evidence Bundle,有 `task.finish`,有 Semantic Reviewer 和 Verify Agent,有一个笼统的 `needs_human` 会话阶段,还有为旧 benchmark 保留的专用分支。公开前这些全部删掉了,连测试数据都没留。删起来比写起来疼,但删完以后,每个剩下的实体都能答出那五个问题。
+首个公开版本之前,这个项目其实长过另一副样子。它有 general/code 两套 profile,有 Execution Contract 和 Contract Draft,有固定的规划、执行、验证、修复四阶段,有 Evidence Bundle,有 `task.finish`,有 Semantic Reviewer 和 Verify Agent,有一个笼统的 `needs_human` 会话阶段,还有为旧 benchmark 保留的专用分支。公开前这些全部删掉了,连测试数据都没留。删起来比写起来疼,但删完以后,每个剩下的实体都能答出那五个问题。一份删减清单比任何新增功能都更能说明,这个项目到底相信什么。
 
 ## 事件溯源的内核
 
@@ -52,6 +54,22 @@ reducer 和 harness 之间的合约小得出乎意料,只有五种 intent。`cal
 文件尾部那条没写完的 JSONL 记录(Ctrl+C 或断电留下的 torn tail)有专门的修复命令。它先做整文件 SHA-256 加 stat 复核,和检查时的 token 一致才截断,截完 fsync 文件再 fsync 目录。不修就不让打开,宁可卡住也不猜。
 
 恢复有多快。一份 1.59 MB、674 个事件的真实 Session,完整重放约 0.08 秒。
+
+TUI 也只是持久事件的投影。流式文本增量作为进程内临时 overlay 提前显示,`model_output_committed` 落盘才算数,失败或中断不会把半截输出当成历史。
+
+会话对外只有五种状态。
+
+```text
+idle -> running <-> waiting_user
+          |
+          +-> interrupted -> running
+          |
+          +-> failed
+```
+
+工具执行、上下文整理、workspace change 应用都是运行中的操作,不构成新的会话阶段。`failed` 的含义同样克制,Runtime 无法证明安全继续,跟模型产物写得对不对无关。
+
+![GCodey 内核架构。TUI 是事件投影;durable inbox 先落盘;Harness 内 reducer 验证事件、fsync 后才换内存;工具经能力策略路由到宿主或沙盒。](/images/blog/gcodey/harness-kernel.svg)
 
 ## 消息排队与回合边界
 
@@ -71,6 +89,8 @@ reducer 和 harness 之间的合约小得出乎意料,只有五种 intent。`cal
 确认工作区后,direct 和 safe 模式向模型公开同一套八个工具。`read`、`list`、`glob`、`grep`、`write`、`edit`、`shell`、`process`。模型不选 backend,不传 revision,不手工发布输出。
 
 所有工具走同一条四阶段协议,Prepare、授权检查、Bind、Execute,崩溃后还有 Reconcile。Prepare 是纯词法校验,不碰文件系统。路径存在性、类型、symlink 状态都属于授权后才能观察的信息,授权前去探测它们等于开一条侧信道。这种地方最能看出一个 harness 的边界感。
+
+能力检查也是同一种纪律。它由当前持久 capability 直接对具体 effect 计算,拒绝只是一个普通工具结果,不产生逐工具审批事件,模型也没法从错误码反推出内部生命周期。
 
 `edit` 一次调用最多 128 个编辑,每个 `old_text` 在当前内容里必须唯一匹配,所有编辑解析自同一份快照,排序后查重叠。文件锁按单个相对路径加,channel 当令牌,引用计数归零就删表项,模型疯狂写路径也撑不爆锁表。
 
@@ -115,7 +135,7 @@ Seatbelt profile 在 `(deny default)` 之上只放出去很少的东西,六个 s
 
 建沙盒之前先 probe,而且 probe 是真跑用例。可写区写要成功,越界写必须失败,deny 路径读必须失败,硬链接逃逸必须失败,TCP 连接必须失败。任何一项不过,拒建,本次执行停止,不回退到宿主。
 
-能力证明(attestation)只记录实际生效的边界。十一个维度逐维标 hard、soft、unsupported,残余风险用人话写在里面,比如 macOS 的 Host IPC 标 soft,CPU 和内存 quota 标 unsupported。deny 路径清单只记 SHA-256,不记原始路径。
+能力证明(attestation)只记录实际生效的边界。十一个维度逐维标 hard、soft、unsupported,残余风险用人话写在里面,比如 macOS 的 Host IPC 标 soft,CPU 和内存 quota 标 unsupported。deny 路径清单只记 SHA-256,不记原始路径。不夸大,也不装作是容器。
 
 副本的变更由用户审阅后写回,这套写回流程是全代码里最重的一段。应用前依次复核源目录身份、源快照等于 baseline、逐字节重算 diff 和已批准补丁比对、把全部新内容读进内存复验哈希;然后拿协作锁(建在源工作区,防另一个 GCodey 进程对同一源并发 apply),持锁状态下再证一次源等于 baseline、再验一次元数据,然后才动手。journal 两阶段落盘,失败按逆序回滚,崩溃恢复只在事实可证明时补记,否则进 `failed`。另有一道小闸,后台进程没清零不许 apply。
 
@@ -156,8 +176,6 @@ gcodey sessions                      # 查看/删除历史会话
 
 alpha 阶段,有些事明确还没做。多工作区、运行中切换 direct/safe、活跃工具调用中的即时 steering、容器或远程沙盒、Windows、自动 Session GC。评测纪律也写了出来,benchmark 只测量行为,不能反过来决定产品的工具、状态机或输入输出。
 
-![GCodey 内核架构。TUI 是事件投影;durable inbox 先落盘;Harness 内 reducer 验证事件、fsync 后才换内存;工具经能力策略路由到宿主或沙盒。](/images/blog/gcodey/harness-kernel.svg)
-
 写它的过程反过来也校准了我们读那两篇 harness 文章的方式。Lil' Log 说 harness 是模型能力的外衣,我们的体会更具体一点。外衣的每一根线都得回答那五个问题,答不上来的,趁早别织进去。
 
-代码在 [GitHub](https://github.com/CYoungG06/Gcodey),设计和威胁模型的细节在仓库的 `docs/` 里,issue 和 PR 都开着。
+如果你也对「harness 应该有多厚」这个问题有体感,代码在 [GitHub](https://github.com/CYoungG06/Gcodey),设计和威胁模型的细节在仓库的 `docs/` 里,issue 和 PR 都开着。
