@@ -1,5 +1,5 @@
 ---
-title: "Harness 的两个世界：学术界在研究的，与工业界在用的"
+title: "Agent Harness 的两个世界，工业界在做什么，学术界在研究什么"
 date: "2026-08-21"
 description: "把 Claude Code 和 AutoHarness 放在一起，Harness 这个词就显出了两个世界：工业界按产品责任划边界，学术界按实验变量划边界。这篇综述梳理 2026 年的研究与产品实践——Codex/Claude Code 的工程责任，AutoHarness/Meta-Harness/AHE/Harness-R1/ClawGym II 等工作的研究对象，评测配平与安全边界，以及「自动演化」离强 RSI 还缺的证据。"
 tags:
