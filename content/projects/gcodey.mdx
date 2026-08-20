@@ -3,7 +3,7 @@ title:
   zh: "GCodey — 克制的本地 Agent Harness"
   en: "GCodey — a restrained local agent harness"
 description:
-  zh: "轻量本地 Agent Harness:交互会话与一次性任务共用持久内核,事件溯源、八个意图工具、direct/--safe 双执行边界。Go 实现。"
+  zh: "轻量本地 Agent Harness:交互会话与一次性任务共用持久内核，事件溯源、八个意图工具、direct/--safe 双执行边界。Go 实现。"
   en: "A lightweight local agent harness: interactive sessions and one-shot tasks share one persistent kernel — event sourcing, eight intent tools, direct/--safe execution boundaries. Written in Go."
 date: "2026-08-11"
 tags: ["Go", "Agent", "Harness", "LLM"]
@@ -14,18 +14,18 @@ hasDetail: true
 
 ## 为什么自己造一个
 
-读了一圈 harness 工程的实践之后,想验证一个判断:**harness 应该尽量薄**。GCodey 的 Runtime 只做六件事——持久会话与消息顺序、上下文整理、工具供给、执行边界、恢复事实、无法证明安全时停止;规划、执行、检查、修复全部留给 Agent。为此删掉了一整页旧设计:Execution Contract、Evidence Bundle、固定流水线阶段、Semantic Reviewer……
+读了一圈 harness 工程的实践之后，想验证一个判断:**harness 应该尽量薄**。GCodey 的 Runtime 只做六件事——持久会话与消息顺序、上下文整理、工具供给、执行边界、恢复事实、无法证明安全时停止;规划、执行、检查、修复全部留给 Agent。为此删掉了一整页旧设计:Execution Contract、Evidence Bundle、固定流水线阶段、Semantic Reviewer……
 
 ## 内核
 
-- **事件溯源**:`events.jsonl` 是唯一状态源,reducer 验证 → `fsync` → 换内存,恢复即流式重放,无 snapshot。
-- **durable inbox**:运行中消息排队,按 `tool_started` 是否落盘决定插话何时生效,不打断有副作用的工具。
-- **八个意图工具**:`read/list/glob/grep/write/edit/shell/process`;模型不选 backend、不传 revision,锁/哈希/原子写/归档都是 Runtime 的事。
-- **上下文整理**:真实 `usage.input_tokens` 驱动,同一 Main Agent 出纯文本摘要,开启新 context epoch;无累计预算。
-- **双执行边界**:默认 direct + host(编辑器语义原子写);`--safe` 用私有副本 + Seatbelt/bubblewrap 沙盒,网络关闭,失效即停不回退。
+- **事件溯源**:`events.jsonl` 是唯一状态源，reducer 验证 → `fsync` → 换内存，恢复即流式重放，无 snapshot。
+- **durable inbox**:运行中消息排队，按 `tool_started` 是否落盘决定插话何时生效，不打断有副作用的工具。
+- **八个意图工具**:`read/list/glob/grep/write/edit/shell/process`;模型不选 backend、不传 revision，锁/哈希/原子写/归档都是 Runtime 的事。
+- **上下文整理**:真实 `usage.input_tokens` 驱动，同一 Main Agent 出纯文本摘要，开启新 context epoch;无累计预算。
+- **双执行边界**:默认 direct + host(编辑器语义原子写);`--safe` 用私有副本 + Seatbelt/bubblewrap 沙盒，网络关闭，失效即停不回退。
 
 详细设计写在博客:[GCodey:自己造一个克制的 Agent Harness](/zh/blog/gcodey-agent-harness/)。
 
 ## 技术栈
 
-Go 1.25+,零重型依赖;TUI 为事件投影;默认对接 DeepSeek(`deepseek-v4-flash`),可换任意 OpenAI 兼容 endpoint。alpha 阶段,Apache-2.0。
+Go 1.25+，零重型依赖;TUI 为事件投影;默认对接 DeepSeek(`deepseek-v4-flash`)，可换任意 OpenAI 兼容 endpoint。alpha 阶段，Apache-2.0。

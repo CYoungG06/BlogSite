@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""生成 OPD 深度解析文章的两张插图,输出到 public/images/blog/on-policy-distillation/。
+"""生成 OPD 深度解析文章的两张插图，输出到 public/images/blog/on-policy-distillation/。
 
 风格对齐站点:白底圆角卡片、zinc 灰阶文字、克制的冷蓝 accent(#2952e3)。
 运行:.venv/bin/python scripts/generate-opd-figures.py
@@ -20,7 +20,7 @@ from matplotlib.patches import FancyBboxPatch
 CJK_CANDIDATES = ["PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC"]
 available = {f.name for f in font_manager.fontManager.ttflist}
 CJK = next((f for f in CJK_CANDIDATES if f in available), None)
-assert CJK, f"找不到中文字体,字体列表:{sorted(available)[:20]}"
+assert CJK, f"找不到中文字体，字体列表:{sorted(available)[:20]}"
 print(f"使用中文字体:{CJK}")
 
 plt.rcParams.update({"font.family": [CJK, "DejaVu Sans"], "axes.unicode_minus": False})
@@ -38,7 +38,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 
 def add_card(fig, pad=0.012, radius=0.025):
-    """给整张图垫一张白底圆角卡片(图外区域透明,适配深浅主题)。"""
+    """给整张图垫一张白底圆角卡片(图外区域透明，适配深浅主题)。"""
     fig.patch.set_alpha(0)
     card = FancyBboxPatch(
         (pad, pad), 1 - 2 * pad, 1 - 2 * pad,
@@ -58,7 +58,7 @@ ax.set_ylim(0, 62)
 ax.axis("off")
 add_card(fig)
 
-# 坐标轴(十字,两端带箭头)
+# 坐标轴(十字，两端带箭头)
 ax.annotate("", xy=(94, 31), xytext=(6, 31),
             arrowprops=dict(arrowstyle="<->", color=FAINT, lw=1.2))
 ax.annotate("", xy=(50, 60), xytext=(50, 3),
@@ -101,7 +101,7 @@ panel(12, 36, W, H, "SFT / 离线蒸馏", "教师轨迹 × 逐 token 信号",
 panel(54, 36, W, H, "OPD", "学生轨迹 × 教师逐 token 分布",
       "既要又要:真实状态 + 稠密信号", highlight=True, badge="本文主角")
 panel(12, 6, W, H, "拒绝采样 / STaR", "旧策略数据 × 结果过滤",
-      "序列级二值,答错的样本零信号")
+      "序列级二值，答错的样本零信号")
 panel(54, 6, W, H, "RL / RLVR", "学生轨迹 × 末端 0/1 奖励",
       "痛点:信用分配难(GRPO 优势消失)")
 
@@ -139,8 +139,8 @@ titles = [
     "Reverse KL:mode-seeking(收缩)",
 ]
 subs = [
-    "zero-avoiding:教师有质量处,学生不敢为零",
-    "zero-forcing:教师零概率处,学生必须为零",
+    "zero-avoiding:教师有质量处，学生不敢为零",
+    "zero-forcing:教师零概率处，学生必须为零",
 ]
 
 for i, (axi, student) in enumerate(zip(axes, [fwd, rev])):

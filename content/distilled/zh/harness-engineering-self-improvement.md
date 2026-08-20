@@ -1,7 +1,7 @@
 ---
 title: "面向自我改进的 Harness Engineering"
 date: "2026-07-04"
-description: "Lilian Weng 关于 Harness Engineering 的研究综述:Harness 设计模式(工作流自动化、文件系统持久记忆、sub-agent)、上下文与工作流优化,以及自我改进与进化式程序搜索。"
+description: "Lilian Weng 关于 Harness Engineering 的研究综述:Harness 设计模式(工作流自动化、文件系统持久记忆、sub-agent)、上下文与工作流优化，以及自我改进与进化式程序搜索。"
 tags: ["LLM", "Agent"]
 source:
   name: "Lil' Log"
@@ -9,7 +9,7 @@ source:
   author: "Lilian Weng"
 ---
 
-> 本文转载自 [Lil' Log](https://lilianweng.github.io/),原文 [Harness Engineering for Self-Improvement](https://lilianweng.github.io/posts/2026-07-04-harness/),作者 Lilian Weng,首发于 2026-07-04。此处为中文翻译,仅供学习交流。
+> 本文转载自 [Lil' Log](https://lilianweng.github.io/)，原文 [Harness Engineering for Self-Improvement](https://lilianweng.github.io/posts/2026-07-04-harness/)，作者 Lilian Weng，首发于 2026-07-04。此处为中文翻译，仅供学习交流。
 
 **递归式自我改进（recursive self-improvement，RSI）**这一概念可以追溯到 [I. J. Good（1965）](https://philpapers.org/rec/GOOSCT)。他将“超智能机器（ultraintelligent machine）”定义为一种能在所有智力活动中超越人类、并能设计出更好的机器来改进自身的系统。[Yudkowsky（2008）](https://www.lesswrong.com/posts/JBadX7rwdcRFzGuju/recursive-self-improvement)用“递归式自我改进”来指称一种特定的反馈回路：AI 利用当前的智能去改进产生其智能的认知机制。
 

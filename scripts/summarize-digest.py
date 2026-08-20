@@ -56,6 +56,7 @@ SYSTEM_PROMPT = """你是技术论文速览编辑,读者是 ML/LLM 方向的研�
 要求:
 - titleZh:标题的准确中文翻译,保留 Transformer、RL、RAG 等通用术语原文,书名号或引号视需要
 - summaryZh:二到四句话的中文导读(总字数 120–250),依次说清「解决什么问题 + 方法要点(关键机制/组件)+ 关键结果(有数据带数据)+ 意义或适用场景」;直接陈述,不要"本文""作者提出"式套话开头,不要评价性形容词堆砌
+- titleZh/summaryZh/reason 的中文标点一律用全角(,,。;等),术语与英文之间不留多余空格
 - score:0–10 整数,论文与读者兴趣的相关程度,严格依据下面的兴趣画像与打分手则
 - reason:一句中文(≤40 字)说明打分依据,如"GRPO 改进,直接命中后训练方向"
 - deepDive:是否值得做深度解读,严格依据画像中的 deepDive 手则
@@ -73,6 +74,21 @@ USER_TEMPLATE = """标题:{title}
 
 def warn(msg: str) -> None:
     print(f"[summarize] {msg}", file=sys.stderr)
+
+
+def normalize_zh_punct(s: str) -> str:
+    """中文语境的半角逗号统一为全角:逗号任一侧是 CJK 字符时替换(数字千分位不动)。"""
+    out = list(s)
+    for i, ch in enumerate(out):
+        if ch != "\u002c":
+            continue
+        prev = s[i - 1] if i > 0 else ""
+        nxt = s[i + 1] if i + 1 < len(s) else ""
+        if prev.isdigit() and nxt.isdigit():
+            continue
+        if ("一" <= prev <= "鿿") or ("一" <= nxt <= "鿿"):
+            out[i] = "\uff0c"
+    return "".join(out)
 
 
 def load_env_key() -> str | None:
@@ -131,8 +147,8 @@ def call_deepseek(key: str, paper: dict, profile: str) -> dict | None:
                 data = json.loads(resp.read().decode("utf-8"))
             content = data["choices"][0]["message"]["content"]
             obj = json.loads(re.sub(r"^```(json)?|```$", "", content.strip(), flags=re.M))
-            title_zh = str(obj.get("titleZh", "")).strip()
-            summary_zh = str(obj.get("summaryZh", "")).strip()
+            title_zh = normalize_zh_punct(str(obj.get("titleZh", "")).strip())
+            summary_zh = normalize_zh_punct(str(obj.get("summaryZh", "")).strip())
             if not title_zh or not summary_zh:
                 raise ValueError(f"empty fields in response: {content[:120]}")
             try:
@@ -143,7 +159,7 @@ def call_deepseek(key: str, paper: dict, profile: str) -> dict | None:
                 "titleZh": title_zh,
                 "summaryZh": summary_zh,
                 "score": score,
-                "reason": str(obj.get("reason", "")).strip(),
+                "reason": normalize_zh_punct(str(obj.get("reason", "")).strip()),
                 "deepDive": bool(obj.get("deepDive")) and score >= 8,
             }
             # 只在判为不相关时落字段(缺省视为相关,JSON 更瘦)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""生成论文解读(insights)文章的插图,输出到 public/images/insights/<paperId>/。
+"""生成论文解读(insights)文章的插图，输出到 public/images/insights/<paperId>/。
 
 风格与 scripts/generate-opd-figures.py 一致:白底圆角卡片、zinc 灰阶、冷蓝 accent。
 运行:.venv/bin/python scripts/generate-insights-figures.py
@@ -69,7 +69,7 @@ def box(cx, cy, w, h, title, lines, highlight=False, title_size=13):
                 fontsize=9, color=MUTED, zorder=3)
 
 
-# 四个角色:上=技能库,右=Proposer,下=Solver,左=Skill Controller
+# 四个角色:上=技能库，右=Proposer，下=Solver，左=Skill Controller
 box(50, 59, 40, 13, "技能库 S(t)", ["技能 = 路由元数据 + 规则 + 示例", "+ 可执行验证器 ν + 使用统计 σ"], highlight=True)
 box(84, 34, 26, 20, "Proposer π_p", ["技能流:(x,c) ~ π(·|s)", "探索流:(x,c) ~ π(·|∅)", "GRPO 更新"])
 box(50, 9, 40, 13, "Solver π_s(GRPO)", ["在 top-M 前沿课程 D 上训练", "奖励 = 环境验证 R_solve"])
@@ -98,7 +98,7 @@ arrow(24, 44, 34, 53, "S(t+1) = (S \\ 剪枝) ∪ 新归纳", label_off=(0, 2))
 # 中心注释:前沿难度目标
 ax.text(50, 36.5, "自博弈协同进化循环", ha="center", fontsize=12.5,
         fontweight="bold", color=INK)
-ax.text(50, 31.5, "Proposer 奖励 = 中等难度分 1 − 2·|v_solve − 0.5|,乘有效性门",
+ax.text(50, 31.5, "Proposer 奖励 = 中等难度分 1 − 2·|v_solve − 0.5|，乘有效性门",
         ha="center", fontsize=9.5, color=MUTED)
 ax.text(50, 27.5, "(太难/太易的任务都不得分;无效任务直接零分)",
         ha="center", fontsize=9, color=FAINT)
@@ -194,7 +194,7 @@ ax.text(38.6, 33.5, "每层可回溯读取\nembedding 与全部前层表示", ha
         fontsize=8, color=ACCENT, zorder=5,
         bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=0.92))
 bullet(50, 29, 15.2, "替代顺序残差累加:表示不再逐层稀释")
-bullet(50, 29, 12.2, "Block AttnRes:8 层一 Block 压成单表示,")
+bullet(50, 29, 12.2, "Block AttnRes:8 层一 Block 压成单表示，")
 bullet(50, 29, 9.4, "内存/通信开销 O(Ld) → O(Nd)")
 
 # —— 列三:宽度轴 Stable LatentMoE ——
@@ -216,14 +216,14 @@ for r in range(2):
         ax.add_patch(b)
 ax.text(82, 34.6, "896 routed experts · 每 token 激活 16(sparsity 56)",
         ha="center", fontsize=8.5, color=FAINT)
-bullet(82, 29, 29.6, "Normalized:RMSNorm 插在上投影前,")
+bullet(82, 29, 29.6, "Normalized:RMSNorm 插在上投影前，")
 bullet(82, 29, 26.6, "稳住专家内部激活尺度")
 bullet(82, 29, 22.4, "SiTU-GLU:β·tanh(x/β) 软帽(β=4/25),")
-bullet(82, 29, 19.4, "替代 SwiGLU,输出有界 ≤ 100")
+bullet(82, 29, 19.4, "替代 SwiGLU，输出有界 ≤ 100")
 bullet(82, 29, 15.2, "Quantile Balancing:按 router 分数分位数")
-bullet(82, 29, 12.2, "设专家偏置,无辅助 loss 做负载均衡")
+bullet(82, 29, 12.2, "设专家偏置，无辅助 loss 做负载均衡")
 
-ax.text(50, 3.2, "原生视觉:MoonViT-V2(0.4B,从 0 起用 next-token 预测训练)· 优化器:Per-Head Muon · 整体 scaling 效率 ≈ 2.5× K2",
+ax.text(50, 3.2, "原生视觉:MoonViT-V2(0.4B，从 0 起用 next-token 预测训练)· 优化器:Per-Head Muon · 整体 scaling 效率 ≈ 2.5× K2",
         ha="center", fontsize=8.5, color=FAINT)
 
 d = OUT / "2607.24653"
@@ -242,7 +242,7 @@ ax.set_ylim(0, 50)
 ax.axis("off")
 add_card(fig)
 
-ax.text(50, 46.5, "后训练管线:九个专家,一个模型", ha="center",
+ax.text(50, 46.5, "后训练管线:九个专家，一个模型", ha="center",
         fontsize=13.5, fontweight="bold", color=INK)
 ax.text(50, 43.2, "SFT → 分域 × 分档 RL → 多教师 On-Policy 蒸馏(MOPD)→ 部署友好",
         ha="center", fontsize=9.5, color=MUTED)
@@ -266,7 +266,7 @@ SY0, SY1 = 13, 39
 
 stage(11, 18, SY0, SY1, "SFT", [
     "建立基础策略",
-    "agentic 轨迹数据,",
+    "agentic 轨迹数据，",
     "XTML 聊天模板",
     "QAT 自此全程贯穿",
     "(W: MXFP4 / A: MXFP8)",
@@ -313,7 +313,7 @@ for x1, x2 in [(20.5, 24.5), (55.5, 56.5), (76, 80.5)]:
 
 ax.text(50, 8.6, "RL 任务从哪来:白盒组合式环境 + 知识图谱引导的自进化任务合成 + 真实场景沙盒",
         ha="center", fontsize=8.8, color=FAINT)
-ax.text(50, 5.2, "个人助理类任务:模拟 Gmail / Notion / Slack,上千次工具调用、百万 token 级上下文",
+ax.text(50, 5.2, "个人助理类任务:模拟 Gmail / Notion / Slack，上千次工具调用、百万 token 级上下文",
         ha="center", fontsize=8.8, color=FAINT)
 
 fig.savefig(d / "posttraining.png", dpi=220, transparent=True)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""生成蒸馏文《规模化自动后训练》(Intology/Locus)的插图,
+"""生成蒸馏文《规模化自动后训练》(Intology/Locus)的插图，
 输出到 public/images/distilled/locus-post-training/。
 
-原文图表是 React 组件而非静态图片,这里按原文给出的数据点用 matplotlib
+原文图表是 React 组件而非静态图片，这里按原文给出的数据点用 matplotlib
 重绘;曲线类图为示意图(端点/平台期与文中一致),MDX 图注里已标明。
 风格对齐站点:白底圆角卡片、zinc 灰阶、冷蓝 accent(#2952e3)。
 运行:.venv/bin/python scripts/generate-locus-figures.py
@@ -107,7 +107,7 @@ def fig_scaling():
     x = np.linspace(0, 4000, 400)
 
     def plateau(x, start, mid, end, k1=900, k2=2600):
-        """平滑两段:先升到 mid,再缓升到 end。"""
+        """平滑两段:先升到 mid，再缓升到 end。"""
         y = start + (mid - start) * (1 - np.exp(-x / k1))
         y += (end - mid) * (1 / (1 + np.exp(-(x - k2) / 700)))
         return y
@@ -133,7 +133,7 @@ def fig_scaling():
     save(fig, "performance-vs-compute.svg")
 
 
-# ---------- 图 3:AIME 训练规模轨迹(示意,log x) ----------
+# ---------- 图 3:AIME 训练规模轨迹(示意，log x) ----------
 
 def fig_aime_tokens():
     fig, ax = plt.subplots(figsize=(7.2, 4.4))
@@ -237,7 +237,7 @@ def fig_bubble():
         ax.text(0, yi + 0.42, name, va="center", fontsize=10.5, color=INK)
     ax.set_yticks([])
     ax.set_xlim(0, 118)
-    ax.set_xlabel("相对值(原系统 = 100,越低越好)")
+    ax.set_xlabel("相对值(原系统 = 100，越低越好)")
     style_ax(ax)
     ax.legend(loc="lower right", fontsize=9, frameon=False)
     save(fig, "bubble-production.svg")

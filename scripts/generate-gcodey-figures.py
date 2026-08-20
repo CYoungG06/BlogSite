@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""生成 GCodey 介绍博文的架构插图,输出到 public/images/blog/gcodey/。
+"""生成 GCodey 介绍博文的架构插图，输出到 public/images/blog/gcodey/。
 
 风格对齐站点:白底圆角卡片、zinc 灰阶文字、冷蓝 accent(#2952e3)。
 运行:.venv/bin/python scripts/generate-gcodey-figures.py
@@ -73,9 +73,9 @@ ax.set_ylim(0, 1)
 ax.axis("off")
 
 # 顶层:TUI / line mode
-box(ax, 0.30, 0.885, 0.40, 0.085, "TUI / line mode", sub="持久事件的投影,不维护第二套会话事实")
+box(ax, 0.30, 0.885, 0.40, 0.085, "TUI / line mode", sub="持久事件的投影，不维护第二套会话事实")
 # durable inbox
-box(ax, 0.30, 0.755, 0.40, 0.085, "durable inbox", sub="消息先落盘,运行中排队,安全边界按 FIFO 进入上下文")
+box(ax, 0.30, 0.755, 0.40, 0.085, "durable inbox", sub="消息先落盘，运行中排队，安全边界按 FIFO 进入上下文")
 arrow(ax, 0.50, 0.885, 0.50, 0.845)
 
 # Session Harness 大框
@@ -91,12 +91,12 @@ arrow(ax, 0.50, 0.755, 0.50, 0.71)
 # Harness 内部四个组件
 box(ax, 0.115, 0.50, 0.37, 0.13, "pure reducer", sub="验证事件并计算下一状态")
 box(ax, 0.515, 0.50, 0.37, 0.13, "events.jsonl(schema v7)", sub="唯一状态源:append + fsync 后才换内存")
-box(ax, 0.115, 0.325, 0.37, 0.13, "context manager", sub="真实 usage 驱动整理,context epoch")
+box(ax, 0.115, 0.325, 0.37, 0.13, "context manager", sub="真实 usage 驱动整理，context epoch")
 box(ax, 0.515, 0.325, 0.37, 0.13, "capability policy + 8 个意图工具", sub="模型不选 backend、不传 revision")
 
 # 底部两种执行边界
-box(ax, 0.115, 0.075, 0.37, 0.115, "direct + host(默认)", sub="编辑器语义原子写,宿主 shell")
-box(ax, 0.515, 0.075, 0.37, 0.115, "--safe:copy + sandbox", sub="Seatbelt / bubblewrap,网络关闭", ec=ACCENT)
+box(ax, 0.115, 0.075, 0.37, 0.115, "direct + host(默认)", sub="编辑器语义原子写，宿主 shell")
+box(ax, 0.515, 0.075, 0.37, 0.115, "--safe:copy + sandbox", sub="Seatbelt / bubblewrap，网络关闭", ec=ACCENT)
 arrow(ax, 0.30, 0.325, 0.30, 0.195)
 arrow(ax, 0.70, 0.325, 0.70, 0.195)
 
