@@ -78,7 +78,13 @@ export default async function HomePage({
           />
         </h1>
         <p
-          className="animate-fade-up mt-5 max-w-2xl text-muted"
+          className="animate-fade-up mt-5 max-w-2xl text-lg font-medium tracking-tight"
+          style={stagger(2)}
+        >
+          {t("home.motto")}
+        </p>
+        <p
+          className="animate-fade-up mt-2 max-w-2xl text-muted"
           style={stagger(2)}
         >
           {t("home.heroSubtitle")}
@@ -255,17 +261,6 @@ export default async function HomePage({
           </div>
         </section>
       ) : null}
-
-      {/* 站训:页尾签名 */}
-      <section
-        aria-label={t("home.motto")}
-        className="animate-fade-up pb-24 pt-2 text-center"
-        style={stagger(8)}
-      >
-        <p className="font-mono text-sm tracking-wide text-muted">
-          {t("home.motto")}
-        </p>
-      </section>
     </Container>
   );
 }
