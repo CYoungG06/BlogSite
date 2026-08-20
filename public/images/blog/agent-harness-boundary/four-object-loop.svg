@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">模型、Harness、Optimizer 与 Evaluator 的改进回路</title>
+  <desc id="desc">模型与 target harness 在环境中执行并产生轨迹。Evaluation harness 运行和记录，verifier 给出指标，optimizer 根据证据提出候选 Harness，晋升规则决定是否成为下一代。验证轨迹可以训练模型，失败、补丁和重跑数据可以训练 optimizer。任务分布、奖励协议、预算和人工审批常保持固定。</desc>
+  <defs>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#171512" flood-opacity="0.11"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#504a43"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#376e99"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a4503c"/>
+    </marker>
+    <style>
+      .sans { font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+      .title { font-size: 40px; font-weight: 760; fill: #201d19; }
+      .subtitle { font-size: 21px; fill: #6a6258; }
+      .nodeTitle { font-size: 25px; font-weight: 760; fill: #201d19; }
+      .nodeBody { font-size: 18px; fill: #4e4942; }
+      .label { font-size: 18px; font-weight: 650; fill: #4e4942; }
+      .pill { font-size: 18px; font-weight: 680; fill: #5d564e; }
+      .note { font-size: 17px; fill: #6a6258; }
+      .solid { fill: none; stroke: #504a43; stroke-width: 3.2; marker-end: url(#arrow); }
+      .dashBlue { fill: none; stroke: #376e99; stroke-width: 3.2; stroke-dasharray: 10 9; marker-end: url(#arrowBlue); }
+      .dashRed { fill: none; stroke: #a4503c; stroke-width: 3.2; stroke-dasharray: 10 9; marker-end: url(#arrowRed); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="980" fill="#f7f3ea"/>
+  <circle cx="1500" cy="100" r="190" fill="#4d7da8" opacity="0.07"/>
+  <circle cx="70" cy="920" r="210" fill="#df6c4f" opacity="0.07"/>
+
+  <text class="sans title" x="78" y="78">模型、Harness、Optimizer 与 Evaluator 的改进回路</text>
+  <text class="sans subtitle" x="80" y="118">论文名称相近，差别来自它们更新哪个节点，以及哪些外层条件仍然固定</text>
+
+  <rect x="62" y="150" width="1476" height="748" rx="28" fill="none" stroke="#aaa196" stroke-width="2.5" stroke-dasharray="12 10"/>
+  <text class="sans note" x="92" y="184">很多实验固定的外层条件</text>
+
+  <g class="sans">
+    <rect x="330" y="166" width="220" height="50" rx="25" fill="#ede8de" stroke="#b8aea2"/>
+    <text class="pill" x="374" y="198">任务分布 𝒟</text>
+    <rect x="580" y="166" width="220" height="50" rx="25" fill="#ede8de" stroke="#b8aea2"/>
+    <text class="pill" x="633" y="198">预算向量 B</text>
+    <rect x="830" y="166" width="250" height="50" rx="25" fill="#ede8de" stroke="#b8aea2"/>
+    <text class="pill" x="875" y="198">Verifier 与奖励协议</text>
+    <rect x="1110" y="166" width="260" height="50" rx="25" fill="#ede8de" stroke="#b8aea2"/>
+    <text class="pill" x="1165" y="198">人工审批与发布规则</text>
+  </g>
+
+  <g filter="url(#shadow)" class="sans">
+    <rect x="105" y="286" width="255" height="112" rx="22" fill="#dce7f1" stroke="#527fa3" stroke-width="2"/>
+    <text class="nodeTitle" x="153" y="330">模型 Mθ</text>
+    <text class="nodeBody" x="139" y="365">生成原始输出与决策</text>
+
+    <rect x="425" y="286" width="285" height="112" rx="22" fill="#f2e3b9" stroke="#b68d42" stroke-width="2"/>
+    <text class="nodeTitle" x="487" y="330">Target Harness Hη</text>
+    <text class="nodeBody" x="467" y="365">上下文、动作、状态与停止</text>
+
+    <rect x="870" y="276" width="310" height="132" rx="22" fill="#dcebe5" stroke="#5b917a" stroke-width="2"/>
+    <text class="nodeTitle" x="958" y="323">环境 𝒲</text>
+    <text class="nodeBody" x="918" y="358">任务、工具、workspace</text>
+    <text class="nodeBody" x="946" y="383">产生观察与副作用</text>
+
+    <rect x="790" y="492" width="340" height="116" rx="22" fill="#e7ecea" stroke="#6f887d" stroke-width="2"/>
+    <text class="nodeTitle" x="868" y="535">轨迹与 Archive</text>
+    <text class="nodeBody" x="839" y="571">上下文、动作、观察、结果与历史版本</text>
+
+    <rect x="430" y="492" width="285" height="116" rx="22" fill="#ead9d2" stroke="#b36856" stroke-width="2"/>
+    <text class="nodeTitle" x="476" y="535">Evaluation 𝒬 与 V</text>
+    <text class="nodeBody" x="474" y="571">隔离运行、记录、评分与预算</text>
+
+    <rect x="105" y="492" width="255" height="116" rx="22" fill="#e6e1ef" stroke="#8b78a5" stroke-width="2"/>
+    <text class="nodeTitle" x="161" y="535">Optimizer Oφ</text>
+    <text class="nodeBody" x="145" y="571">诊断失败并提出修改</text>
+
+    <rect x="105" y="692" width="255" height="110" rx="22" fill="#eee8f4" stroke="#8b78a5" stroke-width="2"/>
+    <text class="nodeTitle" x="157" y="735">候选 Harness H̃</text>
+    <text class="nodeBody" x="148" y="770">可执行 patch 与修改说明</text>
+
+    <rect x="430" y="692" width="285" height="110" rx="22" fill="#f0ded7" stroke="#a4503c" stroke-width="2"/>
+    <text class="nodeTitle" x="504" y="735">晋升规则 Γ</text>
+    <text class="nodeBody" x="470" y="770">回归门禁、接受、回滚</text>
+
+    <rect x="1210" y="482" width="260" height="126" rx="22" fill="#dce7f1" stroke="#527fa3" stroke-width="2"/>
+    <text class="nodeTitle" x="1275" y="526">训练模型</text>
+    <text class="nodeBody" x="1250" y="560">验证后的 Harness 轨迹</text>
+    <text class="nodeBody" x="1273" y="586">更新 θ</text>
+
+    <rect x="1210" y="680" width="260" height="134" rx="22" fill="#ead9d2" stroke="#b36856" stroke-width="2"/>
+    <text class="nodeTitle" x="1266" y="713">训练 Harness</text>
+    <text class="nodeTitle" x="1292" y="741">Engineer</text>
+    <text class="nodeBody" x="1242" y="769">failure、patch 与 rerun</text>
+    <text class="nodeBody" x="1270" y="796">更新 φ</text>
+  </g>
+
+  <path class="solid" d="M360 330 C388 330 398 330 425 330"/>
+  <text class="sans label" x="382" y="314">配合</text>
+  <path class="solid" d="M710 342 C765 342 808 342 870 342"/>
+  <text class="sans label" x="748" y="326">执行动作</text>
+  <path class="solid" d="M1025 408 C1025 444 1000 461 974 492"/>
+  <text class="sans label" x="1038" y="455">记录 τ</text>
+  <path class="solid" d="M790 550 C760 550 746 550 715 550"/>
+  <text class="sans label" x="733" y="532">送入评测</text>
+  <path class="solid" d="M430 550 C403 550 388 550 360 550"/>
+  <text class="sans label" x="383" y="532">证据</text>
+  <path class="solid" d="M232 608 L232 692"/>
+  <text class="sans label" x="250" y="655">提出 δ</text>
+  <path class="solid" d="M360 720 C394 695 397 625 430 590"/>
+  <text class="sans label" x="345" y="640">固定模型与环境重跑</text>
+  <text class="sans label" x="391" y="664">再进入评测</text>
+  <path class="solid" d="M572 608 L572 692"/>
+  <text class="sans label" x="590" y="655">指标与回归证据</text>
+  <path class="solid" d="M715 747 C770 747 788 690 760 630 C730 566 738 438 632 398"/>
+  <text class="sans label" x="760" y="686">晋升为下一代 η</text>
+
+  <path class="dashBlue" d="M1130 548 C1160 548 1175 548 1210 548"/>
+  <path class="dashBlue" d="M1340 482 C1340 382 1225 258 350 260 C255 260 232 276 232 286"/>
+  <text class="sans label" x="1180" y="529" fill="#376e99">训练数据</text>
+
+  <path class="dashRed" d="M1130 582 C1190 612 1210 662 1210 720"/>
+  <path class="dashRed" d="M1210 770 C1040 850 500 865 250 610"/>
+  <text class="sans label" x="1120" y="658" fill="#a4503c">编辑数据</text>
+
+  <text class="sans note" x="90" y="938">实线表示执行与版本晋升　虚线表示可选训练回流　不同论文只关闭其中一部分关系</text>
+</svg>
