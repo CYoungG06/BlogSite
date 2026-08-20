@@ -255,6 +255,17 @@ export default async function HomePage({
           </div>
         </section>
       ) : null}
+
+      {/* 站训:页尾签名 */}
+      <section
+        aria-label={t("home.motto")}
+        className="animate-fade-up pb-24 pt-2 text-center"
+        style={stagger(8)}
+      >
+        <p className="font-mono text-sm tracking-wide text-muted">
+          {t("home.motto")}
+        </p>
+      </section>
     </Container>
   );
 }
