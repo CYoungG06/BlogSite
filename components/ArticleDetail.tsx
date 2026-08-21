@@ -140,7 +140,7 @@ export default function ArticleDetail({
           >
             <article className="mx-auto w-full max-w-3xl min-w-0 xl:mx-0">
               {showToc ? (
-                <div className="mb-8 xl:hidden">
+                <div className="mb-8 print:hidden xl:hidden">
                   <TableOfContents
                     items={toc}
                     title={t("toc")}

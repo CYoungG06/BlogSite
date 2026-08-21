@@ -462,6 +462,27 @@ pre.shiki {
     margin: 2cm 1.6cm;
   }
 
+  /* 打印一律浅色版式:深色模式下 --foreground 等变量是浅色,
+     不重置就是白字印白底,整页空白 */
+  :root,
+  .dark {
+    --background: #ffffff !important;
+    --foreground: #18181b !important;
+    --muted: #52525b !important;
+    --surface: #fafafa !important;
+    --hairline: rgb(9 9 11 / 0.12) !important;
+    --accent: #2952e3 !important;
+  }
+
+  /* 动画起始帧是 opacity 0(fade-up/reveal),打印时禁用动画,
+     否则未播完/未入视口的元素印在纸上是透明的 */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
   body {
     background: #fff !important;
     color: #18181b !important;
