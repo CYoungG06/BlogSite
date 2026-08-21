@@ -4,6 +4,7 @@ import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
+import CiteBlock from "@/components/CiteBlock";
 import ExportButtons from "@/components/ExportButtons";
 import Lightbox from "@/components/mdx/Lightbox";
 import MDXContent from "@/components/mdx/MDXContent";
@@ -124,6 +125,14 @@ export default async function InsightPage({
             </Lightbox>
           </div>
         </article>
+
+        <div className="mx-auto mt-12 max-w-3xl">
+          <CiteBlock
+            title={meta.title}
+            url={`https://cyoungg06.github.io/BlogSite/zh/papers/insights/${id}/`}
+            date={meta.date}
+          />
+        </div>
 
         <nav className="mx-auto mt-12 max-w-3xl border-t border-hairline pt-6">
           <Link

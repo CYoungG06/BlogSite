@@ -1,6 +1,7 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { useTranslations } from "next-intl";
 import AskAcaneButtons from "@/components/agent/AskAcaneButtons";
+import CiteBlock from "@/components/CiteBlock";
 import ExportButtons from "@/components/ExportButtons";
 import FallbackNotice from "@/components/blog/FallbackNotice";
 import Container from "@/components/layout/Container";
@@ -166,6 +167,18 @@ export default function ArticleDetail({
               </aside>
             ) : null}
           </div>
+
+          {/* 引用本文:BibTeX 一键复制(笔记不开放) */}
+          {kind !== "notes" ? (
+            <div className="mx-auto mt-12 max-w-3xl">
+              <CiteBlock
+                title={item.title}
+                url={`https://cyoungg06.github.io/BlogSite/${item.locale}/${kind}/${item.slug}/`}
+                date={item.date}
+                sourceName={item.source?.name}
+              />
+            </div>
+          ) : null}
 
           {/* 情境化入口:读完让阿卡内总结 / 出题 */}
           <div className="mx-auto mt-16 max-w-3xl border-t border-hairline pt-8 print:hidden">
