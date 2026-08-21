@@ -452,3 +452,57 @@ pre.shiki {
   overflow-y: hidden;
   padding-block: 0.25rem;
 }
+
+/* --------------------------------------------------------------------------
+ * 打印/导出 PDF — @media print
+ * 站点导航、页脚、TOC、悬浮件经 print:hidden 隐藏;此处只管版式。
+ * ------------------------------------------------------------------------ */
+@media print {
+  @page {
+    margin: 2cm 1.6cm;
+  }
+
+  body {
+    background: #fff !important;
+    color: #18181b !important;
+  }
+
+  /* 悬浮件(助手/进度条/冒泡/灯箱)全部隐藏 */
+  .fixed {
+    display: none !important;
+  }
+
+  /* 内容拉满页宽,不套屏上的 max-w 限制 */
+  .prose {
+    max-width: none !important;
+    font-size: 11pt;
+  }
+
+  pre,
+  blockquote,
+  figure,
+  img,
+  table,
+  .katex-display {
+    break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+
+  /* 打印时链接不染色不划线,代码块压一点字号 */
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  pre {
+    font-size: 8.5pt;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+}

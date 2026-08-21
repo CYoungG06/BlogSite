@@ -1,6 +1,7 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { useTranslations } from "next-intl";
 import AskAcaneButtons from "@/components/agent/AskAcaneButtons";
+import ExportButtons from "@/components/ExportButtons";
 import FallbackNotice from "@/components/blog/FallbackNotice";
 import Container from "@/components/layout/Container";
 import Lightbox from "@/components/mdx/Lightbox";
@@ -122,6 +123,12 @@ export default function ArticleDetail({
                 />
               </div>
             ) : null}
+            {/* 导出:复制/下载/打印(笔记不开放);导出文件按内容 locale 生成 */}
+            {kind !== "notes" ? (
+              <ExportButtons
+                url={`/export/${item.locale}/${kind}/${item.slug}.md`}
+              />
+            ) : null}
           </header>
 
           <div
@@ -148,7 +155,7 @@ export default function ArticleDetail({
               </div>
             </article>
             {showToc ? (
-              <aside className="hidden xl:block">
+              <aside className="hidden print:hidden xl:block">
                 <div className="sticky top-24">
                   <TableOfContents
                     items={toc}
@@ -161,7 +168,7 @@ export default function ArticleDetail({
           </div>
 
           {/* 情境化入口:读完让阿卡内总结 / 出题 */}
-          <div className="mx-auto mt-16 max-w-3xl border-t border-hairline pt-8">
+          <div className="mx-auto mt-16 max-w-3xl border-t border-hairline pt-8 print:hidden">
             <AskAcaneButtons
               heading={tAgent("articleAskHeading")}
               items={[

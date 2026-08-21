@@ -4,6 +4,7 @@ import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
+import ExportButtons from "@/components/ExportButtons";
 import Lightbox from "@/components/mdx/Lightbox";
 import MDXContent from "@/components/mdx/MDXContent";
 import { Link } from "@/i18n/navigation";
@@ -113,6 +114,7 @@ export default async function InsightPage({
               ))}
             </div>
           ) : null}
+          <ExportButtons url={`/export/zh/insights/${id}.md`} />
         </header>
 
         <article className="mx-auto mt-12 w-full max-w-3xl min-w-0">

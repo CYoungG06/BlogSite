@@ -22,7 +22,7 @@ export default async function Footer() {
   ];
 
   return (
-    <footer className="mt-16 border-t border-hairline">
+    <footer className="mt-16 border-t border-hairline print:hidden">
       <Container className="py-12">
         <div className="grid gap-10 sm:grid-cols-3">
           <div>

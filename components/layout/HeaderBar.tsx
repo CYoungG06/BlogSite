@@ -12,7 +12,7 @@ import NavLinks from "./NavLinks";
  */
 export default function HeaderBar() {
   return (
-    <header className="sticky top-3 z-40 px-3">
+    <header className="sticky top-3 z-40 px-3 print:hidden">
       <div className="relative mx-auto flex h-12 w-max max-w-full items-center gap-0.5 rounded-full bg-background/70 px-2 shadow-soft ring-1 ring-hairline backdrop-blur-xl">
         <NavLinks className="hidden md:flex" />
         <HeaderSearch />
