@@ -18,7 +18,7 @@
 
 Code Mode 则叠在这三层之上。它改变模型组织工具调用的粒度，却没有另造一条绕过权限与审计的捷径。
 
-![DeepSeek Harness 把运行时内部状态、模型可见状态和外部副作用交给三套不同协议处理](/images/blog/deepseek-harness/state-boundaries.svg)
+![DeepSeek Harness 把运行时内部状态、模型可见状态和外部副作用交给三套不同协议处理](https://cyoungg06.github.io/BlogSite/images/blog/deepseek-harness/state-boundaries.svg)
 
 本文以官方仓库提交 [`47f943859bef60e4160492346772ded9b24f765a`](https://github.com/deepseek-ai/deepseek-harness/tree/47f943859bef60e4160492346772ded9b24f765a) 为代码快照，产品、论文和社区讨论状态截至 2026 年 8 月 14 日。项目刚发布一天，结论必须分清哪些来自代码，哪些来自论文的条件性论证，哪些只是社区报告。
 
@@ -129,7 +129,7 @@ DeepSeek Harness 把会话分成三层。
 
 raw log 回答“Session 曾经记录过什么”，surface 回答“模型下一步应该记得什么”，最新 `request/header` 回答“下一次请求由什么配置构造”；`request/context` 只是路由与容量观测元数据。它们相关，却不能互相代替。raw log 本身也不能证明外部副作用实际发生。
 
-![原始 Session 日志通过 append 与 replace 形成模型可见 surface，request header 固定请求配置，request context 另记路由与容量](/images/blog/deepseek-harness/session-projection.svg)
+![原始 Session 日志通过 append 与 replace 形成模型可见 surface，request header 固定请求配置，request context 另记路由与容量](https://cyoungg06.github.io/BlogSite/images/blog/deepseek-harness/session-projection.svg)
 
 ### 一条旧工具结果怎样被替换，而不从历史中消失
 
@@ -203,7 +203,7 @@ return files.map(({ content }) => content.slice(0, 800))
 
 `run_code` 不会合并内部调用的权限与审批。每个真正开始的副调用会先追加 `tool/code-dispatch-start`，正常 settle 后再追加 `tool/code-dispatch`；进程崩溃时可能只留下 start。外层结束或中止时仍在队列中、尚未开始的副调用会被放弃，也不会记日志。
 
-![Code Mode 中模型生成的程序通过 SDK 调用原生工具，每个实际启动的副调用仍经过校验、策略、审批和提交，只有外层结果进入下一轮模型上下文](/images/blog/deepseek-harness/code-mode-pipeline.svg)
+![Code Mode 中模型生成的程序通过 SDK 调用原生工具，每个实际启动的副调用仍经过校验、策略、审批和提交，只有外层结果进入下一轮模型上下文](https://cyoungg06.github.io/BlogSite/images/blog/deepseek-harness/code-mode-pipeline.svg)
 
 ### 每个 SDK 副调用仍走原生管线
 

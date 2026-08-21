@@ -2,7 +2,7 @@
 
 > 2026-08-11
 
-之前我们在「蒸馏」栏目读过两篇 harness 工程的文章，[Lil' Log 的 Harness Engineering](/zh/distilled/harness-engineering-self-improvement/) 和 [Alex Zhang 的 compositional generalizers](/zh/distilled/lm-harness-compositional-generalizers/)。读别人的读多了，手痒，就自己写了一个。[GCodey](https://github.com/CYoungG06/Gcodey)，轻量的本地 Agent Harness,Go 实现，约六万行，Apache-2.0 开源，目前 alpha。
+之前我们在「蒸馏」栏目读过两篇 harness 工程的文章，[Lil' Log 的 Harness Engineering](https://cyoungg06.github.io/BlogSite/zh/distilled/harness-engineering-self-improvement/) 和 [Alex Zhang 的 compositional generalizers](https://cyoungg06.github.io/BlogSite/zh/distilled/lm-harness-compositional-generalizers/)。读别人的读多了，手痒，就自己写了一个。[GCodey](https://github.com/CYoungG06/Gcodey)，轻量的本地 Agent Harness,Go 实现，约六万行，Apache-2.0 开源，目前 alpha。
 
 这篇文章是设计拆解。为了写它，我又把代码通读了一遍，有几处发现和我原先的记忆对不上，后面会讲到。GCodey 最用力的地方，是它删掉了什么。
 
@@ -61,7 +61,7 @@ idle -> running <-> waiting_user
 
 工具执行、上下文整理、workspace change 应用都是运行中的操作，不构成新的会话阶段。`failed` 的含义同样克制，Runtime 无法证明安全继续，跟模型产物写得对不对无关。
 
-![GCodey 内核架构。TUI 是事件投影;durable inbox 先落盘;Harness 内 reducer 验证事件、fsync 后才换内存;工具经能力策略路由到宿主或沙盒。](/images/blog/gcodey/harness-kernel.svg)
+![GCodey 内核架构。TUI 是事件投影;durable inbox 先落盘;Harness 内 reducer 验证事件、fsync 后才换内存;工具经能力策略路由到宿主或沙盒。](https://cyoungg06.github.io/BlogSite/images/blog/gcodey/harness-kernel.svg)
 
 ## 消息排队与回合边界
 

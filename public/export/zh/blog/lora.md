@@ -24,7 +24,7 @@
 
 ## 前言与问题
 
-> ![lora-1](/images/lora-1.png)  
+> ![lora-1](https://cyoungg06.github.io/BlogSite/images/lora-1.png)  
 > 图1
 
 LoRA的几个关键优势：
@@ -87,7 +87,7 @@ $$
 h = W_0x + \Delta Wx = W_0x + BAx
 $$
 
-> ![lora-1](/images/lora-1.png)  
+> ![lora-1](https://cyoungg06.github.io/BlogSite/images/lora-1.png)  
 > 图1
 
 我们在图1 中说明了我们的重参数化，我们对 $A$ 使用**随机高斯初始化**，对 $B$ 使用**零初始化**，因此在训练开始时 $\Delta W = BA$ 为零。然后我们将 $\Delta Wx$ 按 $\frac{\alpha}{r}$ 缩放，其中 $\alpha$ 是与 $r$ 相关的常数。当使用 Adam 优化器时，调整 $\alpha$ 与调整学习率的效果大致相同（如果我们适当地缩放初始化），因此，我们简单地将 $\alpha$ 设置为我们尝试的第一个 $r$ 值，而不对其进行调优，这种缩放有助于减少在改变 $r$ 时重新调整超参数的需求(Yang & Hu, 2021)。

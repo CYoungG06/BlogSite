@@ -14,7 +14,7 @@
 
 强化学习(RL)在 LLM 后训练中正变得越来越重要。以往的 LLM RL 管线多为同步、批次交错的模式，对长时程 agentic 任务效率低下。近来，异步 RL 通过「rollout 到达即更新」成为更高效的选择。然而，现有异步 RL 系统往往强调吞吐，而训练稳定性与任务有效性仍 largely 未被充分探索——例如，广泛使用的 GRPO 框架中的组采样，与异步 agentic 训练天然不兼容。本文提出**单条 rollout 异步优化(Single-rollout Asynchronous Optimization,SAO)**，以应对异步 RL 的稳定性与离策略挑战。为降低离策略影响并改善泛化，我们用单条 rollout 采样(每 prompt 一条轨迹)替代组采样，并以多项实用的 value model 训练设计强化这一策略;为提升优化稳定性，我们引入严格的双侧 token 级裁剪。SAO 能够稳定训练一千步，并在 SWE-Bench Verified、BeyondAIME、IMOAnswerBench 等 agentic 编程与推理基准上持续超越 GRPO 及其变体。我们还证明，单条 rollout RL 在模拟在线学习(模型必须适应持续变化的环境)中尤其有效。SAO 已成功部署到开源 GLM-5.2 模型(750B-A40B)的 agentic RL 训练管线中。
 
-![图 1:SAO 在推理与编程基准上的表现。四个推理基准在「推理+Python 工具」设定下评估，基线为 Qwen3-30B-A3B SFT;SWE-Bench Verified 以 Qwen3-30B-A3B 为基线。SAO 在全部五个基准上同时超过基线与 GRPO。](/images/reading/single-rollout-async/x1.png)
+![图 1:SAO 在推理与编程基准上的表现。四个推理基准在「推理+Python 工具」设定下评估，基线为 Qwen3-30B-A3B SFT;SWE-Bench Verified 以 Qwen3-30B-A3B 为基线。SAO 在全部五个基准上同时超过基线与 GRPO。](https://cyoungg06.github.io/BlogSite/images/reading/single-rollout-async/x1.png)
 
 ## 1 引言
 
@@ -48,7 +48,7 @@ $$ \hat{A}_{t}^{\text{GAE}}=\sum_{l=0}^{|y|-t-1}(\gamma\lambda)^{l}\delta_{t+l} 
 
 ## 3 基于单条 Rollout 的异步强化学习
 
-![图 2:SAO 的单条 rollout 设计总览。数字表示轨迹的生成顺序:SAO 中每条轨迹完成后立即可用于训练;GRPO 则必须等组内所有轨迹生成完毕。](/images/reading/single-rollout-async/x2.png)
+![图 2:SAO 的单条 rollout 设计总览。数字表示轨迹的生成顺序:SAO 中每条轨迹完成后立即可用于训练;GRPO 则必须等组内所有轨迹生成完毕。](https://cyoungg06.github.io/BlogSite/images/reading/single-rollout-async/x2.png)
 
 本节介绍 SAO 如何应对异步 RL 训练中的训练不稳定与离策略漂移。通过简洁的 token 级裁剪策略，以及用单条 rollout 替代组采样，我们展示了异步 RL 可以稳定扩展到数千步训练，并取得显著的性能提升。图 2 为 SAO 的总体设计。
 
@@ -104,7 +104,7 @@ $$ \delta=r_{t}+\gamma V(a_{i+1,0})-V(a_{i,N})$$
 
 ## 4 实验
 
-![图 3:SAO 与 GRPO(w/ DIS)在训练过程中的表现对比。可以看到，SAO 在不同基准上几乎全程优于强化版 GRPO。](/images/reading/single-rollout-async/x3.png)
+![图 3:SAO 与 GRPO(w/ DIS)在训练过程中的表现对比。可以看到，SAO 在不同基准上几乎全程优于强化版 GRPO。](https://cyoungg06.github.io/BlogSite/images/reading/single-rollout-async/x3.png)
 
 ### 4.1 实验设置
 
@@ -182,7 +182,7 @@ agentic 推理的 RL 采用:batch size 128、组大小 1、最大长度 128k tok
 
 **被裁 token。** 图 4(c)监测了应用 DIS 的 SAO 与不带 DIS 的标准 VAPO 基线的 token 级裁剪率。VAPO 的裁剪率接近零，无法有效挡住发散的离策略更新，在约 90 步时训练迅速崩塌。
 
-![图 4(a):SAO 与单次 critic 更新基线的解释方差对比。](/images/reading/single-rollout-async/x6.png)
+![图 4(a):SAO 与单次 critic 更新基线的解释方差对比。](https://cyoungg06.github.io/BlogSite/images/reading/single-rollout-async/x6.png)
 
 ### 4.5 在线学习模拟
 
@@ -196,7 +196,7 @@ agentic 推理的 RL 采用:batch size 128、组大小 1、最大长度 128k tok
 
 **结果。** 如图 5a 所示，我们在留出测试集上评估各阶段三种候选风格的表现:SAO 在每次奖励偏好切换后都能迅速完成策略转向——在文体原型之间切换，以保持与环境反馈的对齐。
 
-![图 5a:在线训练过程中三种写作风格(cute、chuunibyou、classical)在留出测试集上的准确率变化。阴影区表示奖励偏好切换到另一文体原型的阶段边界:SAO 迅速抑制此前的主导风格，并根据环境反馈将策略对齐到新目标。](/images/reading/single-rollout-async/x9.png)
+![图 5a:在线训练过程中三种写作风格(cute、chuunibyou、classical)在留出测试集上的准确率变化。阴影区表示奖励偏好切换到另一文体原型的阶段边界:SAO 迅速抑制此前的主导风格，并根据环境反馈将策略对齐到新目标。](https://cyoungg06.github.io/BlogSite/images/reading/single-rollout-async/x9.png)
 
 **与 Running-Mean 基线的对比。** 为进一步理解 value model 在在线环境中的作用，我们采用 Running Mean 优势估计作为基线:跟踪最近 128 个奖励的滑动窗口来近似 baseline $b$，优势计算为 $\hat{A}=r-\mathbb{E}[r_{window}]$。这种设计将优势估计与 prompt 内的样本组解耦，使在线、单条 rollout 场景下的策略优化成为可能。图 5b 展示了在线学习过程中 SAO 与 Running Mean 基线的训练奖励变化，风格切换后奖励恢复的速度与幅度是算法适应性的关键指标:Running Mean 基线由于历史窗口的惯性，仍被上一分布的奖励暂时带偏，适应明显滞后;而 SAO 的 value critic 能动态跟踪奖励变化，快速恢复并达到更高的收敛水平。这证实了 SAO 的状态依赖 baseline 在非平稳环境中实现有效对齐所需的精确性。
 
@@ -230,6 +230,6 @@ agentic 推理的 RL 采用:batch size 128、组大小 1、最大长度 128k tok
 
 **局限与疑点**:全部实验基于 Qwen3-30B-A3B 单一模型族，更大基座/其他架构上的表现待验证;对 value model 的强依赖是双刃剑——奖励更稀疏、更主观的任务里，critic 可能先拖垮全局;单条 rollout 在简单任务上的样本效率是否吃亏，论文未正面回答。
 
-**相关阅读**:本站 [Raschka 推理强度综述](/zh/distilled/controlling-reasoning-effort-in-llms/)中 Kimi Toggle、DeepSeek V4 分档训练，与本文的「异步+单条」是后训练效率大战的两条战线;速递区近期还有 staleness-adaptive trust regions 等同类工作可对照。
+**相关阅读**:本站 [Raschka 推理强度综述](https://cyoungg06.github.io/BlogSite/zh/distilled/controlling-reasoning-effort-in-llms/)中 Kimi Toggle、DeepSeek V4 分档训练，与本文的「异步+单条」是后训练效率大战的两条战线;速递区近期还有 staleness-adaptive trust regions 等同类工作可对照。
 
 > 本文为论文全文精读:正文按原文结构译出并附译注，公式与图表来自原文;原文见 [arXiv:2607.07508](https://arxiv.org/abs/2607.07508)。

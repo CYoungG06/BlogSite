@@ -27,11 +27,11 @@ The Scaling Law 表明增加模型的规模对提高模型表现至关重要，�
 
 Sparse Upcycling：
 
-![sparse\_upcycling](/images/sparse_upcycling.png)
+![sparse\_upcycling](https://cyoungg06.github.io/BlogSite/images/sparse_upcycling.png)
 
 本文：
 
-![pesc](/images/pesc.png)
+![pesc](https://cyoungg06.github.io/BlogSite/images/pesc.png)
 
 其主要的改进部分是在稀疏化后的 MoE 层中，在 FFN 的上面添加了 Adapters 适配层以利用 PEFT 的思路进行稀疏化后的训练，后面将详细分析。
 
@@ -47,15 +47,15 @@ $$
 
 我们来看一下在 [Adapter 原论文](https://arxiv.org/abs/1902.00751)中的介绍的高效微调方法，从图片中我们也可以直观的理解其计算过程：
 
-![adapter](/images/adapter.png)
+![adapter](https://cyoungg06.github.io/BlogSite/images/adapter.png)
 
 在该论文中使用的 Adapter 与上图中的方法基本是一样的，该论文中具体的 MoE 层设计如下图所示：
 
-![ada-pesc](/images/ada-pesc.png)
+![ada-pesc](https://cyoungg06.github.io/BlogSite/images/ada-pesc.png)
 
 ### Mixture-of-Experts
 
-一个经典的专家混合的输出设计为（具体可参见论文[Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer](https://arxiv.org/abs/1701.06538)，相关研读[The Sparsely-Gated Mixture-of-Experts Layer 论文研读](/zh/blog/sparsely-gated-moe/)）：
+一个经典的专家混合的输出设计为（具体可参见论文[Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer](https://arxiv.org/abs/1701.06538)，相关研读[The Sparsely-Gated Mixture-of-Experts Layer 论文研读](https://cyoungg06.github.io/BlogSite/zh/blog/sparsely-gated-moe/)）：
 
 $$
 y = \sum_{i=1}^n R(x)_iE_i(x) \tag{1}
@@ -67,7 +67,7 @@ $$
 
 基于 [Sparse Upcycling](https://arxiv.org/abs/2212.05055) 的工作，其核心是利用原密集模型的权重，并涉及到一个变革性的过程：在原密集 Transformer 模型的每个 block 中，用 MoE 层替换 FFN 层，在稀疏性构建的初始化阶段，使用原密集模型的 FFN 的权重作为 MoE 层中每个专家的 FFN 模块的初始化权重，Adapter 层的权重为随机初始化，同时，为了确保结构的一致性，模型中的其他模块（如 Attention 层和 Norm 层等）直接从原模型中 copy 过来，现在再看模型的结构图我们也可以更好地理解。
 
-![ada-pesc](/images/ada-pesc.png)
+![ada-pesc](https://cyoungg06.github.io/BlogSite/images/ada-pesc.png)
 
 ## 参数高效的稀疏性构建
 
@@ -79,11 +79,11 @@ $$
 
 Sparse Upcycling：
 
-![sparse\_upcycling](/images/sparse_upcycling.png)
+![sparse\_upcycling](https://cyoungg06.github.io/BlogSite/images/sparse_upcycling.png)
 
 本文：
 
-![pesc](/images/pesc.png)
+![pesc](https://cyoungg06.github.io/BlogSite/images/pesc.png)
 
 ## 模型设计
 
@@ -353,13 +353,13 @@ lora_modules = [
 
 LoRAMoE：
 
-![LoRAMoE](/images/LoRAMoE.png)
+![LoRAMoE](https://cyoungg06.github.io/BlogSite/images/LoRAMoE.png)
 
 从示意图中可以很清楚地看出模型的工作原理，将原模型的其他模块迁移到 LoRAMoE 结构中，并保持参数冻结（包括 FFN 层），然后将 LoRA 模块视为 MoE 层的所有专家，通过门控网络控制专家的输出，再与 FFN 的输出相加。简单来说也就是冻结主干模型，引入多个 LoRA 适配器，使用路由网络（门控）整合这些适配器
 
 MoELoRA：
 
-![MoELoRA](/images/MoELoRA.png)
+![MoELoRA](https://cyoungg06.github.io/BlogSite/images/MoELoRA.png)
 
 MoELoRA 则是将 LoRA 视为一个专家系统，我们可以最后做一个对比：
 

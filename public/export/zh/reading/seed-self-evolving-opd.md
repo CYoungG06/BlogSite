@@ -14,7 +14,7 @@
 
 LLM 正越来越多地被训练为交互式智能体，执行多轮交互、工具使用与环境反馈的长时程任务。基于结果的强化学习(RL)提供了实用的优化范式，但其稀疏的轨迹级奖励对中间决策的指导有限，在「episode 级结果」与「token 级策略学习」之间留下了监督鸿沟。我们提出 **Seed**(SElf-Evolving On-Policy Distillation，自我进化的 on-policy 蒸馏):一个把跑完的 on-policy 轨迹转化为训练时「事后技能」(hindsight skills)并将其行为效果蒸馏回策略模型的自进化框架。Seed 首先微调策略，使其能分析完整轨迹并生成自然语言技能——捕捉可复用的工作流、决定性观察或避坑规则。在 RL 阶段，当前策略既负责收集轨迹，又充当从轨迹中提取事后技能的分析器;策略更新因此同时改进后续决策与技能分析，让事后监督随策略共同进化。随后，Seed 在普通上下文与技能增强上下文下对采样动作重新打分，把技能引起的概率偏移转化为稠密的 token 级 on-policy 蒸馏信号，并与结果奖励 RL 联合优化，使辅助监督始终与当前轨迹分布对齐。在文本与视觉 agentic 任务上的大量实验表明，Seed 持续提升性能与样本效率，并对未见场景展现出稳健的泛化能力。
 
-![图 1:总体性能概览。与强基线方法相比，Seed 在三个代表性 agentic 基准上取得最强的平均表现。](/images/reading/seed/x2.png)
+![图 1:总体性能概览。与强基线方法相比，Seed 在三个代表性 agentic 基准上取得最强的平均表现。](https://cyoungg06.github.io/BlogSite/images/reading/seed/x2.png)
 
 ## 1 引言
 
@@ -48,7 +48,7 @@ LLM 正越来越多地被训练为交互式智能体，执行多轮交互、工�
 
 ## 3 方法
 
-![图 2:Seed 总览。阶段 1(事后技能 SFT)让策略学会从跑完的轨迹中提取事后技能;阶段 2(自进化 on-policy 蒸馏)在自进化的 agentic 循环中联合优化结果奖励 RL 与技能条件 OPD。](/images/reading/seed/x3.png)
+![图 2:Seed 总览。阶段 1(事后技能 SFT)让策略学会从跑完的轨迹中提取事后技能;阶段 2(自进化 on-policy 蒸馏)在自进化的 agentic 循环中联合优化结果奖励 RL 与技能条件 OPD。](https://cyoungg06.github.io/BlogSite/images/reading/seed/x3.png)
 
 我们提出 Seed:面向 agentic RL 的自进化 OPD 框架。出发点是这样一个观察:即使奖励稀疏，完整的 agent 轨迹通常包含丰富的事后信息——有用的行为模式、失败原因与可复用策略，这些在中间决策步并不直接可得。Seed 把这类事后信息转化为事后技能，并将其行为效果蒸馏回普通策略。
 
@@ -207,13 +207,13 @@ $$\mathcal{L}_{\mathrm{SEED}}(\theta)=\mathcal{L}_{\mathrm{rl}}(\theta)+\lambda_
 
 ### 4.3 训练动力学
 
-![图 3:ALFWorld 上的训练动力学(Qwen2.5-3B-Instruct)。半透明为原始测量，实线为 13 点居中滑动平均。](/images/reading/seed/x4.png)
+![图 3:ALFWorld 上的训练动力学(Qwen2.5-3B-Instruct)。半透明为原始测量，实线为 13 点居中滑动平均。](https://cyoungg06.github.io/BlogSite/images/reading/seed/x4.png)
 
 图 3 对比了 Seed 与 GRPO 的优化动态:成功率曲线很早就分开——第 40 步时 Seed 约 57%,GRPO 仅约 35%，此后优势保持;Seed 的平均 episode 长度也更快下降(从约 28 轮到 13 轮，GRPO 训练结束约 16 轮)。由于更短的轨迹与更高的成功率相伴，这说明 Seed 减少了无效探索、学到了更直接的解法，而不是提前放弃任务。
 
 ### 4.4 样本效率
 
-![图 4:样本效率分析。Seed 在各数据比例下持续优于 GRPO，仅用 60% 数据就超过全量数据的 GRPO。](/images/reading/seed/x5.png)
+![图 4:样本效率分析。Seed 在各数据比例下持续优于 GRPO，仅用 60% 数据就超过全量数据的 GRPO。](https://cyoungg06.github.io/BlogSite/images/reading/seed/x5.png)
 
 | 数据比例 | 20% | 40% | 60% | 80% | 100% |
 |---|---|---|---|---|---|
@@ -241,7 +241,7 @@ $$\mathcal{L}_{\mathrm{SEED}}(\theta)=\mathcal{L}_{\mathrm{rl}}(\theta)+\lambda_
 
 ### 4.7 定性分析
 
-![图 6:ALFWorld 定性对比。任务「把蜡烛放进马桶」:GRPO 训练的 agent 先去目标容器、拿起无关的厕纸、随后陷入离题循环;Seed 系统地检查可能的架子、找到蜡烛，五步完成放置。](/images/reading/seed/x7.png)
+![图 6:ALFWorld 定性对比。任务「把蜡烛放进马桶」:GRPO 训练的 agent 先去目标容器、拿起无关的厕纸、随后陷入离题循环;Seed 系统地检查可能的架子、找到蜡烛，五步完成放置。](https://cyoungg06.github.io/BlogSite/images/reading/seed/x7.png)
 
 图 6 展示了代表性的行为差异:GRPO 在找到所需物品前就访问目标容器、与无关物体交互、在无产出位置反复探索直到步数耗尽;Seed 则遵循更连贯的目标导向轨迹——搜索合理的储物位置、在第二个架子找到蜡烛、以正确的放置动作完成任务。这与前面的实验中「更强的表现与更高的交互效率」一致。
 
@@ -264,6 +264,6 @@ $$\mathcal{L}_{\mathrm{SEED}}(\theta)=\mathcal{L}_{\mathrm{rl}}(\theta)+\lambda_
 - 基准集中在 ALFWorld/WebShop/搜索 QA 这类中等复杂度任务，对更长时程、工具链更复杂的 coding agent 场景(如 SWE-Bench)效果如何未知;
 - 置信门基于「技能增强 vs 普通」的概率差，技能本身若含错误归因，门会放大它——论文未讨论技能错误率的影响。
 
-**相关阅读**:本站 [Raschka 推理强度综述](/zh/distilled/controlling-reasoning-effort-in-llms/)里 Lil' Log 的 harness 译文与本文的「自我教师」一脉相承;[SAO 精读](/zh/reading/single-rollout-async-optimization/)解决同一个稀疏奖励问题的另一条路线——改优化器与 value model，而不是补监督信号;你的 OPD 报告则提供了理解本文教师-学生机制的底稿。
+**相关阅读**:本站 [Raschka 推理强度综述](https://cyoungg06.github.io/BlogSite/zh/distilled/controlling-reasoning-effort-in-llms/)里 Lil' Log 的 harness 译文与本文的「自我教师」一脉相承;[SAO 精读](https://cyoungg06.github.io/BlogSite/zh/reading/single-rollout-async-optimization/)解决同一个稀疏奖励问题的另一条路线——改优化器与 value model，而不是补监督信号;你的 OPD 报告则提供了理解本文教师-学生机制的底稿。
 
 > 本文为论文全文精读:正文按原文结构译出并附译注，公式与图表来自原文;原文见 [arXiv:2607.14777](https://arxiv.org/abs/2607.14777)。

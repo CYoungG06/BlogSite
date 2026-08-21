@@ -4,7 +4,7 @@
 
 参考链接：[https://www.jiqizhixin.com/articles/2024-05-14-4](https://www.jiqizhixin.com/articles/2024-05-14-4)
 
-Learning Prompt Pt.1：[Learning Prompt](/zh/blog/learning-prompt/)
+Learning Prompt Pt.1：[Learning Prompt](https://cyoungg06.github.io/BlogSite/zh/blog/learning-prompt/)
 
 ## 使用 CO-STAR 框架来搭建 prompt 的结构
 
@@ -118,7 +118,7 @@ Learning Prompt Pt.1：[Learning Prompt](/zh/blog/learning-prompt/)
 
 需要说明的是，如果任务很简单，那么分隔符对 LLM 的响应质量的影响不大。但是，任务越复杂，使用分隔符分节对 LLM 响应的影响就越大。
 
-具体在[Learning Prompt](/zh/blog/learning-prompt/)中也有提到过，在此不再赘述，不过我感觉 XML 标签还是挺好用的，而且对于写提示词的人来说也比较容易看和理解。
+具体在[Learning Prompt](https://cyoungg06.github.io/BlogSite/zh/blog/learning-prompt/)中也有提到过，在此不再赘述，不过我感觉 XML 标签还是挺好用的，而且对于写提示词的人来说也比较容易看和理解。
 
 ## 仅使用 LLM 进行数据分析
 
@@ -153,7 +153,7 @@ LLM 执行准确数学计算的能力有限，这使得它们不适合需要对�
 
 以下 prompt 用到了 4 种提示工程技术：
 
-1.  将复杂任务分解为简单步骤（Just step-by-step, which is CoT like, and with fixed instructions, more details in [Learning Prompt](/zh/blog/learning-prompt/)）
+1.  将复杂任务分解为简单步骤（Just step-by-step, which is CoT like, and with fixed instructions, more details in [Learning Prompt](https://cyoungg06.github.io/BlogSite/zh/blog/learning-prompt/)）
 2.  索引每一步的中间输出（`CLUSTERS、CLUSTER_INFORMATION、CLUSTER_NAME...` in `# OBJECTIVE #`）
 3.  设置 LLM 的响应的格式（In `# RESPONSE: MARKDOWN REPORT #`）
 4.  将指令与数据集分离开（In `# START ANALYSIS #`）

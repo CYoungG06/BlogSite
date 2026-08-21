@@ -31,7 +31,7 @@ On-Policy Distillation(OPD，在线策略蒸馏)用一句话说，就是**让学
 | RL / RLVR | on-policy(学生 rollout) | 稀疏(序列级标量奖励) |
 | **OPD** | **on-policy(学生 rollout)** | **稠密(教师逐 token 分布)** |
 
-![后训练方法坐标系:SFT、离线蒸馏、RL 与 OPD 的四象限分布](/images/blog/on-policy-distillation/quadrant.png)
+![后训练方法坐标系:SFT、离线蒸馏、RL 与 OPD 的四象限分布](https://cyoungg06.github.io/BlogSite/images/blog/on-policy-distillation/quadrant.png)
 
 *图 1:后训练方法的两个自由度。OPD 占据了此前空出的第四象限——on-policy 的轨迹 + 稠密的监督。*
 
@@ -164,7 +164,7 @@ $$\forall\, \hat{y}_{<n} \text{ 在学生可达前缀集上}: \quad p_S(\cdot \m
 
 MiniLLM 论文里的高斯混合 toy 实验是这个对照的经典演示，我们把它复现如下——教师是一个双峰混合分布，学生被限定在单高斯族里:forward KL 学出一个盖住所有众数的胖高斯(均值化),reverse KL 则收缩到单一众数:
 
-![Forward KL 的 mass-covering 与 Reverse KL 的 mode-seeking 对比:双峰教师分布与单高斯学生的拟合结果](/images/blog/on-policy-distillation/kl-gmm.png)
+![Forward KL 的 mass-covering 与 Reverse KL 的 mode-seeking 对比:双峰教师分布与单高斯学生的拟合结果](https://cyoungg06.github.io/BlogSite/images/blog/on-policy-distillation/kl-gmm.png)
 
 *图 2:同一个教师分布下，两种 KL 方向学到的学生分布。左:forward KL 被迫覆盖全部众数，概率摊薄到教师的低概率区;右:reverse KL 放弃次要众数，收缩到主众数上。*
 
@@ -273,7 +273,7 @@ OPD 与 RL 不是替代关系，是互补关系——OPD 给过程(哪一步错�
 
 - **RLSD**(Yang et al., 2026-04,[arXiv:2604.03128](https://arxiv.org/abs/2604.03128)):纯自蒸馏的信号会泄露特权信息、长期训练不稳;RLSD 让自蒸馏只决定逐 token 的**更新幅度**，让 RLVR 的环境反馈决定**更新方向**，两者结合超过各自的天花板;
 - **SRPO**(2026-04,[arXiv:2604.02288](https://arxiv.org/abs/2604.02288)):按样本对错路由——错误样本走自蒸馏(精确定位错在哪)、正确样本走 GRPO 式奖励;Qwen3-8B 五个基准平均比 GRPO +3.4%、比 SDPO +6.3%;
-- **Seed 的置信门控 OPD**(2026-07):在 OPD 的逐 token 信号上加门 $g = \sigma(\beta \cdot \Delta \log p)$，防止"技能归因错误"的 token 把错误知识学进策略，与 GRPO 损失联合优化。我们精读区有这篇的全文译注:[Seed:自进化 OPD](/zh/reading/seed-self-evolving-opd);
+- **Seed 的置信门控 OPD**(2026-07):在 OPD 的逐 token 信号上加门 $g = \sigma(\beta \cdot \Delta \log p)$，防止"技能归因错误"的 token 把错误知识学进策略，与 GRPO 损失联合优化。我们精读区有这篇的全文译注:[Seed:自进化 OPD](https://cyoungg06.github.io/BlogSite/zh/reading/seed-self-evolving-opd);
 - **sparse-to-dense 原则**:在 GRPO 稀疏奖励阶段之间插入 OPD 稠密教师奖励阶段，交替推进。
 
 ---
@@ -372,7 +372,7 @@ OPSD 掀起的自蒸馏热潮，在随后的半年里迎来了三记冷静的重
 - 综述:[A Survey of On-Policy Distillation for LLMs](https://arxiv.org/abs/2604.00626)(2026-04，统一 f-散度框架 + 失败模式理论);
 - 论文清单:[awesome-on-policy-distillation](https://github.com/chrisliu298/awesome-on-policy-distillation)(持续更新，含工业配方表);
 - 动手实现:Thinking Machines 原文配套的 Tinker cookbook(采样 token reverse KL 的最小可跑实现);
-- 本站相关精读:[Seed:自进化 OPD 与置信门控](/zh/reading/seed-self-evolving-opd)(OPD + GRPO 组合路线的一次完整工业级实践)。
+- 本站相关精读:[Seed:自进化 OPD 与置信门控](https://cyoungg06.github.io/BlogSite/zh/reading/seed-self-evolving-opd)(OPD + GRPO 组合路线的一次完整工业级实践)。
 
 ## 结语
 

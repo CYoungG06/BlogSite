@@ -160,7 +160,7 @@ Please reason step by step.
 
 ## Prompt 迭代优化
 
-![](/images/Iterative-Prompt-Develelopment.png)
+![](https://cyoungg06.github.io/BlogSite/images/Iterative-Prompt-Develelopment.png)
 
 开发高效 Prompt 的关键在于找到一个好的迭代优化过程，而非一开始就要求完美，通过快速试错迭代，可有效确定符合特定应用的最佳 Prompt 形式。
 
@@ -355,7 +355,7 @@ diff = Redlines(text,response)
 display(Markdown(diff.output_markdown))
 ```
 
-![image-20241231211043622](/images/redlines.png)
+![image-20241231211043622](https://cyoungg06.github.io/BlogSite/images/redlines.png)
 
 ### 综合使用
 

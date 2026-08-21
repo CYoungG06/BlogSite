@@ -12,6 +12,15 @@ const ROOT = process.cwd();
 const CONTENT = path.join(ROOT, "content");
 const OUT = path.join(ROOT, "public", "export");
 
+/** 导出的 .md 脱离站点使用,站内图片相对路径改写为绝对 URL(联网可加载) */
+const SITE_ORIGIN = "https://cyoungg06.github.io/BlogSite";
+
+function absolutizeImages(body) {
+  return body
+    .replace(/(\]\()\//g, `$1${SITE_ORIGIN}/`)
+    .replace(/(src=["'])\//g, `$1${SITE_ORIGIN}/`);
+}
+
 /** frontmatter 分隔:--- ... ---(仅取 title/date,其余丢弃) */
 function parseDoc(text) {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
@@ -27,7 +36,7 @@ function writeDoc(relPath, title, date, body) {
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const head = title ? `# ${title}\n\n` : "";
   const dateLine = date ? `> ${date}\n\n` : "";
-  fs.writeFileSync(out, `${head}${dateLine}${body}\n`, "utf-8");
+  fs.writeFileSync(out, `${head}${dateLine}${absolutizeImages(body)}\n`, "utf-8");
   return 1;
 }
 

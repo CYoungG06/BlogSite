@@ -21,7 +21,7 @@ PostTrainBench 考察 Agent 跨七个基准(从医疗到编程)做后训练的�
 
 在官方 Tier 1 设定下，Locus (Opus 5) 得分 **44.7**，领先 Claude Code (Fable 5) 的 41.8 约 2.9 分，更远高于 Codex (36.2)、Claude Code (Opus 5) (34.1) 和 AlphaEvolve (19.2)。该结果经 PostTrainBench 作者外部验证，并通过了官方的污染与作弊检查(防测试集泄漏判官、API 使用判官、模型身份检查等)。
 
-![图 1:官方 Tier 1 设定下，Locus (Opus 5) 以 44.7 领跑 PostTrainBench 综合分。](/images/distilled/locus-post-training/tier1-composite.svg)
+![图 1:官方 Tier 1 设定下，Locus (Opus 5) 以 44.7 领跑 PostTrainBench 综合分。](https://cyoungg06.github.io/BlogSite/images/distilled/locus-post-training/tier1-composite.svg)
 
 但原设定有明显局限:Agent 只有 10 小时墙钟和单卡。而小型前沿生产模型的后训练估计要上千 H100 小时——至少多两个数量级。更重要的是，深度学习史上反复出现「小算力下的最优方法在大算力下不是最优」(LSTM 是经典例子)，低算力优化的结果未必能外推。
 
@@ -33,7 +33,7 @@ PostTrainBench+ 与原设定相同，但算力放宽了几个数量级(从 70 H1
 
 几乎所有基线在更大算力下都有提升，但 Locus 提升最大:综合分 **51.6%**，超过人工调优的官方 Qwen3-1.7B-Instruct(**49.4%**);最强基线 Claude Code (Opus 4.8) 44.3%,GLM 5.2 42.7%,GPT-5.5 34.6%。
 
-![图 2:算力—性能曲线(按文中端点数据重绘的示意)。约 2000 H100 小时后基线停滞，Locus 持续爬升并超过人工调优 checkpoint。](/images/distilled/locus-post-training/performance-vs-compute.svg)
+![图 2:算力—性能曲线(按文中端点数据重绘的示意)。约 2000 H100 小时后基线停滞，Locus 持续爬升并超过人工调优 checkpoint。](https://cyoungg06.github.io/BlogSite/images/distilled/locus-post-training/performance-vs-compute.svg)
 
 两个值得记住的观察:
 
@@ -54,13 +54,13 @@ AIME 2025(竞赛数学)是最能体现这一点的基准，因为强竞赛数学
 - Claude Code (Opus 4.8) 敢上十亿级(最大 1.42B token 的 SFT)，但不可靠——一次 SFT+RL 跑出 0.00%，一次 295M token 的 SFT 只得 3.33%;
 - GLM 5.2 (CC) 基线里最好(10%)，做法是把 3 个公开学术数据集清洗合并后做了约 85M token 的中等规模训练。
 
-![图 3:各方法「历史最佳方案」的 AIME 准确率与其训练 token 数(示意)。Locus 呈现清晰的时序扩展轨迹;GLM 与 Codex 的最佳方案用的 token 反而比之前的方案更少——即没能通过加数据变好。](/images/distilled/locus-post-training/aime-training-scale.svg)
+![图 3:各方法「历史最佳方案」的 AIME 准确率与其训练 token 数(示意)。Locus 呈现清晰的时序扩展轨迹;GLM 与 Codex 的最佳方案用的 token 反而比之前的方案更少——即没能通过加数据变好。](https://cyoungg06.github.io/BlogSite/images/distilled/locus-post-training/aime-training-scale.svg)
 
 ## 高绩效的方法，探索得也更多
 
 更大的算力预算不只是能跑更大的实验，也能试更多种类的方案。统计每个 benchmark 上各方法尝试过的**独立方法数**(approach，指高层假设层面的不同路线，定义见文末附录)发现:Locus 的探索量是基线的最多 3 倍，且探索量与得分正相关。
 
-![图 4:每基准独立方法数与综合分(示意散点)。](/images/distilled/locus-post-training/approach-diversity.svg)
+![图 4:每基准独立方法数与综合分(示意散点)。](https://cyoungg06.github.io/BlogSite/images/distilled/locus-post-training/approach-diversity.svg)
 
 一个典型例子是 ArenaHard:Locus 的最终方案是「同家族更大模型的教师蒸馏 → 长度归一化 DPO → APO-zero」的组合——蒸馏 SFT 模型约 55%，长度归一 DPO 提到 73.5%,APO-zero 续训到 84.5%。而**没有一家基线把 DPO 跑通过**，全部停在 50% 以下(Opus 4.8 CC 49.9%、GLM 5.2 CC 46%、Codex 6.3%)。方案多样性让 Locus 突破了所有基线都没能打破的平台期。
 
@@ -70,13 +70,13 @@ Locus 的能力不止于后训练。他们把它**开箱即用**地扔到当时�
 
 结果:平均击败 **89.5%** 的人类队伍;去掉每日限交一次、已被人类优化了一年多的 ARC-AGI-2 后，其余比赛平均击败 **94.5%**。按六赛平均排名，Locus 排第四(前三名也都是人类)。这是首个在所有在营奖金制 Kaggle 比赛上被系统评估的自动系统。
 
-![图 5:Locus 在六场 Kaggle 比赛的排行榜百分位。](/images/distilled/locus-post-training/kaggle-standings.svg)
+![图 5:Locus 在六场 Kaggle 比赛的排行榜百分位。](https://cyoungg06.github.io/BlogSite/images/distilled/locus-post-training/kaggle-standings.svg)
 
 ## 生产落地:Bubble
 
 今年早些时候，Intology 开始与最大的无代码开发平台 Bubble 合作。Locus 为 Bubble 的一个核心 AI Agent 工作流自主发现了一套后训练配方，端到端微调了一个开源模型，替换了原来的前沿 API 方案:生产规模下**错误率约 2.8× 更低、延迟约 5.4× 更低、单次查询成本约 105× 更低**。Locus 目前还在为 Bubble 训练一个懂其私有编程语言的通用模型，首个版本已上线。
 
-![图 6:Bubble 生产指标，相对原系统(=100)的对比。](/images/distilled/locus-post-training/bubble-production.svg)
+![图 6:Bubble 生产指标，相对原系统(=100)的对比。](https://cyoungg06.github.io/BlogSite/images/distilled/locus-post-training/bubble-production.svg)
 
 ## 局限与译者注
 

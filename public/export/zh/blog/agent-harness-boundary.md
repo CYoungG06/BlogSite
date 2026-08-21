@@ -49,7 +49,7 @@ $$
 
 L0 到 L4 是本文为了比较不同对象采用的分析框架，并非领域已经接受的标准分层。
 
-![同一个 Harness 名称覆盖的系统范围。本文用 L0 到 L4 比较工业产品、学术 target harness 与外层改进系统，颜色表示讨论或可编辑范围，不代表行业已经形成统一标准。](/images/blog/agent-harness-boundary/system-boundary.svg)
+![同一个 Harness 名称覆盖的系统范围。本文用 L0 到 L4 比较工业产品、学术 target harness 与外层改进系统，颜色表示讨论或可编辑范围，不代表行业已经形成统一标准。](https://cyoungg06.github.io/BlogSite/images/blog/agent-harness-boundary/system-boundary.svg)
 
 Codex 和 Claude Code 通常横跨 L1、L2，并带有大量 L3 能力。论文里的 target harness 常集中在 L1 和少量 L2，论文新提出的方法则经常位于 L4。完整产品更适合写成下面这个组合。
 
@@ -215,7 +215,7 @@ $$
 
 当前版本和候选使用同一模型、环境与 gate 任务，重复运行采用配对种子和匹配的单配置预算，当前版本与各候选的门禁预算加总后不能越过 $B_k^{\mathrm{gate}}$。这组记号把 meta-harness 和 optimizer 分开了。$O_\phi$ 负责提议，$\mathcal Q$ 负责运行与保存证据，$V$ 产生任务指标，$\Gamma$ 比较候选和当前版本，才决定新版本是否生效。VeRO 更接近容纳这套过程的 outer 或 evaluation harness，Shor 评测 optimizer 能否找对修改优先级，它们都不等于被训练或被搜索的 $O_\phi$。
 
-![模型、Harness、Optimizer 与 Evaluator 的改进回路。实线表示执行和候选晋升，回流表示训练模型或训练 Harness Engineer，虚线外框里的任务分布、奖励协议与人工审批在很多实验中仍保持固定。](/images/blog/agent-harness-boundary/four-object-loop.svg)
+![模型、Harness、Optimizer 与 Evaluator 的改进回路。实线表示执行和候选晋升，回流表示训练模型或训练 Harness Engineer，虚线外框里的任务分布、奖励协议与人工审批在很多实验中仍保持固定。](https://cyoungg06.github.io/BlogSite/images/blog/agent-harness-boundary/four-object-loop.svg)
 
 沿着被更新的对象，2026 年的工作可以先分成五类。
 

@@ -18,7 +18,7 @@ LLM 驱动的多智能体系统(MAS)已成为复杂任务的一个有前景的�
 
 基于 LLM 的多智能体系统(MAS)已成为复杂任务的一个有前景范式:把任务分解为子任务、分派给专门的 agent,MAS 可以支持角色专门化、模块化推理和结构化协作，并在软件工程、数学推理、科学发现、规划等领域展现了实证收益。然而，MAS 相对 SAS 的优势仍不明确，不同设定下表现不一。近期研究显示:随着基座模型能力增强，MAS 的收益会减弱;或者收益其实来自更多算力而非架构优势。这些结果表明 MAS 并非天然更优，只在特定条件下有用。现有的比较研究多为实证，没有解释底层原因。这引出一个根本问题:**是什么样的结构性机制，决定了 MAS 何时优于 SAS?**
 
-![图 1:按中继状态预测的 MAS 收益。当上下文削减大于能力加权的中继损失时 MAS 有益;更强的模型从压缩中获益更少、受信息丢失之害更多。](/images/reading/mas-information-bottleneck/relay_regime_3.png)
+![图 1:按中继状态预测的 MAS 收益。当上下文削减大于能力加权的中继损失时 MAS 有益;更强的模型从压缩中获益更少、受信息丢失之害更多。](https://cyoungg06.github.io/BlogSite/images/reading/mas-information-bottleneck/relay_regime_3.png)
 
 本文提出用**信息流视角**研究 SAS 与 MAS 的本质差别:差别可能不在 agent 的数量，而在信息如何组织与传输。SAS 维护一个共享上下文，所有子任务与中间推理轨迹都在其中累积;MAS 则使用由中继消息连接的隔离局部上下文。每个中继都是一个压缩接口:它能通过抑制噪声上下文减少下游干扰(好处)，但也可能造成下游执行者无法恢复的信息丢失(代价)。这对立统一恰好被信息瓶颈原理刻画。从这个视角看，MAS 设计可以视为关于中继压缩的优化问题:如何在去掉上游无关上下文的同时，保留下游任务相关的信息?
 
@@ -32,7 +32,7 @@ LLM 驱动的多智能体系统(MAS)已成为复杂任务的一个有前景的�
 2. **分阶段的 MAS 收益**:从 IB 目标推导逐阶段 MAS 收益——当上游噪声上下文削减的好处超过中继信息丢失的成本时 MAS 有益;有效参数 $\beta$ 刻画下游模型能力，解释了为什么同一个中继对弱模型有益、对强模型有害。
 3. **受控实证验证**:五个基准、三个模型规模、18 组对比。通过比较 SAS、SAS-contextflow 与 MAS，我们把中继压缩与子任务分解分离开，证明观测到的 MAS 收益遵循预测的中继损失模式。我们的框架指出了如何设计更好的 MAS:优化中继，去掉上游无关上下文，保留下游相关信息。
 
-![图 2:MAS 与 SAS 的信息流视角。(a) 任务 $X$ 的三个受控原型:SAS 使用单一共享上下文;SAS-contextflow 沿规划器给出的子任务序列 $X_1,X_2,X_3$ 推进，但上下文全程共享;MAS 使用相同分解，但 worker 之间通过压缩中继 $m_1,m_2$ 连接。(b) 每个中继把 $M_i$ 压缩为 $m_i$，在上下文削减与信息丢失之间权衡，有效 $\beta$ 随模型能力增大。](/images/reading/mas-information-bottleneck/main_figure_4.png)
+![图 2:MAS 与 SAS 的信息流视角。(a) 任务 $X$ 的三个受控原型:SAS 使用单一共享上下文;SAS-contextflow 沿规划器给出的子任务序列 $X_1,X_2,X_3$ 推进，但上下文全程共享;MAS 使用相同分解，但 worker 之间通过压缩中继 $m_1,m_2$ 连接。(b) 每个中继把 $M_i$ 压缩为 $m_i$，在上下文削减与信息丢失之间权衡，有效 $\beta$ 随模型能力增大。](https://cyoungg06.github.io/BlogSite/images/reading/mas-information-bottleneck/main_figure_4.png)
 
 ## 2 相关工作
 
@@ -124,7 +124,7 @@ $$\delta_{i}\triangleq\min_{m_{i}}L(m_{i})\quad\text{s.t.}\quad\Delta_{i}(m_{i})
 
 ### 5.2 主要结果
 
-![图 3:三个模型规模下的逐任务表现(能力从左到右递增)。绿色/红色阴影分别表示 MAS 优于/劣于 SAS-contextflow 的区域。](/images/reading/mas-information-bottleneck/x2.png)
+![图 3:三个模型规模下的逐任务表现(能力从左到右递增)。绿色/红色阴影分别表示 MAS 优于/劣于 SAS-contextflow 的区域。](https://cyoungg06.github.io/BlogSite/images/reading/mas-information-bottleneck/x2.png)
 
 图 3 画出 MAS、SAS-contextflow 与 SAS 随模型能力变化的轨迹，绿色为 MAS 领先区、红色为落后区。表 2(原文)按估计中继复杂度 $\delta$ 归类并报告实证趋势，详细数值见原文附录 C.1。以下按中继复杂度状态组织分析。
 
@@ -172,6 +172,6 @@ $$\delta_{i}\triangleq\min_{m_{i}}L(m_{i})\quad\text{s.t.}\quad\Delta_{i}(m_{i})
 - 实验只覆盖串行链式分解，对更复杂的拓扑(并行扇出、层级、辩论式)是否仍成立未验证;
 - 三个模型里「强模型」也只到 27B，前沿旗舰上的 $\beta$ 曲线形态未可知。
 
-**相关阅读**:本站 [RLM 译文](/zh/distilled/lm-harness-compositional-generalizers/)的「局部在分布内(LID)」与本文互为镜像——RLM 用上下文卸载让每次调用在分布内，本文用中继压缩隔离噪声上下文，都是在做「上下文的信息工程」;[SAO 精读](/zh/reading/single-rollout-async-optimization/)的异步 agentic RL 则是另一条提升 agent 系统效率的战线。
+**相关阅读**:本站 [RLM 译文](https://cyoungg06.github.io/BlogSite/zh/distilled/lm-harness-compositional-generalizers/)的「局部在分布内(LID)」与本文互为镜像——RLM 用上下文卸载让每次调用在分布内，本文用中继压缩隔离噪声上下文，都是在做「上下文的信息工程」;[SAO 精读](https://cyoungg06.github.io/BlogSite/zh/reading/single-rollout-async-optimization/)的异步 agentic RL 则是另一条提升 agent 系统效率的战线。
 
 > 本文为论文全文精读:正文按原文结构译出并附译注，公式与图表来自原文;原文见 [arXiv:2607.16133](https://arxiv.org/abs/2607.16133)。

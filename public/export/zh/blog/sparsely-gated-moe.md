@@ -22,7 +22,7 @@
 
 尽管所引入的技术是通用的，但在本文中，作者主要关注了语言建模和机器翻译任务，这些任务已知能够从超大规模模型中受益。具体而言，我们在堆叠的 LSTM 层（Hochreiter & Schmidhuber, 1997）之间卷积地应用 MoE，如下图所示。MoE 在**文本的每个位置**被调用一次，每个位置可能选择不同的专家组合，不同的专家往往会基于句法和语义高度专业化。另外，本文作者的工作建立在将 MoEs 作为通用神经网络组件的基础上
 
-> ![moe17-1](/images/moe17-1.png)  
+> ![moe17-1](https://cyoungg06.github.io/BlogSite/images/moe17-1.png)  
 > 图1
 
 ## The Structure of the MoE Layer
@@ -83,7 +83,7 @@ $$
 
 * * *
 
-与1991年的 Adaptive-Mixtures-of-Local-Experts 中（具体可见：[Adaptive Mixtures of Local Experts 论文研读](/zh/blog/adaptive-mixtures-of-local-experts/)）做的工作对比：这里的 MoE 主要有两个区别：
+与1991年的 Adaptive-Mixtures-of-Local-Experts 中（具体可见：[Adaptive Mixtures of Local Experts 论文研读](https://cyoungg06.github.io/BlogSite/zh/blog/adaptive-mixtures-of-local-experts/)）做的工作对比：这里的 MoE 主要有两个区别：
 
 1.  稀疏门控：不是所有专家都会起作用，而是极少数的专家会被使用来进行推理，这种稀疏性，也使得我们可以使用海量的专家来把模型容量做的超级大。
 2.  token-level：前者的工作，是 sample-level 的，即不同的样本，使用不同的专家，但是这篇则是 token-level 的，一个句子中不同的 token 使用不同的专家，如论文中说：

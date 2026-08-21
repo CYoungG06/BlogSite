@@ -60,7 +60,7 @@ $$\mathbf S_t = \lambda_t\mathbf S_{t-1} + \beta_t (\mathbf v_t-\mathbf S_{t-1}\
 
 ## 3 δ-mem
 
-![图 1:δ-mem 总览。给定冻结 Transformer 基座的隐状态，δ-mem 先将其投影到低维记忆空间，从上一在线状态读出与上下文相关的联想记忆信号，用该信号生成对注意力计算的低秩修正;计算完成后，再通过 delta 规则把当前的键值信息写入记忆状态。](/images/reading/delta-mem/pipeline.png)
+![图 1:δ-mem 总览。给定冻结 Transformer 基座的隐状态，δ-mem 先将其投影到低维记忆空间，从上一在线状态读出与上下文相关的联想记忆信号，用该信号生成对注意力计算的低秩修正;计算完成后，再通过 delta 规则把当前的键值信息写入记忆状态。](https://cyoungg06.github.io/BlogSite/images/reading/delta-mem/pipeline.png)
 
 在每个位置，δ-mem 遵循相同的计算顺序:先从旧状态读出联想记忆信号，用信号引导注意力，再把当前信息写入状态。这样，模型可以把历史压缩进一个随序列演化的状态并在后续推理中使用，而无需更新基座参数。图 1 概括了这一设计:冻结基座执行标准注意力计算;δ-mem 从上一状态读出、生成 query 侧与输出侧的注意力修正，并用当前记忆键值更新在线状态。图中还总结了本文研究的三种写入策略:token 级更新、段级更新与多状态记忆组织。
 
@@ -185,7 +185,7 @@ $$\mathcal L_{\mathrm{SFT}} = -\sum_{j=1}^{|Y|} \log p_{\phi,\theta}(y_j \mid Q,
 
 ### 5.1 上下文恢复(Context Recovery)
 
-![图 2:以 Qwen3-4B-Instruct 为基座，在 HotpotQA 与 LoCoMo 上的上下文恢复表现。](/images/reading/delta-mem/context_recover.png)
+![图 2:以 Qwen3-4B-Instruct 为基座，在 HotpotQA 与 LoCoMo 上的上下文恢复表现。](https://cyoungg06.github.io/BlogSite/images/reading/delta-mem/context_recover.png)
 
 为检验在线状态能否在**不回放显式上下文**的情况下保住有用的历史信息，我们在无上下文(no-context)设定下评估 δ-mem:移除原始历史上下文，只注入压缩的记忆状态。结果表明 δ-mem 在两个基准上都持续优于无上下文基线:HotpotQA 整体 EM 从 0.08% 提升到 6.48%,F1 从 8.27% 到 15.20%;多跳证据最多的 Bridge 子集提升尤其大，说明在线状态能恢复一部分缺失的多跳证据。LoCoMo 总平均也从 3.49% 提升到 8.05%，多跳、时序、开放域、单跳各类问题均有明确增益。这说明联想记忆在线状态确实存下了与上下文相关的历史信号，在显式上下文不可用时仍能复用。
 
@@ -215,13 +215,13 @@ $$\mathcal L_{\mathrm{SFT}} = -\sum_{j=1}^{|Y|} \log p_{\phi,\theta}(y_j \mid Q,
 
 **推理效率与显存**:δ-mem 的 GPU 显存占用与 Vanilla、Context2LoRA 几乎相同(prompt 到 32K 时在线状态的额外开销可忽略)，而 MLP Memory、MemGen 显著更吃显存;解码吞吐上，δ-mem 因每步都要读写在线状态而慢于 Vanilla 与 Context2LoRA，但在所有测试设定下都明显比 MemGen 更快更稳——以很轻的计算足迹换取记忆能力。
 
-![图 3:不同 prompt 与解码长度下的推理效率(左:解码吞吐;右:显存占用)。](/images/reading/delta-mem/tps.png)
+![图 3:不同 prompt 与解码长度下的推理效率(左:解码吞吐;右:显存占用)。](https://cyoungg06.github.io/BlogSite/images/reading/delta-mem/tps.png)
 
-![图 3(续):显存占用对比。](/images/reading/delta-mem/mem.png)
+![图 3(续):显存占用对比。](https://cyoungg06.github.io/BlogSite/images/reading/delta-mem/mem.png)
 
 **参数开销**:SSW/TSW 仅引入 487 万可训练参数(占基座 0.12%)，多状态的 MSW 也只有 1,947 万(0.48%);对比 MemGen 的 4,620 万和 MLP Memory 的 30.78 亿(占基座 76.40%),δ-mem 以低得多的参数开销实现在线记忆增强。
 
-![图 4:各记忆增强方法的可训练参数对比。](/images/reading/delta-mem/params.png)
+![图 4:各记忆增强方法的可训练参数对比。](https://cyoungg06.github.io/BlogSite/images/reading/delta-mem/params.png)
 
 ## 结语评价(编者)
 
@@ -239,6 +239,6 @@ $$\mathcal L_{\mathrm{SFT}} = -\sum_{j=1}^{|Y|} \log p_{\phi,\theta}(y_j \mid Q,
 - 上下文恢复的绝对分数仍低，说明小状态目前更像「提示器」而非「保险柜」——离真正替代显式上下文还很远;
 - 与文本记忆并非非此即彼:检索+状态的混合路线(大事进文本库、近期进在线状态)可能是更实用的形态，论文未探索。
 
-**相关阅读**:本站 [RLM 译文](/zh/distilled/lm-harness-compositional-generalizers/)的「局部在分布内」与本文互补——RLM 让每次调用落在训练分布内，δ-mem 则让历史以状态形式保持可用，两者都是「不靠扩上下文」的路线;速递区近期的 MemGPT/Mem0 类工作可作为文本记忆范式对照。
+**相关阅读**:本站 [RLM 译文](https://cyoungg06.github.io/BlogSite/zh/distilled/lm-harness-compositional-generalizers/)的「局部在分布内」与本文互补——RLM 让每次调用落在训练分布内，δ-mem 则让历史以状态形式保持可用，两者都是「不靠扩上下文」的路线;速递区近期的 MemGPT/Mem0 类工作可作为文本记忆范式对照。
 
 > 本文为论文全文精读:正文按原文结构译出并附译注，公式与图表来自原文;原文见 [arXiv:2605.12357](https://arxiv.org/abs/2605.12357)。

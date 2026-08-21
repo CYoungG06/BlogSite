@@ -2,7 +2,7 @@
 
 > 2026-07-20
 
-> 本文转载自 [Alex L. Zhang's Blog](https://alexzhang13.github.io/)，原文 [Language model harnesses are compositional generalizers](https://alexzhang13.github.io/blog/2026/harness/)，作者 Alex Zhang 与 Omar Khattab(MIT CSAIL)，首发于 2026-07-20。此处为中文翻译，仅供学习交流。本站另有一篇相关译文:[《面向自我改进的 Harness Engineering》](/zh/distilled/harness-engineering-self-improvement/)(Lilian Weng)，可对照阅读。
+> 本文转载自 [Alex L. Zhang's Blog](https://alexzhang13.github.io/)，原文 [Language model harnesses are compositional generalizers](https://alexzhang13.github.io/blog/2026/harness/)，作者 Alex Zhang 与 Omar Khattab(MIT CSAIL)，首发于 2026-07-20。此处为中文翻译，仅供学习交流。本站另有一篇相关译文:[《面向自我改进的 Harness Engineering》](https://cyoungg06.github.io/BlogSite/zh/distilled/harness-engineering-self-improvement/)(Lilian Weng)，可对照阅读。
 
 **现代后训练已经变成了一种蛮力范式:堆砌越来越多的环境、越来越长的训练时程。** 这在很大程度上是因为，前沿 Transformer 仍然不擅长*组合式泛化*(compositional generalization)——通过组合熟悉的要素来解决未见问题的能力。除非我们的模型能把学到的单点经验组合起来，否则扩展(scaling)的回报就会低于预期:每个新领域都会要求一份属于自己的训练数据投入。
 
@@ -12,11 +12,11 @@
 
 我们用强化学习(RL)训练一个递归语言模型(Recursive Language Model,RLM)来验证这一点。RLM 是一种 harness:模型把上下文卸载出去，转而依靠程序化分解和递归子调用来执行。结果总结在图 1 中:只在短任务上训练，就能泛化到 8–32 倍长的留出任务;在训练集增益相同的情况下，评估增益约为直接训练底层 Transformer 的 10 倍。此外，在一个领域上训练，向其他领域迁移的比率也远好于普通 Transformer。
 
-![**图 1.** 我们把 Qwen3-30B-A3B-Instruct-2507 分别作为 RLM 和基座 Transformer(+ YaRN)在一组任务上训练，绘制训练增益与评估增益。左图:在 6 个短任务环境上独立训练，在上下文长度 8–32 倍的同类任务划分上评估。右图:在 3 个任务环境上训练，在 3 个采用相似分解策略的不同领域上评估。可以看到 RLM 的评估增益追平或超过训练增益，而基座 Transformer 难以泛化。在一些长度泛化实验中，RLM 起初学到的方案只对短任务有效、不可泛化，但随后发现了更具泛化性的分解策略，使评估增益反超训练增益。](/images/distilled/lm-harness-compositional/fig1b_length_strategy_generalization_lift.png)
+![**图 1.** 我们把 Qwen3-30B-A3B-Instruct-2507 分别作为 RLM 和基座 Transformer(+ YaRN)在一组任务上训练，绘制训练增益与评估增益。左图:在 6 个短任务环境上独立训练，在上下文长度 8–32 倍的同类任务划分上评估。右图:在 3 个任务环境上训练，在 3 个采用相似分解策略的不同领域上评估。可以看到 RLM 的评估增益追平或超过训练增益，而基座 Transformer 难以泛化。在一些长度泛化实验中，RLM 起初学到的方案只对短任务有效、不可泛化，但随后发现了更具泛化性的分解策略，使评估增益反超训练增益。](https://cyoungg06.github.io/BlogSite/images/distilled/lm-harness-compositional/fig1b_length_strategy_generalization_lift.png)
 
 我们之所以能观察到这种泛化效应，是因为 RLM harness 在具有潜在相似性的任务之间诱导出了一种等价关系:对这些任务，RLM 的主上下文看到的几乎是相同的 token 级轨迹，如图 2 所示。这些结果说明:与调模型架构和训练配方类似，良好设计的 harness 既能降低堆砌更多数据、生成更长 rollout 的成本，又能扩大后训练可解任务的覆盖面。
 
-![**图 2.** RLM harness 在两个不同任务(BrowseComp-Plus 与 OOLONG)上的示意:(理论上)根 LM 的上下文窗口可以看到完全相同的轨迹——任务相关的查询被推迟到子调用中，信息通过 REPL 变量流转。如果 RLM 在其中一种任务上训练，它就能泛化到另一种，因为根 LM 现在可以把它们视为同构。这种同构发生在两个任务共享潜在结构、且 RLM 能用子调用以程序化方式加以利用、同时把领域特定信息卸载为子任务时。换句话说，harness 在全部轨迹上诱导出一个商集(Hi/Q)，把相似任务归约为同一条 token 轨迹。](/images/distilled/lm-harness-compositional/fig1a_rlm_trajectory_isomorphism.png)
+![**图 2.** RLM harness 在两个不同任务(BrowseComp-Plus 与 OOLONG)上的示意:(理论上)根 LM 的上下文窗口可以看到完全相同的轨迹——任务相关的查询被推迟到子调用中，信息通过 REPL 变量流转。如果 RLM 在其中一种任务上训练，它就能泛化到另一种，因为根 LM 现在可以把它们视为同构。这种同构发生在两个任务共享潜在结构、且 RLM 能用子调用以程序化方式加以利用、同时把领域特定信息卸载为子任务时。换句话说，harness 在全部轨迹上诱导出一个商集(Hi/Q)，把相似任务归约为同一条 token 轨迹。](https://cyoungg06.github.io/BlogSite/images/distilled/lm-harness-compositional/fig1a_rlm_trajectory_isomorphism.png)
 
 ## 更好的扩展需要组合式泛化
 
@@ -24,7 +24,7 @@ AI 的开放问题，往往归根结底都是让深度神经网络泛化的问�
 
 我们此前通过[**管理不善的天才假说**(Mismanaged Geniuses Hypothesis,MGH)](https://alexzhang13.github.io/blog/2026/mgh/)论证过:人类真正关心要解决的任务，几乎总是可以相当自然地分解为子任务，这些子任务不仅简单得多，而且也并没有超出当前这一代语言模型太多。要在实践中利用这一点，组合式泛化是关键——它让我们系统的可达任务空间，超出训练集的直接覆盖范围;尤其是那些表面 token 看起来毫不相似、但共享某种底层结构的任务。
 
-![**图 3.** 人类定义的任务及其制品(如我们用来训练模型的 web 数据)天然有界，但更长的任务具有可以有效分解的可描述结构。关键在于:分解本身要短、要简单。](/images/distilled/lm-harness-compositional/fig2_mgh_long_task_decomposition.png)
+![**图 3.** 人类定义的任务及其制品(如我们用来训练模型的 web 数据)天然有界，但更长的任务具有可以有效分解的可描述结构。关键在于:分解本身要短、要简单。](https://cyoungg06.github.io/BlogSite/images/distilled/lm-harness-compositional/fig2_mgh_long_task_decomposition.png)
 
 遗憾的是，从过去几年在语言模型训练上的天文数字投入来看，Transformer 和其他现有的神经序列模型，在组合式泛化上至多只能算「不可靠」。虽然组合式泛化确实有可能在纯神经层面上涌现，但[在 AlexNet 五年后拼出来的](https://arxiv.org/abs/1706.03762)那套基本的可微神经运算，在编码我们训练语言系统所需的归纳偏置方面，似乎并不怎么最优。实际上，正因为我们现在拥有了如此强大的语言先验与语言模型，我们认为是时候认真追问:我们的归纳偏置，能否不只是几何性的、或关于简单对称性的，而是开始活在更高得多的抽象层级上?
 
@@ -36,7 +36,7 @@ AI 的开放问题，往往归根结底都是让深度神经网络泛化的问�
 
 幸运的是，我们可以用一种有利于*改进*扩展的方式来表述它。**好的 harness，能把陌生问题归约为熟悉问题、把复杂问题归约为简单问题。** 换句话说，即使状态 $s$ 对任何单次语言模型调用的训练目标来说都是分布外(OOD)的，好的 harness 也能产出***局部在分布内*(locally in-distribution,LID)** 的观测 $o$——我们将其定义为:对该观测的每一次 LM 调用，都落在训练数据分布之内。
 
-![**图 4.** 好的 harness 在设计上让每次 LM 调用看到的 prompt，都与其训练所学的内容局部「同分布」，哪怕完整任务轨迹本身是分布外(OOD)的。](/images/distilled/lm-harness-compositional/fig3_locally_in_distribution.png)
+![**图 4.** 好的 harness 在设计上让每次 LM 调用看到的 prompt，都与其训练所学的内容局部「同分布」，哪怕完整任务轨迹本身是分布外(OOD)的。](https://cyoungg06.github.io/BlogSite/images/distilled/lm-harness-compositional/fig3_locally_in_distribution.png)
 
 遗憾的是，Claude Code、Codex 这类现有 harness 设计，并不能为底层神经网络提供局部在分布内(LID)的观测。它们从根本上依赖于把任务相关信息、工具调用输出和推理过程不断追加、交错地灌进 Transformer 的上下文窗口。没错，这给模型提供了充足的上下文，但这些臃肿的历史很快就会掉出训练分布，表现为我们在实践中经常观察到的「[上下文腐烂](https://www.trychroma.com/research/context-rot)」(context rot)现象。
 
@@ -50,7 +50,7 @@ AI 的开放问题，往往归根结底都是让深度神经网络泛化的问�
 
 理想的 harness 对任务的分解，会让主上下文对相似问题(即落入同一个 harness 诱导等价类 $[\tau^\prime] = \lbrace\tau \in \mathcal{T} : \tau^\prime \sim \tau\rbrace$ 的问题)**逐 token 地**看起来相似。这种同构使如下形式的泛化成为可能:*如果系统能解决任务 X，它应当能传递地解决任务 Y。*
 
-![**图 5.** 我们对比了 RLM 的两个主要组件——上下文卸载与程序化子代理调用——如何让根 LM 把两个不同的问题看作相同/相似。**(1)** 标准 agent 方法把整个 query 和上下文作为 prompt 前缀塞满:在两个不同任务之间，即使解法相同，这个前缀也会显著改变模型的输出分布;上下文卸载让相似问题看起来相同。**(2)** 标准 agent 方法使用工具调用，返回值直接进入主上下文;程序化子代理调用则允许中间计算与信息存放在 REPL 里，主上下文无需看到会改变其输出分布的任务特定信息。](/images/distilled/lm-harness-compositional/fig4_context_offloading_programmatic_subcalls.png)
+![**图 5.** 我们对比了 RLM 的两个主要组件——上下文卸载与程序化子代理调用——如何让根 LM 把两个不同的问题看作相同/相似。**(1)** 标准 agent 方法把整个 query 和上下文作为 prompt 前缀塞满:在两个不同任务之间，即使解法相同，这个前缀也会显著改变模型的输出分布;上下文卸载让相似问题看起来相同。**(2)** 标准 agent 方法使用工具调用，返回值直接进入主上下文;程序化子代理调用则允许中间计算与信息存放在 REPL 里，主上下文无需看到会改变其输出分布的任务特定信息。](https://cyoungg06.github.io/BlogSite/images/distilled/lm-harness-compositional/fig4_context_offloading_programmatic_subcalls.png)
 
 递归语言模型(RLM)harness 的设计，围绕「按分解方式抽象任务、把输入特定的信息推迟到子调用」展开。从这个意义上说，RLM 把分解方式相似的问题视为同构——值得注意的是，这个论证可以递归成立:每个被卸载的子代理都可以被看作拥有自己「主」上下文的独立实例(这正是 RLM「递归」的本意，尽管它并非维持局部在分布内观测的必要条件)。它通过两点实现:
 
@@ -75,7 +75,7 @@ AI 的开放问题，往往归根结底都是让深度神经网络泛化的问�
 
 我们同时绘制短任务上的训练奖励(半透明)和长任务版本上的评估奖励(深色)，对比三组:RLM、提示分解策略的 RLM，以及基座 Transformer(长设定下加 YaRN)。所有设定都使用 [**Qwen3-30B-A3B-Instruct-2507**](https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507)。
 
-![**图 6.** 在六个带长度划分的基准上，我们把 Qwen3-30B-A3B-Instruct-2507 分别作为「带分解提示的 RLM」「基础 RLM」和单独的 Transformer，在环境的短划分上训练;每 10 步在 8–32 倍长的划分上评估一次，绘制 150 步内的长任务评估分数与短任务训练奖励(平滑后)。我们还画了一个前沿模型 GPT-5.5 套 RLM harness 作为对照。MRCRv2 上的 Transformer 基线被省略，因为即使用上下文扩展也装不下 2M token。](/images/distilled/lm-harness-compositional/fig5_length_generalization_curves.png)
+![**图 6.** 在六个带长度划分的基准上，我们把 Qwen3-30B-A3B-Instruct-2507 分别作为「带分解提示的 RLM」「基础 RLM」和单独的 Transformer，在环境的短划分上训练;每 10 步在 8–32 倍长的划分上评估一次，绘制 150 步内的长任务评估分数与短任务训练奖励(平滑后)。我们还画了一个前沿模型 GPT-5.5 套 RLM harness 作为对照。MRCRv2 上的 Transformer 基线被省略，因为即使用上下文扩展也装不下 2M token。](https://cyoungg06.github.io/BlogSite/images/distilled/lm-harness-compositional/fig5_length_generalization_curves.png)
 
 在全部六个任务上，只用短任务训练的 RLM 在长任务上取得了显著更好的评估结果;即使起点(第 0 步)评估更低，也以明显优势击败基座 Transformer。在 MRCRv2、GraphWalks、OOLONG 和 OOLONG-Pairs 上，训练后的 Qwen3-30B-A3B-Instruct-2507 RLM 在长任务评估上接近或超过搭载前沿模型 GPT-5.5 的 RLM，同时远超基座 Transformer。
 
@@ -95,7 +95,7 @@ AI 的开放问题，往往归根结底都是让深度神经网络泛化的问�
 - **OBLIQ-Bench 类比(写作 → 数学)**:在「寻找疑似同一作者所写的文章」任务上训练，在「寻找需要相同推理过程的数学题」任务上评估。训练与评估指标均为 nDCG@10。
 - **OBLIQ-Bench 描述(Twitter 立场 → Wildchat 错误)**:在「寻找满足特定立场的推文」任务上训练，在「寻找包含错误的 Wildchat 对话」任务上评估。训练与评估指标均为 nDCG@10。
 
-![**图 7.** 在三个基准上，我们把 Qwen3-30B-A3B-Instruct-2507 分别作为 RLM 和单独的 Transformer，在一个领域环境上训练;每 20 步在另一个领域的划分上评估一次，绘制 500 步内的评估分数与训练奖励(平滑后)。](/images/distilled/lm-harness-compositional/fig6_strategy_generalization_curves.png)
+![**图 7.** 在三个基准上，我们把 Qwen3-30B-A3B-Instruct-2507 分别作为 RLM 和单独的 Transformer，在一个领域环境上训练;每 20 步在另一个领域的划分上评估一次，绘制 500 步内的评估分数与训练奖励(平滑后)。](https://cyoungg06.github.io/BlogSite/images/distilled/lm-harness-compositional/fig6_strategy_generalization_curves.png)
 
 我们同样发现:RLM 在与训练领域**完全不同的领域**上展现出清晰的泛化能力，而基座 Transformer 难以取得有意义的提升。与长度泛化实验类似，基座 Transformer 训练初期在 OBLIQ-Bench 上的评估提升，主要来自学会遵循正确的答案格式，而且很快就到头了。有意思的是，*基座 Transformer 的训练奖励普遍高于 RLM，但评估表现却被明显拉开*;相反，RLM 的训练奖励与评估奖励的趋势紧密贴合——尽管评估来自完全不同的领域。
 
@@ -139,7 +139,7 @@ $$\frac{1}{\lvert\mathcal{E}_t\rvert}\sum_{x\in\mathcal{E}_t}\ \min_{x^\prime\in
 | **Weighted Jaccard** | 加权 Jaccard | 令 $c_x(t)$ 为类型 $t$ 在 $x$ 中的 token(或 n-gram)计数，则 $d(x_{\text{train}},x_{\text{eval}})=1-\frac{\sum_t \min\!\big(c_{x_{\text{train}}}(t),c_{x_{\text{eval}}}(t)\big)}{\sum_t \max\!\big(c_{x_{\text{train}}}(t),c_{x_{\text{eval}}}(t)\big)}$ |
 | **Length** | 长度比 | (与内容无关)设序列长度为 $\lVert x\rVert$:$d(x_{\text{train}},x_{\text{eval}})=1-\frac{\min(\lVert x_{\text{train}}\rVert,\lVert x_{\text{eval}}\rVert)}{\max(\lVert x_{\text{train}}\rVert,\lVert x_{\text{eval}}\rVert)}$ |
 
-![**图 8.** 在 5/6 个包含基座 Transformer 的长度泛化实验和 3 个策略泛化实验中，我们绘制最优训练检查点的评估轨迹，与此前见过的最近一条训练轨迹之间的平均距离。我们用 5 种距离度量作图，凸显 RLM 在未见任务上的轨迹，比基座 Transformer 这种「上下文追加」基线接近训练轨迹多少。](/images/distilled/lm-harness-compositional/fig7_trajectory_similarity.png)
+![**图 8.** 在 5/6 个包含基座 Transformer 的长度泛化实验和 3 个策略泛化实验中，我们绘制最优训练检查点的评估轨迹，与此前见过的最近一条训练轨迹之间的平均距离。我们用 5 种距离度量作图，凸显 RLM 在未见任务上的轨迹，比基座 Transformer 这种「上下文追加」基线接近训练轨迹多少。](https://cyoungg06.github.io/BlogSite/images/distilled/lm-harness-compositional/fig7_trajectory_similarity.png)
 
 图 8 说明了一个总体结论:根 LM 的轨迹与训练中见过的轨迹更相似，这主要来自上下文卸载。不过，上面的图并不能完全捕捉这些轨迹之间的语义相似性(比如，它无法说明 RLM 是否总体上选择了与训练轨迹相同的分解策略)。
 

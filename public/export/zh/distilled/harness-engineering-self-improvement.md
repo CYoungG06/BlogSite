@@ -22,7 +22,7 @@
 
 定义一种让模型可以在其中操作、测试和迭代的工作流，是实现自动化的关键设计。Karpathy 的 autoresearch 仓库（https://github.com/karpathy/autoresearch）清晰展示了如何构建这样的工作流。一种常见工作流会遵循目标导向的循环：规划、执行、观察/测试、改进，然后再次执行，*直到*目标达成为止。过程中，系统可能会主动请求用户进一步澄清任务要求或执行偏好。
 
-![简化的 Codex agent 循环：agent 调用工具，而工具响应会影响模型的下一次生成。](/images/harness/openai-agent-loop.png)
+![简化的 Codex agent 循环：agent 调用工具，而工具响应会影响模型的下一次生成。](https://cyoungg06.github.io/BlogSite/images/harness/openai-agent-loop.png)
 
 *简化的 Codex agent 循环：agent 调用工具，而工具响应会影响模型的下一次生成。图片来源：[OpenAI Codex agent 文章](https://openai.com/index/unrolling-the-codex-agent-loop/)。*
 
@@ -44,7 +44,7 @@ Harness 可以生成多个 sub-agent 并行执行，并监控后端任务。当�
 
 Claude Code、Codex、OpenCode 和 Cursor 风格 agent 等主流 coding agent 的核心接口已经趋于稳定。它们通常采用如下循环：
 
-![Coding Agent Harness 循环](/images/harness/coding-harness-loop.png)
+![Coding Agent Harness 循环](https://cyoungg06.github.io/BlogSite/images/harness/coding-harness-loop.png)
 
 有了一组工具可供使用，coding agent 就能在给定仓库中开发代码并排查问题，类似于人类开发者配备 IDE 后的工作方式。
 
@@ -84,7 +84,7 @@ Harness 系统中被优化对象的演进路径大致是：指令 [prompt](https
 2. *Reflector*：从成功和失败的轨迹中提炼洞见。
 3. *Curator*：以增量、条目化的方式更新结构化 context。
 
-![Agentic Context Engineering（ACE）框架](/images/harness/ace.png)
+![Agentic Context Engineering（ACE）框架](https://cyoungg06.github.io/BlogSite/images/harness/ace.png)
 
 *Agentic Context Engineering（ACE）框架。（图片来源：[Zhang et al. 2025](https://arxiv.org/abs/2510.04618)）*
 
@@ -107,7 +107,7 @@ skill 数据库会记录此前 skill、context function 和 eval metric 的历�
 
 随后，base-level context engineer 执行 skill $s_k$，在当前 skill 的指导下，从 rollout feedback $\mathcal{R}_k$ 中学习 context function：$c_k=\text{engineer}(\tau,s_k;c_{k-1}^*,\mathcal{R}_k)$。
 
-![Meta Context Engineering（MCE）框架](/images/harness/mce.png)
+![Meta Context Engineering（MCE）框架](https://cyoungg06.github.io/BlogSite/images/harness/mce.png)
 
 *Meta Context Engineering（MCE）框架：meta-level skill evolution 在各种 context management 机制中进行搜索，而 base level 则优化任务 context。（图片来源：[Ye et al. 2026](https://arxiv.org/abs/2601.21557)）*
 
@@ -119,7 +119,7 @@ $$
 
 **Meta-Harness**（[Lee et al. 2026](https://arxiv.org/abs/2603.28052)）又向更深一层推进：被优化的对象是决定并优化“哪些信息应被存储、检索并呈现给模型”的*代码*。名称中的“Meta-”表示，它是一个用来优化 harness 的 harness。
 
-![Meta-Harness 外层循环优化算法](/images/harness/meta-harness-outer-loop.png)
+![Meta-Harness 外层循环优化算法](https://cyoungg06.github.io/BlogSite/images/harness/meta-harness-outer-loop.png)
 
 *Meta-Harness 的 outer-loop 优化算法。（图片来源：[Lee et al. 2026](https://arxiv.org/abs/2603.28052)）*
 
@@ -129,7 +129,7 @@ $$
 - 每个候选 harness 都是文件系统中的一个目录，其中包含自身的源代码、分数、rollout trajectory 和状态更新。
 - meta-harness 循环会迭代创建新的 harness，并且只保留达到标准的候选项。
 
-![Meta-Harness 在文本分类和 TerminalBench-2 上的表现](/images/harness/meta-harness.png)
+![Meta-Harness 在文本分类和 TerminalBench-2 上的表现](https://cyoungg06.github.io/BlogSite/images/harness/meta-harness.png)
 
 *Meta-Harness 在（左）少量迭代的文本分类任务和（右）TerminalBench-2 上的表现。需要注意的是，TerminalBench-2 实验中的搜索以 Terminus-KIRA 和 Terminus-2 为初始点，这两个 harness 的能力都非常强。（图片来源：[Lee et al. 2026](https://arxiv.org/abs/2603.28052)）*
 
@@ -139,7 +139,7 @@ $$
 
 在 harness engineering 中，workflow design 可以由领域专家手工完成。以自动化研究为例，人们已经提出并测试了多种框架。**AI Scientist** 系统（[Lu et al. 2026](https://www.nature.com/articles/s41586-026-10265-5)）构建了一条完整 pipeline，用于提出研究想法、编写代码、运行实验、分析结果、撰写论文并进行同行评审。[Meng et al. (2026)](https://arxiv.org/abs/2605.26340) 则在 **ScientistOne** 中把可验证性设为核心设计约束：每一项主张（引用、数值、方法和结论）都必须能够追溯到证据来源，并通过 Chain-of-Evidence 检查接受审计。
 
-![AI Scientist pipeline](/images/harness/ai-scientist.png)
+![AI Scientist pipeline](https://cyoungg06.github.io/BlogSite/images/harness/ai-scientist.png)
 
 *AI Scientist 用于想法生成、实验、论文写作和评审的 pipeline。（图片来源：[Lu et al. 2026](https://www.nature.com/articles/s41586-026-10265-5)）*
 
@@ -147,7 +147,7 @@ $$
 
 在 Autodata 中，challenger prompt 会根据 solver 和 verifier 的反馈迭代更新。这里的局限在于，合成任务会用于 fine-tune weak solver，却不会用于 fine-tune strong solver；如果这个循环无法迭代提升 strong model，那么它更像是在生成的 prompt distribution 上进行间接 distillation，RSI 的意味会弱一些。
 
-![Autodata agentic workflow](/images/harness/autodata.png)
+![Autodata agentic workflow](https://cyoungg06.github.io/BlogSite/images/harness/autodata.png)
 
 *Autodata 的 agentic workflow design：围绕 challenger、solver 和 verifier 三类角色生成合成训练与评估数据。（图片来源：[Kulikov et al. 2026](https://arxiv.org/abs/2606.25996)）*
 
@@ -160,7 +160,7 @@ workflow 的设计空间*极其庞大*。很自然地，我们可以把 workflow
 3. 评估每个新 candidate，并把成功的 candidate 加回 archive。
 4. 重复第 2—3 步，直到达到最大迭代次数。
 
-![Automated Design of Agentic Systems（ADAS）示意图](/images/harness/adas.png)
+![Automated Design of Agentic Systems（ADAS）示意图](https://cyoungg06.github.io/BlogSite/images/harness/adas.png)
 
 *Automated Design of Agentic Systems（ADAS）示意图。（图片来源：[Hu et al. 2025](https://arxiv.org/abs/2408.08435)）*
 
@@ -173,13 +173,13 @@ workflow 的设计空间*极其庞大*。很自然地，我们可以把 workflow
 5. 如果新 workflow 在 $N$ 轮的预算内表现出提升，就把它加回搜索树。
 6. 重复第 2—5 步；当 top-$k$ average score 进入平台期或预算耗尽时停止。
 
-![AFlow 对 workflow candidate 搜索树的优化过程](/images/harness/aflow.png)
+![AFlow 对 workflow candidate 搜索树的优化过程](https://cyoungg06.github.io/BlogSite/images/harness/aflow.png)
 
 *AFlow 在 workflow candidate 搜索树上的优化过程。（图片来源：[Zhang et al. 2025](https://arxiv.org/abs/2410.10762)）*
 
 AFlow 在问答、代码和数学任务上的实验显示，与人工设计的 workflow 和 ADAS 相比，AFlow 取得了不错的提升。
 
-![AFlow 与人工方法及 ADAS 的实验对比](/images/harness/aflow-exp.png)
+![AFlow 与人工方法及 ADAS 的实验对比](https://cyoungg06.github.io/BlogSite/images/harness/aflow-exp.png)
 
 *AFlow 与人工方法及 ADAS 的实验对比。（图片来源：[Zhang et al. 2025](https://arxiv.org/abs/2410.10762)）*
 
@@ -201,13 +201,13 @@ $$
 I_t=I_{t-1}(\hat{u},I_{t-1};M)
 $$
 
-![Self-Taught Optimizer（STOP）算法](/images/harness/STOP-algo.png)
+![Self-Taught Optimizer（STOP）算法](https://cyoungg06.github.io/BlogSite/images/harness/STOP-algo.png)
 
 *Self-Taught Optimizer（STOP）算法。（图片来源：[Zelikman et al. 2023](https://arxiv.org/abs/2310.02304)）*
 
 在实验中，改进后的改进器发现了多种策略，例如 genetic algorithms、分解并改进各个部分、multi-armed prompt bandits、simulated annealing、改变 temperature，以及 beam/tree search。这类似于把 Harness workflow 表示为一个可供优化的对象。
 
-![STOP 发现的自我改进策略示例](/images/harness/STOP-patterns.png)
+![STOP 发现的自我改进策略示例](https://cyoungg06.github.io/BlogSite/images/harness/STOP-patterns.png)
 
 *STOP 发现的自我改进策略示例。（图片来源：[Zelikman et al. 2023](https://arxiv.org/abs/2310.02304)）*
 
@@ -215,13 +215,13 @@ Zelikman et al.（2023）的研究中有一个值得*警惕*的结果：使用 G
 
 [Lin et al.（2026）](https://arxiv.org/abs/2605.30621)更细致地研究了 Harness 演化对模型能力的依赖。他们拆分出两个维度：（1）*harness-updating*，指生成有用 Harness 修改的能力；（2）*harness-benefit*，指利用更新后的 Harness 来提高任务解决能力的能力。有趣的是，在他们的实验中，从 Qwen3.5-9B 到 Claude Opus 4.6，一系列规模和核心 intelligence 各异的模型表现出了近似的 harness-updating 能力；9B 的 Harness proposer/evolver 能够写出一种在程序结构上与 Opus 所写版本同构的 skill。若要充分利用 Harness，模型需要正确、及时地调用 skills/tools，并擅长 long-horizon instruction following。
 
-![Harness 更新能力与 Harness 收益能力的主要实验结果](/images/harness/harness-update.png)
+![Harness 更新能力与 Harness 收益能力的主要实验结果](https://cyoungg06.github.io/BlogSite/images/harness/harness-update.png)
 
 *主要结果：（A）从 Qwen2-32B 到 Opus 4.6，一系列模型测得的 harness-updating 能力基本持平；（B）harness-benefit 能力呈非单调变化，中等梯队的模型获益最大。（图片来源：[Lin et al. 2026](https://arxiv.org/abs/2605.30621)）*
 
 更新近一些的工作 **Self-Harness**（[Zhang et al. 2026](https://arxiv.org/abs/2606.09498)）依靠 LLM Agent，通过 propose-evaluate-accept loop 来改进自身的 Harness。
 
-![Self-Harness 的 Harness 更新循环](/images/harness/self-harness.png)
+![Self-Harness 的 Harness 更新循环](https://cyoungg06.github.io/BlogSite/images/harness/self-harness.png)
 
 *Self-Harness 通过 weakness mining、受约束的 Harness proposal 和 validation 构成循环，以更新 Harness。（图片来源：[Zhang et al. 2026](https://arxiv.org/abs/2606.09498)）*
 
@@ -271,7 +271,7 @@ Evolutionary search 是一种受 natural selection 启发的优化方法（参�
 
 [Novikov et al.（2025）](https://arxiv.org/abs/2506.13131)提出 **AlphaEvolve**，它是一套 coding-agent Evolutionary search 系统：系统保存一个候选程序池，并通过 prompting 让冻结的 LLM 生成用于改进的 diffs。随着系统反复评估子程序并保留成功者，它会逐渐发现更好的解。
 
-![AlphaEvolve 的工作方式](/images/harness/alphaevolve.png)
+![AlphaEvolve 的工作方式](https://cyoungg06.github.io/BlogSite/images/harness/alphaevolve.png)
 
 *AlphaEvolve 的工作方式。（图片来源：[Novikov et al. 2025](https://arxiv.org/abs/2506.13131)）*
 
@@ -283,7 +283,7 @@ AlphaEvolve 的设计中有几项细节很重要：
 
 消融实验显示了演化流程、prompts 中的 context、meta-prompts、full-file evolution 以及使用更强 LLM 的作用。
 
-![AlphaEvolve 多项设计的消融实验](/images/harness/alphaevolve-plot.png)
+![AlphaEvolve 多项设计的消融实验](https://cyoungg06.github.io/BlogSite/images/harness/alphaevolve-plot.png)
 
 *消融实验显示了 AlphaEvolve 中多项设计的价值。（图片来源：[Novikov et al. 2025](https://arxiv.org/abs/2506.13131)）*
 
@@ -315,7 +315,7 @@ Harness 演化改变的是模型周围的 non-parametric system。为了实现�
 - *Task-Specific Agent*：执行任务。
 - *Feedback-Agent*：根据最近的 trajectories，决定更新 Harness 还是模型权重。
 
-![SIA 中的 Feedback-Agent 决定下一轮迭代类型](/images/harness/SIA.png)
+![SIA 中的 Feedback-Agent 决定下一轮迭代类型](https://cyoungg06.github.io/BlogSite/images/harness/SIA.png)
 
 *SIA 中的 Feedback-Agent 决定下一轮迭代的类型。（图片来源：[Hebbar et al. 2026](https://arxiv.org/abs/2605.27276)）*
 

@@ -20,7 +20,7 @@ AI 能力的增长不再只由人类工程师推动:越来越多的 AI 系统自
 
 **机器学习工程(MLE)**是 AI4AI 一个特别直接的实例:agent 必须为真实任务构建 ML 方案，并通过执行反馈迭代改进它。一条典型轨迹从一个能跑的 pipeline 开始，经过反复实验，逐步逼近可与强人类或前沿模型竞争的方案。每次迭代都消耗时间和算力，结果可能要几分钟甚至几小时后才知道——这使 MLE 成为研究「agent 如何在延迟、带噪、异质的反馈下改进 AI 系统」的具体而苛刻的试验场。
 
-![图 1:本工作的定位。左:在 AI4AI 内部，MLE 是本文的任务域;OpenMLE 栈训练并部署 Frontis-MA1，它既是栈的产物、也是栈的引擎，只在第三方 benchmark 上评测。右:从进化到 RSI 的机制阶梯——元进化回路(橙色)处在「改进者本身被训练」这一级，Frontis-MA1(Meta-evolution Agent)正是以此命名。](/images/reading/frontis-ma1/fig2-positioning.png)
+![图 1:本工作的定位。左:在 AI4AI 内部，MLE 是本文的任务域;OpenMLE 栈训练并部署 Frontis-MA1，它既是栈的产物、也是栈的引擎，只在第三方 benchmark 上评测。右:从进化到 RSI 的机制阶梯——元进化回路(橙色)处在「改进者本身被训练」这一级，Frontis-MA1(Meta-evolution Agent)正是以此命名。](https://cyoungg06.github.io/BlogSite/images/reading/frontis-ma1/fig2-positioning.png)
 
 先前工作沿三条互补但重叠的路线推进 MLE agent:其一是基于结构化或进化搜索的**推理时 harness**;其二是**可执行任务与环境**的构建;其三是以执行反馈**后训练** MLE agent。也有系统横跨其中两条(如 MLE-Dojo 支持模型调优、AceGRPO 把迭代执行轨迹回收进训练)，但在作者审计的代表性公开系统中，没有一个同时覆盖:可扩展的任务与环境构建、执行 grounded 的 agent 后训练、以及把训练出的 agent 部署进长时程搜索的进化 harness——再加上复现整个回路所需的全部产物。
 
@@ -74,7 +74,7 @@ $$\mathcal{L}_{\text{evo}}(\theta) = -\,\mathbb{E}_{(\tau_i, a_i, c_i, p_i)}\Big
 - **Kaggle 数据集(3,362 个)**:沿用并扩展 MLE-Smith 的数据集→任务管线，自动诱导的目标质量参差，因此再加包级质量控制。
 - **Kaggle 竞赛(2,240 个)**:人类撰写的问题描述、评测指标与提交协议提供更强的任务 grounding，参赛历史与排行榜记录还提供「任务支持有意义、可比较评测」的外部证据;Meta Kaggle 目录支持规模化采集。自建爬取与竞赛构建管线，并**剔除与 MLE-Bench 重叠的竞赛**以保证评测完整性。
 
-![图 2:OpenMLE-Gym 的任务策展与可执行格式。左:来源层级(质量与规模的权衡);中:Kaggle 竞赛从 Meta Kaggle 目录(~11,000)经资格筛选(3,972，保留 36%)、可执行打包(2,839，保留 26%)到质量门控(2,240，保留 20%)的漏斗;右:统一任务包格式——公开输入、私有答案与可执行工具。](/images/reading/frontis-ma1/fig3-gym-curation.png)
+![图 2:OpenMLE-Gym 的任务策展与可执行格式。左:来源层级(质量与规模的权衡);中:Kaggle 竞赛从 Meta Kaggle 目录(~11,000)经资格筛选(3,972，保留 36%)、可执行打包(2,839，保留 26%)到质量门控(2,240，保留 20%)的漏斗;右:统一任务包格式——公开输入、私有答案与可执行工具。](https://cyoungg06.github.io/BlogSite/images/reading/frontis-ma1/fig3-gym-curation.png)
 
 所有来源被映射到统一的可执行任务包:原始资产放 `raw/`;agent 可见的描述、训练数据、测试输入与示例提交放 `data/public/`;隐藏答案隔离在 `data/private/`;任务专属的 `metric.py` 校验预测文件并返回标量执行反馈。竞赛分支的自动化框架把竞赛 slug 转成标准化包:下载并盘点文件，结合本地证据(schema、数据类型、维度、采样行)与 Meta Kaggle 记录生成任务描述与 `prepare.py`(确定性地切分标注数据、隔离公开输入与私有答案、生成 schema 兼容的示例提交)，再生成 `metric.py` 并通过执行准备代码与给示例提交打分来验证整个包;失败与断言错误作为反馈进入有限次重试，仍不可构建或无法产出有效标量指标的包在语义质量过滤之前就被移除。
 
@@ -104,7 +104,7 @@ SFT 与 RL 在这个目标下分工互补:执行 grounded 的 SFT 从更强的�
 
 可执行的进化训练也不同于数学与代码生成上的短程 RLVR:很多程序根本产不出可用奖励;成功的程序拿到的是不同指标、不同量纲的连续任务分数;反馈要等几分钟到几小时的沙盒运行;而且每个非 Draft 动作都依赖于为扩展选中的父代程序。
 
-![图 3:OpenMLE 训练与推理工作流总览。可训练的原子算子(Draft/Improve/Debug/Crossover)被进化推理用来扩展解树;SFT 在可执行 rollout 上做热启动;RL 再从执行反馈中进一步优化。](/images/reading/frontis-ma1/fig5-workflow.png)
+![图 3:OpenMLE 训练与推理工作流总览。可训练的原子算子(Draft/Improve/Debug/Crossover)被进化推理用来扩展解树;SFT 在可执行 rollout 上做热启动;RL 再从执行反馈中进一步优化。](https://cyoungg06.github.io/BlogSite/images/reading/frontis-ma1/fig5-workflow.png)
 
 ### 4.1 可训练的原子算子
 
@@ -118,7 +118,7 @@ OpenMLE 的一个核心设计原则是:**把模型学到的局部技能与推理
 
 ### 4.3 执行 Grounded 的强化学习
 
-![图 4:从已执行的 rollout 中学习。上:SFT 语料构建的两条路径(并行路径保留过阈值的 Draft;进化路径从 Debug 修复链中回溯筛选)，在预算自适应停止规则下形成 26,259 条样本。下:RL 对选定算子按「父代奖励 + 子代奖励方差 + 访问冷却」选父代;Top-1/Top-K 自适应界把当前 rollout 组的原始分数重映射为处理奖励，低于下界的截断为 0;熵优势进一步放大上尾学习信号。](/images/reading/frontis-ma1/fig7-rollouts.png)
+![图 4:从已执行的 rollout 中学习。上:SFT 语料构建的两条路径(并行路径保留过阈值的 Draft;进化路径从 Debug 修复链中回溯筛选)，在预算自适应停止规则下形成 26,259 条样本。下:RL 对选定算子按「父代奖励 + 子代奖励方差 + 访问冷却」选父代;Top-1/Top-K 自适应界把当前 rollout 组的原始分数重映射为处理奖励，低于下界的截断为 0;熵优势进一步放大上尾学习信号。](https://cyoungg06.github.io/BlogSite/images/reading/frontis-ma1/fig7-rollouts.png)
 
 **让异质结果可比。** 一个任务优化 accuracy、另一个优化 log loss，即使对齐了方向，原始分数区间也不可比。设 $\tilde{s}$ 为转成「越大越好」的原始分数，先用一对固定任务界定义有界基础奖励:
 
@@ -148,7 +148,7 @@ $R_p$ 偏好强父代;子代奖励方差 $\mathrm{Var}_{c \in \mathrm{child}(p)}
 
 AIDE、AIRA 与 AIRA₂ 通过树搜索或种群式探索、反复执行与候选精炼，建立了对可执行程序的迭代搜索范式。OpenMLE-Evo 采用 AIRA-Evo 式的种群循环来组合训练好的四个算子，但**重新设计了循环使用执行证据的方式**。原版 AIRA-Evo 的记忆大体是自由文本、急切(eagerly)合成、主要按标量适应度选父代、给不同算子提供大致相同的历史;OpenMLE-Evo 则存储**结构化经验记录**、按质量/进展/新颖度选父代、并为被调用的算子**按需合成有界记忆**。
 
-![图 5:OpenMLE-Evo 搜索 harness。左:搜索树通过 Draft/Improve/Crossover 扩展候选解，每个被评测的节点都配一张结构化经验卡。右:经验卡元数据用于更新全局搜索状态、按质量/进展/新颖度计算父代选择权重、选出下一个父代，并从关键祖先与兄弟节点检索相关记忆，供后续 Improve 操作使用。](/images/reading/frontis-ma1/fig9-evo-harness.png)
+![图 5:OpenMLE-Evo 搜索 harness。左:搜索树通过 Draft/Improve/Crossover 扩展候选解，每个被评测的节点都配一张结构化经验卡。右:经验卡元数据用于更新全局搜索状态、按质量/进展/新颖度计算父代选择权重、选出下一个父代，并从关键祖先与兄弟节点检索相关记忆，供后续 Improve 操作使用。](https://cyoungg06.github.io/BlogSite/images/reading/frontis-ma1/fig9-evo-harness.png)
 
 ### 5.1 结构化经验积累
 
@@ -216,7 +216,7 @@ MLE-Bench Lite 主结果(节选，均为 3 次独立运行的均值):
 - **harness 增益**:固定模型，OpenMLE-Evo 在 GLM-5.2、MiniMax M3、Kimi K2.6、MiniMax M2.7 四个模型家族上一致优于 Claude Code / Codex 通用支架;对 Frontis-MA1-35B，相对原版 AIRA-Evo 也从 53.03% 提到 60.61%——增益来自「为迭代式 MLE 特化的搜索」，而非某次幸运的模型—harness 配对。
 - **组合增益**:Frontis-MA1-35B + Evo-Max 的 71.21% 超过 GPT-5.5 + Codex 3.03 个百分点，逼近 GPT-5.6 Sol(72.73%)与 2.8T 的 Kimi K3(72.73%)。
 
-![图 6:MLE-Bench Lite 上各模型在统一 OpenMLE-Evo harness 下的 Medal Average。实心柱为标准 Evo 结果，斜线帽为 Evo-Max 的额外增益。Frontis-MA1-35B(60.61%)在同 harness 下超过 MiniMax M3、Doubao Seed 2.1 Pro、DeepSeek-V4-Pro 等更大的模型。](/images/reading/frontis-ma1/fig10-mlebench.png)
+![图 6:MLE-Bench Lite 上各模型在统一 OpenMLE-Evo harness 下的 Medal Average。实心柱为标准 Evo 结果，斜线帽为 Evo-Max 的额外增益。Frontis-MA1-35B(60.61%)在同 harness 下超过 MiniMax M3、Doubao Seed 2.1 Pro、DeepSeek-V4-Pro 等更大的模型。](https://cyoungg06.github.io/BlogSite/images/reading/frontis-ma1/fig10-mlebench.png)
 
 ### 6.3 长时程自我改进
 
@@ -226,7 +226,7 @@ MLE-Bench Lite 主结果(节选，均为 3 次独立运行的均值):
 
 **叶分类(leaf-classification)**:同一 OpenMLE-Evo 协议下，对比模型要么在低 Human Rank 处平台化，要么有改进但够不到奖牌线。Frontis-MA1-35B 则先用两次 Debug 建立可行的图像与表格分支(修多分类标签编码 + 稳定 LightGBM;覆盖全部 99 类、去掉 ResNet18 分支里无关的颜色抖动)，再用 Improve 把 EfficientNet 嵌入与 192 个工程化特征融合成多模态，接着两次 Crossover 保留互补证据(混合融合 → 加增强/早停/TTA 的鲁棒融合)，最后在结构稳定后用一次 Improve 把融合表示升级到 ConvNeXt-Tiny——这最后一次操作带来最大单步跳变。**后期的 Crossover 与 Improve 贡献了总验证增益的 85.0%**:长时程被花在积累与重组分支证据上，而不是反复修补同一个程序。最终验证 Human Rank 0.7713,held-out 0.9455 获铜牌;最强对比仅 0.6303 且无牌。
 
-![图 7:leaf-classification 上的跨模型搜索轨迹。左:同一 epoch 下 best-so-far 验证 Human Rank 随累计沙盒时间的变化;编号操作卡展示 Frontis-MA1-35B 轨迹的关键节点。右:held-out best-of-3 最终测试，Frontis-MA1 获铜牌。](/images/reading/frontis-ma1/fig13-leaf-trajectory.png)
+![图 7:leaf-classification 上的跨模型搜索轨迹。左:同一 epoch 下 best-so-far 验证 Human Rank 随累计沙盒时间的变化;编号操作卡展示 Frontis-MA1-35B 轨迹的关键节点。右:held-out best-of-3 最终测试，Frontis-MA1 获铜牌。](https://cyoungg06.github.io/BlogSite/images/reading/frontis-ma1/fig13-leaf-trajectory.png)
 
 **mlsp-2013-birds**:对比轨迹停留在第一个可行解附近，Frontis-MA1 则把「修提交」当起点，随后构建专门的音频分支。这里记忆的关键作用在**筛选而非数量**:它记住了哪些分支贡献了鲁棒解析、类别不平衡处理、数据增强与表示质量，并把一条较差的 ResNet50 方向标记为「应避免的证据」。Improve 与 Crossover 因此能组合兼容的收益，而不是继承一团不分彼此的历史——两者合计贡献总验证改进的 91.9%。最终验证 0.7284,held-out 0.8889 获银牌。
 
@@ -242,7 +242,7 @@ MLE-Bench Lite 主结果(节选，均为 3 次独立运行的均值):
 - **搜索产出更高**:尽管评测节点更少，刷新验证最优的次数从 229 升到 246;每百万模型 token 的刷新次数从 1.77 升到 3.27(**+84.3%**);Improve 操作刷新最优的比例从 4.73% 升到 9.36%(+98.1%)。
 - **有界的操作上下文**:Improve 的平均序列化 prompt 长度从 102.8K 字符降到 35.7K(−65.3%),99 分位从 389.0K 降到 54.3K(−86.1%);Crossover 均值 −60.6%、99 分位 −81.3%。尾部压缩尤其明显——结构化、算子条件化的记忆阻止了「长历史被反复序列化进每个请求」。
 
-![图 8:原版 AIRA-Evo(灰)与 OpenMLE-Evo(青)在 66 个配对任务—运行上的搜索效率对比。A:各资源指标归一化;B:验证轨迹产出;C:序列化 prompt 长度(对数轴)。](/images/reading/frontis-ma1/fig16-efficiency.png)
+![图 8:原版 AIRA-Evo(灰)与 OpenMLE-Evo(青)在 66 个配对任务—运行上的搜索效率对比。A:各资源指标归一化;B:验证轨迹产出;C:序列化 prompt 长度(对数轴)。](https://cyoungg06.github.io/BlogSite/images/reading/frontis-ma1/fig16-efficiency.png)
 
 两个机制案例:
 

@@ -42,7 +42,7 @@ $$\Delta x_1 \propto |\hat{A}|\,p_1, \qquad \Delta x_2 \propto |\hat{A}|\,p_2, \
 
 $x_3$ 被惩罚，而 $x_1$ 比 $x_2$ 涨得更多——采样到 $x_3$ 反而拉大了本就领先的 token 的优势，分布被锐化、熵下降。top-p 采样让这些低概率 token 根本不会被采样、不会成为优化目标，从第一步就掐断了这个机制。
 
-![图 1:训练过程中的策略熵。SWE-1.7 的配方让熵在整个训练中大致保持恒定。](/images/distilled/swe-1-7/policy-entropy.svg)
+![图 1:训练过程中的策略熵。SWE-1.7 的配方让熵在整个训练中大致保持恒定。](https://cyoungg06.github.io/BlogSite/images/distilled/swe-1-7/policy-entropy.svg)
 
 ### 采样分布回放(sampling distribution replay)
 
@@ -50,7 +50,7 @@ $x_3$ 被惩罚，而 $x_1$ 比 $x_2$ 涨得更多——采样到 $x_3$ 反而�
 
 他们的解法是采样分布回放(类似 [DeepSeek-V3.2](https://arxiv.org/abs/2512.02556) 的做法):rollout 时记录实际参与采样的 token 集合(kept-set),trainer 侧用这些 mask 对概率做重归一化。修复之后，整个训练过程中熵大致恒定，训练—推理散度保持有界。
 
-![图 2:训练过程中的训练—推理失配曲线。](/images/distilled/swe-1-7/train-infer-mismatch.svg)
+![图 2:训练过程中的训练—推理失配曲线。](https://cyoungg06.github.io/BlogSite/images/distilled/swe-1-7/train-infer-mismatch.svg)
 
 top-p 回放还有一个有趣的副作用:它实际上只对 $p < \text{top-p 阈值}$ 的 token 计算梯度。概率高于阈值的 token,kept-set 大小为 1，重归一化后的分布恒等于 1，梯度为零。经验上，模型采样出的 token 里有一大半都在常规 top-p 阈值之上，于是它们被整体排除在梯度计算之外——这降低了梯度噪声，让优化算法把注意力集中在轨迹中高学习信号的 token 上。
 
@@ -98,7 +98,7 @@ SWE-1.7 直接训在 Devin 的 harness 里，目标就是异步、长时间运�
 
 效果是:在模型能力范围内的任务上，响应长度趋于压缩;而在困难任务上，长程行为被完整保留。
 
-![图 3:交替长度惩罚下，训练过程中的平均响应长度。](/images/distilled/swe-1-7/response-length.svg)
+![图 3:交替长度惩罚下，训练过程中的平均响应长度。](https://cyoungg06.github.io/BlogSite/images/distilled/swe-1-7/response-length.svg)
 
 ## 结果:模型行为的变化
 
@@ -108,11 +108,11 @@ SWE-1.7 直接训在 Devin 的 harness 里，目标就是异步、长时间运�
 
 **更彻底的代码库探索。** SWE-1.7 在动手之前会做多得多的探索——工具调用、文件读取、搜索的次数都显著更高。
 
-![图 4:FrontierCode 1.1 Main 上的行为倾向对比。](/images/distilled/swe-1-7/behavioral-tendencies.svg)
+![图 4:FrontierCode 1.1 Main 上的行为倾向对比。](https://cyoungg06.github.io/BlogSite/images/distilled/swe-1-7/behavioral-tendencies.svg)
 
 这一点在 bug 修复上体现得最清楚:bug 报告通常只描述一个主要症状，但底层问题往往波及更大的范围。SWE-1.7 明显更倾向于追查 bug 的根因，考虑边界情况、各种假设、对抗输入和「超出字面要求」的需求;遇到语义模糊的地方，它倾向于**写小 Python 脚本做实验来确认**，而不是靠猜。
 
-![图 5:思维链主动探查边界情况与隐藏需求的频率(对数坐标)。](/images/distilled/swe-1-7/edge-cases.svg)
+![图 5:思维链主动探查边界情况与隐藏需求的频率(对数坐标)。](https://cyoungg06.github.io/BlogSite/images/distilled/swe-1-7/edge-cases.svg)
 
 他们认为，这些行为直接来自数据侧为清除假阳性/假阴性所做的大量质量保证——模型被迫给出更完整、端到端的解法，而这种增强的「尽职调查」直接转化成了各 benchmark 上更高的分数。
 

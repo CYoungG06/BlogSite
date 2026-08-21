@@ -8,13 +8,13 @@
 
 上周，OpenAI 发布了 GPT-5.6 模型家族，包含三种尺寸，每种尺寸都有大约五到六档推理强度(reasoning effort)设置。
 
-![图 1:不同推理强度设置下的 GPT 5.6 Sol 模型。(Ultra 的基准分数目前尚未公布，但应该与 Max 大致相当——它使用相近的强度档位，只是用四个 sub-agent 来加速执行。)](/images/distilled/controlling-reasoning-effort/01.png)
+![图 1:不同推理强度设置下的 GPT 5.6 Sol 模型。(Ultra 的基准分数目前尚未公布，但应该与 Max 大致相当——它使用相近的强度档位，只是用四个 sub-agent 来加速执行。)](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/01.png)
 
 所以是的，推理模型已经站稳了脚跟，成为现代模型发布的标配。
 
 过去我写过推理模型的方法论([理解推理型 LLM](https://magazine.sebastianraschka.com/p/understanding-reasoning-llms))，也梳理过相关研究论文([LLM 推理的强化学习现状](https://magazine.sebastianraschka.com/p/the-state-of-llm-reasoning-model-training)和[LLM 推理模型的推理时计算现状](https://magazine.sebastianraschka.com/p/state-of-llm-reasoning-and-inference-scaling))。我甚至还写了一本 440 页的新书，讲如何从零开发推理模型——[Build A Reasoning Model (From Scratch)](https://sebastianraschka.com/books/#build-a-reasoning-model-from-scratch)。
 
-![图 2:我的新书 [Build A Reasoning Model (From Scratch)](https://sebastianraschka.com/books/#build-a-reasoning-model-from-scratch)，全彩印刷!](/images/distilled/controlling-reasoning-effort/02.png)
+![图 2:我的新书 [Build A Reasoning Model (From Scratch)](https://sebastianraschka.com/books/#build-a-reasoning-model-from-scratch)，全彩印刷!](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/02.png)
 
 这些资料关注的都是「如何把传统 LLM 变成推理模型」。而在这篇文章里，我想聚焦的是:**如何开发一个拥有多档推理强度模式的推理模型**，就像本文开头那张图展示的那样。
 
@@ -28,13 +28,13 @@
 
 举个例子最容易说明。
 
-![图 3:传统 LLM 的回答(左)与推理模型的回答(右)对比。](/images/distilled/controlling-reasoning-effort/03.png)
+![图 3:传统 LLM 的回答(左)与推理模型的回答(右)对比。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/03.png)
 
 ## 2. 训练扩展与推理扩展概览
 
 提升(推理)任务表现本质上只有两条路:**训练扩展**(training scaling)和**推理扩展**(inference scaling)。
 
-![图 4:训练扩展与推理扩展是提升 LLM 及推理模型解题能力的两种途径。图改绘自 [Learning to reason with LLMs](https://openai.com/index/learning-to-reason-with-llms/)](/images/distilled/controlling-reasoning-effort/04.png)
+![图 4:训练扩展与推理扩展是提升 LLM 及推理模型解题能力的两种途径。图改绘自 [Learning to reason with LLMs](https://openai.com/index/learning-to-reason-with-llms/)](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/04.png)
 
 先简单说说训练。
 
@@ -42,29 +42,29 @@
 
 一言以蔽之，[DeepSeek-R1](https://arxiv.org/abs/2501.12948) 提出用可验证奖励强化学习(RLVR)把 LLM 训练成推理模型。RLVR 是一种面向「可验证数据域」提供奖励信号(`0=错误`,`1=正确`)的技术。这里的可验证数据域指数学(可以用 SymPy 或 WolframAlpha 之类的符号计算工具检查结果)和代码(可以用编译器、单元测试或 LeetCode 这类平台验证正确性)。
 
-![图 5:RLVR 训练中的准确性奖励与格式奖励。](/images/distilled/controlling-reasoning-effort/05.png)
+![图 5:RLVR 训练中的准确性奖励与格式奖励。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/05.png)
 
 值得注意的是，推理轨迹本身并没有被用于训练或更新模型。DeepSeek-R1 论文提到他们确实尝试过把这段中间回答的信息用于训练，但报告说对训练没有帮助，最终没有采用。(是否以及如何通过过程奖励模型(PRM)把中间推理轨迹纳入训练信号，仍是一个活跃的研究方向。)
 
-![图 6:RLVR 中忽略中间推理轨迹，只有最终答案和响应格式决定奖励。](/images/distilled/controlling-reasoning-effort/06.png)
+![图 6:RLVR 中忽略中间推理轨迹，只有最终答案和响应格式决定奖励。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/06.png)
 
 ### 2.2 「顿悟时刻」
 
 总之，如图 7 所示，只靠输出奖励来训练，就足以让模型学会如何推理问题——它会学着写出中间解释、回溯并自我纠正。模型意识到自己犯了错并自我纠正的这些时刻，被称为「顿悟时刻」(Aha moments)。
 
-![图 7:一个顿悟时刻的例子:推理模型注意到中间推理中的错误，并在产出最终答案之前修正它。](/images/distilled/controlling-reasoning-effort/07.png)
+![图 7:一个顿悟时刻的例子:推理模型注意到中间推理中的错误，并在产出最终答案之前修正它。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/07.png)
 
 顺带一提，虽然 DeepSeek-R1 无疑是更出圈的那篇论文——正是它点燃了围绕 RLVR 和推理模型开发的热情——但同一天(2025 年 1 月 22 日)arXiv 上其实还发了另一篇 [Kimi K1.5](https://arxiv.org/abs/2501.12599)。而且 RLVR 这个术语两个月前就在 [Tülu 3: Pushing Frontiers in Open Language Model Post-Training](https://arxiv.org/abs/2411.15124) 中被提出了。
 
 DeepSeek R1 之所以最终更受欢迎，一个原因是它证明了推理行为可以用**纯强化学习**实现。
 
-![图 8:DeepSeek-R1-Zero 直接把 RLVR 施加在预训练基座上，不经过监督微调。](/images/distilled/controlling-reasoning-effort/08.png)
+![图 8:DeepSeek-R1-Zero 直接把 RLVR 施加在预训练基座上，不经过监督微调。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/08.png)
 
 比如，Tülu 3 和 Kimi K1.5 都是在监督微调(SFT)模型之上再做强化学习。DeepSeek-R1 本身也是从 DeepSeek-V3 基座的 SFT 检查点出发训练的，但它包含一个用纯 RLVR 训练的变体 DeepSeek-R1-Zero。R1-Zero 比 R1 弱，但它证明了 RLVR 足以教会模型生成并使用推理轨迹。
 
 需要说明的是，R1-Zero 更多是概念验证;完整的 DeepSeek-R1 推理模型训练流水线通常是多阶段的，也更复杂一些。
 
-![图 9:更详细的推理模型训练流水线，图中是各个 DeepSeek-R1 模型。更多细节见我的另一篇文章:[理解推理型 LLM](https://magazine.sebastianraschka.com/p/understanding-reasoning-llms)](/images/distilled/controlling-reasoning-effort/09.png)
+![图 9:更详细的推理模型训练流水线，图中是各个 DeepSeek-R1 模型。更多细节见我的另一篇文章:[理解推理型 LLM](https://magazine.sebastianraschka.com/p/understanding-reasoning-llms)](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/09.png)
 
 顺便说一句，今天的大多数 LLM 实际上就是推理模型——它们都以类似 DeepSeek-R1 的方式、用某种形式的 RLVR 训练而来。
 
@@ -80,11 +80,11 @@ DeepSeek R1 之所以最终更受欢迎，一个原因是它证明了推理行�
 
 第三，还有很多其他推理扩展技术。流行的一种是自洽性(self-consistency)，通常以多数投票的形式实现:多次询问模型，用多数票选出最终答案。
 
-![图 10:自洽性示例——一种流行的推理扩展技术。](/images/distilled/controlling-reasoning-effort/11.png)
+![图 10:自洽性示例——一种流行的推理扩展技术。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/11.png)
 
 它既可用于传统 LLM，也可用于推理模型，而且可以按需叠加在推理训练之上。一个很好的例子是 DeepSeekMath-V2:研究者在(数学特化的)推理模型之上叠加了极端的推理扩展，在高难度数学奥赛题上拿到了 SOTA。
 
-![图 11:两种推理扩展(自洽性与自我精炼)联用提升数学表现。图改绘自 [DeepSeekMath-V2: Towards Self-Verifiable Mathematical Reasoning](https://arxiv.org/abs/2511.22570)](/images/distilled/controlling-reasoning-effort/12.png)
+![图 11:两种推理扩展(自洽性与自我精炼)联用提升数学表现。图改绘自 [DeepSeekMath-V2: Towards Self-Verifiable Mathematical Reasoning](https://arxiv.org/abs/2511.22570)](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/12.png)
 
 其他技术的概览，还是推荐看我的《LLM 推理模型的推理时计算现状》。
 
@@ -92,7 +92,7 @@ DeepSeek R1 之所以最终更受欢迎，一个原因是它证明了推理行�
 
 你可能在前面「顿悟时刻」的图里见过 `<think></think>` 这对 token。我把对应的图也放在下面，省得你往回翻。
 
-![图 12:推理模型中常见的格式 token。](/images/distilled/controlling-reasoning-effort/14.png)
+![图 12:推理模型中常见的格式 token。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/14.png)
 
 就推理能力而言，`<think>` 和 `</think>` 标签只是「装饰」。它们不会让模型学会推理，也不是取得好推理性能的必要条件——完全不用这些分隔符训练同一个模型，大概率也能达到相近的基准成绩。
 
@@ -122,7 +122,7 @@ DeepSeek R1 之所以最终更受欢迎，一个原因是它证明了推理行�
 
 不管 prompt 是什么，R1 一般都会输出非常冗长的回答、消耗大量 token，哪怕是最简单的问题，而且它内建不了关闭推理模式的选项。
 
-![图 13:即使面对最简单的 prompt，推理模型也非常啰嗦。](/images/distilled/controlling-reasoning-effort/15.png)
+![图 13:即使面对最简单的 prompt，推理模型也非常啰嗦。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/15.png)
 
 后来的模型，如 Qwen3 等，开始尝试混合方案:同一个模型既能表现得像普通的指令微调模型，也能按需切换成推理模型。
 
@@ -130,7 +130,7 @@ DeepSeek R1 之所以最终更受欢迎，一个原因是它证明了推理行�
 
 Qwen3 通过 tokenizer 的 `enable_thinking=True` 或 `enable_thinking=False` 来控制。在底层，`enable_thinking=False` 本质上是在 assistant 回答的开头塞入一个空的 `<think></think>` 区段，从而关掉 Qwen3 的推理(「思考」)模式。
 
-![图 14:Qwen3 0.6B 推理模型在 `thinking=False` 与 `thinking=True` 下的响应。(左图中空的 `<think></think>` 标签被界面隐藏了，因为它们属于改写后的输入 prompt，而不是生成的答案。)](/images/distilled/controlling-reasoning-effort/16.png)
+![图 14:Qwen3 0.6B 推理模型在 `thinking=False` 与 `thinking=True` 下的响应。(左图中空的 `<think></think>` 标签被界面隐藏了，因为它们属于改写后的输入 prompt，而不是生成的答案。)](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/16.png)
 
 训练上怎么实现，才能让模型在推理时支持这种切换(如上图)?
 
@@ -145,7 +145,7 @@ thinking 是默认行为，所以 `/think` 也可以省略。随后的通用 RL 
 
 `/think` 和 `/no_think` 标记相当于「软开关」。而前面提到的 `enable_thinking=False`——在 False 时强制填入空 `<think></think>`——则相当于「硬开关」。
 
-![图 15:Qwen3 训练流水线中的「思考模式融合」，实现推理模式开关。](/images/distilled/controlling-reasoning-effort/17.png)
+![图 15:Qwen3 训练流水线中的「思考模式融合」，实现推理模式开关。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/17.png)
 
 换句话说，tokenizer 并不会把 `/no_think` 加进 query，而是直接在 assistant 回答的开头填入空 `<think></think>` 区段;模型只看到最终的 token 序列，直接接着写答案。
 
@@ -157,7 +157,7 @@ thinking 是默认行为，所以 `/think` 也可以省略。随后的通用 RL 
 
 本文开头我展示过 Codex GPT 5.6 界面中的多档推理「强度」设置。
 
-![图 16:GPT-5.6 提供六档推理强度，从 Light 到 Ultra。](/images/distilled/controlling-reasoning-effort/18.png)
+![图 16:GPT-5.6 提供六档推理强度，从 Light 到 Ultra。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/18.png)
 
 接下来的小节先讲这些设置可能如何实现，然后再过一遍这个方向上更有趣的几篇研究论文。
 
@@ -167,21 +167,21 @@ OpenAI 没有公开其强度设置的具体实现，但有一些线索可供合�
 
 比如，通过他们去年开源的 gpt-oss 模型(我在[从 GPT-2 到 gpt-oss:架构演进分析](https://magazine.sebastianraschka.com/p/from-gpt-2-to-gpt-oss-analyzing-the)里写过)，我们知道 OpenAI 允许通过系统提示词(system prompt)切换推理强度——在每个 prompt 前加上 "Reasoning effort: low/medium/high"。
 
-![图 17:gpt-oss 的 chat 模板把选定的推理强度插进系统消息，再把 prompt 发给同一个模型。](/images/distilled/controlling-reasoning-effort/19.png)
+![图 17:gpt-oss 的 chat 模板把选定的推理强度插进系统消息，再把 prompt 发给同一个模型。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/19.png)
 
 不出所料，推理强度直接影响回答长度和准确率，如下图所示。
 
-![图 18:不同推理强度下 gpt-oss 模型的回答长度与质量(标注图，来自[模型卡](https://cdn.openai.com/pdf/419b6906-9da6-406c-a19d-1bb078ac7637/oai_gpt-oss_model_card.pdf))](/images/distilled/controlling-reasoning-effort/20.png)
+![图 18:不同推理强度下 gpt-oss 模型的回答长度与质量(标注图，来自[模型卡](https://cdn.openai.com/pdf/419b6906-9da6-406c-a19d-1bb078ac7637/oai_gpt-oss_model_card.pdf))](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/20.png)
 
 可以推测，GPT 5 系列(包括最近的 GPT 5.6)用的也是类似方案。
 
 另外请注意上图中不同档位对回答长度的缩放:强度档位似乎与 token 用量直接相关，而 token 用量又似乎与准确率相关。理论上也许能做出比 "high" 更高的档位，但我猜性能会在某处饱和。这种饱和在 GPT 5.6 Sol 上看得更清楚——它也说明，继续加大推理预算到某个点之后会变得不划算。
 
-![图 19:推理强度同时推高 API 成本和 coding agent 表现，在 GPT-5.6 最高档位出现收益递减。图基于 Artificial Analysis Coding Agent Index v1.1。](/images/distilled/controlling-reasoning-effort/21.png)
+![图 19:推理强度同时推高 API 成本和 coding agent 表现，在 GPT-5.6 最高档位出现收益递减。图基于 Artificial Analysis Coding Agent Index v1.1。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/21.png)
 
 另一个很新的数据点，也能说明推理强度、token 用量和基准表现之间的关系:Thinking Machine Labs 本周开源的 [Inkling](https://sebastianraschka.com/blog/2026/inkling-architecture-benchmark-notes.html)。
 
-![图 20:提高 Inkling 的强度值，生成 token 数和基准成绩总体随之上升，但在高强度处收益递减或波动。图来自 [Inkling 发布博客](https://thinkingmachines.ai/news/introducing-inkling/)。](/images/distilled/controlling-reasoning-effort/22.png)
+![图 20:提高 Inkling 的强度值，生成 token 数和基准成绩总体随之上升，但在高强度处收益递减或波动。图来自 [Inkling 发布博客](https://thinkingmachines.ai/news/introducing-inkling/)。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/22.png)
 
 如本节所述，推理时只需通过系统提示词就能控制推理强度(ChatGPT 界面大概就是把菜单选项映射到系统提示词)。但这对任意模型并不通用——它要求训练流水线做相应改造，这正是下一节的内容。
 
@@ -197,7 +197,7 @@ OpenAI 没有公开其强度设置的具体实现，但有一些线索可供合�
 
 比如，在 RLVR 主阶段之后的 SFT 中，训练集中的 prompt 会配上展示目标推理量的参考答案(这些答案可以由人写、由另一个模型生成，或生成后筛选)。
 
-![图 21:强度条件化的 RLVR 与 SFT 示意。(这是一种可能的实现，并非对 OpenAI 训练流水线的确认描述。)](/images/distilled/controlling-reasoning-effort/23.png)
+![图 21:强度条件化的 RLVR 与 SFT 示意。(这是一种可能的实现，并非对 OpenAI 训练流水线的确认描述。)](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/23.png)
 
 在 SFT 阶段，模型直接从训练样本中学习强度标签与目标推理长度之间的关联。基于 RL 的实现则会把强度标签和预算感知奖励放进 RLVR 阶段。两者也可以结合——我猜测 gpt-oss 和 GPT 5.6 都是这么做的(注意，GPT 5.6 的强度设置很可能只是针对用户 query 改变系统提示词而已)。
 
@@ -205,7 +205,7 @@ OpenAI 没有公开其强度设置的具体实现，但有一些线索可供合�
 
 刚发布的 Inkling 技术报告给出了一个小而具体的强度训练例子。
 
-![图 22:Inkling 在 0.2 到 0.99 之间扫连续的强度值;强度越高，回答通常越长、基准分数越高。](/images/distilled/controlling-reasoning-effort/24.png)
+![图 22:Inkling 在 0.2 到 0.99 之间扫连续的强度值;强度越高，回答通常越长、基准分数越高。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/24.png)
 
 在大规模 RL 阶段，他们对每个样本做了两件事:
 
@@ -233,7 +233,7 @@ OpenAI 没有公开其强度设置的具体实现，但有一些线索可供合�
 
 右边，模型保持不变，只改推理强度——这是推理时扩展:权重不变，但允许模型花更少或更多的 token 来作答。
 
-![图 23:模型选择与推理强度两个菜单，对应两条不同的扩展轴。选 Luna、Terra、Sol 是换模型，改推理强度则是对固定模型调整推理时计算。](/images/distilled/controlling-reasoning-effort/25.png)
+![图 23:模型选择与推理强度两个菜单，对应两条不同的扩展轴。选 Luna、Terra、Sol 是换模型，改推理强度则是对固定模型调整推理时计算。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/25.png)
 
 一个小的术语提醒:在菜单里选另一个模型，严格说并不是「在那一刻做训练扩展」——训练早已完成。更准确的理解是:模型菜单是在「按不同训练规模产出的模型」之间做选择。
 
@@ -241,7 +241,7 @@ OpenAI 没有公开其强度设置的具体实现，但有一些线索可供合�
 
 不出所料，两种方式都能提升基准分数，但也都会抬高成本。更有趣的是，曲线之间有重叠:比如，小模型开高强度，有时能追平大模型开低强度的分数。
 
-![图 24:GPT-5.6 家族在 Artificial Analysis Coding Agent Index 上的训练扩展与推理扩展。沿每条模型曲线移动对应提高推理强度，跨 Luna、Terra、Sol 曲线对应更换模型。](/images/distilled/controlling-reasoning-effort/26.png)
+![图 24:GPT-5.6 家族在 Artificial Analysis Coding Agent Index 上的训练扩展与推理扩展。沿每条模型曲线移动对应提高推理强度，跨 Luna、Terra、Sol 曲线对应更换模型。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/26.png)
 
 顺带一提，这张图的横轴是 API 成本而不是原始算力。API 成本是实用的度量，但它还取决于供应商定价和生成 token 数;而且这些曲线的具体形状也因基准而异。
 
@@ -269,13 +269,13 @@ OpenAI 没有公开其强度设置的具体实现，但有一些线索可供合�
 
 Think Max 的附加系统指令以「Reasoning Effort: Absolute maximum with no shortcuts permitted.」(推理强度:绝对最大，不允许走捷径)开头。
 
-![图 25:DeepSeek V4 的推理强度控制概览，来自 [DeepSeek V4 文档](https://api-docs.deepseek.com/guides/thinking_mode/)。](/images/distilled/controlling-reasoning-effort/27.png)
+![图 25:DeepSeek V4 的推理强度控制概览，来自 [DeepSeek V4 文档](https://api-docs.deepseek.com/guides/thinking_mode/)。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/27.png)
 
 乍一听，这像个简单的提示词工程技巧，但这个 prompt 背后其实是**不同的训练配置**:每种模式使用各自的上下文窗口和长度惩罚(报告没有披露长度惩罚的具体实现)。Think Max 比 Think High 拿到更长的上下文窗口和更小的长度惩罚，从而有更多空间继续推理。
 
 所以，这条系统指令选择的是后训练中已经塑造好的行为;把同样的指令加给一个任意模型，不会有同样的效果。
 
-![图 26:DeepSeek V4 在报告的不同部分分别描述了三种强度模式和更大的教师池。教师池包含十多个领域专才，但报告没有披露这些教师如何映射到 Non-think、Think High 和 Think Max。](/images/distilled/controlling-reasoning-effort/28.png)
+![图 26:DeepSeek V4 在报告的不同部分分别描述了三种强度模式和更大的教师池。教师池包含十多个领域专才，但报告没有披露这些教师如何映射到 Non-think、Think High 和 Think Max。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/28.png)
 
 遗憾的是，公开报告(其他部分写得相当详细)没有把推理模式与领域专才的描述充分打通，无法据此还原具体的教师指派。
 
@@ -291,7 +291,7 @@ Think Max 的附加系统指令以「Reasoning Effort: Absolute maximum with no 
 
 推理时，三种模式都通过 [chat 模板](https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-NVFP4/blob/main/chat_template.jinja)选择。
 
-![图 27:通过 chat 模板选择 Nemotron 3 Ultra 的推理设置(示例来自[官方模型卡](https://build.nvidia.com/nvidia/nemotron-3-ultra-550b-a55b/modelcard))。](/images/distilled/controlling-reasoning-effort/29.png)
+![图 27:通过 chat 模板选择 Nemotron 3 Ultra 的推理设置(示例来自[官方模型卡](https://build.nvidia.com/nvidia/nemotron-3-ultra-550b-a55b/modelcard))。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/29.png)
 
 1) **Regular** 是默认项，使用 `enable_thinking=True`,assistant 回答以 `<think>` 开标签起始。
 
@@ -309,7 +309,7 @@ Think Max 的附加系统指令以「Reasoning Effort: Absolute maximum with no 
 
 medium-effort 训练随后延续到 RLVR 阶段:约 2.5% 的 RL prompt 在数学、STEM 和编程任务中使用 medium-effort 设置。报告指出，该模式还可以通过奖励超参校准——按长度调整奖励，从而在成本-质量权衡上提供额外控制。
 
-![图 28:Nemotron 3 Ultra 通过教师生成的 SFT 数据、随机预算截断和 RLVR 中的少量 medium-effort 子集引入中等强度。](/images/distilled/controlling-reasoning-effort/30.png)
+![图 28:Nemotron 3 Ultra 通过教师生成的 SFT 数据、随机预算截断和 RLVR 中的少量 medium-effort 子集引入中等强度。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/30.png)
 
 ### 6.3 Kimi K2.5:预算与无预算 RL 交替进行
 
@@ -319,7 +319,7 @@ medium-effort 训练随后延续到 RLVR 阶段:约 2.5% 的 RL prompt 在数学
 
 报告指出，固定的 token 预算会让推理模型过拟合到短解答:模型确实更简洁(更快、更便宜)，但可能失去从更多推理时计算中获益的能力，表现反而变差。
 
-![图 29:Toggle 方法让 Kimi K2.5 在保持整体基准表现相近的同时大幅提升 token 效率。标注图，来自 https://arxiv.org/abs/2602.02276](/images/distilled/controlling-reasoning-effort/31.png)
+![图 29:Toggle 方法让 Kimi K2.5 在保持整体基准表现相近的同时大幅提升 token 效率。标注图，来自 https://arxiv.org/abs/2602.02276](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/31.png)
 
 Kimi K2.5 的方法叫 **Toggle**，每隔固定训练步数，在两个 RL 阶段之间交替:
 
@@ -328,7 +328,7 @@ Kimi K2.5 的方法叫 **Toggle**，每隔固定训练步数，在两个 RL 阶�
 
 每个问题的预算，取 RLVR 中正确 rollout 的回答长度的某个分位数来估计;而且只有当该问题的平均准确率超过阈值后才启用预算约束——避免在模型还未能可靠解题时就强迫它缩短推理。
 
-![图 30:Toggle 方法两阶段概览。](/images/distilled/controlling-reasoning-effort/32.png)
+![图 30:Toggle 方法两阶段概览。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/32.png)
 
 报告在 K2 Thinking 上评估了 Toggle:生成 token 减少约 25–30%，基准表现几乎不变。这种行为还能从数学、编程 RL 任务迁移到 GPQA 和 MMLU-Pro。
 
@@ -358,7 +358,7 @@ Toggle 完全发生在 RL 训练阶段。两个交替阶段更新的是同一个
 
 SFT 之后，GLM-5 依次经过推理 RL、agentic RL 和通用 RL;最后一步 on-policy 蒸馏以前面各阶段的检查点为教师，帮助最终模型恢复在串行 RL 阶段中可能退化的能力。
 
-![图 31:GLM-5 训练流水线。](/images/distilled/controlling-reasoning-effort/33.png)
+![图 31:GLM-5 训练流水线。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/33.png)
 
 ### 6.5 Qwen3:模式融合 + 推理时截断
 
@@ -380,7 +380,7 @@ Inkling 在 5.3 节已经讲过。简言之，其[技术报告](https://thinking
 
 下表汇总了六份技术报告实际披露的内容。
 
-![图 32:六个带推理强度设置的开源模型，其已披露训练机制与推理控制的对比。](/images/distilled/controlling-reasoning-effort/34.png)
+![图 32:六个带推理强度设置的开源模型，其已披露训练机制与推理控制的对比。](https://cyoungg06.github.io/BlogSite/images/distilled/controlling-reasoning-effort/34.png)
 
 纵观这六个开源模型，可以看出一个共同框架。**第一**，通过 SFT 和 chat 模板引入强度模式控制:Qwen3 显式混合 thinking 与 non-thinking 样本，GLM-5 则加入了交错、保留和轮次级思考模式。
 
