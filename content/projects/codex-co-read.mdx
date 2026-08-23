@@ -1,0 +1,30 @@
+---
+title:
+  zh: "共读 — 共同注意力的论文阅读器"
+  en: "Co-Read — a co-attention paper reader"
+description:
+  zh: "本地运行的共同注意力论文阅读器:左边原版 PDF,右边 Codex。全文上下文交给模型,此刻说多少由读者定。无需 API key,复用 ChatGPT 登录。"
+  en: "A local co-attention paper reader: original PDF on the left, Codex on the right. The model holds the full paper; the reader controls how much it says. No API key — reuses your ChatGPT sign-in."
+date: "2026-08-23"
+tags: ["TypeScript", "React", "Codex", "LLM"]
+github: "https://github.com/CYoungG06/Codex-Co-Read"
+featured: true
+hasDetail: true
+---
+
+## 为什么做
+
+AI 读论文的工具大多太热情,问一句公式,回一份全文综述,还没读到的地方先被剧透。共读想解决的是分寸问题:模型可以掌握全文背景,此刻说多少、说多深,由读者控制。
+
+## 设计
+
+- **共同注意力**:全文文字带页码边界作为背景注入并标记不可信,回答贴着当前页、选区和三档介入深度(点答/讲清/发散)。
+- **发送即快照**:每轮冻结页码、文字、选区、模型、思考深度与图片,等待期间翻页不改变进行中的请求。
+- **双模式**:共读模式禁工具、只读无网络沙箱、审批自动拒绝;研究模式放开 agent 能力,写入锁在 `research-workspace/`,盘点到的外部工具逐项审批。
+- **多会话**:同一篇论文可开多个独立会话,各自记住 thread、页码、缩放与模型设置,重开应用恢复最近会话;修改提问走 thread 分叉,错字不进新分支。
+
+详细动机、设计拆解与四十三小时的开发过程写在博客:[共读,一个共同注意力的论文阅读器](/zh/blog/codex-co-read/)。
+
+## 技术栈
+
+React 18 + TypeScript + Vite,react-pdf 渲染原版 PDF;本地 Express/WebSocket 桥接层经 stdio 对接 codex app-server,模型与思考深度直接读登录账户可用的一份。独立非官方项目,与 OpenAI、alphaXiv、arXiv 无隶属关系。MIT。
