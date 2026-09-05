@@ -1,0 +1,806 @@
+{
+  "date": "2026-09-04",
+  "generatedAt": "2026-09-05T06:56:13.831854+00:00",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2609.04199",
+      "title": "Compile by Training: Turning Natural-Language Specifications into Local Neural Functions",
+      "authors": [
+        "Yuntian Deng",
+        "Pengyu Nie",
+        "Stuart Shieber"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Many recurring text functions are easy to describe but difficult to implement with rules, while calling a large remote model for every input introduces repeated cost, latency, and dependency on a provider. We present compile by training, which turns a natural-language specification into a reusable neural function. At compile time, teacher models generate task-specific examples that are used to train a small adapter for a compact interpreter. The resulting function runs without the teachers and can be stored, versioned, and composed like ordinary software. On FuzzyBench-Hard, a subset on which the Program-as-Weights fast compiler produced no exact matches, compile by training reaches 83.6% semantic accuracy. This higher accuracy comes with a higher compile-time cost: roughly a minute rather than seconds for the fast compiler. We deploy the compiler in a public interactive service and demonstrate compiled functions in a multi-site website helper, a language-controlled 3D avatar, and a bidirectional English-Claudish translator.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04199",
+        "pdf": "https://arxiv.org/pdf/2609.04199"
+      },
+      "upvotes": 270,
+      "githubRepo": "https://github.com/programasweights/compile-by-training",
+      "githubStars": 3,
+      "projectPage": "https://programasweights.com/playground?compiler=paw-ft-bs48",
+      "numComments": 3,
+      "titleZh": "通过训练编译:将自然语言规范转化为局部神经函数",
+      "summaryZh": "针对重复出现的文本函数难以用规则实现、且每次调用远程大模型成本高的问题，提出“通过训练编译”方法:编译时由教师模型生成任务专属示例，训练一个小型适配器运行在紧凑解释器上，得到的神经函数无需教师即可运行，并可像普通软件一样存储、版本化和组合。在 FuzzyBench-Hard 上达到 83.6% 的语义准确率，远高于 Program-as-Weights 快速编译器零精确匹配的结果，但编译耗时为分钟级而非秒级。该编译器已部署于公共交互服务，并用于多站点网站助手、语言控制 3D 虚拟形象和英-克劳迪什语双向翻译等场景，展示了从自然语言规范到本地可复用函数的实用路径。",
+      "score": 7,
+      "reason": "教师合成数据蒸馏小模型，属后训练效率方向，方法与结果扎实",
+      "deepDive": false
+    },
+    {
+      "id": "2609.04148",
+      "title": "Terminal-Universe: Turning Agent Trajectories into Scalable Terminal Environments",
+      "authors": [
+        "Jie Wu",
+        "Zhenru Zhang",
+        "Beichen Zhang",
+        "Xuwu Wang",
+        "Yuhui Su",
+        "Mouxiang Chen"
+      ],
+      "authorsTotal": 14,
+      "abstract": "As terminal-based code agents become prevalent, agent trajectories have accumulated at scale, while realistic, executable environments remain scarce. However, environments are what agent post-training actually requires: each can be re-queried into many verifiable tasks and provides execution feedback, whereas a trajectory is a single frozen demonstration. Rather than generating environments from scratch, we observe that the tool-execution history in existing trajectories exposes the structure and contents of the environments in which they ran, making it possible to reconstruct those environments from the trajectories themselves. Thus, we introduce Terminal-Universe, a framework which turns each trajectory into a reusable environment and explores it for synthesizing new tasks and continued interactions. Specifically, Terminal-Universe replays the file operations recorded in a trajectory to restore each file before the agent modified it, yielding a partial workspace; a completion agent then supplies the missing files and dependencies. On this recovered workspace, we both reconstruct the original intent task and synthesize entirely new ones. Besides, we also scale the tasks along two complementary axes: breadth and depth. For breadth, we mine directional dependency relations between related environments and synthesize cross-workspace queries spanning multiple codebases, as developers routinely do in real-world development. For depth, we extend the initial single-turn query into a multi-round session that captures iterative user feedback and requirement refinement via a user agent. Applied to public terminal agent trajectories, Terminal-Universe produces 37.3k task-sufficient environments. Supervised fine-tuning of Qwen3.5-27B on this corpus improves single-round performance on Terminal-Bench 2.1 by 11.9 points and multi-round performance on EvoCode-Bench v2 MT@4 by 13.8 points.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04148",
+        "pdf": "https://arxiv.org/pdf/2609.04148"
+      },
+      "upvotes": 223,
+      "numComments": 1,
+      "titleZh": "Terminal-Universe：将智能体轨迹转化为可扩展的终端环境",
+      "summaryZh": "终端智能体轨迹大量积累，但真实可执行的终端环境仍然稀缺，而后者才是后训练所需的——环境可反复生成可验证任务并提供执行反馈，轨迹却只是冻结的演示。该方法利用轨迹中记录的工具执行历史重建环境：重放文件操作恢复智能体修改前的文件，再由补全智能体补齐缺失文件与依赖，从而将每条轨迹转化为一个可复用环境，并在此基础上重构原始任务或合成全新任务。任务还沿广度和深度两个方向扩展：广度上挖掘相关环境间的依赖关系合成跨代码库查询，深度上引入用户智能体将单轮查询扩展为多轮交互会话。应用于公开终端智能体轨迹后生成 37.3k 个任务充分的环境，对 Qwen3.5-27B 进行监督微调使 Terminal-Bench 2.1 单轮性能提升 11.9 分，EvoCode-Bench v2 多轮 MT@4 提升 13.8 分。",
+      "score": 9,
+      "reason": "轨迹重建终端环境，直接服务 Agent 后训练，方法新颖且结果扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2609.03796",
+      "title": "LLaDA-Image: Building Strong Image Generators with Fully Open Training Recipes",
+      "authors": [
+        "Chuyan Chen",
+        "Haoxing Chen",
+        "Kun Chen",
+        "Zhenglin Cheng",
+        "Long Cui",
+        "Ruishan Fang"
+      ],
+      "authorsTotal": 30,
+      "abstract": "We introduce LLaDA-Image, a unified framework that pairs a 6B Diffusion Transformer (DiT) trained from scratch with a frozen vision-language understanding module built on the LLaDA2.0-Mini diffusion language model backbone. Instead of relying heavily on paired image-text data from the beginning, we first build a strong visual generative prior through image-only pre-training and mid-training. The generation pipeline comprises 220M samples, 98 of which are real images. For efficient and scalable optimization, we use parameter-free RMSNorm throughout the DiT together with the Muon optimizer. The resulting unified model produces highly photorealistic images while accurately following fine-grained editing instructions. We further distill LLaDA-Image into LLaDA-Image-Turbo, enabling fast inference in 2-4 sampling steps. On Qwen-Image-Bench, LLaDA-Image achieves overall scores of 53.53 and 53.38 on the English and Chinese tracks, respectively, setting a new state-of-the-art among open-source models on both tracks. To support further research on capable and efficient generative models, we release our model weights, training code, and detailed recipes.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03796",
+        "pdf": "https://arxiv.org/pdf/2609.03796"
+      },
+      "upvotes": 204,
+      "projectPage": "https://github.com/inclusionAI/LLaDA-Image",
+      "numComments": 3,
+      "titleZh": "LLaDA-Image：利用完全开放的训练方案构建高性能图像生成器",
+      "summaryZh": "针对开源图像生成模型训练细节不透明的问题，LLaDA-Image 将从头训练的 6B Diffusion Transformer 与基于 LLaDA2.0-Mini 的冻结视觉语言理解模块统一起来。生成流程先通过 220M 样本（其中 98M 为真实图像）的纯图像预训练与中期训练建立生成先验，并在 DiT 中采用无参数 RMSNorm 与 Muon 优化器以提升可扩展性。该模型能生成高逼真图像并遵循细粒度编辑指令，蒸馏得到的 Turbo 版本仅需 2–4 步采样；在 Qwen-Image-Bench 英文与中文轨道上分别取得 53.53 与 53.38 的开放模型最优成绩。模型权重、训练代码与详细配方均已开源，便于后续研究复现与改进。",
+      "score": 2,
+      "reason": "图像生成方向，落在低分区间",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.03430",
+      "title": "Random Attention: Rethinking KV Cache Eviction for Efficient Reasoning",
+      "authors": [
+        "Heng Wang",
+        "Jielin Qiu",
+        "Wenting Zhao",
+        "Cheng Qian",
+        "Liangwei Yang",
+        "Jiawei Han"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Large language models achieve superior performance on tasks that require extended reasoning, but long chains of thought make the KV cache a severe memory bottleneck. Existing KV cache compression methods share one paradigm: score each cached token by some estimate of how much it will matter later, and keep the top-scoring ones. We show that the selection signal contributes almost nothing. Random Attention keeps the prompt and evicts uniformly at random within each attention head, computing no score at all; across four models and six reasoning tasks it matches the strongest prior evictor while serving 32-43% higher throughput than it in vLLM deployment. Controlled experiments explain this by showing that 1) the prompt is the fragile part of the cache, and most of the gap between selectors is just whether their selection signal happened to keep it; 2) the reasoning trace protects itself against eviction with redundancy at two levels, in the text (the model restates what it still needs as it works) and across attention heads (each keeps its own copy of the trace), so once the prompt is safe, a random draw retains enough copies of what the model still needs, and no score is required to pick them. Our code is publicly available at https://github.com/SalesforceAIResearch/Random-Attention.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03430",
+        "pdf": "https://arxiv.org/pdf/2609.03430"
+      },
+      "upvotes": 158,
+      "githubRepo": "https://github.com/SalesforceAIResearch/Random-Attention",
+      "githubStars": 27,
+      "projectPage": "https://arthur-heng.github.io/Random-Attention-page/",
+      "numComments": 2,
+      "titleZh": "随机注意力：重新思考 KV 缓存驱逐以提升推理效率",
+      "summaryZh": "长思维链推理使 KV 缓存成为严重的内存瓶颈，现有压缩方法均按某种重要性评分保留高分 token。本文发现选择信号几乎无贡献：随机注意力保留 prompt 并在每个注意力头内均匀随机驱逐 token，不计算任何分数；在四个模型和六项推理任务上与最强先验驱逐器持平，同时在 vLLM 部署中吞吐量高出 32–43%。受控实验表明，prompt 是缓存中脆弱部分，选择器间的差距主要来自是否恰好保留 prompt；推理轨迹通过文本层与跨头层冗余自我保护，因此 prompt 安全后随机抽取足以保留所需副本。该方法挑战了基于评分的驱逐范式，为推理场景提供零开销 KV 缓存压缩新思路。",
+      "score": 8,
+      "reason": "KV 缓存效率直接命中系统与推理方向，方法新颖且结果扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2608.26730",
+      "title": "Knowing When Not to Reuse: Conditional Experience Transfer in Autonomous LLM Post-Training",
+      "authors": [
+        "Tingyun Li",
+        "Wenfeng Feng",
+        "Weiqing Li",
+        "Abudukelimu Wuerkaixi",
+        "Guohua Liu",
+        "Yuewei Zhang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Large language models offer broad capabilities, but adapting them to evolving domains, tools, and requirements often entails repeated post-training. Autonomous systems automate parts of this process by proposing updates, training candidates, and using evaluation feedback to select subsequent proposals. As evidence accumulates, a central problem emerges: which past update evidence remains actionable after subsequent training has changed the parent model? An update's effect depends on its parent, data, and training stage. Treating past success as context-free permission can waste compute. If the resulting child is promoted, it can also degrade the subsequent training trajectory. We formulate this problem as conditional experience transfer and introduce Boundary-Calibrated Intervention Transfer (BCIT), a method that authorizes experience reuse before weight-changing training. BCIT binds an observed effect to its source context, checks applicability conditions, vetoes candidates with named hard conflicts, and obtains current-state evidence through a bounded training trial when needed. Fully trained candidates still face a shared adoption rule, and only observed events extend memory. On one 4B model adapted across finance reasoning, text-to-SQL, and function calling, candidate updates exhibit heterogeneous target and retention effects across the evaluated contexts. Under matched candidates, evidence, and compute, BCIT authorizes fewer harmful updates and attains higher equal-budget final-model quality than the evaluated alternatives. These results support treating experience authorization as a distinct problem in autonomous post-training.",
+      "published": "2026-08-27T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.26730",
+        "pdf": "https://arxiv.org/pdf/2608.26730"
+      },
+      "upvotes": 149,
+      "numComments": 2,
+      "titleZh": "知道何时不复用:自主LLM后训练中的条件经验迁移",
+      "summaryZh": "自主 LLM 后训练系统在反复更新模型时积累了大量历史更新证据，但过去的成功经验在父模型改变后未必仍然适用，草率复用既浪费计算，还可能劣化后续训练轨迹。本文将这一问题形式化为条件经验迁移，并提出边界校准干预迁移(BCIT):在权重变更训练前授权经验复用，将观测效果绑定到源上下文、检查适用条件、否决命名硬冲突，并在必要时通过有界训练试验获取当前状态证据;完整训练的候选仍须遵守统一采纳规则，且仅观测事件可扩展记忆。在针对金融推理、text-to-SQL 与函数调用适配的 4B 模型上，候选更新在不同上下文呈现异质的目标与留存效应;在同等预算下 BCIT 比对照方法授权更少有害更新并获得更高的最终模型质量。结果表明经验授权应作为自主后训练中的独立问题对待。",
+      "score": 8,
+      "reason": "直接命中LLM后训练方向，提出经验迁移新方法且有实验支撑。",
+      "deepDive": true
+    },
+    {
+      "id": "2609.01507",
+      "title": "LatentPress: Context Compression Beyond Text and Vision",
+      "authors": [
+        "Zhengze Zhou",
+        "Hejian Sang"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Compressed context is usually carried as human-readable text or as rendered images that must be decoded, even when its consumer is a language model. We introduce LatentPress, which writes conversational histories and long documents into a third representation: continuous memory tokens that a frozen decoder reads directly through its input-embedding interface, with no text reconstruction at inference. A small reader-matched writer compresses 4-16times while training only an adapter (4.2M-26.2M parameters, sim!0.1% of the decoder). On LongMemEval, LatentPress reaches 0.504 accuracy at 7.70times compression versus 0.490 for uncompressed evidence, outperforming text summaries (0.184) and OCR-based compression (0.426 to 0.312). On LongBench-QA, in-domain writers match or exceed raw-context reading at 4-8times compression, while 16times trails raw. Writing takes 43ms per conversation, roughly an order of magnitude faster than text summarization or OCR reconstruction, and reading is 5-9times faster than raw context or cached OCR. We validate the interface under two transfer settings, zero-shot from UltraChat to LongMemEval memory QA and from LongMemEval-derived QA to unseen LongBench document domains, establishing direct soft tokens as a practical machine-facing context interface beyond text and vision. The implementation of the experiments could be found at: https://github.com/xuyd16ai/context_softtoken_compress .",
+      "published": "2026-09-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.01507",
+        "pdf": "https://arxiv.org/pdf/2609.01507"
+      },
+      "upvotes": 107,
+      "projectPage": "https://github.com/HJSang/LatentPress",
+      "numComments": 2,
+      "titleZh": "LatentPress：超越文本与视觉的上下文压缩",
+      "summaryZh": "上下文压缩通常落在可读文本或渲染图像上，即使消费端是语言模型也需解码。LatentPress 改用第三类表示：将对话历史与长文档写成连续记忆 token，冻结 decoder 经输入嵌入层直接读取，推理时零文本重建；搭配的 writer 仅 4.2M–26.2M 参数（约 0.1%），实现 4–16 倍压缩。LongMemEval 上 7.70 倍压缩准确率 0.504，超过原始证据的 0.490，远优于文本摘要（0.184）与 OCR 压缩（0.426–0.312）；LongBench-QA 上 4–8 倍域内压缩不输原始上下文，写入约 43ms/段、读取快 5–9 倍。它把直接软 token 确立为面向机器的上下文接口，压缩不再依赖文本或图像重建。",
+      "score": 8,
+      "reason": "连续 token 上下文压缩，直接命中长上下文与效率方向，且有系统级验证",
+      "deepDive": true
+    },
+    {
+      "id": "2609.04172",
+      "title": "Rethinking On-Policy Distillation of Large Language Models II: One Training Example",
+      "authors": [
+        "Zixuan Fu",
+        "Bingxiang He",
+        "Yuxin Zuo",
+        "Haohuan Huang",
+        "Jinqian Zhang",
+        "Ruhang Xiao"
+      ],
+      "authorsTotal": 13,
+      "abstract": "On-policy distillation (OPD) combines student-generated rollouts with dense token-level supervision from a teacher. Existing work has mainly studied its algorithmic behavior, leaving the role of training data unclear. We examine this role at the data-minimal limit by training on a single query. One-shot OPD keeps improving for hundreds of steps and recovers most of full-data OPD's gain across task domains and model families. We explain this result through the states visited during training and the rate at which the student aligns with the teacher. We measure state coverage, the fraction of the states full-data OPD visits that a query set's rollouts reach. A single query already reaches \\(71.5\\%\\), most of it within the first 100 steps. Adding semantically distinct queries raises coverage and validation accuracy together, until 16 queries reach \\(98.9\\%\\) and match full-data training. Yet alignment slows at a similar pace whether OPD trains on one query or the whole dataset, and even a fixed set of states takes hundreds of steps to absorb. OPD is therefore data-overfed but algorithm-starved. Its rollouts quickly expose broad supervision, while the student absorbs that supervision increasingly slowly. The state-coverage result extends to multi-teacher OPD, where 16 semantically diverse queries per domain match full-data MOPD. As a further stress test, content-light templates and off-domain WildChat queries also approach the real-query baseline. Task content and induced state coverage can therefore come apart. We hope these findings direct future work toward the step efficiency of OPD, and prompt a re-examination of the data and the mechanisms behind its recent successes in frontier post-training.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04172",
+        "pdf": "https://arxiv.org/pdf/2609.04172"
+      },
+      "upvotes": 72,
+      "githubRepo": "https://github.com/Thinking-Space/One-Shot-OPD",
+      "githubStars": 30,
+      "numComments": 2,
+      "titleZh": "重思大语言模型同策略蒸馏 II:单一训练样本",
+      "summaryZh": "同策略蒸馏(OPD)用学生自生成轨迹配合教师的密集 token 级监督。本文在数据最少极限下只用一个查询训练:单查询 OPD 在数百步内持续提升，并恢复全数据训练的大部分收益。状态覆盖分析显示，单查询 rollout 可覆盖全数据训练访问状态的 71.5%，大部分在前 100 步内达成;16 条语义不同查询达到 98.9% 并与全数据持平。OPD 因此数据过剩而算法欠饱——rollout 快速暴露广泛监督，学生吸收却愈发缓慢;该结论扩展到多教师 OPD，内容空泛的模板与域外查询也接近真实查询基线。这些发现指向 OPD 的步效率问题，并推动重新审视其数据与机制。",
+      "score": 9,
+      "reason": "OPD 数据极限分析，直接命中后训练蒸馏方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.04098",
+      "title": "Why Gated DeltaNet Survives 4-Bit Quantization: NVFP4 W4A4 for the Recurrent Half of a Hybrid 27B LLM",
+      "authors": [
+        "Sergii Kozyrev",
+        "Davyd Maiboroda"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Hybrid LLMs pair softmax attention with linear-attention layers such as Gated DeltaNet (GDN), whose recurrent state summarizes the context in fixed size. Early community 4-bit quantizations of Qwen3.8-27B (48 GDN layers, 16 attention layers) left the GDN block in 8- or 16-bit precision -- especially its decay and write-strength gates -- on the intuition that errors in a recurrence accumulate over long contexts. We test that intuition by building Minima: NVFP4 W4A4 on all 496 linear layers, GDN included. Across perplexity at 4K/32K, MMLU-Pro, GSM8K, AIME'25, GPQA-Diamond, LiveCodeBench, and RULER retrieval to 64K, Minima matches BF16 within seed noise (5-task average -0.52) while being the smallest (17.5 GiB) and fastest-prefill (+14-19%) recipe we compare, and its 32K perplexity gap shrinks with position. A four-part mechanism study explains why: (i) NVFP4's 16-element block scaling localizes the residual stream's extreme outliers, equalizing activation error across layer roles; (ii) the supposedly fragile gate projections are the least sensitive -- softplus/exponential and sigmoid parameterizations compress ~11% GEMM error to ~2% output error; (iii) the delta-rule recurrence holds injected noise at a flat plateau over 32K tokens and forgets a state impulse within hundreds of steps, because each write overwrites the state along the current key direction; (iv) the per-token quantization cost washes out with context instead of compounding. We also repair a global-scale mismatch that arises when per-module-calibrated NVFP4 checkpoints are served by kernels that fuse those modules into one GEMM, and show calibrated FP8 KV-cache scales are performance-free. The result: a practical recipe -- quantize everything, ship KV scales -- and a mechanistic account of why the recurrent half of a hybrid LLM is the easy half to quantize. Checkpoint: https://huggingface.co/minima-ai/mnma_qwen3.8_27b_nvfp4",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04098",
+        "pdf": "https://arxiv.org/pdf/2609.04098"
+      },
+      "upvotes": 72,
+      "numComments": 2,
+      "titleZh": "为什么Gated DeltaNet能在4比特量化中存活：针对混合27B LLM循环半部分的NVFP4 W4A4",
+      "summaryZh": "混合LLM将softmax注意力与Gated DeltaNet等线性注意力配对，循环状态以固定大小压缩上下文。早期对Qwen3.8-27B的4比特量化常将GDN层保留在8/16比特，担心循环误差随长度累积。Minima提出全部496个线性层（含GDN）统一采用NVFP4 W4A4量化，在4K/32K困惑度、MMLU-Pro等五项任务上平均仅差BF16约-0.52，模型缩小至17.5GiB且prefill提速14-19%，32K困惑度差距随位置缩小。机制研究表明：NVFP4的16元素块缩放局部化极端离群值；门控投影对误差不敏感；delta-rule循环在32K token内维持平坦噪声平台并能遗忘状态脉冲；每token量化成本随上下文摊薄。该工作给出“全部量化、传输KV scales”的实用配方，并解释混合LLM的循环半部分反而容易量化。",
+      "score": 8,
+      "reason": "混合LLM量化新配方，机制分析扎实，直接命中效率方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.04196",
+      "title": "Puffin-World: Scaling a Unified Multimodal Model with Native 3D World States",
+      "authors": [
+        "Kang Liao",
+        "Yihang Luo",
+        "Xiao-Ming Wu",
+        "Linyi Jin",
+        "Size Wu",
+        "Chunyu Lin"
+      ],
+      "authorsTotal": 10,
+      "abstract": "We propose Puffin-World, a unified multimodal architecture that integrates physical understanding, spatial simulation, and 3D world generation and reconstruction without relying on external offline modules. To reliably construct and interact with 3D worlds, our framework jointly models three native world states: physics (gravity field and latitude), geometry (depth), and appearance (image), together with a unified Omni-Camera representation that supports diverse tasks and flexible motions. Beyond modeling these states, we introduce a strategy for propagating physical dynamics across future frames. By grounding absolute camera properties in the real world, Puffin-World enables physically consistent and visually stable world generation. We further couple appearance and geometry within a single generative process, jointly synthesizing each future view and reconstructing its underlying geometry. This unified paradigm enables interleaved closed-loop applications requiring synergy across multiple tasks, including mimic and self-calibrated world exploration. To scale Puffin-World to complex scenarios, we construct Puffin-16M, comprising 15 million vision-language-camera triplets and 1 million trajectories featuring various and challenging motions. To foster further research in this area, we released the code, models, and datasets.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04196",
+        "pdf": "https://arxiv.org/pdf/2609.04196"
+      },
+      "upvotes": 65,
+      "projectPage": "https://kangliao929.github.io/projects/puffin-world/",
+      "numComments": 3,
+      "titleZh": "Puffin-World：以原生3D世界状态扩展统一多模态模型",
+      "summaryZh": "面向3D世界生成与重建中依赖外部模块、物理一致性不足的问题，该框架直接联合建模物理（引力场与纬度）、几何（深度）与外观（图像）三类原生世界状态，并以Omni-Camera统一表示支撑多种任务与灵活运动。通过跨未来帧的物理动态传播和相机绝对属性锚定，实现物理一致且视觉稳定的世界生成，并在同一生成过程中联合合成外观与重建几何。构建含1500万视觉-语言-相机三元组和100万轨迹的Puffin-16M数据集，支撑模仿与自校准探索等封闭循环应用，已开源代码、模型与数据。",
+      "score": 2,
+      "reason": "3D世界生成与重建，属低分视觉方向，与读者关注点无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.04201",
+      "title": "Scal3R: Learning Efficient Multi-Relative Pose Query for Scalable Online 3D Reconstruction",
+      "authors": [
+        "Chin-Yang Lin",
+        "Yang-Che Sun",
+        "Cheng Sun",
+        "Fu-En Yang",
+        "Min-Hung Chen",
+        "Yen-Yu Lin"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Online 3D reconstruction models perform poorly on long videos. This happens because regressing poses relative to a fixed first-frame anchor forces extrapolation far beyond the training distribution. Small drifts accumulate and amplify into significant geometric collapse. However, we observe that per-frame depth remains stable throughout this failure. The backbone's local geometry remains intact; only the global pose head breaks down. Motivated by this decoupling, we introduce Scal3R. This approach reformulates online reconstruction as multi-reference relative pose querying. We use lightweight learnable tokens, which make up about ~1% of the parameters, and inject them into a completely frozen backbone via asymmetric attention. This setup queries poses relative to multiple past keyframes. An online pose-graph optimization system with loop closure suppresses long-range drift. Scal3R reaches convergence in 8 hours on a single GPU. It reduces the average ATE by over 60% on KITTI compared to the online baseline. It also achieves state-of-the-art performance across Virtual KITTI, Sintel, TUM-Dynamic, ScanNet, and 7-Scenes. Project page: https://linjohnss.github.io/scal3r/",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04201",
+        "pdf": "https://arxiv.org/pdf/2609.04201"
+      },
+      "upvotes": 43,
+      "projectPage": "https://linjohnss.github.io/scal3r/",
+      "numComments": 2,
+      "titleZh": "Scal3R：学习高效多相对位姿查询以实现可扩展在线三维重建",
+      "summaryZh": "在线三维重建模型在长视频上性能退化，源于相对固定首帧锚点的位姿回归迫使外推超出训练分布，微小漂移累积放大为几何坍缩；而逐帧深度保持稳定，说明仅全局位姿头失效。据此将在线重建重构为多参考相对位姿查询：用约占参数1%的可学习token通过非对称注意力注入完全冻结的骨干网络，针对多个历史关键帧查询位姿，并配合带闭环的在线位姿图优化抑制长程漂移。单个GPU上8小时收敛，在KITTI上平均ATE比在线基线降低超60%，在Virtual KITTI、Sintel、TUM-Dynamic、ScanNet和7-Scenes上达到SOTA。属于视觉几何与三维重建方向，与LLM后训练/Agent研究无交集。",
+      "score": 1,
+      "reason": "完全落在视觉重建低分方向，与读者兴趣无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.04034",
+      "title": "Editable Visual Design",
+      "authors": [
+        "Junyan Ye",
+        "Wei Liu",
+        "Dongzhi Jiang",
+        "Zichen Wen",
+        "HaoDong Li",
+        "Zhutao Lv"
+      ],
+      "authorsTotal": 12,
+      "abstract": "While diffusion base models such as GPT-Image-2 and Nano-Banana exhibit remarkable visual expressiveness, their end-to-end generation inherently yields flattened bitmaps with error-prone text, precluding layer-wise post-editing. Conversely, code-based visual generation via Coding Agents provides precise layout control and decoupled layers, yet remains constrained by a lack of global aesthetic intuition and the difficulty of coding complex visual assets. To address this, we propose Editable Visual Design, a new paradigm driven by a Coding Agent. We designate the VLM as the ``creative brain'' for requirement comprehension, task planning, and aesthetic judgment, while utilizing the image generation model as an on-demand ``visual world simulator'' to synthesize standalone visual assets. Operating under an ``imagine first, then act'' closed-loop workflow, the agent generates isolated assets, writes native HTML/CSS, and iteratively refines the design against visual rendering feedback. Furthermore, Agent Design Replay faithfully reproduces the creative and reasoning trajectory akin to that of professional human designers. Ultimately, the system delivers editable artifacts with decoupled layers and real text, enabling users to perform intuitive mouse dragging and layout adjustments on a graphical user interface. Validations on posters, infographics, and other scenarios show that this paradigm successfully achieves both refined aesthetics and production-grade editability.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04034",
+        "pdf": "https://arxiv.org/pdf/2609.04034"
+      },
+      "upvotes": 38,
+      "numComments": 2,
+      "titleZh": "可编辑视觉设计",
+      "summaryZh": "针对扩散基础模型端到端生成得到扁平位图、文字易错且无法分层后期编辑，而基于代码的生成又缺少全局审美与复杂资产构建能力的问题，提出由编码智能体驱动的可编辑视觉设计范式。视觉语言模型作为创意大脑负责需求理解、任务规划与审美判断，图像生成模型按需充当视觉世界模拟器合成独立素材;系统沿“先想象后执行”的闭环流程生成素材、编写原生HTML/CSS，并根据渲染反馈迭代修正，再用Agent Design Replay还原设计轨迹。最终输出图层解耦、文字真实的可编辑产物，支持鼠标拖拽调整布局;在海报与信息图等场景的验证表明该范式兼顾精细美学与生产级可编辑性。",
+      "score": 5,
+      "reason": "编码智能体驱动视觉设计，涉及Agent但与图像生成紧密绑定，方向擦边",
+      "deepDive": false
+    },
+    {
+      "id": "2609.02367",
+      "title": "The Missing Temporal Link: Temporal Context Routing for Script-Driven Audio-Video Generation",
+      "authors": [
+        "Yichen Liu",
+        "Quanwei Zhang",
+        "Haozhe Wang",
+        "Donghao Zhou",
+        "Xiaojie Li",
+        "Yang Shi"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Joint audio-video generation models have made substantial progress in visual quality and audio-visual synchronization. However, they still provide limited control over when shot transitions occur and dialogue is spoken. This limitation constrains their application in script-driven content creation, where timing errors can undermine narrative coherence and the viewing experience. Current joint generators align video and audio representations on a shared temporal axis, yet the precise timing of shots and dialogue specified in a structured prompt is encoded only in the prompt's text representation and remains unaligned with the temporal coordinates of either modality. Consequently, video and audio may remain synchronized with each other while both fail to follow the script timeline. This mismatch motivates us to extend temporal alignment beyond video and audio to include the structured script. We therefore introduce Temporal Context Routing (TCR), which maps the script timing onto the shared temporal axis of video and audio generation and routes each prompt's guidance to the corresponding positions in both modalities. Compared with the baseline on 200 test scripts, TCR reduces Shot Boundary MAE by 96%, from 1.11 s to 0.042 s, and raises Dialogue Acc@0.5 s from 28.3% to 84.1%. TCR achieves these improvements while maintaining visual quality and audio-visual synchronization comparable to those of the baselines. A user study further shows that participants prefer TCR on all five evaluated dimensions.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.02367",
+        "pdf": "https://arxiv.org/pdf/2609.02367"
+      },
+      "upvotes": 33,
+      "projectPage": "https://dagroup-pku.github.io/Temporal-Context-Routing.github.io/",
+      "numComments": 2,
+      "titleZh": "缺失的时间链接：面向脚本驱动音视频生成的时间上下文路由",
+      "summaryZh": "联合音视频生成模型在视觉质量和音画同步上已有进展，但对镜头切换和对话发生时刻的控制仍弱，导致脚本驱动的创作中叙事时间线难以对齐。已有方法仅将视频与音频表征对齐到共享时间轴，结构化脚本中的时间信息仍停留在文本表征层面。TCR将脚本时间映射到音视频生成共享时间轴，并把每条提示的引导路由到两种模态的对应位置。在200条测试脚本上，镜头边界MAE从1.11秒降至0.042秒（降幅96%），Dialogue Acc@0.5s从28.3%提升至84.1%，视觉质量与音画同步保持，用户研究五项维度均更受偏好。",
+      "score": 1,
+      "reason": "音视频生成方向，归入低分区间，相关性低",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.04131",
+      "title": "Beyond Retrieval: Progressive Latent Memory Evolution for Streaming Video Understanding",
+      "authors": [
+        "Hongyu Qu",
+        "Guangming Yao",
+        "Ling Xing",
+        "Xiaobin Hu",
+        "Rongxing Ding",
+        "Guibin Zhang"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Streaming video understanding requires multimodal large language models (MLLMs) to process continuous visual inputs and respond to user queries under strict causality and bounded memory. Existing approaches typically compress historical observations into an external memory bank and retrieve query-relevant evidence as additional visual context. Though effective, this store-and-retrieve paradigm keeps historical evidence as external visual context, preventing it from being internalized into a compact, evolving latent memory that can continuously guide streaming reasoning. To bridge this gap, we introduce LatentStream, a progressive latent working memory framework that shifts streaming memory from store-and-retrieve to retrieve-and-internalize. Specifically, LatentStream comprises three coordinated components. First, Query-agnostic Hierarchical Streaming Memory organizes visual history into short-, mid-, and long-term levels under a fixed memory budget through Jenks-guided adaptive consolidation. Once a query arrives, Hierarchical Latent Memory Evolution equips groups of latent memory tokens with progressively expanding memory receptive fields, enabling them to iteratively retrieve historical evidence from their corresponding scopes and internalize it into a compact, fixed-length latent memory. Finally, Progressive Confidence-guided Latent Memory Optimization constructs a hierarchical progression reward from group-wise predictive entropy and jointly refines the latent memory tokens and retrieved evidence, encouraging increasingly confident streaming reasoning. Extensive experiments demonstrate that LatentStream achieves new state-of-the-art results on existing online and offline video benchmarks.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04131",
+        "pdf": "https://arxiv.org/pdf/2609.04131"
+      },
+      "upvotes": 29,
+      "projectPage": "https://github.com/quhongyu/LatentStream",
+      "numComments": 2,
+      "titleZh": "超越检索:面向流式视频理解的渐进式潜在记忆演化",
+      "summaryZh": "流式视频理解要求多模态大模型在严格因果与固定记忆预算下持续处理视觉输入并回应用户查询。现有store-and-retrieve范式将历史证据放于外部记忆库，难以内化为紧凑、可演化的潜在记忆;LatentStream转向retrieve-and-internalize，以查询无关的分层流式记忆(经Jenks引导的整合维护短中长期层级)保存视觉历史，查询到来后由分层潜在记忆演化逐步扩大感受野、迭代检索并内化证据，并用分组预测熵构造渐进奖励进行置信度引导优化。在在线与离线视频基准上取得新SOTA，为流式视频理解的长时记忆建模提供新路径。",
+      "score": 7,
+      "reason": "MLLM视频记忆新框架，属多模态理解方向，但与核心后训练/Agent主线有距离。",
+      "deepDive": false
+    },
+    {
+      "id": "2609.04083",
+      "title": "CORE: Improving Compositional Reasoning in MLLM Embedding via Reranker Distillation",
+      "authors": [
+        "Tingyu Song",
+        "Mingxin Li",
+        "Yanzhao Zhang",
+        "Dingkun Long",
+        "Chu Liu",
+        "Pengjun Xie"
+      ],
+      "authorsTotal": 8,
+      "abstract": "MLLM-based embedding models remain limited in compositional retrieval, often failing to distinguish scenes containing the same concepts but different attribute-object bindings. Yet the same backbone can resolve such distinctions when used as a cross-attentive reranker, motivating us to distill its compositional judgments into the embedding model. We propose CORE, which synthesizes candidate lists spanning five compositional matching levels and introduces a Rank-KL objective that trains the embedding model to reproduce the reranker's fine-grained ranking. We further introduce a graded evaluation protocol and compare contrastive learning, pairwise CoSENT, and listwise Rank-KL under the same data and tuning budget. Our comparison shows that both CoSENT and Rank-KL use the multi-level supervision more effectively than contrastive learning, with Rank-KL achieving the strongest overall performance. Across three compositional reasoning benchmarks (COLA, SUGARCREPE++, NEGBENCH), CORE-RERANKER-8B achieves an 82.7% total average, outperforming Jina-Reranker by 10.7 points, while CORE-EMBED-8B achieves the best total average (0.666) among all evaluated embedding models. The improvements transfer to the MCMR benchmark without sacrificing retrieval performance on COCO and Flickr30K.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04083",
+        "pdf": "https://arxiv.org/pdf/2609.04083"
+      },
+      "upvotes": 24,
+      "numComments": 2,
+      "titleZh": "CORE：通过重排序器蒸馏提升 MLLM 嵌入模型的组合推理能力",
+      "summaryZh": "MLLM 嵌入模型在组合检索中常混淆相同概念但属性-对象绑定不同的场景，而同一骨干网络用作交叉注意力重排序器时却能正确区分。CORE 据此将重排序器的组合判断蒸馏进嵌入模型：合成覆盖五种组合匹配级别的候选列表，用 Rank-KL 目标让嵌入模型复现重排序器的细粒度排序，并在相同数据与调参预算下对比对比学习、CoSENT 与 Rank-KL。结果表明 CoSENT 与 Rank-KL 对多级监督的利用优于对比学习，Rank-KL 综合最强：CORE-EMBED-8B 在 COLA、SUGARCREPE++、NEGBENCH 上总平均 0.666，为所有评测嵌入模型最佳，且不牺牲 COCO 与 Flickr30K 的检索性能。该工作为多模态检索嵌入模型的组合泛化提供了一种有效的重排序器蒸馏训练范式。",
+      "score": 7,
+      "reason": "多模态嵌入的组合推理蒸馏，命中 MLLM 理解侧训练方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.03199",
+      "title": "RoboTok: An Internet-Scale Data Engine for Human Demonstration Retrieval and Dexterous Manipulation Learning",
+      "authors": [
+        "Howard Qian",
+        "Yiting Chen",
+        "Yunfei Xie",
+        "Kejia Ren",
+        "Podshara Chanrungmaneekul",
+        "Gaotian Wang"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Robot learning increasingly depends on broad and diverse demonstrations, yet collecting robot data remains expensive and poorly suited to covering the long tail of real-world tasks. To address this bottleneck, we introduce RoboTok, an internet-scale data engine that, given a query human manipulation video, retrieves manipulation-relevant human demonstrations from web videos for training dexterous robot policies. Specifically, we learn a latent motion space from 3D hand trajectories expressed in estimated actor-centered reference frames. This representation enables manipulation behaviors to be compared across variations in camera viewpoint, scene appearance, and actor occlusions, while remaining compact enough for efficient search and continual indexing over internet-scale video collections. We evaluate RoboTok against existing robot-data retrieval approaches on retrieval benchmarks and downstream robot policy performance. Our results show that RoboTok retrieves more relevant manipulation demonstrations and improves downstream task success, establishing hand-pose trajectory-aware retrieval as a way to make web video a scalable and continuously growing source of supervision for robot learning.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03199",
+        "pdf": "https://arxiv.org/pdf/2609.03199"
+      },
+      "upvotes": 24,
+      "githubRepo": "https://github.com/Rice-RobotPI-Lab/RoboTok-Code",
+      "githubStars": 8,
+      "projectPage": "https://rice-robotpi-lab.github.io/RoboTok/",
+      "numComments": 2,
+      "titleZh": "RoboTok:面向人类演示检索与灵巧操作学习的互联网规模数据引擎",
+      "summaryZh": "机器人学习依赖海量多样化演示，但真实机器人数据采集昂贵且难以覆盖长尾任务。RoboTok 构建互联网规模数据引擎，给定一段人类操作视频，可从网络视频中检索与操作相关的人类演示，用于训练灵巧机器人策略。其核心是从估计的以演员为中心的参考坐标系中的三维手部轨迹学习潜在运动空间，使操作行为可跨视角、场景外观和遮挡变化进行对比，同时保持紧凑表示以支持互联网级视频的高效检索与持续索引。实验表明，RoboTok 相比现有检索方法能召回更相关的操作演示，并提升下游机器人任务的成功率，将手部姿态轨迹感知检索确立为利用网络视频扩展机器人学习监督的可扩展途径。",
+      "score": 1,
+      "reason": "机器人灵巧操作学习，完全落在低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.04094",
+      "title": "DRACO: Fine-Grained Credit Assignment with Dynamic Rubrics for Long-Horizon Agent Training",
+      "authors": [
+        "Shubham Gandhi",
+        "Saurabh Goyal",
+        "Kiran Kate",
+        "Yara Rizk"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Reinforcement Learning from Verifiable Rewards works well when a task has a programmatic checker, but most long-horizon agent domains have none. We work in the outcome-blind setting, where ground-truth success signals are not available. Multi-criteria rubrics are a popular way to supply such a reward; they are scored once per trajectory, but a single scalar is a poor signal across tens of steps. We propose DRACO: Distributing Rubric-based Advantage for Credit Optimization. It generates rubrics dynamically during training to track the policy's evolving capability, scores those rubrics once per completed trajectory, and redistributes that judgment over the steps responsible for annotated rubrics to produce differentiated per-step advantages in GRPO. The redistribution is closed-form and does not introduce any trained attribution module. On AppWorld, DRACO gains 15.9 points over the base model and 5.3 points over GRPO trained with a sparse ground-truth reward, despite not using any verifiers itself. On out-of-domain Tau-Bench, it gains 5.3 points over the base model even without a frontier judge, beating both ground-truth-reward training and other rubric-based training settings. The code for DRACO is available at https://github.com/IBM/draco.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04094",
+        "pdf": "https://arxiv.org/pdf/2609.04094"
+      },
+      "upvotes": 23,
+      "githubRepo": "https://github.com/IBM/draco",
+      "githubStars": 1,
+      "numComments": 2,
+      "titleZh": "DRACO：面向长程智能体训练的基于动态评分规则的细粒度信用分配",
+      "summaryZh": "长程智能体任务普遍缺少可编程验证器，基于可验证奖励的强化学习难以适用；逐轨迹打分的多准则评分规则又只能给出单一标量，无法反映数十步内的优劣。DRACO 在 GRPO 训练中动态生成与策略能力同步演化的评分规则，对每条完整轨迹打分，再以闭式方式将该判断重新分配至生成相应评分规则的步骤，得到细粒度的逐步优势，无需训练额外归因模型。在 AppWorld 上，DRACO 比基座模型高 15.9 分，比使用稀疏真值奖励训练的 GRPO 高 5.3 分；在域外 Tau-Bench 上，即使不使用前沿 judge 也比基座高 5.3 分，且同时优于真值奖励训练和其他基于评分规则的训练设置。该方法为无结果信号的长程智能体后训练提供了一种免验证器的信用分配方案。",
+      "score": 8,
+      "reason": "GRPO 上做动态评分与细粒度信用分配，直接命中 Agent 后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.03952",
+      "title": "WorldReward: Reward Modeling for Camera-Conditioned World Models",
+      "authors": [
+        "Yibin Wang",
+        "Zehan Wang",
+        "Junshu Tang",
+        "Zhimin Li",
+        "Yujie Zhou",
+        "Jiazi Bu"
+      ],
+      "authorsTotal": 16,
+      "abstract": "Camera-conditioned world models generate interactive videos in which commanded actions should induce the expected scene changes while appearance, geometry, and temporal dynamics remain coherent. Existing rewards assess these requirements separately: geometry-based rewards estimate trajectory execution but cannot judge the visual quality of the executed motion, whereas image-based rewards measure frame quality without capturing action execution or temporal dynamics. We posit that a vision-language model (VLM) offers a shared reasoning space for relating actions to their visual outcomes. However, judging a complete long video against its full action sequence creates a lengthy, noisy context in which short-lived local action evidence can be missed or diluted. We present WorldReward, a VLM-based pairwise preference reward model that unifies action-consistency and visual-quality evaluation for camera-conditioned world models. WorldReward decomposes paired videos into action-aligned chunks, organizes each chunk into structured visual evidence, and aggregates chunk-level decisions by voting into separate video-level action and visual-quality preferences. To train it, we construct a large-scale reasoning-augmented preference dataset using structured judgments generated by a frontier VLM and refined through tool-based agent auditing and targeted human review. We further introduce WorldReward-Bench, a human-annotated benchmark measuring reward-model agreement with human preferences across action consistency, appearance quality, and motion quality. WorldReward achieves the highest agreement on all three dimensions, exceeding GPT-5.5 by 3.42, 1.45, and 3.56 percentage points, respectively. When used for RL post-training of HY-WorldPlay 1.5, it consistently improves both action execution and visual quality across short- to long-term horizons.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03952",
+        "pdf": "https://arxiv.org/pdf/2609.03952"
+      },
+      "upvotes": 23,
+      "projectPage": "https://codegoat24.github.io/WorldReward/",
+      "numComments": 2,
+      "titleZh": "WorldReward：面向相机条件世界模型的奖励建模",
+      "summaryZh": "相机条件世界模型需在动作驱动场景变化的同时保持外观、几何与时间动态一致，但现有奖励分别评估几何轨迹与图像质量，无法统一衡量动作执行与视觉效果。WorldReward 采用基于 VLM 的成对偏好奖励模型，将成对视频按动作对齐分块，组织成结构化视觉证据，并投票聚合为视频级动作一致性与视觉质量偏好。训练数据由前沿 VLM 生成结构化判断，再经工具化智能体审计与人工复核精炼。WorldReward-Bench 上，该方法在三项指标上均超过 GPT-5.5，分别高出 3.42、1.45 和 3.56 个百分点；用于 HY-WorldPlay 1.5 的 RL 后训练可在长短时程上同时改善动作执行与视觉质量。",
+      "score": 4,
+      "reason": "视频世界模型奖励建模，偏视觉生成域，仅以VLM作评估器沾边。",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.27831",
+      "title": "RealSWE: A Compositional Evaluation of Coding Agents under Realistic User Requests",
+      "authors": [
+        "Gyuhyeong Kim",
+        "Hyojung Gwon",
+        "Jeonghyeon Kim",
+        "Kyuhong Shim",
+        "Sunjae Lee"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Coding agents are now commonly evaluated on the SWE-bench family of benchmarks, whose tasks are built from curated GitHub issues: long, structured, and information-rich. Real user requests, however, are typically far shorter and less structured. To characterize this gap, we define a six-category information taxonomy and four dimensions of linguistic style, and apply them to real user prompts from SWE-chat and problem statements from SWE-bench Verified and Pro. We find that requests carrying only a problem statement, alone or with limited additional context, account for 88% of real prompts but just 7% of benchmark problems. Furthermore, 87% of real prompts are casually written whereas 94% of benchmark problems are formal. Guided by these observations, we introduce RealSWE, 381 multi-variant task families derived from SWE-bench Verified and Pro. Variants within each family share the same underlying task and gold patch while differing only in information composition and linguistic style. Evaluating seven contemporary LLMs with RealSWE, we find that i) realistic inputs reduce resolution rates by 6.4 pp on average and can change model rankings. Controlled analysis further shows that ii) including Desired Behavior and Motivation significantly affects performance, whereas Environment Information and Reproduction Steps merely add tokens without measurable benefit; iii) linguistic style has only small, model-dependent effects. These findings provide actionable guidance for users and agents: explicitly stating the desired behavior and motivation, which most real prompts omit, substantially improves the LLM's software engineering performance.",
+      "published": "2026-08-31T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.27831",
+        "pdf": "https://arxiv.org/pdf/2608.27831"
+      },
+      "upvotes": 23,
+      "githubRepo": "https://github.com/gyuhyeong-x/RealSWE",
+      "githubStars": 0,
+      "numComments": 4,
+      "titleZh": "RealSWE:现实用户请求下编程代理的组合式评测",
+      "summaryZh": "编程代理评测多基于SWE-bench，其任务来自结构化GitHub issue，与真实用户简短随意的请求差异显著。RealSWE依据六类信息组成与四维语言风格，从SWE-bench Verified/Pro构建381组多变量任务，保持底层任务与金补丁不变而仅改变信息组成与风格。评估七款当代LLM发现，真实化输入使平均解决率下降6.4个百分点并可能改变排名;明确期望行为与动机显著提升性能，而环境信息与复现步骤仅增加token无实际收益;语言风格影响较小且依赖模型。结果为编程代理的用户提示设计与Agent评测提供了可操作指南。",
+      "score": 8,
+      "reason": "编程代理评测新基准，直击Agent真实请求评估缺口",
+      "deepDive": true
+    },
+    {
+      "id": "2609.03293",
+      "title": "PACE: Towards Surfacing Hidden Conflicts in User Requests",
+      "authors": [
+        "Yoojin Kim",
+        "Jihyoung Jang",
+        "Hyounghun Kim"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Personalized assistants should not only comply with user requests but also assess whether those requests are appropriate given the user's current circumstances. However, prior work has primarily focused on accurately executing requests, overlooking the need for assistants to account for context and engage in conflict-based refusal. Furthermore, while existing work on conflict or safety detection relies on explicitly provided factors, real-world scenarios often involve implicit factors that must be retrieved from a knowledge base (KB). To this end, we introduce Personalized Assistants for Conflict Evaluation (PACE), a dataset for evaluating whether models can identify latent constraints, expressed as egocentric knowledge or events, that render seemingly reasonable user requests inappropriate. PACE pairs user requests grounded in well-defined personas with egocentric KB facts, requiring models to integrate contextual evidence to determine whether a request is conflicting. This implicit retrieval setting hinders the direct association between user requests and conflict-inducing knowledge, making it difficult for existing models to identify relevant user-specific facts. To address this challenge, we further propose PaceMaker, a multi-agent framework in which specialized agents coordinate across query reformulation, multi-hop graph traversal, and conflict-aware filtering to retrieve contextually decisive evidence. Experiments on PACE evaluate both evidence retrieval quality and conflict decision accuracy, showing that PaceMaker consistently outperforms existing approaches.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03293",
+        "pdf": "https://arxiv.org/pdf/2609.03293"
+      },
+      "upvotes": 22,
+      "numComments": 2,
+      "titleZh": "PACE：揭示用户请求中隐藏冲突的方法",
+      "summaryZh": "个性化助手不仅要执行用户请求，还需判断请求在当前情境下是否恰当，但现有工作多聚焦于执行准确性，忽视基于上下文的冲突拒绝；同时冲突/安全检测常依赖显式提供的信息，而真实场景需要从知识库检索隐式约束。为此提出数据集PACE，将基于明确定义人格的用户请求与自我中心知识事实配对，要求模型整合上下文证据判断请求是否冲突。进一步提出多智能体框架PaceMaker，通过查询改写、多跳图遍历和冲突感知过滤协调多个专职智能体，检索关键证据。实验表明PaceMaker在证据检索质量和冲突决策准确性上持续优于现有方法，适用于需要情境化判断的个性化助手场景。",
+      "score": 7,
+      "reason": "多智能体框架解决个性化助手冲突检测，贴合Agent与对齐方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.04173",
+      "title": "Last Translation Benchmark",
+      "authors": [
+        "Vilém Zouhar",
+        "Niyati Bafna",
+        "Mukund Choudhary",
+        "Maike Züfle",
+        "Sara Rajaee",
+        "Pinzhen Chen"
+      ],
+      "authorsTotal": 244,
+      "abstract": "For scientific progress, we need benchmarks that test the limits of state-of-the-art models, and evaluation methods that inform us about failure cases. As models get stronger, standard benchmarks for machine translation are approaching saturation. Further, automatic translation metrics are unreliable, vulnerable to reward-hacking, and provide unactionable assessments. Even gold human evaluation is not problem-free, because it often lacks reproducibility, objectivity, and scalability. Overall, this prevents us from tracking objective progress in the field and identifying pathways for improvement. We introduce the Last Translation Benchmark, a collection of human-authored and peer-reviewed examples (texts, images, audio, videos) that break leading machine translation models. We also present a new evaluation approach: each example comes with handcrafted verification rules describing concrete failure cases on that example, therefore allowing reliable and actionable future evaluation. The Last Translation Benchmark is a live dataset that accepts ongoing contributions. The latest version is LTBv1, containing accepted contributions prior to September 1st 2026, with future releases planned as new data is continuously collected.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04173",
+        "pdf": "https://arxiv.org/pdf/2609.04173"
+      },
+      "upvotes": 22,
+      "githubRepo": "https://github.com/zouharvi/last-translation-benchmark",
+      "githubStars": 48,
+      "projectPage": "https://last-translation-benchmark.vilda.net/",
+      "numComments": 2,
+      "titleZh": "最后一个翻译基准",
+      "summaryZh": "机器翻译基准趋于饱和，自动评估指标易被奖励攻击且不可靠，阻碍领域客观进展追踪。该工作发布LTBv1，包含人工撰写并经同行评审的文本、图像、音频、视频示例，用于击破领先翻译模型。每个示例附带手工验证规则，描述具体失败案例，从而支持可靠、可行动的评估。该基准是持续更新的活数据集，未来将随数据积累发布新版本。",
+      "score": 5,
+      "reason": "翻译基准评测方向偏经典NLP，与读者关注交集有限",
+      "deepDive": false
+    },
+    {
+      "id": "2609.03563",
+      "title": "FlashRender: Few-Step Generative Rendering via Camera-Controlled Video MeanFlow",
+      "authors": [
+        "Byeongjun Park",
+        "Byung-Hoon Kim",
+        "Hyungjin Chung"
+      ],
+      "authorsTotal": 3,
+      "abstract": "We present FlashRender, a few-step generative rendering framework that retakes a source video along a target camera trajectory in seconds. We identify sampling-step-dependent camera control as a prominent manifestation of discretization error in existing multi-step generative rendering models and show that resolving this inconsistency substantially lowers denoising trajectory curvature, facilitating subsequent step distillation. To this end, we introduce Representation Transformation and Alignment (RETA), which aligns hidden source-video representations with target-video features from a frozen visual geometry model. This directly encodes the geometric transformation within the source-video stream, enabling sampling-step-consistent camera control. We then fine-tune the model with the MeanFlow objective on the lower-curvature denoising trajectory induced by RETA, allowing the model to more effectively address discretization error. Finally, we apply on-policy flow map distillation to correct self-rollout errors under fixed few-step sampling. Extensive experiments show that RETA, MeanFlow, and on-policy flow map distillation play complementary roles in few-step generative rendering. Together, they enable our approach to match multi-step baselines in video quality and geometric consistency at 25x lower sampling cost while achieving superior camera controllability, even under out-of-distribution target camera trajectories.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03563",
+        "pdf": "https://arxiv.org/pdf/2609.03563"
+      },
+      "upvotes": 18,
+      "githubRepo": "https://github.com/byeongjun-park/FlashRender",
+      "githubStars": 7,
+      "projectPage": "https://byeongjun-park.github.io/FlashRender/",
+      "numComments": 2,
+      "titleZh": "FlashRender:基于相机控制视频MeanFlow的少步生成式渲染",
+      "summaryZh": "针对多步生成式渲染中采样步数相关的相机控制不一致(离散化误差)导致少步采样失效的问题，提出FlashRender框架。引入表示变换与对齐(RETA)，借助冻结的视觉几何模型将源视频隐表示与目标视频特征对齐，在源视频流内直接编码几何变换，从而获得采样步一致的相机控制;随后在由RETA诱导的低曲率去噪轨迹上用MeanFlow目标微调，并结合on-policy流图蒸馏校正少步自滚动误差。实验表明三部分互补，在25倍更低采样成本下匹配多步基线的视频质量与几何一致性，且在分布外相机轨迹上取得更优控制。",
+      "score": 1,
+      "reason": "属于视频生成/扩散渲染方向，与关注领域无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.30391",
+      "title": "Using Grounded Theory for Agent Behavior Analysis at Scale",
+      "authors": [
+        "Zhuoran Lu",
+        "Yangyang Yu",
+        "Zhuoyan Li",
+        "Yibo Meng",
+        "Nan Jiang",
+        "Chengxi Zang"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Understanding agent behavior requires methods that scale to thousands of trajectories and surface new patterns in long, often unfamiliar tasks where pre-built classifiers fall short. We propose to bring grounded theory into agent trajectory analysis: a six-decade-old qualitative method from the social sciences, with a principled saturation criterion and an auditable trail from data to theory. We propose AutoTraceGT (Automated Trace analysis through Grounded Theory), the first multi-agent pipeline that automates grounded theory on agent trajectories. It iteratively performs open, axial, and theoretical coding until saturation, producing a behavioral taxonomy tailored to each task. Across six trajectory corpora, AutoTraceGT produces codebooks that recover 73-91 percent of the failure modes in human-annotated taxonomies and surface additional patterns that those taxonomies miss. The emergent theoretical narrative aligns with prior expert accounts. Used as a deductive feature space, the codebook outperforms zero-shot and few-shot LLM baselines on downstream failure prediction. These results suggest Grounded Theory offers a scalable analytic tool for ML researchers and agent developers studying what agents actually do.",
+      "published": "2026-08-31T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.30391",
+        "pdf": "https://arxiv.org/pdf/2608.30391"
+      },
+      "upvotes": 18,
+      "githubRepo": "https://github.com/ZhuoranLu/Qual-Agent-Behavior-Analysis",
+      "githubStars": 0,
+      "projectPage": "https://nan-jiang-group.github.io/AutoTraceGT/",
+      "numComments": 2,
+      "titleZh": "使用扎根理论开展大规模智能体行为分析",
+      "summaryZh": "智能体轨迹分析缺少可扩展的方法，难以在数千条轨迹中识别新行为模式，预置分类器难以应对长程陌生任务。AutoTraceGT 将社会科学中具有饱和判定准则与可审计链条的扎根理论引入智能体行为分析，用多智能体流水线迭代执行开放编码、轴心编码与理论编码直至饱和，生成任务特定的行为分类体系。在六个轨迹语料上，生成的码本可恢复人工标注分类中 73–91% 的失败模式，并补充人工遗漏的模式;作为演绎式特征空间时，其在后续失败预测上超过零样本与少样本 LLM 基线。该方法为 ML 研究者与智能体开发者提供了大规模解析智能体真实行为的可扩展分析工具。",
+      "score": 8,
+      "reason": "行为分析新方法，直接服务Agent研究，结果扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2609.04128",
+      "title": "Environment Evolution for Terminal Agents",
+      "authors": [
+        "Zhiyuan Fan",
+        "Tinghao Yu",
+        "Yuanjun Cai",
+        "Jiang Zhou",
+        "Jiangtao Guan",
+        "Jincheng Liu"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Scaling interactive and verifiable environments is critical for training terminal agents. As frontier models become more capable, environments synthesized from scratch become less challenging and thus provide limited learning signals. Recent co-evolution methods iteratively synthesize environments near the model's learnable frontier based on weaknesses exposed during rollouts. However, their dependence on on-policy rollouts limits generalization and the continuous provision of learning signals as the model becomes stronger. In this paper, we propose environment evolution, which incrementally increases environment difficulty off-policy and schedules the evolved environments generation by generation during training to provide continuous learning signals. We derive three evolution directions that influence environment difficulty from the multi-turn learning objective and then implement evolution along these directions through a loop-engineered multi-agent harness. Quantitative rollout experiments with Hy4 preview, Claude Opus 5, and GPT-5.6 Sol show that environment evolution consistently produces more difficult environments. We validate its effectiveness on Qwen3.6-27B and Qwen3.6-35B-A3B through simple long-horizon RL training, improving their performance by 14.4 and 18.0 percentage points on Terminal-Bench 2.1, respectively.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04128",
+        "pdf": "https://arxiv.org/pdf/2609.04128"
+      },
+      "upvotes": 16,
+      "numComments": 1,
+      "titleZh": "终端Agent的环境进化",
+      "summaryZh": "随着前沿模型能力增强，从零合成的交互环境逐渐失去挑战性，难以提供持续学习信号。环境进化方法在离线策略下逐步提升环境难度，并按代际调度生成环境，使训练中始终存在可学习的信号。方法从多轮学习目标推导出三种影响难度的进化方向，并通过循环工程的多智能体框架加以实现。在Hy4 preview、Claude Opus 5和GPT-5.6 Sol上的实验表明其能稳定产出更难环境，用Qwen3.6-27B与Qwen3.6-35B-A3B做长程RL训练后，Terminal-Bench 2.1得分分别提高14.4和18.0个百分点，适配终端智能体训练的持续进化需求。",
+      "score": 8,
+      "reason": "面向终端Agent的环境进化方法，直接命中Agent与后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.04200",
+      "title": "Principia: Relational Physics Tests for Video Models",
+      "authors": [
+        "Varun Varma Thozhiyoor",
+        "Shivam Tripathi",
+        "Venkatesh Babu Radhakrishnan",
+        "Anand Bhattad"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Evaluating physical reasoning in video models is difficult because absolute motion measurements depend on frame rate, object scale, and camera calibration, all of which are often ambiguous or unavailable in generated video. We propose a different approach. When two objects in the same scene obey the same physical law, their motions must satisfy predictable relationships, and these relationships hold independent of calibration. We introduce Principia, a benchmark that evaluates Newtonian physics through relational consistency between paired objects. Principia spans eight phenomena - gravity, restitution, friction, rotational inertia, projectile motion, momentum, pendulum, and mass-spring oscillation - across translational, rotational, collisional, and oscillatory dynamics, using real-world scenes recorded under controlled protocols. We also introduce a calibration-independent consistency score that quantifies physical violation directly in image space. Across thousands of generations from six state-of-the-art video generators, no model exceeds 0.42 on Principia despite all scoring around 0.8 on VBench. Vision-language models are evaluated on their ability to detect relational physics violations, with the best model achieving only 67% accuracy and most performing near chance level.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04200",
+        "pdf": "https://arxiv.org/pdf/2609.04200"
+      },
+      "upvotes": 16,
+      "projectPage": "https://principiabench.github.io/",
+      "numComments": 1,
+      "titleZh": "Principia:视频模型的关联物理测试",
+      "summaryZh": "视频模型物理推理评测受帧率、物体尺度与相机标定干扰，难以直接度量绝对运动。Principia 改为利用同场景中遵循同一物理定律的成对物体，通过其运动关系是否自洽来判断物理真实性，从而摆脱标定依赖。基准覆盖重力、恢复系数、摩擦、转动惯量、抛体等八类现象，并给出直接在图像空间计算的标定无关一致性分数。六个当前视频生成模型在 Principia 上均未超过0.42，尽管其在VBench上约0.8;最强VLM检测违规准确率仅67%，多数接近随机水平。",
+      "score": 4,
+      "reason": "视频物理评测基准，与LLM后训练/Agent主线关联较弱",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.03820",
+      "title": "Select, Compress, Reinvest: A Controlled Study of Visual-Token Allocation in Long-Video MLLMs",
+      "authors": [
+        "Prakhar Khatri"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Long-video language models cannot look at every frame: an hour sampled once per second is 3,600 images, and a system keeps only a small fixed slice of that pool. Which frames survive that slice is usually treated as a preprocessing detail; we test whether it should be. Published selectors make the comparison hard because they change the frame scorer, the prompt boundary, the resolution policy, and the answering model all at once. We hold each fixed and vary one decision at a time: selection, spatial compression, and reinvestment of the savings, across six training-free selection rules, three long-video benchmarks, and two answering models. Selection is the largest single lever: on LongVideoBench's hour-long bin, eight query-selected frames beat sixteen uniformly spaced ones by 6.9 points, and Orthogonal Matching Pursuit, an unmodified decades-old sparse-approximation algorithm, matches or comes within a point of every purpose-built selector we compare it against, across all three benchmarks. Compression is close to free: halving each frame's spatial budget at fixed timestamps costs at most 0.44 points. Reinvestment is where that budget turns back into accuracy: spending the freed tokens on twice as many compressed frames, at a measured cost no higher than the original eight, returns a further two to three points; compression only pays off once its savings are spent this way. Along the way, an implementation bug in our own AKS baseline and a 0.07 to 3.74 point gap between two harnesses running the same published rules at the same budget show why these comparisons need to happen inside one controlled harness rather than across papers.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03820",
+        "pdf": "https://arxiv.org/pdf/2609.03820"
+      },
+      "upvotes": 15,
+      "githubRepo": "https://github.com/codeprakhar25/omp-keyframe-sampling",
+      "githubStars": 1,
+      "numComments": 3,
+      "titleZh": "选择、压缩、再投入:长视频MLLM中视觉令牌分配的受控研究",
+      "summaryZh": "长视频大模型无法检查每一帧，只能保留固定的小型帧子集;帧的取舍通常被视为预处理细节，实则影响显著。该研究固定帧评分器、提示边界、分辨率与回答模型，逐一对比帧选择、空间压缩与预算再投入三项决策，覆盖六种免训练选择规则、三个长视频基准与两个回答模型。结果显示选择是最大杠杆:在LongVideoBench小时级区间，八帧查询选择比十六帧均匀采样高6.9分，经典稀疏逼近OMP与所有专用选择器持平或相差不超过1分;空间压缩几乎免费，每帧预算减半最多损失0.44分;把省下的令牌再投入为双倍压缩帧可额外获得2–3分。研究强调同一受控实验环境内比较各规则的必要性，为长视频MLLM的视觉令牌分配提供可操作参考。",
+      "score": 7,
+      "reason": "长视频MLLM视觉令牌分配的系统受控实证，方向相关但属增量",
+      "deepDive": false
+    },
+    {
+      "id": "2609.01072",
+      "title": "Let Confidence Change, Not the Prediction: Prediction-Preserving Repair for Post-hoc Calibration",
+      "authors": [
+        "Daehwan Kim",
+        "Haejun Chung",
+        "Ikbeom Jang"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Post-hoc calibration corrects reported confidence, yet a multiclass calibrator can also change the associated top-1 prediction. Accuracy captures only the net effect of these changes on correctness, not how often predictions change; the Top-1 Prediction Change Rate (TPCR) instead measures this frequency. We propose Calibrator-Output Repair for Top-1 Decision Preservation (CORD), the first post-fit adapter to impose exact prediction preservation by repairing the full calibrated probability vector. From the original and calibrated outputs alone, CORD determines the mass assigned to the original top-1. The calibrated conditional distribution allocates the remaining mass over the other classes, yielding a repaired vector whose own argmax recovers the original prediction. On the calibration split, CORD coordinates the repaired masses to retain the calibrated outputs' mean mass on original predictions whenever attainable. The adapter alters neither the fitted calibrator nor its direct output, fits no additional supervised map, and requires no user- or validation-tuned hyperparameter. Across CIFAR-10/100 and ImageNet-1K, CORD attains zero TPCR by construction and lowers mean ECE, NLL, and Brier relative to the corresponding direct outputs in every dataset; paired gains persist under distribution shift and across calibration-set sizes. CORD thus removes the preservation constraint from calibrator fitting and assigns exact recovery of the original decision to subsequent output repair. Our code is available at https://github.com/labhai/CORD.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.01072",
+        "pdf": "https://arxiv.org/pdf/2609.01072"
+      },
+      "upvotes": 13,
+      "githubRepo": "https://github.com/labhai/CORD",
+      "githubStars": 0,
+      "numComments": 2,
+      "titleZh": "让置信度改变，而非预测:面向事后校准的预测保持修复",
+      "summaryZh": "事后校准会改变分类器的 top-1 预测，而准确率只反映正确性的净变化，无法捕捉预测被改写的频率。CORD 作为首个拟合后适配器，基于原始输出与校准输出直接修复校准概率向量，将原 top-1 类上的质量与其余类上的条件分配重组，使修复后向量的 argmax 严格恢复原始预测。在 CIFAR-10/100 与 ImageNet-1K 上，CORD 结构上保证 TPCR 为零，并在所有数据集上相对直接校准输出进一步降低平均 ECE、NLL 与 Brier;分布偏移与不同校准集规模下仍有成对收益。该方法在不改动校准器、不训练额外映射的前提下，将预测保持约束移出校准拟合阶段。",
+      "score": 2,
+      "reason": "多分类校准与预测保持，偏离 LLM 关注方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.02373",
+      "title": "Percolation Dynamics in Optimization : Variance Cascades and Discrete Scale Invariance",
+      "authors": [
+        "Sai Niranjan Ramachandran",
+        "Suvrit Sra"
+      ],
+      "authorsTotal": 2,
+      "abstract": "We study the dynamics of Stochastic Gradient Descent (SGD), which is known to steer deep neural networks toward invariant sets that correspond to simpler subnetworks. How this steering unfolds over time remains poorly understood. We answer this by modeling the stochastic gradient flow (SGF) as a percolation process, in which architectural symmetries force subnetworks to merge in discrete simultaneous blocks rather than one at a time. These structural transitions register as variance spikes in a macroscopic order parameter, echoing physical phase transitions. We further show this trapping mechanism and its associated scaling cascade extend to Adam and AdamW under an explicit heavy-tailed noise model.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.02373",
+        "pdf": "https://arxiv.org/pdf/2609.02373"
+      },
+      "upvotes": 13,
+      "numComments": 2,
+      "titleZh": "优化中的渗流动力学：方差级联与离散标度不变性",
+      "summaryZh": "针对随机梯度下降（SGD）如何将深度网络驱向对应更简单子网络的不变集、以及这一过程如何随时间展开的问题，将随机梯度流（SGF）建模为渗流过程：架构对称性迫使子网络以离散同步块而非逐个方式合并，结构转变在宏观序参量上表现为方差尖峰，类似物理相变。该捕获机制与标度级联在显式重尾噪声模型下同样适用于 Adam 与 AdamW，为理解优化器隐式偏差与训练动力学提供新视角。",
+      "score": 5,
+      "reason": "优化动力学理论与LLM训练擦边，非直接命中",
+      "deepDive": false
+    },
+    {
+      "id": "2608.29253",
+      "title": "QCell: Recombining and Aligning Cell Queries for Overlapping Instance Segmentation",
+      "authors": [
+        "Yaroslav Prytula",
+        "Anton Popov",
+        "Dmytro Fishman"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Instance segmentation of overlapping cells in microscopy remains challenging due to semi-transparent structures that produce weak boundaries and mixed visual evidence in overlap regions. Existing methods address this through local regions of interest or shape priors but lack global reasoning across overlapping objects. We present QCell, a novel query-based model that de-overlaps cell instances in microscopy scenes. Our approach combines (i) an instance recombination module that decomposes and recombines query representations in latent space, enabling the model to reason about complete object structure under overlap, and (ii) a contrastive query alignment objective that combines distinctive instance feature learning and separation of overlapping cell queries. We additionally introduce a new Organoid dataset benchmark for overlapping cell segmentation. We show that QCell outperforms state-of-the-art methods across multiple benchmarks, achieving +2.2 AP and +2.7 AJI on ISBI2014. Code is available at https://github.com/SlavkoPrytula/QCell",
+      "published": "2026-08-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.29253",
+        "pdf": "https://arxiv.org/pdf/2608.29253"
+      },
+      "upvotes": 13,
+      "githubRepo": "https://github.com/SlavkoPrytula/QCell",
+      "githubStars": 9,
+      "projectPage": "https://slavkoprytula.github.io/QCell/",
+      "numComments": 5,
+      "titleZh": "QCell:重组并对齐细胞查询用于重叠实例分割",
+      "summaryZh": "针对显微图像中半透明细胞重叠导致的弱边界与混合视觉证据问题，现有基于局部感兴趣区域或形状先验的方法缺乏跨重叠对象的全局推理。QCell 提出查询式模型，通过实例重组模块在潜空间分解并重组查询表示，以建模重叠下的完整对象结构，并引入对比查询对齐目标，结合判别性实例特征学习与重叠查询分离。在 ISBI2014 等多个基准上，QCell 取得 +2.2 AP 和 +2.7 AJI 的提升，并发布了新的类器官数据集。该方法属于生物医学图像分析方向，与 LLM 研究无直接关联。",
+      "score": 1,
+      "reason": "生物医药图像分割，完全偏离 LLM 关注方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.03153",
+      "title": "VeriPhy: Agentic Physical Reasoning for World Model Evaluation and Refinement",
+      "authors": [
+        "Wenzhuo Xu",
+        "Yuchen Zhu",
+        "Chongjian Ge",
+        "Xuan Shen",
+        "Jing Shi",
+        "Jason Kuen"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Visual fluency in generated video does not imply physical reliability, and a scalar quality score alone is incapable of indicating the obligation a clip violates or the moment it fails. We present VeriPhy, an auditable physical-verification system in which a text-only planner compiles the prompt into typed physical obligations and a statically validated execution plan before any frame is observed. During execution, observations gate and scope only declared calls to frozen low-level experts (e.g., segmentation and tracking, counting, eleven typed physical measurements over the resulting tracks, depth, OCR, and audio-event detection). Each action returns a provenance-carrying evidence record whose payload, when usable, is either a typed measurement or an explicitly tagged learned state. Typed resolvers and fixed composition map usable records to a three-valued state (supported, contradicted, or unknown, surfaced as plausible, implausible, or abstain) with full provenance, so that every verdict is traceable to the evidence that produced it. We anchor evaluation in a 1,500-clip corpus of human-annotated flaw records that localize real generation failures in prompt reference, space, and time. On a 149-clip core carrying 304 such records, VeriPhy accounts for 228, against 164 for a published question-decomposition evaluator given the same clips and the same claims. Recall alone does not separate it from prompting the same backbone monolithically, which reaches 222; what separates them is that each decision retains its evidence record and provenance, making the traces auditable one verdict at a time and usable as the interface through which a critic verdict could be written back into generation.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03153",
+        "pdf": "https://arxiv.org/pdf/2609.03153"
+      },
+      "upvotes": 12,
+      "projectPage": "https://veriphy-ai.github.io/",
+      "numComments": 2,
+      "titleZh": "VeriPhy：用于世界模型评估与改进的智能体物理推理",
+      "summaryZh": "生成视频的视觉流畅不等于物理可靠，单一质量分无法指出所违反的约束或失败时刻。VeriPhy 先把提示编译成带类型的物理义务与静态校验执行计划，执行中仅让观测结果门控并限定对分割/跟踪、计数、物理量测、深度、OCR、音频事件检测等冻结专家的声明式调用;每步返回带来源的证据记录，经类型解析组合成 supported/contradicted/unknown 三值状态并保留完整来源。在 149 条含 304 条缺陷的核心视频集上覆盖 228 条，优于已有问答分解评估器的 164 条;与单块提示骨干的 222 条相比核心优势在于每个判定带证据链，可逐条审计并作为批评回写生成的接口。",
+      "score": 5,
+      "reason": "生成视频物理评测，属交叉方向，与评测方法学擦边",
+      "deepDive": false
+    },
+    {
+      "id": "2609.02887",
+      "title": "A Common Measure of Communication for Speech Brain-Computer Interfaces",
+      "authors": [
+        "Dulhan Jayalath",
+        "Benjamin Ballyk",
+        "Oiwi Parker Jones"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Speech brain-computer interfaces (speech BCIs) translate neural activity into language, offering a path towards restoring speech for people with paralysis and, more broadly, enabling new forms of natural human-computer interaction. Despite this promise, the field lacks a common measure of progress because systems use different datasets, recording methods, types of speech, and vocabularies, so their reported scores are rarely comparable. Underlying this measurement problem are two unresolved questions: (i) what distribution of words should a speech BCI enable a user to communicate, and (ii) how much information from this distribution can a system convey. We address both by deriving open-vocabulary mutual information (OVMI), an information-theoretic quantity that measures the information conveyed by a decoder relative to a reference distribution over the words a user may wish to communicate. This allows capabilities measured under different conditions, such as distinct vocabularies, to be evaluated on a common communication scale. We show that ordinarily reported accuracy, word error rate (WER), and other metrics computed only over the words a system supports can overstate how much of a user's intended speech the system can communicate. We then use OVMI to compare existing systems, expose trade-offs between how much of the user's language a system supports and how accurately it decodes those words, show that these comparisons depend on what the user is expected to communicate, and demonstrate that selecting a vocabulary to maximise OVMI yields up to 16.3% relative improvement in accuracy across three speech domains. OVMI therefore provides the speech BCI community with a principled way to compare heterogeneous systems, improve vocabulary design, and measure progress in the field.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.02887",
+        "pdf": "https://arxiv.org/pdf/2609.02887"
+      },
+      "upvotes": 8,
+      "githubRepo": "https://github.com/neural-processing-lab/OVMI",
+      "githubStars": 2,
+      "projectPage": "https://neural-processing-lab.github.io/OVMI/",
+      "numComments": 2,
+      "titleZh": "一种用于语音脑机接口的通信通用度量",
+      "summaryZh": "语音脑机接口(speech BCI)因数据集、记录方式、词汇表等各异而缺乏统一评测标准。论文提出开放词汇互信息(OVMI)，以信息论方式衡量解码器相对用户期望通信词分布所传达的信息量，使不同条件下的评测可在同一通信尺度下比较。实验显示常规准确率、WER 等指标会高估系统实际传达能力;基于 OVMI 优化词汇表可在三个语音域上带来最高 16.3% 的相对准确率提升。",
+      "score": 1,
+      "reason": "语音脑机接口评测问题，偏离LLM方向。",
+      "deepDive": false,
+      "relevant": false
+    }
+  ],
+  "arxiv": []
+}
