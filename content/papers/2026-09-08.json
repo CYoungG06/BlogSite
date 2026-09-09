@@ -1,0 +1,331 @@
+{
+  "date": "2026-09-08",
+  "generatedAt": "2026-09-09T07:24:12.266832+00:00",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2609.04010",
+      "title": "Unlocking Lossless Speedups in LLMs via Discrete Diffusion",
+      "authors": [
+        "Subham Sekhar Sahoo",
+        "Lingjie Chen",
+        "Khiem Pham",
+        "Jonathan Geuter",
+        "Chaitanya Dwivedi",
+        "Varad Pimpalkhute"
+      ],
+      "authorsTotal": 17,
+      "abstract": "Large Language Models (LLMs) owe much of their success to next-token prediction (NTP), but their autoregressive (AR) structure requires slow, sequential token generation. To overcome this bottleneck, we introduce diffusion-augmented LLMs, a new class of models that defines an AR model distribution while using diffusion to draw multiple tokens in parallel from that distribution. We decouple the parameters of these models into two sets: AR weights, trained using the standard NTP objective, and lightweight diffusion weights, trained to generate multiple tokens simultaneously. The diffusion weights are learned through a simple Diffusion Distillation phase that adds negligible overhead to existing LLM training pipelines. We also introduce Ψ-Spec, a family of samplers that enables lossless acceleration and inference-time scaling at a fixed context length. Unlike speculative decoding, our method requires no separate draft model. Unlike diffusion LLMs (d-LLMs), it accelerates generation without sacrificing the quality of the underlying AR model. The resulting models, called Uno, can be trained from scratch or built by augmenting existing open-weight AR LLMs. Uno achieves higher throughput than leading speculative-decoding methods at every evaluated batch size and delivers up to 3times speedups over the base AR model, including at the largest batch size supported by the device. Notably, our 8B Uno model outperforms the leading open d-LLM, the 26B DiffusionGemma, and the proprietary Mercury 2 across all evaluated benchmarks in agentic tool use, coding, and long-context reasoning. We release code and checkpoints at: https://s-sahoo.github.io/uno/",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04010",
+        "pdf": "https://arxiv.org/pdf/2609.04010"
+      },
+      "upvotes": 122,
+      "githubRepo": "https://github.com/ifm-ai/uno",
+      "githubStars": 56,
+      "projectPage": "https://s-sahoo.com/uno/",
+      "numComments": 9,
+      "titleZh": "通过离散扩散解锁LLM的无损加速",
+      "summaryZh": "Uno将离散扩散与自回归LLM结合，在不改变AR模型分布的前提下并行生成多个token，解决逐token生成造成的吞吐瓶颈。权重分为AR参数（NTP目标）与轻量扩散参数（扩散蒸馏获得），配合Ψ-Spec采样器实现固定上下文长度下的无损加速，且无需草稿模型。相比主流投机解码方法，Uno在各种批大小下吞吐更高，相对基座模型最高提速3倍；其8B版本在智能体工具使用、代码与长上下文推理上均超越26B的DiffusionGemma与Mercury 2。",
+      "score": 9,
+      "reason": "离散扩散并行解码新范式，直接命中推理加速方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.03241",
+      "title": "FlowBalance: Verifier-Grounded Self-Improvement from On-Policy Reasoning Experience",
+      "authors": [
+        "Zixun Huang",
+        "Kishan Panaganti",
+        "Haitao Mi",
+        "Leowei Liang"
+      ],
+      "authorsTotal": 4,
+      "abstract": "A reasoning model can improve from its own on-policy experience, but this inner loop is fragile: terminal verifiers provide reliable yet sparse supervision, while dense same-model guidance can reinforce false confidence or overconcentrate learning on a narrow solution mode. We introduce FlowBalance, a verifier-grounded self-improvement method that learns a normalized distribution over complete responses. For each on-policy trajectory, a frozen training-time view of the same policy uses privileged context to produce token-level log-probability gains, which are aggregated into a trajectory-level self-guidance score. FlowBalance calibrates this score with the verifier-derived group advantage: guidance is retained on positive-advantage trajectories, reversed on negative-advantage trajectories, and disabled when the rollout group provides no outcome preference. The resulting energy exponentially reweights a reference policy, and profiled trajectory balance fits the normalized target with one log-partition estimate per rollout group. This realizes outcome-calibrated self-guidance via trajectory balance, without a separate token-level imitation loss. Our analysis establishes within-group contrast preservation, a minimum-change reverse-KL characterization, monotonic verifier control of target reward, and an exact correction against false-positive self-guidance on rejected responses. On mathematical reasoning, FlowBalance improves average performance over FlowRL on both Qwen3-4B and Qwen3-8B, while also improving training speed and stability, avoiding direct OPSD's response-length collapse, and exhibiting higher correct-strategy diversity in a controlled AIME24 diagnostic.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03241",
+        "pdf": "https://arxiv.org/pdf/2609.03241"
+      },
+      "upvotes": 84,
+      "githubRepo": "https://github.com/alexhuang13/FlowBalance",
+      "githubStars": 3,
+      "projectPage": "https://alexhuang13.github.io/FlowBalance-Blog/",
+      "numComments": 2,
+      "titleZh": "FlowBalance：基于验证器的在线策略推理经验自我改进",
+      "summaryZh": "针对验证器奖励稀疏而同模型自引导易强化错误置信或窄化解法模式的问题，FlowBalance 在完整响应上学习归一化分布：冻结的训练时策略在特权上下文下产出token级对数概率增益并聚合成轨迹级自引导分数，再用验证器组优势校准——正优势保留、负优势反转、无结果偏好则禁用引导。该能量式加权参考策略，并用profile trajectory balance估计每个rollout组的对数配分。在数学推理中，FlowBalance在Qwen3-4B/8B上平均性能超越FlowRL，训练更快更稳，避免OPSD的响应长度坍缩，并在AIME24诊断中展现更高的正确策略多样性。",
+      "score": 8,
+      "reason": "后训练自改进方法，验证器校准自引导，命中RLVR与推理优化主线。",
+      "deepDive": true
+    },
+    {
+      "id": "2609.03756",
+      "title": "ENEAS: Embedding-guided Neural Ensemble for Adaptive Segmentation",
+      "authors": [
+        "Javier del Pino",
+        "Salvador Rodríguez",
+        "Alejandro Garabito",
+        "Javier Álvarez",
+        "Chema Garabito"
+      ],
+      "authorsTotal": 5,
+      "abstract": "We present ENEAS, a unified, text-promptable method for instance tracking and semantic discovery. Text-promptable segmentation models, including the latest foundation models such as SAM 3, still suffer from temporal hallucinations, spatial fragmentation, and semantic misclassification: they fail to report target absence when an object leaves the field of view, segment local textures instead of the complete object during extreme close-ups, and prioritize visual features over ontological reality, so that visually similar artifacts such as statues, paintings, or reflections are segmented as target entities. ENEAS works two ways from a single method: precise tracking and high-quality segmentation of a unique instance, and open-concept discovery of every instance a text query names, resolved by a semantic verification layer. For tracking, we extend the geometrically robust SeC architecture, previously limited to point interactions, with a text-prompting adapter and leverage its temporal memory, so that the target is held through disappearance without drifting to distractors and kept whole even when it fills the entire view. For discovery, the verification layer combines high-speed visual embedding matching with conditional VLM refinement, invoking semantic reasoning only for ambiguous candidates, which filters out the ontological errors that visual-only models cannot distinguish while keeping latency low. Designed with 3D reconstruction in mind, where a single misclassified distractor corrupts the asset, ENEAS unlocks high-quality semantic tracking and segmentation of video, of broad libraries, and of collections of temporally or spatially unordered data, together with the discrimination to tell true instances from their doppelgangers: things that look alike but are not the same. The code and models are available at https://github.com/speridlabs/eneas",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03756",
+        "pdf": "https://arxiv.org/pdf/2609.03756"
+      },
+      "upvotes": 35,
+      "githubRepo": "https://github.com/speridlabs/eneas",
+      "githubStars": 51,
+      "projectPage": "https://speridlabs.com/research/eneas",
+      "numComments": 3,
+      "titleZh": "ENEAS：嵌入引导的神经集成自适应分割",
+      "summaryZh": "文本可提示分割模型在实例跟踪与语义发现中常出现时间幻觉、空间碎片化和语义错分：目标离开视野时不报告缺失、极端特写时只分割局部纹理、以及将雕像或画作等视觉相似物误判为目标实体。ENEAS 用单一方法统一支持唯一实例的精确跟踪与开放概念发现。跟踪侧为原本只支持点交互的 SeC 架构增加文本提示适配器，借助时间记忆使目标在消失期间不漂移、充满视野时仍保持完整；发现侧通过高速视觉嵌入匹配与条件 VLM 精炼组成语义验证层，仅对模糊候选触发语义推理，在低延迟下过滤视觉模型无法区分的本体错误。方法面向 3D 重建设计，也适用于视频、大规模库及时间或空间无序数据的语义跟踪与分割。",
+      "score": 2,
+      "reason": "视觉分割与3D重建场景，非关注方向，仅VLM作组件",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.03003",
+      "title": "Causal Foundation Models",
+      "authors": [
+        "Christopher Stith",
+        "Hossein Rahmani",
+        "Jesse C. Cresswell"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Causal inference is the practice of estimating the effect of a treatment or intervention from data. It traditionally requires a bespoke pipeline for every new problem: first proposing a causal mechanism, selecting a compatible estimator, and finally training it. Meanwhile, across diverse settings and modalities, much of machine learning has shifted to the paradigm of foundation models: networks pretrained once at scale and applied to new tasks without fine-tuning. Causal foundation models (CFMs) bring this paradigm to causal inference. CFMs are pretrained neural networks that estimate causal quantities, such as the average treatment effect, on entirely new datasets using in-context learning without requiring model updates. This work provides a practical introduction to this emerging area. We summarize the necessary background in causal inference and machine learning before discussing CFMs. Throughout, we include example code and Jupyter notebooks.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03003",
+        "pdf": "https://arxiv.org/pdf/2609.03003"
+      },
+      "upvotes": 16,
+      "githubRepo": "https://github.com/layer6ai-labs/cfms",
+      "githubStars": 12,
+      "numComments": 2,
+      "titleZh": "因果基础模型",
+      "summaryZh": "因果推断历来为每个新问题定制“机制假设—估计器—训练”的完整流程，成本高昂。因果基础模型（CFM）作为预训练网络，面对全新数据集时无需更新参数，仅凭上下文学习即可估计平均处理效应等因果量。文章系统梳理了因果推断与基础模型的必要背景，并提供可运行代码和 Jupyter notebook。这一范式将基础模型的通用能力引入因果分析，有望降低因果研究的定制成本，但对当前 LLM 后训练与 Agent 研究属边缘相关。",
+      "score": 3,
+      "reason": "因果推断域偏，仅共享基础模型范式，与关注方向关联弱。",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.02998",
+      "title": "Verify Before You Distill: Prompt-Level Teacher Gating for On-Policy Distillation",
+      "authors": [
+        "Zhiwei Zhang",
+        "Zechen Sun",
+        "Fei Zhao",
+        "Kang Peng",
+        "Bin Liang",
+        "Huayu Deng"
+      ],
+      "authorsTotal": 9,
+      "abstract": "On-policy distillation (OPD) accelerates post-training by providing dense token-level supervision from a frozen teacher on the student's own rollouts. Vanilla OPD applies this supervision uniformly across prompts, without checking whether the teacher is reliable for each prompt. Because reverse KL is mode-seeking, a confidently wrong teacher can induce a strong yet misleading update. Distributional proxies, such as entropy or teacher-student likelihood agreement, measure uncertainty or agreement but do not directly verify outcome correctness. We introduce Teacher-Gated On-Policy Distillation (TGOPD), built on the principle that teacher reliability should be verified at the prompt level before dense supervision is admitted. TGOPD estimates reliability from a small set of verifier-scored teacher probes and routes each prompt exclusively to dense OPD when the reliability check passes or to verifier-grounded GRPO otherwise. Across 4B and 35B students in mathematics, code, and instruction following, TGOPD outperforms Vanilla OPD in all six single-domain settings and achieves higher seven-benchmark averages at both scales under multi-domain training. By using otherwise-idle teacher capacity for reliability estimation, TGOPD also reduces teacher-side compute waste in asynchronous OPD, increasing teacher-node GPU utilization from 9.8% to 78.9% in the measured 4B single-domain run.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.02998",
+        "pdf": "https://arxiv.org/pdf/2609.02998"
+      },
+      "upvotes": 13,
+      "numComments": 2,
+      "titleZh": "先验证再蒸馏：面向同策略蒸馏的提示级教师门控",
+      "summaryZh": "同策略蒸馏(OPD)用冻结教师对学生自身 rollout 提供逐 token 监督以加速后训练，但 vanilla OPD 对所有提示一视同仁，未检查教师可靠性，置信却错误的教师会产生误导性更新。TGOPD 在施加密集监督前，先以少量验证器打分的教师探针在提示级估计可靠性，可靠提示走密集 OPD，其余交给验证器接地的 GRPO。在 4B 与 35B 学生模型、数学/代码/指令跟随的六个单域设定及多域训练中，TGOPD 全面超过 Vanilla OPD，多域下七个 benchmark 均值更高；异步 OPD 中教师节点 GPU 利用率从 9.8% 提升至 78.9%。该工作为在线蒸馏与可验证奖励结合的后训练提供了一种实用的提示级路由范式。",
+      "score": 8,
+      "reason": "同策略蒸馏可靠性门控，实验扎实，直接命中后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.01281",
+      "title": "EmbodiedSkills: A Unified Framework for Orchestrating, Training, and Deploying VLA Agents",
+      "authors": [
+        "Wei Wang",
+        "Wenqiao Zhang",
+        "Yutong Lin",
+        "Yuqian Yuan",
+        "Tianwei Lin",
+        "Jinhao Mao"
+      ],
+      "authorsTotal": 17,
+      "abstract": "Vision-language-action (VLA) models map visual observations and language instructions directly to robot actions, but long-horizon tasks require more than action prediction. An agent must coordinate perception, planning, execution, progress verification, and recovery as the physical state evolves. An action prediction or a model-generated skill decision does not, by itself, guarantee that the proposed operation is valid in the current state or that its outcome will be verified. We propose EmbodiedSkills, a unified framework that treats each skill decision as an execution proposal: the runtime checks its prerequisites before execution and verifies the outcome afterward. A shared executable-skill interface connects high-level skill selection, bounded low-level VLA execution, and post-action verification within a single agent loop. Because this interface remains fixed, low-level VLA policies can be replaced or adapted without changing the agent loop. The interface also records planning, execution, verification, and recovery events as structured trajectories, which provide supervision for individual components and can support optional online adaptation when interactive feedback is available. We instantiate EmbodiedSkills with Qwen3-VL and OpenPI/pi0.5 on RoboTwin 2.0 and LIBERO. Task-adapted low-level VLA policies achieve an average success rate of 86.20% across 50 RoboTwin 2.0 tasks and 97.40% across the four LIBERO suites. These results establish the execution performance of the task-adapted low-level VLA policies used in EmbodiedSkills. On four memory-dependent RMBench tasks, the same task-adapted execution approach achieves 12.5% average success. The framework provides a trainable and inspectable agent layer for turning these policies into closed-loop embodied systems.",
+      "published": "2026-09-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.01281",
+        "pdf": "https://arxiv.org/pdf/2609.01281"
+      },
+      "upvotes": 12,
+      "githubRepo": "https://github.com/DCDmllm/EmbodiedSkills",
+      "githubStars": 26,
+      "numComments": 2,
+      "titleZh": "EmbodiedSkills:一个用于编排、训练与部署VLA智能体的统一框架",
+      "summaryZh": "针对长时程机器人任务中单纯动作预测无法保证操作在当前状态有效及结果被验证的问题，提出EmbodiedSkills统一框架，将每个技能决策视为执行提案:运行时在执行前检查前提条件并在执行后验证结果。共享的可执行技能接口连接高层技能选择、受限的低层VLA执行与动作后验证，且接口固定使得低层VLA策略可替换或适应而不改动智能体循环。该接口将规划、执行、验证与恢复事件记录为结构化轨迹，为各组件提供监督并支持在线适应。基于Qwen3-VL与OpenPI/pi0.5在RoboTwin 2.0和LIBERO上实例化，任务适应的低层VLA策略在50个RoboTwin 2.0任务上平均成功率86.20%，在四个LIBERO套件上平均97.40%;但在四个记忆依赖的RMBench任务上仅12.5%。框架为将这些策略转化为闭环具身系统提供了可训练且可检查的智能体层。",
+      "score": 1,
+      "reason": "VLA与具身智能属于低分方向，直接排除。",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2608.25936",
+      "title": "One Symptom, Three Levers: A Critical Review of On-Policy Self-Distillation",
+      "authors": [
+        "Justin Robert",
+        "Raheel Qader"
+      ],
+      "authorsTotal": 2,
+      "abstract": "On-policy distillation trains a language model on its own generations while a teacher scores them token by token. It combines the dense supervision of imitation learning with the on-policy sampling of reinforcement learning. But it requires a second, larger model to act as teacher. On-Policy Self-Distillation (OPSD) removes that cost. The teacher is the model itself, conditioned on privileged information the student will not have at test time, such as a reference solution, a plan, or environment feedback. The teacher is no stronger than the student, only better informed. Early results were promising, with accuracy comparable to reinforcement learning at a fraction of the generated tokens. But the same asymmetry that produces the signal also biases it. One failure mode now dominates the field: collapse, the progressive narrowing of the set of reasoning paths the model can produce. Collapse is not specific to OPSD, though privileged information aggravates it. This review treats collapse as a symptom governed by three levers: (i) where the signal is applied, that is, how tokens are weighted; (ii) what the teacher is shown, that is, the nature of the privileged information; and (iii) when the signal changes, that is, the teacher's dynamics and the decay of guidance. We restrict our scope to mathematical reasoning, where the method originated and where its failure modes are best documented. We report no new experiments. The contribution is structural: a shared vocabulary for phenomena named differently across papers, and a clear line between what is settled and what is still disputed.",
+      "published": "2026-08-26T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2608.25936",
+        "pdf": "https://arxiv.org/pdf/2608.25936"
+      },
+      "upvotes": 10,
+      "numComments": 2,
+      "titleZh": "一个症状，三个杠杆:同策略自蒸馏批判性综述",
+      "summaryZh": "同策略蒸馏用教师对模型自身生成的逐token打分，兼采模仿学习的密集监督与强化学习的同策略采样;OPSD进一步省去外部教师，把模型自身当作条件在特权信息(参考答案、规划或环境反馈)上的教师。该信息不对称虽提供训练信号，也造成反馈偏差，导致模型可生成推理路径不断收窄的坍缩。此综述将坍缩视为三个杠杆共同作用的症状:信号施加位置(token加权方式)、教师可见内容(特权信息性质)以及信号变化时机(教师动态与引导衰减)，并限定在数学推理领域梳理已有结论与争议。",
+      "score": 7,
+      "reason": "同策略自蒸馏综述，直接涉及后训练与推理，结构清晰但无新实验",
+      "deepDive": false
+    },
+    {
+      "id": "2609.05533",
+      "title": "SimpleMemVLA: A Simple but Effective Native-Video Memory for Vision-Language-Action Models",
+      "authors": [
+        "Cheng Yin",
+        "Wang Xu",
+        "Junpeng Yang",
+        "Sikyuen Tam",
+        "Hanyu Liu",
+        "Yuan Yao"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Long-horizon manipulation is partially observable: the information needed to choose the next action may appear only in observations from minutes earlier. Existing memory mechanisms: retrieval banks, learned compressors, recurrent states must decide what to keep from the past before knowing what a future decision will require. This was motivated by the assumption that minute-scale history is too large to process directly, which modern VLM backbones no longer make true. In this work, we introduce SimpleMemVLA, a VLA without a dedicated memory module. It keeps the sampled history intact and passes it to the backbone in the timestamped video format the backbone was pretrained to process; the hidden states of a generated sub-task then form the only channel from history to a standard flow-matching action head. Since consecutive decisions share most of their history, prefilling the shared prefix during action execution keeps latency close to a single-frame VLA. SimpleMemVLA sets a new state of the art on four memory benchmarks without cost on general-purpose control. Holding the backbone and training setup fixed, it outperforms retrieval, compression and recurrent-state mechanisms by a wide margin, and causal interventions confirm that the policy genuinely reads its history. Code available at https://github.com/wadeKeith/SimpleMemVLA",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.05533",
+        "pdf": "https://arxiv.org/pdf/2609.05533"
+      },
+      "upvotes": 5,
+      "githubRepo": "https://github.com/wadeKeith/SimpleMemVLA",
+      "githubStars": 1,
+      "projectPage": "https://huggingface.co/collections/yinchenghust/simplememvla",
+      "numComments": 1,
+      "titleZh": "SimpleMemVLA:一种简单有效的原生视频记忆，用于视觉-语言-动作模型",
+      "summaryZh": "长程操作中，记忆机制需预先决定保留哪些历史信息，而现代VLM主干已能直接处理分钟级历史。SimpleMemVLA不设专用记忆模块，将采样历史以时间戳视频格式原样输入主干，仅用生成子任务的隐藏状态作为历史通道供动作头使用;通过连续决策间预填充共享前缀，延迟接近单帧VLA。在四个记忆基准上达到最新最优，且不损失通用控制能力，相比检索、压缩和循环状态机制大幅领先;因果干预验证了策略确实读取历史。此项研究展示了VLM直接消费原生历史视频的潜力，但属于具身智能VLA方向。",
+      "score": 1,
+      "reason": "VLA相关论文，落在具身智能低分方向。",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.03005",
+      "title": "Unifying Conformal Language Tasks with In-Context Ensembles",
+      "authors": [
+        "Xiao Shi Huang",
+        "Chen-Yuan Lin",
+        "Bruce Kuwahara",
+        "Kin Kwan Leung",
+        "Jesse C. Cresswell"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Many NLP tasks, such as summarization and extractive question answering, reduce to retrieving relevant content from documents under two constraints: coverage, retaining enough pertinent information to achieve some goal, and conciseness, removing as much irrelevant information as possible. Conformal prediction methods have been used to guarantee coverage, and must be optimized for conciseness through design of a score function. State-of-the-art scoring functions use hand-engineered LLM prompts asking the model to rate the importance of content, but manual prompt engineering is labor-intensive and task-specific. We introduce the Conformal Relevance framework which uses in-context learning example curation and ensembling to create a score function which maintains coverage while improving conciseness with minimal manual input. We demonstrate this framework's application on seven NLP tasks, and also theoretically study the impact of diversity for ensembled conformal scores, giving a complementarity condition that characterizes when ensembling improves worst-case sentence scores, and a saturation bound on ensemble improvement.",
+      "published": "2026-09-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03005",
+        "pdf": "https://arxiv.org/pdf/2609.03005"
+      },
+      "upvotes": 5,
+      "githubRepo": "https://github.com/layer6ai-labs/conformal-relevance",
+      "githubStars": 2,
+      "numComments": 2,
+      "titleZh": "基于上下文集成的共形语言任务统一框架",
+      "summaryZh": "摘要、抽取式问答等任务需在文档中检索相关内容并兼顾覆盖度与简洁性。共形预测可保证覆盖度，但简洁性依赖手工设计的评分函数。本框架将上下文示例选择与集成用于构造评分函数，以极少人工输入维持覆盖度并提升简洁性;在七个NLP任务上验证有效，并从理论上给出集成提升的最坏情况互补条件与饱和上界。",
+      "score": 5,
+      "reason": "共形预测与LLM提示结合，偏评测可靠性，非后训练/Agent核心方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.04482",
+      "title": "Safety for Whom? Boundary-Aware Self-Distillation for Controlled LLM Safety Refusal",
+      "authors": [
+        "Alejo López-Ávila",
+        "Iker García-Ferrero",
+        "Jezabel Garcia",
+        "Antonio Tiene",
+        "Román Orús"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Safety alignment is usually posed as a topic-level question: is this subject harmful? Deployments ask a narrower one. A civics tutor and a public-sector assistant may share a base model yet need different boundaries inside the same topic, refusing targeted political manipulation while still answering factual questions about the same election. We formulate this as narrow-boundary safety and introduce an offline self-generated framework combining controlled topic generation, coverage repair, in-distribution compensation data, and harmful-benign pairs for training and evaluation. Single-shot generation leaves 19.88% of prompts without accepted refusal traces, whereas escalating retries leave 0.20%. On political persuasion with Qwen3-8B, training on refusal data completed through Escalate increases target-domain refusal from 9.47% to 84.75% and reduces the mean unsafe-response rate across three broader harmfulness benchmarks from 26.26% to 0.14%, but increases XSTest over-refusal from 2.00% to 74.00%. In a separate matched comparison, replacing external responses with verified target-model responses reduces over-refusal from 15.20% to 5.20%. Boundary-pair data reduces comply-side over-refusal on held-out pairs from 32.94% to 4.16%, while harmful-side refusal decreases only from 91.88% to 87.72%. These results show that data composition controls the safety and usability trade-off, and that safety alignment should be evaluated on both sides of the intended refusal boundary.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04482",
+        "pdf": "https://arxiv.org/pdf/2609.04482"
+      },
+      "upvotes": 4,
+      "numComments": 2,
+      "titleZh": "为谁的安全？边界感知自蒸馏实现受控的 LLM 安全拒绝",
+      "summaryZh": "针对部署中同一主题内不同边界的安全对齐需求，提出窄边界安全概念与离线自生成框架，包含受控主题生成、覆盖修复、分布内补偿数据及有害-良性配对。在 Qwen3-8B 政治说服场景中，Escalate 机制将目标域拒绝率从 9.47% 提升至 84.75%，平均不安全响应率从 26.26% 降至 0.14%，但 XSTest 过拒升至 74.00%；使用验证的目标模型响应替代外部响应可将过拒从 15.20% 降至 5.20%。结果表明数据构成决定安全与可用性权衡，安全对齐应在预期拒绝边界两侧评估。",
+      "score": 8,
+      "reason": "安全对齐边界控制，直接命中后训练方向，系统性方法",
+      "deepDive": true
+    },
+    {
+      "id": "2609.04382",
+      "title": "Privacy Failure in Split-LLM Training, The Returned Gradient Nullifies the Decoys",
+      "authors": [
+        "Georgios Politis",
+        "Evangelos Pappas"
+      ],
+      "authorsTotal": 2,
+      "abstract": "We present a systems-security case study of a two-node split-LLM training system whose privacy evaluation passed while leaving an observable channel untested. The Trusted Local Node (TLN) sends protected activations to the Untrusted Cloud Node (UCN), the UCN returns its output, and TLN, holding the private loss, returns the output gradient. The frame the UCN receives mixes real rows with decoys, and the loss ignores the decoys. Their gradients are exactly zero, so the pattern of zeros reveals which rows were real. We measure it with a protocol fixed in advance: a leak injected at known strength to prove the instrument can see one, a shuffled-label control to prove it does not report absent leaks, and a threshold set before the runs. Across nine seeds, the zeros identified the real rows on every frame, 4,096 of 4,096 per run. An attack on the frame contents recovered about one extra token per hundred over a constant-guess baseline (+0.65 to +1.50 percentage points); the shuffled controls recovered nothing. A second set of runs repeated this on a configuration that keeps model quality within budget, so the finding is not confined to a setting nobody would deploy. On both datasets, every such run passed the forward-channel privacy check and the quality check, yet failed that same check once the returned gradient was included. Clipping and noising each row of the gradient closed the leak for about 0.01 nats of held-out cross-entropy. The system is not thereby safe: five classes of attack, including those accumulating observations across training steps, were never measured.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.04382",
+        "pdf": "https://arxiv.org/pdf/2609.04382"
+      },
+      "upvotes": 4,
+      "githubRepo": "https://github.com/setloop-io/Privacy-Failure-in-Split-LLM-Training-The-Returned-Gradient-Nullifies-the-Decoys",
+      "githubStars": 0,
+      "projectPage": "https://setloop.io",
+      "numComments": 2,
+      "titleZh": "拆分式 LLM 训练中的隐私失效：返回梯度使诱饵失去作用",
+      "summaryZh": "拆分式 LLM 训练把模型分成可信本地节点与不可信云节点，本地节点用诱饵行保护真实激活，但返回的梯度会精确暴露真实行：诱饵行的梯度恒为零。协议固定的实验中，九个随机种子下每轮 4096 帧全部被零梯度模式识别出真实行；针对帧内容的攻击相比常数猜测基线可多恢复约每百 token 一个额外 token（+0.65 到 +1.50 个百分点），而打乱标签的对照组无泄露；对梯度逐行裁剪加噪可封堵该信道，仅增加约 0.01 nats 的留出交叉熵。该发现说明仅检查前向信道的隐私评估会漏掉返回梯度这一侧信道，诱饵机制的隐私保证需在端到端梯度回传下重新验证。",
+      "score": 4,
+      "reason": "拆分训练隐私攻击案例，偏离核心关注方向，仅沾 LLM 系统安全边缘",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.03254",
+      "title": "What Else Needs Fixing? Exploring Cost-Effective Test-Time Compute for Revision Propagation in Artifacts Generated Through Conversation",
+      "authors": [
+        "Daisuke Kikuta"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Large Language Models (LLMs) often help users generate artifacts through iterative cycles of generation and revision in conversation. A challenge here is that, when users specify only a local change during revision, LLMs must instead identify the relevant dependencies and propagate the revision to all affected parts of the artifact. This paper studies this ability of LLMs on conversationally generated artifacts, where the artifact context and its dependencies may be embedded in the conversation history. Toward practical use, we also explore cost-effective test-time compute for this new setting. Specifically, we introduce a new benchmark for this setting, and evaluate nine revision methods, including sequential reflection and parallel sampling variants, using gpt-oss-20b/120b, gpt-5.4-mini, and qwen3.5-9b/27b/122b on the benchmark. The results show that baselines achieve accuracies of 68.3--93%, and the most cost-effective method is selecting from three parallel samples using either LLM-based or medoid selection, which improves accuracy by 2.2--9.7%. Our code and dataset are available at https://github.com/ntt-dkiku/llm-revision-propagation.",
+      "published": "2026-09-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.03254",
+        "pdf": "https://arxiv.org/pdf/2609.03254"
+      },
+      "upvotes": 3,
+      "githubRepo": "https://github.com/ntt-dkiku/llm-revision-propagation",
+      "githubStars": 0,
+      "numComments": 2,
+      "titleZh": "还有什么需要修复?探究对话生成工件中修订传播的低成本测试时计算",
+      "summaryZh": "对话中LLM协助用户生成工件时，用户往往只指明一处局部修改，模型却需识别相关依赖并将修订传播至所有受影响部分。为此构建专用基准，评估九种修订方法(含顺序反思与并行采样变体)，覆盖gpt-oss-20b/120b、gpt-5.4-mini及qwen3.5系列模型。结果显示基线准确率为68.3%–93%，最经济的策略是从三个并行样本中经LLM评判或medoid选择选取结果，可提升2.2–9.7个百分点。该工作为工件级修订传播提供了评测基线与低成本的测试时计算方案。",
+      "score": 6,
+      "reason": "评测修订传播与测试时计算，方向相关但分量有限",
+      "deepDive": false
+    }
+  ],
+  "arxiv": []
+}
