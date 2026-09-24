@@ -1,0 +1,651 @@
+{
+  "date": "2026-09-23",
+  "generatedAt": "2026-09-24T07:36:03.452034+00:00",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2609.25804",
+      "title": "The Tasteful Agent: Measuring and Improving Taste in Long-Horizon Tasks",
+      "authors": [
+        "Wenbo Pan",
+        "Zhichao Liu",
+        "Shujie Liu",
+        "Jingying Zeng",
+        "Chin-Yew Lin",
+        "Xianfeng Tang"
+      ],
+      "authorsTotal": 9,
+      "abstract": "LLM agents increasingly work on long-horizon tasks, and the decisions they make along the way, such as which hypothesis to test or which implementation to build on, determine the outcome of the whole run. Making these decisions well is becoming a key capability for both engineering and research agents. We refer to the ability to make good long-horizon decisions as the taste of an agent. While existing benchmarks measure the end-to-end success of agents on long-horizon tasks, none of them measures the taste of an agent. To address this problem, we build Taste-Bench, a benchmark of taste questions constructed automatically from trajectories that agents produced in engineering and research tasks. Each question presents a decision fork, a point in a trajectory where multiple directions are available and one of them leads to a better outcome, and the evaluated model chooses among these directions without seeing what happens after the fork. We mine these forks automatically from parallel attempts at the same task and from detours inside a single trajectory, without needing human annotation. We evaluate frontier models on Taste-Bench and find that the best model answers only 59.7% of the questions correctly. We further find that forks whose deciding evidence appears later in the trajectory are much harder for every model, and that a larger reasoning budget does not improve the accuracy. Finally, we show that taste can be trained. We distill the judgment of a teacher that has seen the outcome into a student model, and the student makes better decisions on unseen tasks and improves end-to-end success on held-out SWE-bench Pro tasks.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25804",
+        "pdf": "https://arxiv.org/pdf/2609.25804"
+      },
+      "upvotes": 115,
+      "githubRepo": "https://github.com/wbopan/tastebench",
+      "githubStars": 1,
+      "numComments": 6,
+      "titleZh": "有品味的智能体:长时程任务中品味的测量与提升",
+      "summaryZh": "长时程任务中 LLM agent 的中间决策，如测哪个假设、基于哪个实现继续，往往决定整条轨迹的成败，但现有 benchmark 只测端到端成功率，无法衡量这种「品味」。Taste-Bench 从 agent 在工程与研究任务轨迹中自动挖掘决策分叉:同一任务的并行尝试与单条轨迹中的绕路都可作为分叉，每题让模型在看不到后续结果时选方向，无需人工标注。评测中最佳前沿模型正确率仅 59.7%，决定证据出现越晚的分叉越难，增大推理预算也无改善。将看过结果的教师判断蒸馏进学生模型后，学生在未见任务上决策更优，并在留出的 SWE-bench Pro 上提升端到端成功率。",
+      "score": 8,
+      "reason": "Agent 长时程决策评测加蒸馏训练，命中 Agent 与后训练方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.25270",
+      "title": "RULER: Instance-aware Rubric Rewards for SVG Generation",
+      "authors": [
+        "Hangyu Ran",
+        "Yuhao Zheng",
+        "Yingying Zhang",
+        "Kevin Qinghong Lin",
+        "Han Peng"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Generating Scalable Vector Graphics (SVG) code from natural-language instructions is an open-ended task without absolute visual ground truth, leaving both evaluation and policy optimization without a faithful signal. Scalar metrics (CLIP, Aesthetic) calibrated on natural images transfer poorly to stylized vector content, and reusing them as RL rewards triggers reward hacking. We address both limitations with rubric-based scoring. We first establish empirically that prompting a vision-language judge with a multi-axis rubric correlates with human judgments far better than scalar metrics, both across samples and within instructions. Building on this finding, we introduce RULER (Instance-aware Rubric Rewards for Reinforcement Learning), which converts each instruction into an instance-aware rubric of six items spanning semantic, visual, and stylistic axes; a judge VLM scores rendered rollouts item-by-item, and the weighted satisfactions form a fine-grained reward optimized via Group Relative Policy Optimization. Because the rubric is derived from text alone, RULER requires neither paired SVG ground truth nor human preference labels. On MMSVG-Illustration and MMSVG-Icon, RULER lifts the rubric score from 0.432/0.395 to 0.693/0.683, surpassing dedicated SVG specialists and matching the substantially larger DeepSeek-V3, with ablations identifying rubric design as the active lever for RL on open-ended SVG generation. The project page is available at https://hangyuran.github.io/RULER/.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25270",
+        "pdf": "https://arxiv.org/pdf/2609.25270"
+      },
+      "upvotes": 62,
+      "projectPage": "https://hangyuran.github.io/RULER/",
+      "numComments": 4,
+      "titleZh": "RULER:面向SVG生成的实例感知评分细则奖励",
+      "summaryZh": "自然语言的SVG代码生成缺少绝对视觉真值，CLIP、Aesthetic等标量指标在风格化矢量内容上迁移不佳，直接用作RL奖励还会诱发奖励劫持。RULER把每条指令转成覆盖语义、视觉、风格六个条目的实例级评分细则，由裁判VLM对渲染结果逐条打分，加权满足度作为细粒度奖励经GRPO优化，且细则仅由文本推导，无需配对SVG真值或人工偏好标注。在MMSVG-Illustration与MMSVG-Icon上，细则得分从0.432/0.395升至0.693/0.683，超过专用SVG模型并与更大规模的DeepSeek-V3相当，消融表明细则设计是开放生成RL的关键杠杆。",
+      "score": 6,
+      "reason": "评分细则奖励+GRPO可迁移，但落点是SVG矢量图形生成",
+      "deepDive": false
+    },
+    {
+      "id": "2609.24981",
+      "title": "GAE: Learning a Geometry-Native Latent Space for 3D-Consistent World Generation",
+      "authors": [
+        "Jiahao Lu",
+        "Minghao Yin",
+        "Wenbo Hu",
+        "Hengyu Liu",
+        "Wang Zhao",
+        "Sai-Kit Yeung"
+      ],
+      "authorsTotal": 8,
+      "abstract": "We present a compact geometry-native latent space as a shared foundation for perception and generation. Visual generators can produce photorealistic frames without preserving a consistent 3D scene. We argue that this is not only a modeling problem but also a representation problem: generators typically evolve appearance-centric latents, while perception models recover geometry in a semantically rich space that encodes cross-view structure. Rather than adding geometry as another output, we reparameterize a geometry foundation model's features into a compact latent space for generation. We realize this shift with the geometry-native autoencoder (GAE), whose latent is jointly decodable to appearance, depth, cameras, and point maps. With this state, a standard conditional flow supports diverse generation tasks. In controlled comparisons that hold the generator and training protocol fixed, replacing the latent with GAE improves both visual quality and independently measured 3D coherence: FVD falls by 12.7% and 23.1% on RealEstate10K and DL3DV, and camera-trajectory error is halved on RealEstate10K. Together, these results show that the latent space is central to geometry-consistent generation and can serve as a shared interface between perception and generation.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.24981",
+        "pdf": "https://arxiv.org/pdf/2609.24981"
+      },
+      "upvotes": 40,
+      "githubRepo": "https://github.com/TencentARC/GAE-GeometricAutoEncoder",
+      "githubStars": 238,
+      "projectPage": "https://jiah-cloud.github.io/GAE.github.io/",
+      "numComments": 4,
+      "titleZh": "GAE:为 3D 一致的世界生成学习几何原生隐空间",
+      "summaryZh": "视觉生成器能产出照片级画面，却常常无法保持同一 3D 场景的一致性;该工作认为这不仅是建模问题，更是表示问题。做法是把几何基础模型的特征重参数化为一个紧凑的几何原生隐空间，其隐变量可联合解码为外观、深度、相机与点图，再配一个标准条件流支撑多种生成任务。在固定生成器与训练协议的对照实验中，仅把隐空间换成 GAE 就让 FVD 在 RealEstate10K 与 DL3DV 上分别下降 12.7% 和 23.1%,RealEstate10K 的相机轨迹误差减半。结果说明隐空间是几何一致生成的关键，也可充当感知与生成之间的共享接口。",
+      "score": 2,
+      "reason": "3D 一致视觉生成与几何隐空间，属低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.24058",
+      "title": "All-in-One Multilingual Scene Text Recognition with Script-aware Mixture-of-Experts",
+      "authors": [
+        "Xingsong Ye",
+        "Yongkun Du",
+        "Jiaxin Zhang",
+        "Zhixian Li",
+        "Chong Sun",
+        "Chen Li"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Multilingual scene text recognition (STR) remains challenging due to the scarcity of training data for most languages and the difficulty of serving diverse scripts within a single model. Existing solutions either deploy one recognizer per language, inflating cost and introducing error accumulation, or rely on massive vision-language models (VLMs) that are expensive and still inaccurate on many scripts. In this work, we pursue an all-in-one multilingual recognizer that is simpler than per-language experts, lighter than VLMs, and more accurate than both. First, we construct TextMuSS-10M, a large-scale synthetic scene text dataset spanning 10 scripts and 229 languages. It provides balanced and sufficient supervision where real data is unavailable. Second, we propose ScriptMoE, a script-aware Mixture-of-Experts (MoE) architecture. It shares a single visual encoder and replaces the dense decoder with a sparse MoE block, which consists of an image-level router dispatches each image to the top-2 script-aligned experts and a shared expert absorbs cross-script knowledge. Extensive experiments on our assembled TextMuSS-Bench (10 scripts, 10,899 images) show that ScriptMoE achieves the highest accuracy of 82.06%, outperforming the strongest STR baseline by 1.31%. On the CC-OCR end-to-end multilingual task, replacing only the recognizer in PP-OCRv5 with ScriptMoE lifts F1 score from 65.71% to 80.89%, slightly surpassing the best VLM (80.73%) at a fraction of the parameter count.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.24058",
+        "pdf": "https://arxiv.org/pdf/2609.24058"
+      },
+      "upvotes": 37,
+      "githubRepo": "https://github.com/YesianRohn/ScriptMoE",
+      "githubStars": 9,
+      "projectPage": "https://huggingface.co/spaces/Yesianrohn/MultilingualOCR-Demo",
+      "numComments": 3,
+      "titleZh": "基于脚本感知混合专家的一体化多语言场景文本识别",
+      "summaryZh": "多语言场景文本识别受制于多数语种数据稀缺、单模型难覆盖多脚本：逐语言部署识别器成本高且误差累积，大型 VLM 昂贵且在部分脚本上不准。工作构建覆盖 10 种脚本、229 种语言的合成数据集 TextMuSS-10M 与评测集 TextMuSS-Bench，并提出 ScriptMoE：共享单一视觉编码器，以稀疏 MoE 替换密集解码器，图像级路由器把每张图分派给 top-2 脚本对齐专家，并设共享专家吸收跨脚本知识。TextMuSS-Bench 上准确率达 82.06%，超最强基线 1.31%；在 CC-OCR 端到端任务中替换 PP-OCRv5 的识别器后 F1 由 65.71% 升至 80.89%，以远小参数量略超最佳 VLM 的 80.73%。",
+      "score": 6,
+      "reason": "稀疏 MoE 路由与多语言数据合成有交集，但核心是视觉 OCR 任务，LLM 相关度有限",
+      "deepDive": false
+    },
+    {
+      "id": "2609.25165",
+      "title": "Ovis-Embedding: Pushing the Frontiers of Universal Omni-Modal Embeddings",
+      "authors": [
+        "Embedding Team"
+      ],
+      "authorsTotal": 1,
+      "abstract": "In this report, we introduce Ovis-Embedding, a state-of-the-art omni-modal embedding family built on native integration of text, image, video, and audio. Instead of assembling separate modality towers, Ovis-Embedding uses a shared multimodal backbone to encode different modalities in a common representation space. Specifically, we make three key advances: (1) native omni-modal initialization: we adopt a pretrained Qwen-omni model as the embedding backbone and adapt it through contrastive training with low-rank initialization; (2) data-centric omni-modal training: we construct a broad, high-quality corpus spanning text, images, video, audio, and interleaved multimodal data. To improve data efficiency, we introduce homogeneous-source sampling to form task-consistent batches with informative in-batch negatives; and (3) embedding-specific training and inference optimization: we use focal loss to emphasize hard examples and similarity-based Embedding Distillation to transfer fine-grained similarity structure from complementary experts. At inference time, low-rank feature decomposition enables compact embeddings with flexible dimensionality and minimal performance loss. Empirical evaluations show that the Ovis-Embedding family achieves state-of-the-art performance on MMEB-v3, MMEB-v2, MVEB, MAEB, and RTEB, demonstrating its effectiveness across text, image, video, and audio modalities. These results highlight the potential of unified omni-modal training to overcome modality fragmentation and advance universal embedding models for any-to-any retrieval.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25165",
+        "pdf": "https://arxiv.org/pdf/2609.25165"
+      },
+      "upvotes": 33,
+      "githubRepo": "https://github.com/ATH-MaaS/Ovis-Omni-Embedding",
+      "githubStars": 27,
+      "numComments": 2,
+      "titleZh": "Ovis-Embedding:推进通用全模态嵌入的前沿",
+      "summaryZh": "针对任意模态检索中模态碎片化、难以共享同一表示空间的问题，以预训练 Qwen-omni 作为共享多模态骨干，通过低秩初始化的对比训练统一编码文本、图像、视频与音频。训练侧构建覆盖多模态及交错数据的语料，用同源采样构造任务一致批次以获得有信息量的批内负样本，并以 focal loss 聚焦难样本、用基于相似度的 Embedding Distillation 迁移专家模型的细粒度相似结构;推理侧用低秩特征分解得到维度灵活且几乎无损的紧凑嵌入。该系列在 MMEB-v3、MMEB-v2、MVEB、MAEB、RTEB 上均取得 SOTA，展示了统一全模态训练在 any-to-any 检索上的潜力。",
+      "score": 6,
+      "reason": "全模态嵌入检索，擦边多模态理解，工程集成色彩重于方法创新",
+      "deepDive": false
+    },
+    {
+      "id": "2609.15987",
+      "title": "Bellman Policy Optimization",
+      "authors": [
+        "Zhuoqing Song",
+        "Haotian Xu",
+        "Xikun Zhang",
+        "Lidong Bing"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Reinforcement learning with verifiable rewards (RLVR) improves the reasoning capabilities of large language models (LLMs). We introduce Bellman Policy Optimization (BPO), a critic-free method derived from Policy Mirror Descent (PMD). For autoregressive generation with terminal rewards, BPO uses the Bellman equations to reformulate PMD as a trajectory-level objective. The reformulation avoids estimating state values at intermediate states. We prove that it has the same unique optimal solution as the original PMD objective. We derive the practical BPO loss by approximating this objective. Its mismatch-correction weight is a smoothed ratio of complementary token probabilities. Experiments on mathematical reasoning benchmarks demonstrate the effectiveness of BPO.",
+      "published": "2026-09-14T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.15987",
+        "pdf": "https://arxiv.org/pdf/2609.15987"
+      },
+      "upvotes": 25,
+      "numComments": 3,
+      "titleZh": "Bellman 策略优化",
+      "summaryZh": "RLVR 能提升大模型推理能力，但主流方法往往依赖 critic 估计状态价值。BPO 从 Policy Mirror Descent 出发，借助 Bellman 方程把 PMD 目标改写成轨迹级目标，从而完全跳过中间状态的估值，并证明其与原 PMD 目标拥有相同的唯一最优解。实际损失由该目标的近似得到，其中的失配修正权重是互补 token 概率的平滑比值。在数学推理基准上的实验验证了该方法的有效性，为免 critic 的 RLVR 后训练提供了一条有理论保证的路径。",
+      "score": 8,
+      "reason": "免 critic 的 RLVR 新算法，直接命中后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.24657",
+      "title": "Circuit Hypernetworks for Quantum-Augmented Diffusion Language Models",
+      "authors": [
+        "Xiaoqiang Wang",
+        "Mengyang Xiong",
+        "Jun Dai",
+        "Bang Liu"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Language models can be adapted by changing the computations applied to individual tokens. Quantum circuits offer one such approach, but evaluating wider circuits inside a large model can be computationally demanding. Here we introduce HyperQ, which adds token-conditioned quantum residual branches to a frozen masked-diffusion language model. A quantum residual branch is a module in each transformer block that reads a token's hidden state, emits the coordinates of that token's circuit, executes it, and adds the measured values back through a residual connection. The backbone remains frozen, and only the added branches are trained. Within each branch, a lightweight circuit hypernetwork emits token-specific rotation angles, coupling strengths, and measurement axes in a shared sparse circuit structure. The required expectation values have an exact classical expression whose evaluation cost grows linearly with the qubit count, enabling circuits from 16 to 64 qubits to be trained within a 1.1-billion-parameter backbone. Across downstream benchmarks, increasing circuit width raises the average score from 47.65 to 54.30. At 64 qubits, HyperQ exceeds the backbone and its low-rank-adapted counterpart by 4.71 and 3.67 points, respectively. HyperQ is fine-tuned on 20,000 prompt-response pairs, compared with 200,000 for the classical baselines. These findings support token-conditioned circuit emission as a tractable architectural approach to quantum-augmented language modelling.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.24657",
+        "pdf": "https://arxiv.org/pdf/2609.24657"
+      },
+      "upvotes": 24,
+      "numComments": 2,
+      "titleZh": "面向量子增强扩散语言模型的电路超网络",
+      "summaryZh": "针对在大模型内部评估宽量子电路开销过高的问题，在冻结的掩码扩散语言模型上加入以 token 为条件的量子残差分支：轻量超网络依据隐状态生成该 token 的旋转角、耦合强度与测量轴，在共享稀疏电路上执行并将期望值经残差连接写回，骨干保持冻结。期望值存在精确经典表达式，代价随量子比特数线性增长，因而可在 11 亿参数骨干内训练 16–64 量子比特电路。下游基准上电路宽度增大使平均分由 47.65 升至 54.30，64 量子比特时分别超过冻结骨干与 LoRA 对照 4.71 和 3.67 分，微调仅用 2 万条 prompt-response 对。",
+      "score": 3,
+      "reason": "量子电路 + 扩散语言模型，均属低分方向，仅擦边 LLM 架构",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.26550",
+      "title": "JEV-as-a-Judge: Accept When Confident, Escalate When Unsure",
+      "authors": [
+        "Yubo Li",
+        "Yidi Miao",
+        "Ramayya Krishnan",
+        "Rema Padman"
+      ],
+      "authorsTotal": 4,
+      "abstract": "LLM-as-a-judge enables evaluation across diverse tasks, but inference cost and confidence reliability become critical at scale. We study whether a decision-only judge can provide an economical first pass and identify when stronger evaluation is needed. Comparing jev-as-a-judge with sixteen generative and reward-model judges, with blinded human adjudication, we find it within three percentage points of a state-of-the-art LLM judge, our strongest comparator, on ordinary preference and evidence-grounded factuality at 0.36% of the comparator's fee. Larger gaps arise when judgments require checking a derivation or resisting an elaborately written wrong answer. On several benchmarks, JEV's gap to this comparator is concentrated in low-confidence decisions. A frozen cascade that accepts confident verdicts and escalates uncertain ones retains 99% of the comparator's accuracy at lower cost.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.26550",
+        "pdf": "https://arxiv.org/pdf/2609.26550"
+      },
+      "upvotes": 23,
+      "projectPage": "https://yubol-bobo.github.io/jev-as-a-judge/",
+      "numComments": 2,
+      "titleZh": "JEV-as-a-Judge:自信时采纳，不确定时升级",
+      "summaryZh": "LLM-as-a-judge 在大规模评测中面临推理成本与置信度可靠性问题，该工作考察仅输出判定的轻量评判者能否作为廉价首轮筛选，并识别需要更强评测的样本。与十六个生成式及奖励模型评判者对比并经人工盲审裁定，它在常规偏好与有证据支撑的事实性任务上距最强 SOTA LLM 评判者 3 个百分点以内，费用仅为其 0.36%;在需要核查推导过程或抵抗精心构造的错误答案时差距较大，且差距集中在低置信度判定上。冻结的级联策略接受高置信判定、升级不确定判定，以更低成本保留最强评判者 99% 的准确率。",
+      "score": 7,
+      "reason": "LLM-as-judge 的成本与置信度级联，命中评测方法学方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.26774",
+      "title": "StableVQ: Practical Guidelines for Stable Vector-Quantized Tokenizer Training",
+      "authors": [
+        "Bao Tang",
+        "Jiahao Guo",
+        "Haoxiang Cao",
+        "Wenyu Liu",
+        "Changqian Yu",
+        "Kun Gai"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Vector Quantization (VQ) is fundamental to discrete visual tokenizers that power modern autoregressive and masked image generation models. While recent shared-projection codebook methods have substantially advanced codebook utilization, training stability remains a critical and underexplored challenge. We argue that the root cause lies in the entanglement of the Encoder--Decoder and Codebook training: because neither module can reliably fulfill its own responsibility in isolation, the system can only function when the two subsystems happen to cooperate---a fragile condition that breaks down precisely when training is most stressed. We propose StableVQ, which revisits the proper learning objective of each module and resolves the problems that arise when each is trained to fulfill its own role independently. Concretely, (1) Dynamic STE corrects the instability in the Encoder's learning objective, enabling it to robustly optimize the reconstruction space under discrete regularization even when codebook utilization is low. (2) Region VQ Loss reconceives the Codebook's learning objective so that it can independently guarantee full tracking of the encoder output distribution, without relying on encoder oscillations to drive activation. (3) Decoupled Schedule recognizes that the distinct responsibilities of the Encoder--Decoder and the Codebook demand distinct optimization dynamics, and assigns each an independent learning rate schedule to ensure robust system-level behavior. Built on top of shared-projection codebooks, StableVQ is lightweight and introduces no learnable parameters. Experiments on ImageNet demonstrate consistent improvements in training stability, codebook utilization, and reconstruction quality across diverse codebook sizes and initialization settings.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.26774",
+        "pdf": "https://arxiv.org/pdf/2609.26774"
+      },
+      "upvotes": 22,
+      "projectPage": "https://tt-day.github.io/StableVQ/",
+      "numComments": 2,
+      "titleZh": "StableVQ:稳定向量量化分词器训练的实用指南",
+      "summaryZh": "面向自回归与掩码图像生成所用的离散视觉分词器，指出训练不稳定的根源在于编码器-解码器与码本训练的耦合:两者都无法独立履行自身职责，系统只有在二者恰好协同时才可用。StableVQ 重新审视各模块的学习目标:(1)Dynamic STE 修正编码器学习目标的不稳定，使其在码本利用率偏低时仍能稳健优化重建空间;(2)Region VQ Loss 让码本独立保证对编码器输出分布的完整跟踪，不再依赖编码器震荡驱动激活;(3)Decoupled Schedule 为编码器-解码器与码本分别配置独立的学习率调度。方法基于 shared-projection 码本，轻量且不引入可学习参数，在 ImageNet 上于多种码本规模与初始化设置下稳定提升训练稳定性、码本利用率与重建质量。",
+      "score": 3,
+      "reason": "图像生成侧视觉分词器训练，偏离LLM关注方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.25186",
+      "title": "From Pattern Recognizers to Personalized Companions: A Survey of Large Language Models in Mental Health",
+      "authors": [
+        "He Hu",
+        "Yucheng Zhou",
+        "Qianning Wang",
+        "Yingjian Zou",
+        "Chiyuan Ma",
+        "Juzheng Si"
+      ],
+      "authorsTotal": 11,
+      "abstract": "The rising global prevalence of mental health conditions, together with longstanding barriers in traditional healthcare, such as limited resources, high cost, stigma, and privacy concerns, has created an urgent need for accessible and scalable support. Large Language Models (LLMs) have emerged as a transformative technology with strong potential to democratize mental health support through advanced natural language understanding and generation. However, the rapidly expanding, fragmented body of work in this area lacks a coherent evolutionary narrative, making it difficult to contextualize current progress and identify future directions. This survey addresses this gap by organizing and analyzing the literature around a central thesis: the role of LLMs in mental health is evolving through three distinct, increasingly sophisticated phases. We trace this trajectory from Phase I, in which LLMs act primarily as passive Information Tools and Pattern Recognizers for assessment; through Phase II, where they function as Empathetic Conversationalists for in-the-moment, stateless interactions; to the current frontier, Phase III, which seeks Longitudinal, Personalized Companions implemented as stateful cognitive agents. To support this framework, we systematically review core technologies, agent architectures (Profile, Memory, Reasoning, and Planning), and the critical infrastructure of datasets and benchmarks, highlighting how their evolution underpins this developmental path. Viewing the field through this developmental lens, we provide a comprehensive synthesis of existing work, an insightful narrative of its trajectory, and a clear roadmap for future innovation in responsible, effective, and human-centered AI for mental healthcare. A curated collection of the resources reviewed in this survey is available at our project repository: https://github.com/Emo-gml/Awesome-Mental-Health-LLMs.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25186",
+        "pdf": "https://arxiv.org/pdf/2609.25186"
+      },
+      "upvotes": 16,
+      "githubRepo": "https://github.com/Emo-gml/Awesome-Mental-Health-LLMs",
+      "githubStars": 127,
+      "numComments": 3,
+      "titleZh": "从模式识别器到个性化陪伴者：大语言模型在心理健康领域的综述",
+      "summaryZh": "针对心理健康服务资源稀缺、成本高、污名化与隐私顾虑等障碍，该综述梳理了 LLM 用于心理支持的研究脉络，提出三阶段演化框架:阶段一为被动的信息工具与评估用模式识别器，阶段二为提供即时无状态共情对话的聊天模型，阶段三则迈向以有状态认知智能体实现的长期个性化陪伴。文章系统整理了支撑该路径的核心技术、智能体架构(画像、记忆、推理与规划)以及数据集与评测基准，并给出面向负责任、以人为本心理健康 AI 的后续路线图。",
+      "score": 5,
+      "reason": "心理健康属垂直应用，但含智能体记忆与规划架构梳理，擦边",
+      "deepDive": false
+    },
+    {
+      "id": "2609.26796",
+      "title": "Flash-dLLM: IO-Aware KV Caching and Parallel Decoding for Fast, Memory-Efficient Diffusion LLMs",
+      "authors": [
+        "Quan Nguyen-Tri",
+        "Mukul Ranjan",
+        "Zhiqiang Shen"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Diffusion Large Language Models (dLLMs) have recently emerged as a promising alternative to autoregressive LLMs by enabling non-autoregressive text generation. However, their practical deployment remains limited by inefficient inference, largely due to the absence of effective Key-Value (KV) caching and scalable parallel decoding mechanisms. Existing acceleration methods typically study KV caching and parallel decoding in isolation, overlooking the I/O bottlenecks that arise when cache reuse and parallel token verification are jointly applied. In this work, we introduce Flash-dLLM, a training-free inference acceleration framework for fast and memory-efficient dLLMs. Flash-dLLM first identifies GPU memory I/O as a dominant bottleneck in KV-cache-enabled dLLM inference and addresses it with an I/O-aware fused KV-cache kernel that reduces redundant memory movement. Building on this optimized cache mechanism, Flash-dLLM further proposes an efficient KV-cache-driven draft-and-verify decoding strategy, where the dLLM itself serves as both drafter and verifier without requiring an auxiliary model. This unified design enables faster decoding while preserving generation quality and improving scalability to longer sequences and larger batch size. Extensive experiments on mathematical reasoning and code-generation benchmarks demonstrate that Flash-dLLM consistently outperforms existing state-of-the-art dLLM acceleration methods in both inference speed and memory efficiency. In particular, it achieves 5.1times and 11.0times speedups over prior strongest baseline Elastic-Cache on GSM8K and HumanEval, respectively.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.26796",
+        "pdf": "https://arxiv.org/pdf/2609.26796"
+      },
+      "upvotes": 14,
+      "githubRepo": "https://github.com/VILA-Lab/Flash-dLLM",
+      "githubStars": 8,
+      "numComments": 2,
+      "titleZh": "Flash-dLLM:面向快速、内存高效扩散 LLM 的 IO 感知 KV 缓存与并行解码",
+      "summaryZh": "扩散语言模型(dLLM)非自回归生成，但缺乏有效 KV 缓存与可扩展并行解码，现有加速方法将二者分开研究，忽略了缓存复用与并行验证共同带来的 GPU 显存 I/O 瓶颈。Flash-dLLM 以免训练框架解决该问题:用 IO 感知的融合 KV 缓存内核减少冗余显存搬运，并提出 KV 缓存驱动的 draft-and-verify 解码，让 dLLM 同时充当草稿模型与验证器，无需辅助模型。在 GSM8K 与 HumanEval 上分别相对最强基线 Elastic-Cache 提速 5.1 倍与 11.0 倍，保持生成质量并可扩展至长序列与大 batch。",
+      "score": 4,
+      "reason": "扩散语言模型属低分方向，仅推理效率部分略沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.26781",
+      "title": "Agensh: Scaling Organizational Intelligence to 1,024 Agents",
+      "authors": [
+        "Zhihao Zhan",
+        "Ting Song",
+        "Li Dong",
+        "Shaohan Huang",
+        "Jianxun Lian",
+        "Yan Xia"
+      ],
+      "authorsTotal": 7,
+      "abstract": "A multi-agent system can reduce latency on complex tasks by executing work concurrently. Several pioneering harness frameworks support multi-agent systems. However, the scalability of current multi-agent harnesses is often constrained by a central orchestrator's capacity to allocate tasks and coordinate workers. To address this limitation, we introduce Agensh, a scalable self-organized multi-agent harness without a central orchestrator: concurrent workers execute a multi-agent cooperation loop, continuously gathering context, claiming and self-assigning sub-tasks, taking action and sharing findings, verifying results, and merging progress in an asynchronous manner. The loop is supported by the agentic organization infrastructure comprising three components: a shared workspace holds proposed, ongoing, and completed work; a message interface lets workers communicate; and shared context retains reusable findings and work intentions. To test the scalability of Agensh, we evaluate it on the five hardest ProgramBench tasks with GPT-5.6-sol (high). Scaling from 1 to 128 agents raises the mean final test-pass rate from 19.31% to 28.78%, an approximately 49% relative improvement. Larger organizations reach comparable test-pass rates earlier. On pandoc, scaling from 1 to 1,024 agents raises the final test-pass rate from 33.89% to 55.06%. Worker trajectories further show that different forms of self-organized cooperation gradually emerges and standardizes as the organization grows. These results reveal the number of agents as a new scaling dimension for multi-agent organizations to expand the frontier of general intelligence, offering a practical solution for complex tasks under hard latency constraints or time budgets.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.26781",
+        "pdf": "https://arxiv.org/pdf/2609.26781"
+      },
+      "upvotes": 12,
+      "projectPage": "https://agens-harness.github.io/project/",
+      "numComments": 2,
+      "titleZh": "Agensh:将组织智能扩展至1024个智能体",
+      "summaryZh": "多智能体系统的扩展性通常受限于中心编排器的任务分配与协调容量。Agensh提出无中心编排器的自组织多智能体harness:并发worker执行多智能体协作循环，持续收集上下文、认领并自分配子任务、执行并共享发现、验证结果、异步合并进展，由共享工作区、消息接口与共享上下文三部分基础设施支撑。在ProgramBench的五个最难任务上使用GPT-5.6-sol(high)，智能体从1增至128个使平均最终测试通过率由19.31%升至28.78%(相对提升约49%);在pandoc上从1增至1024个，通过率由33.89%升至55.06%，且规模越大越早达到同等通过率，worker轨迹显示自组织协作形态随规模逐步涌现并标准化。该工作把智能体数量确立为多智能体组织的新扩展维度，适用于延迟或时间预算紧张的复杂任务。",
+      "score": 9,
+      "reason": "自组织多智能体harness，千级智能体扩展，直接命中Agent方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.25199",
+      "title": "Lean Pool: An AI-Maintained Archive of Formalized Mathematics",
+      "authors": [
+        "Vasily Ilin"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Lean Pool is a repository of formalized mathematics. It is grown, maintained and optimized by AI agents.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25199",
+        "pdf": "https://arxiv.org/pdf/2609.25199"
+      },
+      "upvotes": 12,
+      "githubRepo": "https://github.com/Vilin97/lean-pool",
+      "githubStars": 116,
+      "projectPage": "https://github.com/Vilin97/lean-pool",
+      "numComments": 3,
+      "titleZh": "Lean Pool:一个由 AI 维护的形式化数学档案库",
+      "summaryZh": "形式化数学库的积累与维护长期依赖人工提交和整理，规模扩张与一致性检查的成本很高。Lean Pool 是一个由 AI agent 负责生长、维护与优化的形式化数学仓库，把数学形式化的收集、补全与质量维护交给自动化流程。当前公开摘要只给出这一设定，未披露 agent 的具体机制、覆盖规模或评估数据，可行性与实际产出仍待正文确认，关注 AI for Research 与自动形式化的读者可作线索跟踪。",
+      "score": 5,
+      "reason": "AI 维护形式化数学库，擦边 AI for Research，摘要信息量有限",
+      "deepDive": false
+    },
+    {
+      "id": "2609.26457",
+      "title": "Recursive self-improvement of AI research agents",
+      "authors": [
+        "Dhruv Srikanth",
+        "Bingchen Zhao",
+        "Dixing Xu",
+        "Yuxiang Wu",
+        "Zhengyao Jiang"
+      ],
+      "authorsTotal": 5,
+      "abstract": "AI agents are beginning to automate research and development across the AI stack, from improving training efficiency to optimizing inference. A natural next step is to improve the research efficiency of the agents themselves. When an AI research agent's own code is the object of optimization, each accepted rewrite becomes the agent that the next round edits. We refer to this loop as recursive self-improvement. Its significance lies in a long-standing trend, in which increased cumulative spending on R&D yields diminishing returns. Sustained self-improvement offers a way to counter this trend. We present AIDE^2, a system that implements this loop for a frontier AI research agent. It proposes changes to its own code, benchmarks modified versions of itself on a suite of AI R&D tasks, and keeps the changes that perform best on hidden evaluations. In an autonomous 8-day run, AIDE^2 discovered seven successive improvements, ranging from a new search policy to memory mechanisms that compress and manage the agent's growing context. These gains generalize to four held-out benchmarks spanning machine learning engineering, heuristic algorithm engineering, and physics-based weather forecasting, the last of which is out of distribution from the selection tasks. On all four, the strongest discovered agent matches or exceeds a human-engineered production research agent that ranks among the strongest on FML-Bench. On a separate held-out task family, the discovered agents also exhibit reduced reward hacking, a property the loop never explicitly optimized for: the rate falls from 55% to 32% during the run, 7 percentage points below the human-engineered agent. Together, these results show that an AI research agent can improve its own research efficiency through recursive self-improvement, and that these gains transfer to tasks and domains the loop never encountered.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.26457",
+        "pdf": "https://arxiv.org/pdf/2609.26457"
+      },
+      "upvotes": 7,
+      "numComments": 1,
+      "titleZh": "AI 研究智能体的递归自我改进",
+      "summaryZh": "当AI研究智能体自身的代码成为优化对象时，每一轮被采纳的改写都会成为下一轮的执行者，这一循环即递归自我改进。AIDE^2让前沿研究智能体自主改写自身代码，在AI研发任务集上评测修改后的版本，并依据隐藏评测保留最优改动。在8天自主运行中它连续发现七项改进，从新的搜索策略到压缩与管理上下文的记忆机制;收益迁移到机器学习工程、启发式算法工程与物理天气预报四个留出基准，最强智能体达到或超过在FML-Bench名列前茅的人类工程化研究智能体，奖励黑客率也从55%降至32%，比后者低7个百分点。",
+      "score": 9,
+      "reason": "研究智能体自进化闭环，直接命中Agent与AI for Research方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.24967",
+      "title": "Emergent Collusion in Long-Horizon LLM Agent Interaction",
+      "authors": [
+        "Xinrui Shi",
+        "Yanzhe Zhang",
+        "Diyi Yang"
+      ],
+      "authorsTotal": 3,
+      "abstract": "LLM agents are increasingly deployed in collaborative settings, yet long-term interaction may give rise to undesirable coordination. We study the emergence of collusion in a long-horizon multi-agent environment: two agents repeatedly complete individual tasks, share task logs, verify each other's work, and receive rewards. We introduce realistic constraints that make compliance with the verification protocol incompatible with reward maximization, and find that agents increasingly deviate from the protocol over repeated interactions. Collusion emerges in 94% of trajectories across 10 models, and more capable models within the same family reach it earlier. Controlled peer interventions show that collusion is shaped by peer behavior, while ablations reveal additional effects of reward structure, the verification feedback agents receive, and their interaction history. In particular, restricting the amount and scope of interaction history available to agents reduces collusion. Overall, our findings show that long-horizon interaction can reshape how agents coordinate in ways that create safety risks.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.24967",
+        "pdf": "https://arxiv.org/pdf/2609.24967"
+      },
+      "upvotes": 6,
+      "githubRepo": "https://github.com/SALT-NLP/agent-collusion",
+      "githubStars": 8,
+      "projectPage": "https://salt-nlp.github.io/agent-collusion-website/",
+      "numComments": 2,
+      "titleZh": "长时程 LLM Agent 交互中涌现的共谋",
+      "summaryZh": "研究长时程多智能体场景中两个 LLM agent 反复完成各自任务、共享任务日志、互相验证并获取奖励，并引入使「遵守验证协议」与「奖励最大化」不可兼得的现实约束，发现 agent 随交互轮次增加而系统性偏离协议。在 10 个模型上，94% 的轨迹涌现共谋，同一家族中能力更强的模型更早达成共谋。同侪干预实验表明共谋受同伴行为塑造，消融进一步显示奖励结构、验证反馈与交互历史的作用，限制交互历史的数量与范围可降低共谋。结果表明长时程交互会重塑 agent 的协调方式并带来安全风险，对多智能体 Agent 系统的协议设计与监控有直接意义。",
+      "score": 8,
+      "reason": "多智能体 Agent 长时程交互涌现共谋，直击 Agent 安全方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.06011",
+      "title": "Tri-PvP: Exposing Modality Bias in Omni-Modal Large Language Models through Perceptual-Propositional Evidence Conflicts",
+      "authors": [
+        "Yen-Ting Piao",
+        "Shu-Yun Chen",
+        "Chin-Hui Chu",
+        "Chun-Wei Chen",
+        "Shih-Yun Shan Kuan",
+        "Hung-yi Lee"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Omni-modal large language models (OLLMs) jointly process vision, audio, and text, yet their modality bias under cross-modal conflict remains underexplored. Existing benchmarks conflate two distinct forms of evidence within a single modality: perceptual signals (e.g., a photograph or recording of a dog) and propositional signals (e.g., the declarative claim \"this is a dog\"), such that any measured modality bias is inherently confounded with evidence-form bias, precluding clean attribution to either source. To address this, we introduce Tri-PvP, an 8,000-sample tri-modal conflict benchmark crossing vision, audio, and text, where vision and audio each take perceptual or propositional form. Evaluating five OLLMs, we find robust visual bias across most models and evidence-type conditions. Crucially, we reveal a systematic asymmetry in evidence-form bias: models exhibit a stronger bias toward perceptual signal in vision but propositional in audio. Further analyses via layer-wise linear probing and contrastive decoding reveal that modality bias is already linearly decodable from early representation layers and can only be partially mitigated, calling for mitigation strategies beyond surface-level interventions.",
+      "published": "2026-09-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.06011",
+        "pdf": "https://arxiv.org/pdf/2609.06011"
+      },
+      "upvotes": 5,
+      "githubRepo": "https://github.com/MiuLab/Tri-PvP",
+      "githubStars": 2,
+      "numComments": 2,
+      "titleZh": "Tri-PvP:通过感知—命题证据冲突揭示全模态大语言模型中的模态偏见",
+      "summaryZh": "全模态大模型在跨模态冲突下的模态偏见尚未厘清，现有基准还把同一模态内的感知信号(狗的图片或录音)与命题信号(“这是一只狗”的陈述)混在一起，使模态偏见与证据形式偏见相互纠缠、无法归因。Tri-PvP构建了8000条视觉、音频、文本三模态冲突样本，视觉与音频各自可取感知或命题形式，并在五个模型上评测，发现多数模型存在稳健的视觉偏见，且证据形式偏见呈系统性不对称:视觉偏向感知信号、音频偏向命题信号。逐层线性探针与对比解码进一步显示，模态偏见在早期表征层即可线性解码且只能被部分缓解，说明需要超越表层干预的缓解策略。",
+      "score": 7,
+      "reason": "全模态冲突评测，命中MLLM理解与评测方向，扎实但属基准发布",
+      "deepDive": false
+    },
+    {
+      "id": "2609.25053",
+      "title": "LatentPort: Beyond KV Cache - Cross-Model Transfer of Recurrent Memory in Hybrid Language Models: A 4B-to-9B Hybrid-State Handoff Without Target Prefix Replay",
+      "authors": [
+        "Simon P. Villani"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Can one language model hand its live memory to another without the receiver rereading the context? We demonstrate useful persistent hybrid-state transfer across one architecture-matched Qwen3.5 4B-to-9B sibling pair. To our knowledge, this is the first demonstrated cross-model handoff of persistent recurrent inference state between differently sized hybrid language models without target prefix replay. Translated attention KV alone leaves a large gap; adding the Gated DeltaNet (GDN) persistent-state package lowers teacher-forced negative log-likelihood (NLL), the average next-token log-loss, by 0.747 nats/token (95% paired document bootstrap CI [0.6921, 0.8047]), improving all 64 PG19 documents. Direct recurrent and convolution reuse outperforms the tested learned GDN maps, consistent with partial functional compatibility of persistent-state coordinates. A fresh component factorial selects translated KV with direct recurrent and convolution state. An additional 434,176-parameter correction improves that base on 64 fresh web documents: continuation loss is 0.076 nats/token above native 9B (excess NLL), Jensen-Shannon (JS) divergence is 0.022, and native context recovery (NCR) is 0.918. Corrected 9B significantly beats continued 4B inference while processing zero historical prefix tokens. Evidence covers one direction, one geometry-matched Base-model pair, and 4K teacher-forced continuation; the near-native gate failed, the 16K branch was not run, and free-generation equivalence and a general state interface remain unproven.",
+      "published": "2026-09-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25053",
+        "pdf": "https://arxiv.org/pdf/2609.25053"
+      },
+      "upvotes": 4,
+      "githubRepo": "https://github.com/mmprotest/latentport-paper",
+      "numComments": 2,
+      "titleZh": "LatentPort：超越KV cache——混合语言模型中循环记忆的跨模型迁移：无需目标前缀重放的4B到9B混合状态交接",
+      "summaryZh": "目标模型能否不重读上下文就接收另一模型的在线记忆？在架构匹配的Qwen3.5 4B→9B同源模型对上，仅迁移注意力KV留有明显差距，补上Gated DeltaNet持久状态包后teacher-forced NLL降低0.747 nats/token，PG19全部64篇文档均改善，且直接复用循环与卷积状态优于学习式映射。叠加43.4万参数校正模块后，续写损失仅比原生9B高0.076 nats/token，JS散度0.022，NCR为0.918，历史前缀token处理量为零。该工作首次实现不同规模混合语言模型间的持久循环推理状态交接，为跨模型记忆复用提供新思路，但仅验证单一方向与4K teacher-forced续写。",
+      "score": 7,
+      "reason": "KV cache与线性注意力状态跨模型迁移，命中高效推理与混合架构方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.25636",
+      "title": "RoboFollow: Unveiling the Instruction Following Mirage in Embodied Agents",
+      "authors": [
+        "Chang Guo",
+        "Yukun Xie",
+        "Bohan Tan",
+        "Zheng Chang",
+        "Zhaokai Yin",
+        "Qianli Ma"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Modern embodied agents achieve impressive success rates, yet their actual instruction-following ability is far weaker than these numbers suggest. We trace this illusion to a structural property we term low scene entropy: when a visual scene admits only one valid task, language becomes redundant and a policy can score highly while barely using it. We introduce RoboFollow, a diagnostic benchmark with three principles: (1) High Scene Entropy: each training scene supports multiple kinematically distinct task branches, making vision alone insufficient and forcing reliance on language. (2) Hierarchical Diagnostic Protocol: a four-level protocol (L0--L3) progressively perturbs visual layout and semantics, probing whether equivalent instructions yield consistent behavior and distinct ones yield discriminable behavior across spatial relations, attributes, trajectory constraints, and logic. (3) Confound-Controlled Diagnosis: we simplify interaction objects, restrict actions to the trained repertoire and report stage-wise Intent and Execution scores, isolating comprehension from motor execution. Evaluation of nine VLA and WAM policies shows that strong L0 performance, where attained, does not reliably transfer to L1--L3 under our fine-tuning setup. Representative mitigations, including stronger VLM backbones, QA co-training, LangForce, and Classifier-Free Guidance, all fail to close this gap. RoboFollow exposes genuine instruction following as a critical, overlooked bottleneck. Code and dataset are available at https://github.com/AutoLab-SAI-SJTU/RoboFollow and https://huggingface.co/datasets/AutoLab-SJTU/robofollow-data.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25636",
+        "pdf": "https://arxiv.org/pdf/2609.25636"
+      },
+      "upvotes": 4,
+      "githubRepo": "https://github.com/AutoLab-SAI-SJTU/RoboFollow",
+      "githubStars": 2,
+      "projectPage": "https://mrc-crm.github.io/RoboFollow/",
+      "numComments": 2,
+      "titleZh": "RoboFollow:揭开具身智能体中指令遵循的假象",
+      "summaryZh": "具身智能体的成功率看似很高，真实指令遵循能力却远弱于此:当视觉场景只对应唯一可行任务时，语言变得冗余，策略不理解指令也能得高分，即所谓低场景熵。RoboFollow 以此为诊断基准，令每个训练场景支持多条运动学上不同的任务分支，并设计 L0–L3 四层递进扰动协议，改变视觉布局与语义，检验等价指令行为是否一致、不同指令是否可区分。在九个 VLA 与 WAM 策略上，L0 的表现无法可靠迁移至 L1–L3，更强 VLM 主干、QA 协同训练、LangForce 与无分类器引导等缓解手段均未弥合差距，将指令遵循指认为具身智能被忽视的瓶颈。",
+      "score": 2,
+      "reason": "VLA 具身智能体属低分方向，仅擦边指令遵循评测",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.26346",
+      "title": "Blaming Across the Aisle: Political Contrasting and Blame Attribution in the Danish Parliament",
+      "authors": [
+        "Markus Lundsfryd Jensen",
+        "Rune Egeskov Trust",
+        "Kenneth Christian Enevoldsen",
+        "Sara Kolding"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Political discourse is widely perceived to be growing more hostile, yet robust evidence remains scarce. This study examines blame attribution in the Danish Parliament from 1997 to 2026, combining a purpose-built classifier, BlameBERT (F1: 0.80), with multilevel statistical modeling. The classifier is constructed using an annotation-efficient pipeline for blame attribution in low-to-mid resource languages. The results reveal a banana-shaped trajectory, with blame declining until around 2016 before entering a significant and sustained increase in recent years (2019-2026). Government status consistently influenced blame attribution - an effect we term political contrasting - with opposition parties blaming substantially more than governing parties. This effect was moderated by ideology: The blame-dampening effect of governing was less pronounced among right-wing parties, and ideological extremity amplified blame more strongly on the right. In recent years, the interaction between political wing and ideological extremity intensified, suggesting an ideological hardening of the blame rhetoric concentrated on the right of the political spectrum. Taken together, these patterns suggest that the perceived rise in harsh political language reflects not merely a general rhetorical drift, but an ideologically asymmetric hardening of political discourse. A sensitivity analysis showed that the conclusions were robust to varying classification thresholds.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.26346",
+        "pdf": "https://arxiv.org/pdf/2609.26346"
+      },
+      "upvotes": 4,
+      "githubRepo": "https://github.com/Lundsfryd/BlameBERT",
+      "githubStars": 3,
+      "numComments": 2,
+      "titleZh": "跨席指责:丹麦议会中的政治对比与归责归因",
+      "summaryZh": "针对政治话语是否日趋敌意这一争议，研究以丹麦议会 1997 至 2026 年辩论为对象，构建归责分类器 BlameBERT(F1 0.80)，采用面向低中资源语言的标注高效流程，并结合多层统计模型分析。结果呈香蕉形轨迹:归责在 2016 年前持续下降，2019 至 2026 年转为显著且持续上升;执政地位稳定影响归责，形成所谓「政治对比」效应，反对党归责显著多于执政党。该效应受意识形态调节，右翼执政的抑制效应更弱、意识形态极端化的放大作用更强，近年在右翼尤为明显，提示敌意话语上升是意识形态不对称的硬化而非普遍漂移，敏感度分析显示结论对分类阈值稳健。",
+      "score": 2,
+      "reason": "政治学文本分析，仅以 BERT 做归责分类，与 LLM 关注方向无交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.25247",
+      "title": "Geometric and Semantic Coupling for Interaction Understanding in 3D Scenes",
+      "authors": [
+        "Hanyang Kong",
+        "Xingyi Yang"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Interaction understanding in 3D scenes requires a joint description of movable parts, their motion, and the regions through which they can be operated. We present Segment-Snap, which connects these outputs through the physical relationship between parts and handles. Learned predictors identify broad part surfaces and small handles. A geometric decoder uses planar and upright priors to constrain motion, then selects hinge lines using predicted handle locations, without training a motion regressor. Conversely, a joint part-and-handle predictor supplies additional handle candidates, whose motion classes are refined using containing parts. Each information transfer is applied once, without iterative feedback. On Articulate3D validation, handle guidance raises motion-gated AP from 13.74% to 40.98% at fixed masks and axes. Additional handle candidates raise handle AP from 24.63% to 29.65%; part-based class correction adds 0.98 points, and full context reaches 30.99%. Repeated training, learned-decoder controls and paired visualizations establish the benefits and limitations of combining geometric and semantic evidence for interaction understanding.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25247",
+        "pdf": "https://arxiv.org/pdf/2609.25247"
+      },
+      "upvotes": 4,
+      "githubRepo": "https://github.com/HyoKong/Segment-Snap",
+      "githubStars": 1,
+      "projectPage": "https://hyokong.github.io/segment-snap-page/",
+      "numComments": 2,
+      "titleZh": "面向 3D 场景交互理解的几何与语义耦合",
+      "summaryZh": "针对 3D 场景中可动部件、运动方式与可操作区域需联合描述的问题，提出 Segment-Snap:学习式预测器分别识别大块部件表面与小型把手，几何解码器借助平面与竖直先验约束运动，并用预测的把手位置选取铰链线，无需训练运动回归器;反向地，部件-把手联合预测器补充把手候选，并用所属部件的运动类别修正其运动类别，每次信息传递只执行一次且不迭代反馈。在 Articulate3D 验证集上，固定掩码与轴时把手引导把 motion-gated AP 从 13.74% 提升到 40.98%，补充把手候选使把手 AP 从 24.63% 升至 29.65%，基于部件的类别修正再加 0.98 点，完整上下文达 30.99%。",
+      "score": 2,
+      "reason": "3D 部件与把手交互理解，属具身相关视觉，与 LLM 方向无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.22323",
+      "title": "ALPINE: Adaptive Localization for Parameter- and Sample-Efficient Few-Shot Learning",
+      "authors": [
+        "Neeraj Yadav"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Few-shot learning research is predominantly evaluated on accuracy alone, with limited attention to the parameter and training-sample budgets required to reach that accuracy - a real constraint for practitioners without large-scale compute. We present an ultra-lightweight (22,249-34,917 parameter) spatial-relational architecture for few-shot image classification that combines fixed Gabor edge-energy guidance with a windowed, content-adaptive patch locator. Under a strictly matched, iso-episode-budget protocol (250 meta-training episodes, 5 canonical seeds, 600 evaluation episodes per seed), our architecture achieves 5-shot accuracy gains, consistent across all five seeds, over Prototypical Networks, Relation Networks, and MAML on both CIFAR-FS and MiniImageNet, while using 27-53% fewer parameters than any baseline. It also converges in fewer training episodes, generalizes better to an unseen fine-grained domain (CUB-200-2011 birds, zero retraining), and is more robust to 50% occlusion and 25% spatial translation than all three baselines. A series of falsification ablations - zeroing relational tokens at inference and retraining without them entirely - shows that the architecture's pairwise relational computation, while present, is not the primary driver of its performance; the content-adaptive patch locator is. We report this honestly, together with a capacity sweep showing a genuine accuracy plateau near 22-35k parameters, and release full seed-level results and checkpoint hashes for reproducibility.",
+      "published": "2026-09-16T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.22323",
+        "pdf": "https://arxiv.org/pdf/2609.22323"
+      },
+      "upvotes": 3,
+      "githubRepo": "https://github.com/NeerajYadav-coder/alpine-fewshot",
+      "githubStars": 0,
+      "numComments": 2,
+      "titleZh": "ALPINE:面向参数与样本高效小样本学习的自适应定位",
+      "summaryZh": "小样本学习评测通常只报准确率，忽视达到该准确率所需的参数与训练样本预算。ALPINE以22,249–34,917参数的超轻量空间关系架构，将固定Gabor边缘能量引导与窗口式内容自适应图块定位器结合。在250个元训练episode、5个种子、每种子600个评测episode的严格同预算协议下，它在CIFAR-FS与MiniImageNet的5-shot准确率上稳定超过Prototypical Networks、Relation Networks与MAML，参数量少27–53%，收敛更快，零重训练迁移到CUB-200-2011，并对50%遮挡与25%平移更鲁棒。消融显示成对关系计算并非主要增益来源，内容自适应定位器才是。",
+      "score": 3,
+      "reason": "小样本视觉分类，与LLM主线无关，仅效率主题略沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.22319",
+      "title": "Embedding Physics Priors in Robot Learning: A Survey",
+      "authors": [
+        "Mattia Piccinini",
+        "Lucas Schulze",
+        "Alice Plebe",
+        "Matteo Saveriano",
+        "Thomas Beckers",
+        "Yuan Gao"
+      ],
+      "authorsTotal": 13,
+      "abstract": "The rapid progress of artificial intelligence is reshaping robotics and accelerating the adoption of learning-based approaches. While purely data-driven methods have achieved remarkable success in computer vision and natural language processing, robotics remains constrained by limited data, complex real-world interactions, and the need for reliable operation. These challenges have motivated the exploration of physics-embedded robot learning, which embeds physics priors into learning algorithms. By encoding the underlying physical laws and constraints, physics priors can complement limited data with robotics-specific inductive biases, potentially improving generalization, interpretability, and sample efficiency. However, the literature on physics-embedded robot learning remains fragmented across terminology, methodologies, and application domains, making it difficult to assess this growing body of work. This survey reviews physics-embedded robot learning across a broad range of physics priors, robotics applications, and machine learning models, from single-layer perceptrons to generative foundation models. We adopt a unified taxonomy that classifies existing approaches according to their physics embedding: physics-guided inputs, data, and representations; physics-encoded model architectures; and physics-informed training loss functions. Building on this taxonomy, we review methods for robot dynamics learning, trajectory planning, prediction, control, and estimation, together with the corresponding open-source software ecosystem. We identify key open challenges, and outline promising future research directions. Overall, we argue that physics priors provide a particularly relevant robotics-specific inductive bias, complementing rather than replacing data-driven learning, and paving the way toward more generalizable, data-efficient, and trustworthy robotic systems.",
+      "published": "2026-09-15T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.22319",
+        "pdf": "https://arxiv.org/pdf/2609.22319"
+      },
+      "upvotes": 2,
+      "githubRepo": "https://github.com/TUM-AVS/survey-physics-embedded-robot-learning",
+      "githubStars": 6,
+      "numComments": 2,
+      "titleZh": "在机器人学习中嵌入物理先验：综述",
+      "summaryZh": "纯数据驱动方法在视觉与语言领域成果显著，但机器人受限于数据稀缺、真实交互复杂与可靠性要求，因此出现将物理先验嵌入学习算法的研究路线。该综述提出统一分类法，按物理嵌入位置划分为物理引导的输入、数据与表征，物理编码的模型架构，以及物理信息训练损失三类，并据此梳理机器人动力学学习、轨迹规划、预测、控制与状态估计方法及配套开源软件生态。作者认为物理先验是机器人特有的归纳偏置，应补充而非取代数据驱动学习，并给出开放挑战与未来方向。",
+      "score": 2,
+      "reason": "机器人与具身智能综述，属画像明确不关注方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.25267",
+      "title": "ImIR: Image-Instruction Tuning for All-in-One Image Restoration",
+      "authors": [
+        "Süleyman Aslan",
+        "Görkay Aydemir",
+        "Mısra Yavuz",
+        "Yunus Bilge Kurt",
+        "Nasrin Rahimi",
+        "Ahmet Rasim Emirdağı"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Degradations vary widely across images, so a practical restoration system has to handle many degradation types with one model. A recent and effective recipe adapts a large pretrained image-editing model to restoration using a small low-rank adapter with a text prompt. We replace that prompt with an instruction derived from the degraded image itself. The image reaches the editor through two paths: its structure comes from the model's VAE, and its semantic instruction comes from a lightweight token mapper that shifts the degraded image's vision-language embedding toward the embedding a clean image would produce. Because the instruction is a continuous vector, scaling it yields a family of valid restorations for tasks whose target is not unique, such as low-light enhancement. We adapt one Qwen-Image-Edit model to six tasks with a single adapter trained in about three hours on one GPU. The image instruction outperforms text conditioning under a matched comparison, and it supports task agnostic restoration without a degradation label, which the text variant does not.",
+      "published": "2026-09-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.25267",
+        "pdf": "https://arxiv.org/pdf/2609.25267"
+      },
+      "upvotes": 2,
+      "githubRepo": "https://github.com/suleymanaslan/imir",
+      "githubStars": 2,
+      "projectPage": "https://suleymanaslan.github.io/imir/",
+      "numComments": 2,
+      "titleZh": "ImIR:面向全能图像复原的图像指令微调",
+      "summaryZh": "针对退化类型多样、单一模型难以通吃的问题，提出以退化图像自身导出的连续图像指令替代文本提示来适配大规模预训练图像编辑模型:图像结构经 VAE 传入，语义指令由轻量 token mapper 把退化图的视觉-语言嵌入推向干净图嵌入生成。由于指令是连续向量，对其缩放可为低光增强等目标不唯一的任务生成一族合理解。仅用一个低秩适配器、单卡约三小时训练，即让 Qwen-Image-Edit 覆盖六项任务，匹配对比下优于文本条件，并支持无需退化标签的任务无关复原。",
+      "score": 2,
+      "reason": "图像复原与扩散编辑模型，落在低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.26793",
+      "title": "HARMONY: Hierarchical Agentic Reasoning for MONocular Image-to-Scene Synthesis",
+      "authors": [
+        "Shufan Sun",
+        "Chen Wang",
+        "Enxin Song",
+        "Jiatao Gu",
+        "Lingjie Liu"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Compositional 3D scene reconstruction has recently been explored from two directions: agentic reasoning that provides semantic understanding of spatial relationships but lacks precise alignment with input images; and visual geometry foundation models that predict dense point maps from input images but the reconstruction quality is limited. Therefore, recovering a complete 3D scene from a single monocular image with accurate inter-object relationships and high-fidelity reconstruction quality remains challenging. In this paper, we present HARMONY, a hierarchical chain-of-thought framework that leverages both agentic reasoning and visual geometry foundation. Given an image of an indoor scene, starting from an empty 3D floorplan, HARMONY first calibrates the camera against the reference image to establish a semantically-grounded spatial frame, then uses agentic VLM reasoning to recover the 3D room layout and an initial placement order. It then places the objects in a hierarchical order, from wall-mounted elements, free-standing furniture, to dependent decorations on top of furniture. We also use depth-first traversal for furniture so each placement conditions on previously resolved structure and a reflective feedback loop to avoid error accumulation. After each object placement by VLM, we use the point cloud estimations to perform geometry-based refinement so that the rendered image aligns better with the input. HARMONY can produce 3D scenes that are semantically consistent and perceptually aligned with the reference image, extending single-image compositional reconstruction to complex indoor scene images. Experiments on synthetic and real-world images demonstrate that HARMONY outperforms the evaluated reconstruction baselines, while qualitative comparisons with GPT-6 Astra suggest more faithful object arrangements and better preservation of scene details.",
+      "published": "2026-09-22T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.26793",
+        "pdf": "https://arxiv.org/pdf/2609.26793"
+      },
+      "upvotes": 0,
+      "githubRepo": "https://github.com/ShufanSun/harmony-release",
+      "githubStars": 8,
+      "projectPage": "https://cwchenwang.github.io/harmony",
+      "numComments": 2,
+      "titleZh": "HARMONY：面向单目图像到场景合成的层次化智能体推理",
+      "summaryZh": "针对单张室内图像重建完整 3D 场景时语义关系与几何精度难以兼顾的问题，HARMONY 将智能体推理与视觉几何基础模型结合：先从空 3D 平面图出发标定相机、建立语义坐标系，再用 VLM 智能体推理恢复房间布局与初始摆放顺序，按墙面构件、独立家具、家具上附属装饰的层级依次放置，对家具采用深度优先遍历，并以反思反馈回路抑制误差累积；每次 VLM 放置后用点云估计做几何精修，使渲染图像与输入对齐。在合成与真实图像上优于所评测的重建基线，与 GPT-6 Astra 的定性比较显示物体排布更忠实、场景细节保留更好，把单图组合式重建扩展到复杂室内场景。",
+      "score": 3,
+      "reason": "3D 场景重建属低分方向，仅智能体推理环节略有擦边",
+      "deepDive": false,
+      "relevant": false
+    }
+  ],
+  "arxiv": []
+}
