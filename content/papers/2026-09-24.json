@@ -1,6 +1,6 @@
 {
   "date": "2026-09-24",
-  "generatedAt": "2026-09-25T07:48:51.081992+00:00",
+  "generatedAt": "2026-09-25T14:29:39.682823+00:00",
   "categories": [
     "cs.CL",
     "cs.LG",
@@ -794,5 +794,1177 @@
       "relevant": false
     }
   ],
-  "arxiv": []
+  "arxiv": [
+    {
+      "id": "2609.30264",
+      "title": "AD-WM: Action-Discriminative World Models for Counterfactual Model Predictive Control",
+      "authors": [
+        "Jiabin Qiu",
+        "Zixuan Chen",
+        "Hongye Cao",
+        "Jieqi Shi",
+        "Jing Huo",
+        "Yang Gao"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Latent world models are typically trained to predict factual transitions, whereas model predictive control (MPC) must compare alternative actions from the same state. A model can therefore achieve low factual prediction error yet poorly distinguish candidate actions. We introduce AD-WM, an action-discriminative joint-embedding world model for counterfactual MPC. AD-WM combines residual latent dynamics with predictor-level action-recovery regularization, using inverse dynamics and a normalized recovery objective motivated by conditional mutual information. Both objectives encourage planning transitions to preserve action information; their auxiliary heads are discarded at test time, leaving MPC unchanged. On OGBench-Cube, AD-WM improves hard-start success from 3.7% to 52.0% over a matched LeWM baseline and improves mean success over the reproduced baseline in four of five simulation environments. Planning diagnostics show that factual prediction error and whole-bank action ranking do not follow the closed-loop success ordering, whereas CEM-aligned elite regret tracks success more closely. With a frozen V-JEPA 2 encoder and matched DROID post-training, AD-WM also improves zero-shot transfer to our Franka setup, increasing basic pick-and-place success from 42.2% to 71.1% without lab-specific adaptation. These results suggest that world models for planning should preserve action-dependent differences needed for counterfactual selection, rather than optimize factual prediction accuracy alone. More videos and code are available at https://ad-wm.github.io/.",
+      "published": "2026-09-24T17:59:41Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30264",
+        "pdf": "https://arxiv.org/pdf/2609.30264"
+      },
+      "comment": "9 pages, 5 figures, 4 tables. Project page: https://ad-wm.github.io/",
+      "titleZh": "AD-WM:面向反事实模型预测控制的动作判别式世界模型",
+      "summaryZh": "针对潜空间世界模型只拟合事实转移、却难以区分同一状态下的候选动作这一矛盾，提出 AD-WM:在残差潜动力学之外加入预测器层面的动作恢复正则，用逆动力学与基于条件互信息的归一化恢复目标，促使规划用的状态转移保留动作信息，辅助头在测试时丢弃、不改变 MPC 流程。在 OGBench-Cube 上，困难初始成功率由匹配 LeWM 基线的 3.7% 提升到 52.0%，五个仿真环境中四个的平均成功率优于复现基线;冻结 V-JEPA 2 编码器并做匹配 DROID 后训练后，Franka 真机零样本抓放成功率从 42.2% 升至 71.1%。诊断显示事实预测误差与整体动作排序并不对应闭环成功，而 CEM 对齐的精英 regret 更贴近实际表现，提示规划用世界模型应优化反事实动作的可区分性而非单纯预测精度。",
+      "score": 2,
+      "reason": "机器人操作与 MPC 世界模型，属具身智能方向，与 LLM 主线无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30258",
+      "title": "Temporal Gradient Inversion for Private Trajectory Reconstruction in Embodied Reinforcement Learning",
+      "authors": [
+        "Sudip Bhujel",
+        "Shanghao Shi",
+        "Ruiquan Huang",
+        "Ning Zhang",
+        "Yang Xiao"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Distributed learning in embodied reinforcement-learning agents offers a degree of privacy by retaining raw sensor data on-device and transmitting only policy gradients to the server. Yet temporal structure can amplify this leakage beyond single-frame attacks. We introduce Temporal Reconstruction Attack on Consecutive Encodings (TRACE), an amortized temporal gradient-inversion attack that autoregressively reconstructs the sequence of private observation-action trajectories from per-step policy-learning gradients. The attack exploits two structural signals ignored by prior single-frame methods: (i) cross-time correlation between successive embodied gradients, which we formalize via a conditional mutual-information bound, and (ii) closed-form action recovery from policy-head gradient structure, which we prove exact when standard entropy regularization is sufficiently small. On held-out embodied scenes, TRACE reaches $18.8$ dB PSNR with near-perfect action recovery at $3$-$4.5$ ms per reconstructed frame, dominating the learning-based baseline across all reconstruction metrics and exceeding optimization attacks while running orders of magnitude faster. Further evaluation demonstrates TRACE's broader applicability across recurrent, residual, and compact transformer victim architectures, multi-modal inputs, and larger discrete action spaces. Defense experiments suggest that protecting temporal gradient streams may require sequence-aware privacy mechanisms.",
+      "published": "2026-09-24T17:59:18Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30258",
+        "pdf": "https://arxiv.org/pdf/2609.30258"
+      },
+      "comment": "Accepted at NeurIPS 2026",
+      "titleZh": "具身强化学习隐私轨迹重建中的时间梯度反演",
+      "summaryZh": "分布式具身强化学习把原始传感器数据留在端侧、只上传策略梯度，但跨时间结构会放大单帧反演攻击的泄露。TRACE 从每步策略梯度出发自回归重建私有观测-动作轨迹序列，利用两个被前人忽略的信号:相邻具身梯度的跨时间相关性(给出条件互信息上界)，以及策略头梯度结构中的闭式动作恢复(熵正则足够小时可证精确)。在留出具身场景上达到 18.8 dB PSNR、动作恢复近乎无误，单帧重建仅 3–4.5 ms，全面优于基于学习的基线并快于优化类攻击数个量级。防御实验提示保护时间维梯度流需要序列感知的隐私机制。",
+      "score": 4,
+      "reason": "梯度反演隐私攻击，与 LLM 主线仅擦边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30250",
+      "title": "Agentic Detection of Online Conspiracies",
+      "authors": [
+        "Lior Biton",
+        "Oren Tsur"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Conspiratorial discourse on social media is not always expressed through explicit claims or stable lexical markers. The same surface content may express endorsement, legitimate concerns, criticism, satire, or mockery. The main challenge is therefore not only recognizing conspiracy-related claims, but inferring the speaker's intent -- the utterance's illocutionary force. We argue that this can be achieved through the use of relevant social contexts and propose an agentic framework, equipped with a set of tools supporting social queries. We demonstrate the benefits of our approach on a unique dataset of Hebrew tweets, covering 80\\%--90\\% of the public Hebrew tweets published over a four-year span (late 2018-- early 2023), encompassing several election cycles as well as the COVID pandemic years and related vaccination campaigns. This extensive coverage can be used in recovering different social contexts. Evaluating our framework on a manually-annotated adversarial dataset, we find that context-aware workflows consistently outperform text-only classification and that the agentic framework performs significantly better than other frameworks and settings, including a non-agentic model exposed to the same contexts available to the agent. We further provide an analysis of the results, the errors and efficiency (token economy) tradeoffs. These findings support viewing the task of conspiracy detection as a socially embedded interpretation task, in which effective classification depends not only on access to contexts, but also on adaptive reasoning in which the agent uses tools on a per-case basis, asking only for evidence relevant to its current reasoning step.",
+      "published": "2026-09-24T17:58:43Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30250",
+        "pdf": "https://arxiv.org/pdf/2609.30250"
+      },
+      "titleZh": "在线阴谋论的 Agentic 检测",
+      "summaryZh": "社交媒体上的阴谋论话语常不以显式主张或固定词汇出现，同一表层内容可能表达支持、合理质疑、批评、讽刺或嘲弄，难点在于推断说话者的言外之力而非仅识别相关主张。为此提出一个 agentic 框架，配备一组支持社交查询的工具，借助覆盖四年间约 80%–90% 希伯来语公开推文的语料恢复不同社会语境，并按个案自适应调用工具、只检索当前推理步骤所需的证据。在人工标注的对抗数据集上，结合语境的工作流稳定优于纯文本分类，该框架也显著优于可访问相同语境的非 agentic 基线，并给出了错误模式与 token 开销的权衡分析。",
+      "score": 6,
+      "reason": "Agent 工具调用与语境推理扎实，但属社媒内容分析应用",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30243",
+      "title": "JevOut: Natural Context Can Flip Decision Models",
+      "authors": [
+        "Zixiang Xu"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Dedicated decision models such as Jev map unstructured language to probability distributions over finite choices, allowing their outputs to directly route requests, select tools, and trigger actions. Yet real-world inputs rarely arrive in isolation: they come with background details and surrounding context. We find that short additions that fit naturally into this context can nevertheless redirect an otherwise correct decision, even when the correct answer remains unchanged. To study this behavior, we fix a wrong target option for each initially correct item and use the model's option probabilities to refine fluent context additions while preserving the source, question, choices, and gold answer. Within 64 accepted target evaluations, the optimizer identifies contexts that redirect Jev on 312 of 508 initially correct decisions (61.4%); in 229 cases, Jev assigns at least 0.7 probability to the fixed wrong option. Across seven datasets, three additional decision systems show targeted flip rates of 64.9%-73.2% on decisions they initially answer correctly. Taken together, these results expose a pronounced fragility in current decision models: short, ordinary-looking context can shift a correct choice to a high-confidence wrong one. Because these models turn language directly into downstream choices, this sensitivity raises concerns about treating their probability outputs as reliable decision interfaces.",
+      "published": "2026-09-24T17:57:07Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30243",
+        "pdf": "https://arxiv.org/pdf/2609.30243"
+      },
+      "comment": "32 pages, 5 figures, 23 tables. Homepage: https://xzx34.github.io/jevout/ ; Code: https://github.com/xzx34/JevOut",
+      "titleZh": "JevOut:自然上下文即可翻转决策模型",
+      "summaryZh": "专用决策模型(如 Jev)把非结构化语言映射为有限选项上的概率分布，直接用于路由请求、选择工具与触发动作，而真实输入往往附带背景上下文。该工作为每个初始正确样本固定一个错误目标选项，借助模型自身的选项概率迭代优化流畅、自然的上下文补充，同时保持来源、问题、选项与标准答案不变。在 64 个被接受的目标评测中，Jev 于 508 个初始正确决策里被重定向 312 个(61.4%)，其中 229 个案例错误选项概率≥0.7;在七个数据集与另外三个决策系统上，定向翻转率为 64.9%–73.2%。结果说明短小且看似普通的上下文即可把正确选择推向高置信错误答案，提示不应把此类模型的概率输出直接当作可靠的决策接口，工具调用与请求路由场景需加入鲁棒性防护。",
+      "score": 7,
+      "reason": "决策模型上下文鲁棒性研究，直接关联工具调用与路由场景",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30238",
+      "title": "SemMSA: Latent Semantic-Aided Robust Multimodal Sentiment Analysis with Incomplete Data",
+      "authors": [
+        "Wenhao Li",
+        "Zhibin Wu",
+        "Chong Xiao",
+        "Qiangchang Wang"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Recent research on Multimodal Sentiment Analysis (MSA) has focused on learning from language, visual, and acoustic modalities with incomplete data to infer human sentiment. Most studies typically compensate for missing information by reconstructing modality features or designing complicated fusion mechanisms. However, these methods still suffer from spurious generation and noisy guidance due to the lack of high-level semantic grounding in partially observed multimodal evidence. To address these issues, we propose SemMSA, a latent semantic-aided framework that constructs rich sentiment-relevant semantics with LLMs, fully integrating with all modalities via anchor-free spectral alignment. It mainly consists of Cross-modal Semantic Refinement (CSR) and Cross-modal Spectral Alignment (CSA). Specifically, CSR first adaptively extracts visual and acoustic representations by corresponding adapters to form a unified multimodal prefix with language in the frozen LLM embedding space. It then iteratively produces continuous discriminative semantic states through a token-efficient latent refinement process without decoding explicit text. Next, CSA simultaneously aligns the refined semantics with all modalities by enhancing the dominant spectral component of their kernel Gram matrix. This captures global nonlinear dependencies among all representations without relying on a predefined anchor modality. In addition, an instance-level spectral separation constraint preserves cross-sample discriminability and mitigates representation collapse. Extensive experiments on SIMS, MOSI, and MOSEI benchmarks demonstrate that SemMSA achieves state-of-the-art performance.",
+      "published": "2026-09-24T17:55:31Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30238",
+        "pdf": "https://arxiv.org/pdf/2609.30238"
+      },
+      "comment": "Accepted by NeurIPS 2026",
+      "titleZh": "SemMSA:潜在语义辅助的不完整数据鲁棒多模态情感分析",
+      "summaryZh": "多模态情感分析在模态缺失时，现有方法靠重构特征或复杂融合补偿信息，易产生虚假生成与噪声引导。SemMSA 在冻结 LLM 嵌入空间中用适配器将视觉、语音表示与语言拼成统一前缀，经 token 高效的潜在精炼迭代产出连续判别语义而不解码文本;随后以无锚点的跨模态谱对齐增强各模态核 Gram 矩阵的主谱分量，捕捉全局非线性依赖，并用实例级谱分离约束抑制表征坍塌。在 SIMS、MOSI、MOSEI 上取得最优结果。",
+      "score": 5,
+      "reason": "多模态情感分析偏垂直应用，但LLM潜在语义对齐机制可借鉴",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30227",
+      "title": "To Trust or Not to Trust: Retrieval-Augmented Fact Checking in Speech",
+      "authors": [
+        "Debajyoti Mazumder",
+        "Mamta",
+        "Abhirama Subramanyam Penamakuri"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Online misinformation increasingly appears in spoken formats such as news clips, podcasts, interviews, political speeches, and social media videos, creating a need for fact-checking systems that can verify claims directly from speech. We introduce VeriSpeak, a probe benchmark for studying speech-based fact verification in Large Audio Language Models (LALMs). VeriSpeak contains 3,879 spoken claims spanning temporal, geographical, and relational facts, with balanced true and false labels. The benchmark is designed to examine whether factual verification ability transfers from text to speech, and whether retrieval-augmented LALMs can use textual evidence to correctly support or refute spoken claims. Our experiments reveal a consistent text-speech modality gap: LALMs that verify written claims reliably often fail on the same claims when spoken. Moreover, retrieval alone provides limited gains because models frequently conflate retrieved evidence with the spoken claim. In contrast, retrieval combined with explicit reasoning improves claim-evidence comparison, with a thinking-tuned LALM reaching 86.1% accuracy. VeriSpeak highlights that effective speech misinformation detection requires not only speech understanding, but also grounded reasoning over retrieved evidence. The dataset is publicly available via Hugging Face at https://huggingface.co/datasets/abhiram4572/VeriSpeak.",
+      "published": "2026-09-24T17:50:40Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30227",
+        "pdf": "https://arxiv.org/pdf/2609.30227"
+      },
+      "comment": "Accepted to EMNLP (Main) 2026",
+      "titleZh": "信还是不信:语音场景下的检索增强事实核查",
+      "summaryZh": "在线虚假信息越来越多以播客、演讲、新闻音频等形式出现，而现有事实核查系统多面向文本。为此构建 VeriSpeak，一个包含 3,879 条口语主张的探针基准，覆盖时间、地理与关系类事实，真假标签均衡，用于检验事实核查能力能否从文本迁移到语音，以及检索增强的大型音频语言模型能否借助文本证据支持或反驳口语主张。实验显示稳定的文本—语音模态鸿沟:在书面主张上可靠的模型面对同一内容的语音版本常失败;单纯检索收益有限，模型常把检索证据与口语主张混为一谈，而检索结合显式推理可改善主张—证据比对，思维链微调的音频模型达到 86.1% 准确率。该工作说明语音虚假信息检测不仅需要语音理解，还需要基于检索证据的落地推理，数据已开源于 Hugging Face。",
+      "score": 5,
+      "reason": "检索增强与评测方法学沾边，但主战场是语音模态事实核查",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30226",
+      "title": "PoEM: Predicting RL Outcomes from Existing Policies",
+      "authors": [
+        "Kimia Hamidieh",
+        "Giannis Daras",
+        "Antonio Torralba"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Foundation models are post-trained with reinforcement learning (RL) to maximize specific rewards, such as human alignment, correctness, or instruction following. This post-training process is computationally intensive, sometimes unstable, and has to be run from scratch every time the reward model changes or when we want to combine multiple rewards. We hence ask: given a new reward function, is it possible to predict the RL outcomes without actually running RL on it? We answer this in the affirmative by introducing PoEM, a framework to predict the outputs of RL on a new reward function using a set of models already post-trained on other rewards. First, we show that if the new reward function can be written as a linear combination of existing ones, then the new policy in log-space can be written as a linear combination of the existing log-policies. Surprisingly, even in cases where the rewards are not linearly connected, we observe that often log-policies from RL training span an approximately low-rank subspace across rewards. To our benefit, the weighting coefficients for this combination can be estimated using only the reward or basis policy outputs on the samples. We turn these observations into an algorithm that takes post-trained models and a new reward function, and approximates the target RL policy without actually running any additional RL training. We experimentally validate our approach across synthetic and real rewards, spanning both text and image modalities.",
+      "published": "2026-09-24T17:50:25Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30226",
+        "pdf": "https://arxiv.org/pdf/2609.30226"
+      },
+      "titleZh": "PoEM:从现有策略预测 RL 结果",
+      "summaryZh": "RL 后训练计算开销大、过程不稳定，且每次更换奖励模型或组合多种奖励都得从头重跑。PoEM 指出:若新奖励可写成已有奖励的线性组合，则新策略的对数策略也是已有对数策略的线性组合;即使奖励之间非线性相关，不同奖励下 RL 得到的对数策略也近似张成一个低秩子空间。据此只需用已有模型在新样本上的输出估计组合系数，便能在不运行任何额外 RL 的情况下逼近目标策略，并在文本与图像模态的合成与真实奖励上完成验证。",
+      "score": 8,
+      "reason": "直接命中后训练 RL 方向，免训练预测新奖励下的策略，思路新颖",
+      "deepDive": true
+    },
+    {
+      "id": "2609.30219",
+      "title": "Requirement-Bound Verified Commissioning: A Frozen Four-Billion-Parameter Local Model as a Candidate Generator under an External Acceptance Layer with Verification and Release Authority",
+      "authors": [
+        "Mehmet Iscan"
+      ],
+      "authorsTotal": 1,
+      "abstract": "An acceptance protocol is developed for sensor-coordinate and polarity binding in mechatronic commissioning. Candidate generation is separated from release authority. Requirements unsupported by a deterministic parser are routed to a frozen local language model with four billion parameters. Plans are released only when both facts can be derived by an external gate under a sealed grammar. One canonical answer is requested from a gold-standard user when eligible. The protocol was evaluated once under a criterion fixed before benchmark construction, on 144 tasks written by isolated agent contexts without access to the gate, grammar, or experimental plan. Three contributions are established. First, candidate generation and release decisions were measured separately. Fabricated ready plans were committed on 21 of 22 routed unanswerable tasks, and all were rejected. The same 83 releases were reproduced without model calls. Second, no false release was observed among 83 releases. A one-sided 95% Clopper-Pearson upper bound of 0.0354 was obtained as a diagnostic under an independent-and-identically-distributed assumption, below the sealed 5% threshold. However, one false release was subsequently recorded among 146 releases outside the benchmark at seed 0. Third, protection against incorrect user answers was characterized. Both facts were bound from the original text on 13 of 96 answerable tasks. Incorrect answers were released in 169 of 431 pairings on the remaining tasks, including failures involving coordinate exclusion. A deployable questioning policy was not tested because eligibility was determined from the answer key. Gate sensitivity and real user behavior were not measured.",
+      "published": "2026-09-24T17:46:53Z",
+      "primaryCategory": "cs.SE",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30219",
+        "pdf": "https://arxiv.org/pdf/2609.30219"
+      },
+      "comment": "42 pages, 6 figures, 15 tables",
+      "titleZh": "需求绑定的可验证交验：以冻结的四十亿参数本地模型作为候选生成器，置于具备验证与放行权限的外部验收层之下",
+      "summaryZh": "面向机电调试中传感器坐标与极性绑定的验收协议，把候选生成与放行权限分离：确定性解析器无法覆盖的需求路由给冻结的4B本地模型，只有外部闸门在密封语法下同时推导出两项事实才放行。在144个任务上评估：模型在22个不可回答任务中的21个生成伪造的就绪方案并全部被拒绝，83次放行未见假放行（单侧95%上界0.0354），但基准外seed 0的146次放行出现一次假放行。对错误用户答案的防护不足，96个可回答任务中仅13个从原文绑定两项事实，其余431个配对中169个错误答案被放行。",
+      "score": 3,
+      "reason": "LLM用于工业机电验收，属垂直应用，仅与验证机制擦边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30218",
+      "title": "Minimally Invasive Steering of Language Models",
+      "authors": [
+        "Taha Entesari",
+        "Jingyu Zhang",
+        "Daniel Khashabi",
+        "Mahyar Fazlyab"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Pre-logit steering adapts a frozen language model to a test-time reward by adding vectors to its final hidden states. Unregularized reward optimization can substantially alter the output distribution and degrade generation quality. We propose Minimally Invasive Steering Vector Optimization (MISVO), which penalizes interventions using the local KL geometry of the induced token distribution. The resulting Fisher quadratic measures distributional sensitivity and admits an analytic gradient computed through matrix--vector products with the frozen language-model head. We derive an exact decomposition of the sequence-level KL gradient into an analytic Fisher term and a suffix score-function term. For a fixed generation horizon, we show that the suffix term is second order in the steering magnitude and that three Fisher surrogates agree with the full KL gradient to first order. MISVO uses the frozen-reference surrogate to optimize position-specific interventions without updating model parameters. Across preference and code-generation tasks on models with approximately 1B--14B parameters, MISVO achieves the highest mean reward in six of seven model--task settings, with diversity and coherence scores close to those of Best-of-N.",
+      "published": "2026-09-24T17:46:46Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30218",
+        "pdf": "https://arxiv.org/pdf/2609.30218"
+      },
+      "titleZh": "语言模型的最小侵入式引导",
+      "summaryZh": "针对 pre-logit steering(在最终隐状态上加向量以适配测试时奖励)时，无正则的奖励优化会显著改变输出分布并损害生成质量的问题，提出 MISVO:用诱导 token 分布的局部 KL 几何对干预做惩罚，得到衡量分布敏感性的 Fisher 二次型，并给出通过冻结语言模型 head 的矩阵-向量积计算的解析梯度。作者推导了序列级 KL 梯度向解析 Fisher 项与后缀 score-function 项的精确分解，证明在固定生成长度下后缀项关于引导幅度为二阶，且三种 Fisher 代理与完整 KL 梯度一阶一致。MISVO 用冻结参考代理优化逐位置干预、不更新模型参数，在约 1B–14B 模型上，七个模型—任务设置中有六个取得最高平均奖励，多样性与连贯性接近 Best-of-N。",
+      "score": 8,
+      "reason": "推理时引导的 KL 几何正则化，属后训练可控生成方向，有理论分解"
+    },
+    {
+      "id": "2609.30205",
+      "title": "A Living Benchmark for Information Retrieval from Electronic Health Records",
+      "authors": [
+        "Jordan L. Cahoon",
+        "Chloe O. Stanwyck",
+        "Sulaiman Somani",
+        "Philip Chung",
+        "Kevin R Keet",
+        "Kameron C. Black"
+      ],
+      "authorsTotal": 26,
+      "abstract": "Large language model (LLM)-based clinical assistants are increasingly being integrated into electronic health record (EHR) systems, transforming how clinicians retrieve and synthesize information from patient records. Their safety and utility depend on rigorous evaluation, yet existing benchmarks are manually curated, costly to update, and rapidly become obsolete with evolving technological advancements. We present a scalable framework that automatically generates question--answer pairs from longitudinal EHR notes. Nineteen clinicians validate the benchmark generator, producing the Benchmark for Retrieving Information in EHRs (BRIE), a continuously maintainable evaluation dataset. Across nine LLMs and five inference strategies, state-of-the-art systems frequently omit clinically important information, particularly for questions requiring synthesis across multiple documents and encounters. Because the generator itself is validated, BRIE supports evaluations that static benchmarks cannot, including the generation of multiple answers that reflect variation in clinician reasoning for robust performance assessment and continuously refreshing benchmark content to guard against leakage. Our results demonstrate that scalable benchmark generation enables rigorous, up-to-date evaluation of clinical LLMs as they are deployed in rapidly evolving healthcare settings.",
+      "published": "2026-09-24T17:41:16Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30205",
+        "pdf": "https://arxiv.org/pdf/2609.30205"
+      },
+      "titleZh": "面向电子健康记录信息检索的持续演进基准",
+      "summaryZh": "现有临床 LLM 评测基准依赖人工策展、更新成本高且随技术演进迅速过时。该工作提出从纵向 EHR 病历文本自动生成问答对的框架，经 19 名临床医生验证后构建可持续维护的 BRIE 基准。在 9 个 LLM 与 5 种推理策略上评测，前沿系统在需要跨多份文档与多次就诊综合的问题上频繁遗漏临床关键信息。经验证的生成器还可产出反映临床医生推理差异的多个参考答案，并持续刷新内容以防数据泄漏。",
+      "score": 4,
+      "reason": "医疗垂直领域基准，仅与评测方法学擦边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30199",
+      "title": "ExplorationBench: Measuring AI Systems' Exploration in Verifiable Alien Worlds",
+      "authors": [
+        "Ming Zhang",
+        "Zhenghao Xiang",
+        "Peizhong Gao",
+        "Yujiong Shen",
+        "Yuhui Wang",
+        "Zhonghan Yue"
+      ],
+      "authorsTotal": 20,
+      "abstract": "Scientific discovery begins where known problems end. There, AI systems must engage in exploration: framing hypotheses, designing experiments, and iterating on the results. However, evaluating this ability is difficult: (1) how to verify whether a genuinely new hypothesis holds, and (2) how to determine whether a system has discovered it through exploration or merely recalled related knowledge from pre-training data. To this end, we introduce ExplorationBench, which turns the wicked problem of evaluating scientific exploration into a concrete and tractable framework built on verifiable Alien Worlds: their rules are executable, so every answer can be checked exactly, and they conflict with familiar knowledge, so recall alone cannot solve the tasks. The benchmark contains two sandboxes, AlienCode (31 discovery targets, 70 tasks) and AlienLogic (24 discovery targets, 70 tasks). Each sandbox provides a flawed manual, task-specific environmental feedback, and a dedicated tool-call schema. Systems use these resources to explore the sandbox, then solve held-out tasks. We evaluate 10 AI systems and find that the strongest systems can acquire and apply unfamiliar rules, while performance varies substantially across trajectories and continued exploration can stall or reverse earlier gains. ExplorationBench represents a step towards AI systems that can acquire and apply genuinely new knowledge through exploration in unknown environments.",
+      "published": "2026-09-24T17:37:14Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30199",
+        "pdf": "https://arxiv.org/pdf/2609.30199"
+      },
+      "titleZh": "ExplorationBench:衡量 AI 系统在可验证异世界中的探索能力",
+      "summaryZh": "科学发现始于已知问题终结之处，要求 AI 系统提出假设、设计实验并据此迭代，但该能力难以评测:新假设无法精确校验，也难以区分系统是靠探索发现还是从预训练数据中回忆。ExplorationBench以规则可执行、且与常识相冲突的Alien Worlds为底座，答案可被精确验证、单纯记忆无法解题，包含AlienCode(31个发现目标、70个任务)与AlienLogic(24个发现目标、70个任务)两个沙盒，各提供有缺陷的手册、环境反馈与专用工具调用schema。对10个AI系统的评测显示，最强系统能习得并应用陌生规则，但不同轨迹间差异显著，持续探索可能停滞甚至逆转此前收益。",
+      "score": 8,
+      "reason": "可验证环境的Agent探索评测，命中评测与AI for Research方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30198",
+      "title": "Beyond Compression: Training Latent Representations for Stable Long-Horizon Rollout in Neural Surrogate Solvers",
+      "authors": [
+        "Andreas E. Robertson",
+        "Ashley T. Lenau",
+        "John D. Shimanek",
+        "Benjamin A. Jasperson",
+        "Vivek Oommen",
+        "David L. Damm"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Latent neural surrogate solvers, or latent dynamics models, accelerate simulations of time-dependent physical systems by evolving a compressed latent space rather than resolving full-resolution fields directly. In principle this reduces computational cost and simplifies learning, but in practice errors often accumulate rapidly during long autoregressive rollouts, limiting predictive utility. We show that this instability does not stem from the latent representation itself, but arises when it is trained solely for reconstruction, producing representations poorly suited to long-horizon forecasting. We systematically evaluate training-level interventions that align latent representations with long-horizon rollout: Koopman operator learning and Hamming noise injection during autoencoder training to improve compression, together with noise injection and multi-step rollout fine-tuning to improve dynamics. Interventions that improve long-horizon rollout stability often degrade conventional training metrics, including reconstruction and one-step prediction accuracy. Collectively, these interventions reduce long-rollout error by approximately 40\\% and match or exceed the accuracy of full-resolution models on two physics benchmarks, while requiring 2 orders of magnitude fewer floating point operations and half the GPU memory. Applied to mesoscale crystal-plasticity simulations of high-cycle fatigue, the resulting surrogate achieves stable extrapolation over horizons orders of magnitude beyond those observed during training. More broadly, these results show that neural compression should be designed not merely to reduce dimensionality, but to restructure the solution space for stable dynamical evolution, a key requirement for reliable, efficient neural surrogates in scientific applications.",
+      "published": "2026-09-24T17:36:46Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30198",
+        "pdf": "https://arxiv.org/pdf/2609.30198"
+      },
+      "titleZh": "超越压缩：为神经代理求解器训练面向稳定长时程推演的潜在表示",
+      "summaryZh": "潜在动力学模型通过演化压缩后的潜在空间而非直接求解全分辨率场，加速含时物理系统仿真，但自回归长时程推演中误差会迅速累积，限制其预测价值。该工作指出不稳定并非源于潜在表示本身，而是仅以重构为目标训练所致，并系统评估了若干训练层面的干预：用 Koopman 算子学习与 Hamming 噪声注入改善压缩，用噪声注入与多步推演微调改善动力学。这些干预使长推演误差降低约 40%，在两个物理基准上达到或超过全分辨率模型精度，浮点运算量减少两个数量级、GPU 显存减半，并在介观晶体塑性高周疲劳仿真中实现远超训练时程的稳定外推。",
+      "score": 2,
+      "reason": "物理仿真神经代理，与 LLM/Agent 方向无交集，属低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30192",
+      "title": "SAGE: Mitigating Long-Horizon Reasoning Biases via Topological Guidance",
+      "authors": [
+        "Xinyue Zeng",
+        "Jiawei Zhang",
+        "Yujun Yan",
+        "Dawei Zhou"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Long-horizon reasoning remains a central challenge for large language models (LLMs) under sparse-reward regimes. We argue that this brittleness arises from two biases induced by complex reasoning spaces: an exploration bias, where models are drawn toward locally plausible but structurally unstable branches, and a compounding bias, where small local deviations accumulate across depth and suppress rare rewards. We introduce Symbolic Closure Analysis (SCA) as a theoretical lens characterizing how branching structures and sparse rewards induce these biases in long-horizon reasoning with local admissibility, and as a design principle for structural priors in less formal reasoning tasks. Motivated by this analysis, we propose SAGE (Structural Admissibility-Guided Exploration), a unified framework that injects structural guidance to alleviate exploration bias and compounding bias in long-horizon reasoning. SAGE combines two complementary structural guidance: algebraic sparsification, which projects locally admissible candidates onto operator-indexed algebraic subspaces to suppress spurious branching and mitigate exploration bias, and hyperbolic structural guidance, which embeds reasoning states into a negatively curved space to provide dense depth-wise signals and mitigate compounding bias. Across 12 benchmarks and 7 model families, SAGE outperforms competitive baselines. In particular, SAGE achieves up to an 8-fold improvement on the Andrews-Curtis problem, an open real-world long-horizon task. Code is available at: https://github.com/Susan571/SAGE-NeurIPS2026.",
+      "published": "2026-09-24T17:33:29Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30192",
+        "pdf": "https://arxiv.org/pdf/2609.30192"
+      },
+      "comment": "Accepted by NeurIPS 2026",
+      "titleZh": "SAGE:通过拓扑引导缓解长程推理偏差",
+      "summaryZh": "针对稀疏奖励下LLM长程推理的脆弱性，将其归因于探索偏差与累积偏差——前者偏向局部可行但结构不稳的分支，后者让局部小偏差随深度放大并抑制稀有奖励，并提出符号闭包分析(SCA)刻画这两类偏差的成因。SAGE注入两类结构引导:代数稀疏化把候选投影到算子索引的代数子空间以抑制虚假分支，双曲结构引导把推理状态嵌入负曲率空间以提供稠密的深度信号。在12个benchmark、7个模型家族上超过竞争基线，Andrews-Curtis开放长程任务最高提升8倍。适用于长程搜索与稀疏奖励的推理及Agent任务。",
+      "score": 8,
+      "reason": "长程推理偏差与结构引导框架，命中推理与test-time方向"
+    },
+    {
+      "id": "2609.30186",
+      "title": "Jev-Mobile: Jev as an Executor for Mobile GUI Agents",
+      "authors": [
+        "Linghua Zhang"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Vision-language models (VLMs) have become a common foundation for autonomous mobile GUI agents, but most existing systems rely on the VLM for both planning and action grounding at nearly every interaction step, leading to substantial latency and model-serving cost. We introduce Jev-Mobile, which shifts this paradigm to low-frequency VLM planning and high-frequency lightweight execution: the VLM specifies local goals, the accessibility tree defines a structured executable action space, and Jev, a fast typed decision model, repeatedly selects actions within this space. This design allows multiple GUI actions to be executed under a single VLM decision, reducing expensive VLM inference while preserving adaptive interaction. On the full AndroidWorld task suite, Jev-Mobile achieves 79% task success, compared with 78% for SeeAct-V and 84% for a Step-wise VLM baseline. Among successful trajectories, it reduces mean end-to-end execution time by 32.7% and mean model API cost by 73.4% relative to Step-wise VLM. These results show that decoupling high-level VLM reasoning from low-level action execution can substantially improve mobile GUI agent efficiency while maintaining competitive task performance.",
+      "published": "2026-09-24T17:30:32Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30186",
+        "pdf": "https://arxiv.org/pdf/2609.30186"
+      },
+      "titleZh": "Jev-Mobile：将 Jev 作为移动 GUI 智能体的执行器",
+      "summaryZh": "移动 GUI 智能体通常在每个交互步都调用 VLM 做规划与动作落地，导致延迟高、服务成本大。Jev-Mobile 把范式改为低频 VLM 规划加高频轻量执行：VLM 只指定局部目标，可访问性树给出结构化可执行动作空间，由快速类型化决策模型 Jev 在其中反复选动作，从而在一次 VLM 决策下执行多个 GUI 动作。在完整 AndroidWorld 任务集上取得 79% 任务成功率（SeeAct-V 为 78%，逐步 VLM 基线为 84%），在成功轨迹中端到端执行时间降低 32.7%、模型 API 成本降低 73.4%。该工作表明解耦高层 VLM 推理与底层动作执行可在保持竞争力的同时显著提升移动 GUI 智能体效率。",
+      "score": 7,
+      "reason": "GUI 智能体执行器解耦，属 Agent 方向扎实工作",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30185",
+      "title": "Intrinsic-Extrinsic Coupling in Learning Dynamics",
+      "authors": [
+        "Qinyou Wang"
+      ],
+      "authorsTotal": 1,
+      "abstract": "A learner's current observations need not determine its response to further training. We formulate intrinsic-extrinsic coupling through the continuation-conditioned value of a constrained learning-state intervention, with observation-relative fibers describing present agreement. An executable finite-frame classifier-head write protects current logits while repairing specified historical margins under finite-precision acceptance checks. We distinguish local admissibility, continuation-conditioned intervention value, and complete-policy performance. A matched four-cell contrast identifies readout-specific non-additivity between the same intrinsic intervention and alternative external continuations. In a CLINC-derived class-incremental setting, replay changes the write's 32-update contribution from five correct predictions to zero. Nonzero interactions also occur under output distillation, with a RoBERTa backbone, and under optimizer-native SGDW dynamics. Under SGDW, correct-count interactions are negative in all three activated roots at 128 updates, showing that coupling need not imply positive synergy. The mathematical analysis distinguishes feasible local repairs and favorable terminal outputs from training-reachable repair regions. Separate coordination tests show that content controls match or exceed the development gain, while a five-root fresh-test comparison with Fiber present in every arm shows root-dependent rather than uniformly beneficial correct-count effects. On the secondary cross-entropy readout, guided allocation yields lower mean loss than standard replay in all five pairs. Together, these results make intrinsic-extrinsic coupling operational by connecting executable state geometry to continuation-conditioned value, matched interaction identification, and closed-loop coordination, while separating identified coupling from complete-policy performance.",
+      "published": "2026-09-24T17:30:22Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30185",
+        "pdf": "https://arxiv.org/pdf/2609.30185"
+      },
+      "comment": "39 pages, 4 figures, 23 tables",
+      "titleZh": "学习动力学中的内在—外在耦合",
+      "summaryZh": "学习者的当前观测并不决定其对后续训练的响应;该工作以受约束学习状态干预的续训条件价值刻画内在—外在耦合，并通过有限精度下可执行的分类头写入，在保护当前 logits 的同时修复指定历史 margin，进而区分局部可采纳、续训条件干预价值与完整策略性能。在 CLINC 类增量设定中，回放将写入的 32 步更新贡献由 5 个正确预测降为 0，输出蒸馏、RoBERTa 骨干与原生 SGDW 动力学下同样出现非零交互，SGDW 下 128 步时三个激活根的正确数交互均为负，说明耦合未必带来正向协同。该框架把可执行状态几何、续训条件价值与匹配交互识别连成闭环，可用于持续学习与训练动力学分析。",
+      "score": 3,
+      "reason": "持续学习与训练动力学理论，非 LLM 主线，仅优化器与蒸馏擦边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30184",
+      "title": "ARGUS: Role-Aware Event Knowledge Graphs for U.S. Employment-Discrimination Complaints",
+      "authors": [
+        "Sriram Kannan",
+        "Swetha Saseendran",
+        "Vishnu Vardhan Reddy Kandi",
+        "Leslie Barrett",
+        "Madhavan Seshadri",
+        "Enrico Santus"
+      ],
+      "authorsTotal": 6,
+      "abstract": "U.S. employment-discrimination complaints describe complex event sequences that are not explicitly captured by lexical or embedding-based representations alone. We present ARGUS, a source-grounded pipeline that combines a 5W1H-inspired schema, legal-domain models, and LLM-based structured generation to construct document-level Event Knowledge Graphs (EKGs) from CourtListener complaints. ARGUS extracts fact-bearing statements, builds chunk-level event graphs with participant, temporal, and causal structure, and merges them into document-level representations. We evaluate graph quality through human and multi-model assessment and test downstream utility on claim classification and legal QA. The graph-structured classifier outperforms raw and linearized baselines on the held-out set, and EKG-only retrieval improves document-scoped QA, while open-retrieval gains remain limited by low first-stage candidate recall. These results suggest that EKGs are most useful for organizing and reasoning over evidence once relevant material has been retrieved.",
+      "published": "2026-09-24T17:29:40Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30184",
+        "pdf": "https://arxiv.org/pdf/2609.30184"
+      },
+      "comment": "9 pages, NLLP",
+      "titleZh": "ARGUS:面向美国就业歧视投诉的角色感知事件知识图谱",
+      "summaryZh": "针对美国就业歧视投诉中复杂事件序列难以由词面或嵌入表示刻画的问题，构建可溯源的流水线:用5W1H启发的schema、法律领域模型与LLM结构化生成，从CourtListener投诉中抽取承载事实的陈述，先建含参与者、时间与因果结构的块级事件图，再合并为文档级事件知识图谱。图谱质量经人工与多模型评估;诉求分类上，图结构分类器优于原始文本与线性化基线，文档范围法律问答也因EKG检索获益，但开放检索增益受限于一阶段候选召回。",
+      "score": 3,
+      "reason": "法律垂域NLP应用，与后训练/Agent主线关联弱",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30177",
+      "title": "Search-Aware Reinforcement Learning for Multi-Component Query Understanding in Roblox Game Search",
+      "authors": [
+        "Nayoung Choi",
+        "Shengjian Chen",
+        "Xiaokai Wei",
+        "Wenzheng Zhang",
+        "Daiyao Yi",
+        "Rachit Pareek"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Query understanding (QU) plays a critical role in production search systems, translating raw user queries into search execution plans that drive downstream retrieval and ranking. While large language models (LLMs) have enabled QU to be framed as a structured multi-task generation problem (e.g., intent classification, query expansion), optimizing such models to produce search-engine-coupled outputs remains challenging: static, label-based supervision fails to capture how each component actually interacts with the underlying search pipeline to affect downstream performance. We present a search-aware reinforcement learning (RL) framework for QU based on a distill-then-RL paradigm. Teacher-student supervised fine-tuning (SFT) first yields a well-formed, schema-compliant policy initialization. The RL stage then optimizes each QU component with rewards derived from live interaction with the search engine, tailored to that component's operational role, rather than a single reward tied to the final search outcome. Experiments on Roblox search show that this component-specific optimization improves both per-component utility and downstream search quality, raising NDCG@20 by 8.9 points over the SFT policy and by 3.5 points over training with a single end-to-end reward.",
+      "published": "2026-09-24T17:26:46Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30177",
+        "pdf": "https://arxiv.org/pdf/2609.30177"
+      },
+      "titleZh": "面向 Roblox 游戏搜索多组件查询理解的搜索感知强化学习",
+      "summaryZh": "生产搜索系统中的查询理解需要把用户原始 query 转成检索执行计划，但基于静态标签的监督难以刻画各组件与真实搜索管线的交互。该工作提出「先蒸馏再 RL」的搜索感知强化学习框架:先用教师—学生 SFT 得到符合 schema 的策略初始化，再用与线上搜索引擎实时交互得到的、按组件角色定制的奖励分别优化意图分类、查询扩展等各子任务，而非用单一的端到端奖励。在 Roblox 搜索上的实验显示，按组件定制的奖励同时提升各组件效用与下游检索质量，NDCG@20 相比 SFT 策略提升 8.9 个点，相比单一端到端奖励训练提升 3.5 个点。",
+      "score": 6,
+      "reason": "LLM 后训练用于搜索查询理解，RL 奖励设计有参考价值但属垂直应用",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30167",
+      "title": "Do Audio Language Models Hear and Read Distinctive Features Alike?",
+      "authors": [
+        "Yuanhao Chen",
+        "Peter Chin"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Audio language models pass speech and text through a single decoder. We ask whether that decoder represents a distinctive feature in the same direction when a phoneme is heard and when it is read. For minimal pairs of phonemes differing in one feature, we take the offset between the two members' mean representations. Averaging those offsets gives a direction for each stream, and we measure the cosine between the two. Because the two streams already agree about arbitrary phoneme pairs, we compare every measure against a reference built from random pairings rather than against zero. We apply this to 6 models, 7 features and 15 languages from 11 families. Only voicing in the two Qwen2.5-Omni models exceeds that reference after correction for multiple testing, and the reference varies by a factor of seven between models. In three of the six models, voicing has one direction in audio across the 14 languages with enough minimal pairs to measure it, and every language pair agrees in two of them. The model family, not the model size, predicts which stream represents a feature.",
+      "published": "2026-09-24T17:21:16Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30167",
+        "pdf": "https://arxiv.org/pdf/2609.30167"
+      },
+      "titleZh": "音频语言模型在听与读时是否以相同方式表征区别性特征?",
+      "summaryZh": "音频语言模型把语音与文本送入同一解码器，本文检验同一音素被「听到」与被「读到」时，其区别性特征是否落在相同方向上。方法上对仅差一个特征的最小音素对取两个成员平均表征之差，平均得到每个流(音频/文本)的特征方向，再算两者余弦相似度;由于两条流对任意音素对本就一致，所有指标都以随机配对构建的参考基线为对照，而非与零比较。实验覆盖 6 个模型、7 个特征、11 个语系的 15 种语言，结果只有两个 Qwen2.5-Omni 模型的清浊(voicing)在多重检验校正后超过参考基线，且参考基线在模型间相差达七倍;6 个模型中有 3 个的清浊特征在 14 种可测量语言上方向一致，其中两个模型所有语言对均一致。决定某特征由哪条流表征的是模型家族而非模型规模，提示音频-文本共享解码器的特征对齐高度依赖具体模型。",
+      "score": 5,
+      "reason": "音频语言模型表征分析，属语音侧擦边，与后训练主线关联弱",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30160",
+      "title": "A Training Criterion with Token-Level Tolerance to Transcription Ambiguity for Automatic Speech Recognition",
+      "authors": [
+        "Saurabh Kumar",
+        "Diptiman Mohanta",
+        "Prasanta Kumar Ghosh"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Automatic speech recognition is typically trained assuming that the reference transcript is the only valid labeling of an utterance, yet even nominally verbatim transcripts contain localized differences in pronunciation, spelling, or lexical realization that the acoustics do not uniquely determine. Omni-temporal Classification (OTC) tolerates such noise by adding wildcard paths to the connectionist temporal classification (CTC) alignment graph, but its word-level arcs are too coarse, since bypassing one unsupported token discards supervision for the whole word. We move wildcard arcs to token granularity so unsupported tokens can be bypassed while the rest of the word stays supervised, and we combine token- and word-level arcs as complementary escape paths. Across 19 languages and three corpora, token-level OTC improves over CTC on all 25 tasks. We also replace epoch-indexed relaxation of the wildcard weights with a predictive-entropy-indexed schedule, which performs comparably while reducing dependence on training length. Combining this schedule with the hybrid graph gives the lowest mean word error rate (WER) on every corpus and a 9.45% average relative WER reduction over CTC. Independent validator transcriptions show that token-level models place significantly more wildcard-bypass probability than CTC on disputed characters, indicating that token-level tolerance targets localized transcript ambiguity.",
+      "published": "2026-09-24T17:17:55Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30160",
+        "pdf": "https://arxiv.org/pdf/2609.30160"
+      },
+      "comment": "5 pages, 2 figures, 4 tables; submitted to ICASSP 2027",
+      "titleZh": "一种对转写歧义具有 token 级容忍度的自动语音识别训练准则",
+      "summaryZh": "语音识别通常把参考转写当作唯一有效标注，但即使逐字转写也存在声学无法唯一确定的局部发音、拼写或词汇差异。该工作把 Omni-temporal Classification(OTC)的 wildcard 路径从词级下沉到 token 级，使不受支持的 token 可被跳过而词内其余部分仍受监督，并把 token 级与词级弧组合成互补的逃逸路径;同时用预测熵驱动的松弛调度替代按 epoch 索引的 wildcard 权重调度，降低对训练长度的依赖。在 19 种语言、3 个语料库的 25 项任务上全部优于 CTC，平均相对 WER 降低 9.45%，独立校验转写也显示 token 级模型在争议字符上给出更高的 wildcard 绕行概率。",
+      "score": 2,
+      "reason": "语音识别训练准则改进，属低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30151",
+      "title": "Does a model's stated reason for rejecting a candidate do any work?",
+      "authors": [
+        "Archit Rastogi"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Asked to choose between candidates and explain the choice, a language model often rejects a rival by naming a fact its profile lacks: no director, no date of death. That sentence is a claim about the text in front of the model, and it can be tested without any judge. We insert a real corpus sentence stating the named fact into the rival's profile and ask again under greedy decoding. Two controls separate content from placement: a length-matched irrelevant sentence at the same profile, and the same two sentences at a third option the model never mentioned. In the largest of three runs, six open models on 2WikiMultihopQA, supplying the named fact at the profile the model named moves its choice more than the irrelevant control does, odds ratio 3.57 [1.54, 8.26], Holm p=0.0210, and this survives dropping any single model. The contrast the design was built to detect, the same fact at the option nobody named, does not clear correction, Holm p=0.2428. The strongest result in the family carries no content claim at all: the identical irrelevant sentence moves the choice more at the named rival than at the third option, Holm p=0.0008. Repair and control also differ in co-candidate mentions, relation template and fluency; post-hoc matching on the first two preserves the content effects' direction, matching fluency weakens one, so the content contrasts bound an effect rather than establish one. A forced single-token probability read disagrees in direction with the free-text choice on that same contrast, and three candidate explanations for the disagreement find no support. Every measurement is a string rule, so each was validated against the records it reads; validation caught eight defects. The largest, a choice-parsing rule that returned the option a model had just rejected in 17.1% of adjudicable responses, would have reported six surviving contrasts instead of four.",
+      "published": "2026-09-24T17:13:35Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30151",
+        "pdf": "https://arxiv.org/pdf/2609.30151"
+      },
+      "comment": "Accepted as an oral presentation at LLM4XAI 2026: Workshop on Large Language Models for Explainable AI, co-located with CIKM 2026, Rome, Italy, November 8, 2026. Code and per-item records: https://github.com/ArchitRastogi20/contrastive-rejection-test",
+      "titleZh": "模型给出的拒绝候选者的理由真的起作用吗?",
+      "summaryZh": "考察语言模型在候选选择任务中给出的拒绝理由是否对自身决策有因果作用:把被点名缺失的事实以真实语料句形式补进该候选者档案，再看贪心解码下的选择如何变化，并设置长度匹配无关句与未被提及的第三选项两组对照。六个开源模型在2WikiMultihopQA上，补入被点名事实后选择位移显著大于无关句对照(odds ratio 3.57,95%CI[1.54,8.26],Holm p=0.0210)，而设计本想捕捉的「事实补在无人提及的选项上」并不显著(Holm p=0.2428);最强的效应反而是无关句在点名对手处的位移更大(Holm p=0.0008)，说明内容效应只是上界。此外单token概率读数与自由文本选择方向相反，全部测量均为字符串规则并经人工校验，查出八处缺陷，其中一处解析错误若未修正会虚增两个显著对比。",
+      "score": 6,
+      "reason": "评估可靠性与自解释性方法学，契合评测方向但为workshop短文",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30150",
+      "title": "Graph-Based Inference and Topology-Aware Multi-Agent Reinforcement Learning for Large-Scale Railway Network Management",
+      "authors": [
+        "Giacomo Arcieri",
+        "Gregory Duthé",
+        "Christophe Muller",
+        "Konstantinos G. Papakonstantinou",
+        "Daniel Straub",
+        "Eleni Chatzi"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Modern infrastructure asset management constitutes a complex sequential decision-making problem, characterized by long planning horizons and system-level interactions, such as spatial deterioration correlations and economies of scale. While deep reinforcement learning has shown promise in optimizing maintenance policies, scaling to real-world networks remains challenging. Centralized approaches become computationally intractable in large-scale systems, whereas decentralized approaches often fail to capture essential coordination mechanisms. To address these challenges, we propose a graph-based framework that integrates accurate environment modeling with scalable decision support. First, we employ a hierarchical Bayesian model leveraging a Gaussian Process on Graph kernel to infer a realistic, spatially correlated networked environment of railway maintenance planning from real-world data provided by the Swiss Federal Railways. Second, we introduce a topology-aware Multi-Agent Reinforcement Learning (MARL) framework by integrating graph neural networks and graph Transformers to optimize network-level policies. A central contribution of this work is the demonstration of scalability through zero-shot transfer learning: graph-based agents, trained only on small network portions, are successfully deployed in a zero-shot manner on large-scale unseen networks without any retraining. Numerical results indicate that the proposed method significantly outperforms optimized heuristics and standard MARL baselines, reducing computational training time while maintaining superior performance on large-scale networks.",
+      "published": "2026-09-24T17:12:39Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30150",
+        "pdf": "https://arxiv.org/pdf/2609.30150"
+      },
+      "titleZh": "基于图的推理与拓扑感知多智能体强化学习用于大规模铁路网络管理",
+      "summaryZh": "针对大规模铁路网络维护规划中集中式方法难以扩展、分散式方法缺乏协同的问题，构建了图结构框架:先用图高斯过程的分层贝叶斯模型从瑞士联邦铁路真实数据推断具空间相关性的网络化环境，再将图神经网络与图 Transformer 融入拓扑感知多智能体强化学习以优化网络级策略。核心结果是通过零样本迁移验证可扩展性——仅在小规模网络片段上训练的图智能体可直接部署到未见的大规模网络而无需重训，性能显著优于调优启发式与标准 MARL 基线，并降低训练计算时间。",
+      "score": 2,
+      "reason": "铁路运维垂直应用，与 LLM 关注方向无交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30147",
+      "title": "GRASP: Generating, Revising, and Assessing for Strategic Planning with Agentic AI",
+      "authors": [
+        "Arunabh Srivastava",
+        "Mohammad A.",
+        "Khojastepour",
+        "Srimat Chakradhar",
+        "Sennur Ulukus"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Large Language Models (LLMs) typically exhibit a performance profile where reliability degrades as task complexity increases. We address the challenge of generating high-quality natural language executable plans for complex tasks by introducing $\\textbf{GRASP}$, a strategy-aware, multi-stage planning framework. GRASP decouples the planning pipeline across specialized, context-isolated modules: it pre-compiles global macro-guidelines (GenPlan), explores alternative localized strategies within isolated context windows (RevPlan), and independently evaluates trajectories using a multi-criteria discriminator (VerPlan). Empirical evaluations show that GRASP consistently establishes a new state-of-the-art frontier across diverse datasets, yielding substantial accuracy gains over direct LLM planners on Natural Plan Calendar Scheduling ($\\sim$12.4$\\%$$\\uparrow$), ZebraLogic ($\\sim$30.8$\\%$$\\uparrow$), and SciBench Math. Crucially, under multi-task scaling-where standard planners suffer immediate performance collapse-GRASP completely flattens the multi-task degradation penalty. In interleaved dual-task environments, GRASP achieves an absolute accuracy gain of up to 16.7$\\%$ over direct LLM planners. Furthermore, by isolating context and enforcing strict macro-regularization, GRASP outperforms frontier reasoning models (such as GPT-5-mini) by a margin of 14.5$\\%$.",
+      "published": "2026-09-24T17:11:35Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30147",
+        "pdf": "https://arxiv.org/pdf/2609.30147"
+      },
+      "comment": "Accepted at the Second Workshop for Research on Agent Language Models (REALM) at EMNLP 2026",
+      "titleZh": "GRASP：面向策略规划的生成、修订与评估智能体 AI",
+      "summaryZh": "针对任务复杂度上升时 LLM 可靠性下降的问题，提出策略感知的多阶段规划框架 GRASP，把规划流程拆成上下文隔离的三个模块：GenPlan 预编译全局宏观指南，RevPlan 在独立上下文窗口中探索局部替代策略，VerPlan 用多准则判别器独立评估轨迹，并施加严格的宏观正则约束。在 Natural Plan Calendar Scheduling 上准确率提升约 12.4%，ZebraLogic 约 30.8%，SciBench Math 亦有增益；多任务扩展下标准规划器性能立即崩塌，而 GRASP 基本消除退化惩罚，双任务交错场景绝对增益最高 16.7%，并比 GPT-5-mini 等前沿推理模型高 14.5%。适用于复杂任务的可执行自然语言规划与 Agent 编排。",
+      "score": 7,
+      "reason": "Agent 规划与 harness 方向扎实工作，但属 workshop 短文",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30144",
+      "title": "EnigmaForge: The Question Is Hidden in the Story",
+      "authors": [
+        "Daniel Eisner"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Most benchmarks hand the model a question. EnigmaForge hands it a stack of old documents and no question at all. Buried in the letters, receipts, and logbook margins is a small logic puzzle whose solution is unique - proved by a SAT solver at generation time, with an ablation certificate showing every clue is load-bearing. Because instances are generated rather than collected, the corpus renews forever. The headline measure is intuition: task success when handed only the story, with world reconstruction as the secondary axis. Twenty-five frontier models ran over 600 instances (17,400 scored records) under three matched conditions. Intuition reshuffles the leaderboard: a 22x spread where fact recovery spans 1.6x, the second-best fact-recoverer ranks fourteenth, one model is indifferent to being told the question, and another is significantly better without it. Several models were blocked by their own content filters before reaching the puzzle - any benchmark scoring refusals as failure is quietly measuring filter behavior.",
+      "published": "2026-09-24T17:10:03Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30144",
+        "pdf": "https://arxiv.org/pdf/2609.30144"
+      },
+      "titleZh": "EnigmaForge：问题藏在故事里",
+      "summaryZh": "多数基准直接把问题交给模型，EnigmaForge 只给一堆旧文档，问题欠奉：逻辑谜题埋在信件、收据与日志边角，生成时由 SAT 求解器保证解唯一，并附消融证书证明每条线索都不可或缺，实例可持续生成。核心指标为“直觉”，即仅凭故事作答的任务成功率，世界重建为次要维度。25 个前沿模型在三种匹配条件下跑了 600 余实例、17400 条计分记录：直觉指标打乱排行榜，差距达 22 倍而事实检索仅 1.6 倍，事实检索第二名跌至第十四，有模型对是否告知问题无感、也有模型不知问题时反而更好；部分模型在触及谜题前被自身内容过滤器拦下，提示把拒答计为失败的基准实际在测量过滤行为。",
+      "score": 8,
+      "reason": "隐藏问题的评测范式新颖，榜单洗牌与过滤器分析有分量",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30137",
+      "title": "Screen Before You Serve: Simulation for Production Customer Experience AI Agents at 140M Scale",
+      "authors": [
+        "Edesio Alcoba",
+        "Kevin Rossell",
+        "Aman Gupta",
+        "Shao Tang",
+        "Jiwoo Hong",
+        "Pabel Carrillo-Mendoza"
+      ],
+      "authorsTotal": 16,
+      "abstract": "Customer experience (CX) agents use tools and large language models to address customer requests and guide conversational interactions with an organization's products. Improving these agents, especially in regulated industries, is difficult: they must detect intent, follow complex operational policies and use tools reliably. Manual end-to-end testing offers limited coverage, while live experiments expose customers to failures that can erode trust. We present a hypothesis-driven simulation workflow for screening candidate CX agents before deployment. Synthetic customers react to agent responses and simulated tool outputs enable multi-step agentic workflows without invoking production backends. We use the Snowglobe simulator on Nubank's Card Delivery agent and its expanded successor, Card Management - Nubank's highest-volume chat-support agent in Brazil. Across 4 deployed versions, simulated and production version-level binary evaluator scores show high correlation. Simulation-guided iteration increased transactional net promoter score (tNPS) by 36.69 points in a live A/B test. We also screened open-weight configurations in over 16,000 simulated conversations. In a subsequent live A/B test, the selected model increased self-service rate (SSR) by 8.82 percentage points to the highest level observed at Nubank, with no statistically significant change in tNPS. Simulation made broad exploration of models, reasoning settings, and prompts feasible without customer exposure, enabling production improvements that would have been impractical to pursue through live experimentation alone.",
+      "published": "2026-09-24T17:07:38Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30137",
+        "pdf": "https://arxiv.org/pdf/2609.30137"
+      },
+      "comment": "17 pages, 11 figures",
+      "titleZh": "上线前先筛选:面向1.4亿规模生产客户体验AI Agent的仿真",
+      "summaryZh": "客户体验Agent需识别意图、遵循复杂运营政策并可靠调用工具，但人工端到端测试覆盖有限，线上实验又会把失败暴露给客户。假设驱动的仿真筛选流程让合成客户对Agent回复做出反应、模拟工具输出，使多步agentic工作流无需调用生产后端即可跑通，Snowglobe模拟器落地于Nubank的Card Delivery与后继Card Management。4个已部署版本的仿真与生产版本级二值评估分数高度相关，仿真引导迭代使线上A/B测试的tNPS提升36.69分;在16000+条仿真对话中筛出的开源权重配置使自助服务率提升8.82个百分点，创Nubank新高。该流程让模型、推理参数与提示词的大范围探索无需触碰线上客户。",
+      "score": 8,
+      "reason": "Agent仿真环境合成与上线前筛选，大规模生产验证，命中Agent方向"
+    },
+    {
+      "id": "2609.30123",
+      "title": "HEXIS: Compiling Skills into Extended Finite State Machines",
+      "authors": [
+        "Minghao LI"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Agent skills provide reusable knowledge and instructions, yet agents must repeatedly infer how to apply them and which operation should follow. This couples task reasoning with control decisions, allowing prescribed steps to be omitted or applied incorrectly. We introduce HEXIS, which compiles agent skills into extended finite state machines that separate knowledge from control flow. Skill knowledge is incorporated into local instructions that guide reasoning and generation within states. The machine records execution progress and intermediate results, while explicit transition conditions determine subsequent operations. Our incremental compiler first maps skill clauses and tool interfaces to state operations, local instructions, data bindings, and transitions. It then aligns development traces with existing states to identify missing operations and dependencies. These are incorporated by adding or reusing states and refining their connections. Updates are accepted only after static checks and replay of the current and all previously accepted traces. Across four benchmarks and four executors, HEXIS improves success over Skill + ReAct by 16.1 percentage points on average. Qwen3.8-27B reduces execution tokens by 38.4-88.9% across benchmarks.",
+      "published": "2026-09-24T16:58:18Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30123",
+        "pdf": "https://arxiv.org/pdf/2609.30123"
+      },
+      "titleZh": "HEXIS:将智能体技能编译为扩展有限状态机",
+      "summaryZh": "智能体技能虽可复用，执行时仍需反复推断如何应用、下一步该做哪个操作，任务推理与控制决策耦合，易导致规定步骤遗漏或误用。HEXIS 把技能编译为扩展有限状态机:知识放入状态内的局部指令指导推理与生成，状态机记录执行进度与中间结果，由显式转移条件决定后续操作;增量编译器先将技能条款与工具接口映射为状态操作、局部指令、数据绑定与转移，再用开发轨迹对齐已有状态、发现缺失操作与依赖，更新须通过静态检查并重放全部已接受轨迹。在四个 benchmark、四种执行器上，成功率较 Skill + ReAct 平均提升 16.1 个百分点，Qwen3.8-27B 执行 token 减少 38.4–88.9%。",
+      "score": 8,
+      "reason": "Agent 技能编译为状态机，知识控制流解耦，直接命中 Agent 方向"
+    },
+    {
+      "id": "2609.30121",
+      "title": "What, When, and How: Audio Description as Constrained Global Optimization",
+      "authors": [
+        "Igor Sterner",
+        "Mirella Lapata",
+        "Alex Lascarides",
+        "Frank Keller"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Audio Description (AD) makes movies accessible to blind and visually impaired audiences by narrating visual information in gaps between dialogue. Existing automatic AD systems largely treat generation as a local video-to-text problem, assuming that the content to describe and its temporal location are already provided. Realistic AD instead requires coupled decisions about what visual information is narratively important, when it can be spoken without interfering with dialogue, and how it should be formulated to fit within the available time. We formalize AD generation as a constrained optimization problem over these three decisions. Our hybrid system uses large language models to propose and ground visual elements, estimate their salience to the narrative, and generate compressed realizations. A mixed-integer linear program then jointly selects and schedules descriptions across a scene subject to temporal constraints. When evaluated on REFRAMED, a benchmark for realistic AD of movies, our approach makes better decisions than prompted LLMs about what to describe and when to describe it, establishing a new SOTA on narrative QA and temporally grounded metrics. Ablations show that explicit temporal constraints drive gains in placement, while salience estimation controls how much narratively useful content is retained. Improvements are concentrated on temporal and narrative measures rather than n-gram overlap, although a significant gap to professional describers remains.",
+      "published": "2026-09-24T16:56:50Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30121",
+        "pdf": "https://arxiv.org/pdf/2609.30121"
+      },
+      "titleZh": "什么、何时与如何:将音频描述视为受约束的全局优化",
+      "summaryZh": "音频描述(AD)为视障观众在对话间隙叙述画面信息，现有自动系统多把生成当作局部的视频到文本任务，默认描述内容与时间位置已给定。该工作把 AD 生成形式化为对「描述什么、何时可说、如何表述」三个耦合决策的约束优化:由 LLM 提出并落地视觉元素、估计其对叙事的显著度、生成压缩表述，再用混合整数线性规划在场景级别联合选择与排布描述以满足时间约束。在 REFRAMED 基准上，叙事问答与时间定位指标均达 SOTA，消融显示显式时间约束决定排布增益、显著度估计决定叙事信息保留量，但与专业描述者仍有明显差距。",
+      "score": 3,
+      "reason": "视听无障碍垂直应用，仅与 LLM 生成和调度略微沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30105",
+      "title": "On the SoS Certifiability of Log-Concave Distributions",
+      "authors": [
+        "Aleksandr Storozhenko"
+      ],
+      "authorsTotal": 1,
+      "abstract": "For an arbitrary isotropic log-concave distribution $P$ on $\\mathbb{R}^d$, we prove that the polynomial $(Cm)^m\\|v\\|_2^m - \\mathbb{E}_{X\\sim P}\\langle X,v\\rangle^m$ is a sum of squares for every even $m\\ge2$, where $C>0$ is a universal constant. This removes the dependence on the Poincaré constant in the theorem of Kothari and Steinhardt (arXiv:1711.07465), recovering the optimal moment bounds for log-concave distributions. As an immediate corollary, we obtain computationally efficient algorithms with dimension-free error guarantees for a wide range of high-dimensional statistical estimation problems. Our proof uses stochastic localization to decompose $P$ as an average of random strongly log-concave measures, whose centered moments admit the subgaussian certificates of Diakonikolas, Hopkins, Pensia, and Tiegel (STOC 2025; arXiv:2410.21194). With a covariance-adapted choice of localization, we show that a fourth-moment certificate derived from Letwin's variance inequality for quadratic forms (arXiv:2607.24164) suffices to control this averaging at every even degree.",
+      "published": "2026-09-24T16:48:02Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30105",
+        "pdf": "https://arxiv.org/pdf/2609.30105"
+      },
+      "titleZh": "论对数凹分布的 SoS 可认证性",
+      "summaryZh": "针对 R^d 上任意的各向同性对数凹分布 P，证明多项式 (Cm)^m‖v‖_2^m − E_{X∼P}⟨X,v⟩^m 对每个偶数 m≥2 都是平方和，从而移除 Kothari–Steinhardt 定理中对 Poincaré 常数的依赖，恢复对数凹分布的最优矩界。证明思路是用随机局部化把 P 分解为随机强对数凹测度的平均，其中心矩可套用 Diakonikolas 等人的次高斯证书，再通过协方差自适应的局部化选择，用二次型方差不等式给出的四阶矩证书控制这一平均。作为直接推论，可为一大类高维统计估计问题给出计算高效且误差与维数无关的算法。",
+      "score": 1,
+      "reason": "纯高维统计与 SoS 理论，与 LLM 方向无交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30100",
+      "title": "R-DEIM Net: An Efficient Rationale-Augmented Dual-Expert Interaction Model for Paraphrase Detection",
+      "authors": [
+        "Pushp",
+        "Vaibhav Prajapati",
+        "Himangshu Sarma"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Recent advances in paraphrase detection reveal a fundamental trade-off: large language models achieve high accuracy but require high computation, while efficient Siamese-BERT variants offer practical scalability with reduced transparency in rationale generation. We present R-DEIM Net, a 76M-parameter dual-expert architecture exploring whether moderate-scale models can achieve competitive accuracy on paraphrase detection while enabling human-readable rationale generation. The architecture combines two specialized components: an Interaction Expert that captures token-level similarity patterns through multi-scale 2D convolutions and attention head allowing variable input length, and a Reasoning Expert that uses a Flan-T5-small decoder to generate rationales as auxiliary supervision. Rather than re-encoding generated text, we extract and pool decoder hidden states as complementary features for classification. On the Quora Question Pairs dataset, R-DEIM Net achieves 90.07\\% accuracy and 90.16\\% F1-score via 10-fold cross-validation. This represents competitive performance with strong transformer-based baselines (e.g., MFAE BERT: 90.54\\% accuracy) and recent large language model based approaches (LLaMA-70B) while using a substantially smaller parameter budget. The model generates rationales alongside predictions, providing potential for auxiliary human-readable descriptions.",
+      "published": "2026-09-24T16:44:26Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30100",
+        "pdf": "https://arxiv.org/pdf/2609.30100"
+      },
+      "titleZh": "R-DEIM Net:一种高效的理由增强双专家交互模型，用于复述检测",
+      "summaryZh": "针对复述检测中大模型精度高但算力开销大、Siamese-BERT 高效却缺乏可解释理由的取舍，提出 76M 参数的双专家架构 R-DEIM Net。交互专家用多尺度 2D 卷积与注意力头捕捉 token 级相似模式并支持变长输入，推理专家以 Flan-T5-small 解码器生成理由作为辅助监督，并直接池化解码器隐藏状态作为分类的补充特征，而非重新编码生成文本。在 Quora Question Pairs 上经 10 折交叉验证取得 90.07% 准确率与 90.16% F1，接近 MFAE BERT(90.54%)与 LLaMA-70B 等更大模型，同时输出人类可读的理由，适用于算力受限的复述与句子相似度判别场景。",
+      "score": 4,
+      "reason": "复述检测的任务型小模型工作，与后训练/Agent 主线关联弱",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30094",
+      "title": "PrivDrift: Auditing User-Secret Leakage Under Topic Drift in Active LLM Conversations",
+      "authors": [
+        "Luciano Maldonado"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Large language models increasingly operate as persistent assistants in user-facing, shared-session, and tool-augmented settings. When users disclose sensitive information during an active conversation, that information may remain behaviorally recoverable through later prompts even after the dialogue shifts to unrelated topics. We introduce \\textbf{PrivDrift}, a benchmark for auditing whether user-disclosed secrets remain recoverable after conversational topic drift and persuasion-based probing. PrivDrift contains 1{,}000 controlled multi-turn dialogues with seeded secrets, content-dense drift turns, and standardized extraction probes. Across three LLMs with extended context windows, dialogue-level hybrid leakage remains substantial, ranging from 38.7\\% to 54.6\\%, and varies strongly by model, secret type, and persuasion intensity. Within the tested drift window, additional topic drift does not reliably reduce leakage, suggesting that privacy risk in active LLM contexts should be evaluated as a persistent behavioral failure mode rather than only as training-data memorization or immediate jailbreak behavior.",
+      "published": "2026-09-24T16:39:18Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30094",
+        "pdf": "https://arxiv.org/pdf/2609.30094"
+      },
+      "comment": "Preprint, 10 Pages, 6 figures",
+      "titleZh": "PrivDrift：审计活跃 LLM 对话中话题漂移下的用户秘密泄露",
+      "summaryZh": "针对多轮 LLM 助手场景中用户主动披露的敏感信息是否会在话题转移后仍可被诱导复现这一问题，构建了 PrivDrift 审计基准：包含 1000 段受控多轮对话，内嵌种子秘密、高信息密度的漂移轮次与标准化抽取探针，并结合说服式提示施压。在三个长上下文模型上，对话级混合泄露率为 38.7%–54.6%，且随模型、秘密类型与说服强度显著变化；在测试漂移窗口内继续漂移并不能可靠降低泄露，说明该风险应被视作持续性的行为失效模式，而非仅归因于训练数据记忆或即时的越狱行为。该工作为长程对话的隐私评测与防护提供了可复用的测试协议。",
+      "score": 7,
+      "reason": "基准+LLM 评测方法学，选题扎实但非核心后训练方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30088",
+      "title": "AT-SKM-Net: An Accelerated Trainable Sampling Kaczmarz-Motzkin Framework for Linear Hard-Constraint Feasibility on Dynamic Graphs",
+      "authors": [
+        "Xiaochen Zhang",
+        "Haoyu Zhu",
+        "Yao Zhang",
+        "Qingchun Hou"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Graph-structured optimization with linear constraints is fundamental to critical infrastructure but faces scalability limits due to massive strict hard constraints and high dimensionality. While recent projection-based methods such as Trainable Sampling Kaczmarz-Motzkin Net (T-SKM-Net) guarantee feasibility, they face high computational costs in dynamic environments by processing the entire constraint set and requiring expensive matrix factorizations. To bridge this gap, we propose the Accelerated Trainable-SKM (AT-SKM) Net framework. To concentrate computation on the active constraints and eliminate redundant calculations, we introduce a hybrid sampling strategy guided by a topology-aware heterogeneous GNN model. To efficiently handle topological shifts in graph-based constraints, we employ a Cholesky Update mechanism that theoretically reduces the equality projection complexity from O(N^3) to O(N^2) under low-rank perturbations. Experiments on random geometric graphs, N-1 Security-Constrained DC-OPF, and minimum-cost gas transport problem demonstrate that AT-SKM reduces iteration counts by up to 85% and achieves 2.95x-7.29x SKM layer speedups, while maintaining zero constraint violations.",
+      "published": "2026-09-24T16:36:49Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30088",
+        "pdf": "https://arxiv.org/pdf/2609.30088"
+      },
+      "titleZh": "AT-SKM-Net：面向动态图上线性硬约束可行性的加速可训练采样 Kaczmarz-Motzkin 框架",
+      "summaryZh": "动态图上的大规模严格线性硬约束优化受限于全约束集处理与昂贵矩阵分解，投影类方法（如 T-SKM-Net）难以扩展。AT-SKM-Net 用拓扑感知的异构 GNN 引导混合采样，把计算集中在活跃约束上，并借 Cholesky 更新机制在低秩扰动下将等式投影复杂度由 O(N^3) 降至 O(N^2)。在随机几何图、N-1 安全约束 DC-OPF 与最小成本天然气输运问题上，迭代次数最多减少 85%，SKM 层加速 2.95–7.29 倍，且保持零约束违反。",
+      "score": 2,
+      "reason": "数值优化加电力系统垂直应用，与 LLM 方向基本无交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30087",
+      "title": "Return or Revise? Learning When Revision Helps Retrieval-Augmented QA",
+      "authors": [
+        "Nicholas Kashani Motlagh",
+        "Tim Anderson",
+        "Jeremy Gwinnup",
+        "Grant Erdmann"
+      ],
+      "authorsTotal": 4,
+      "abstract": "We consider the decision of whether to return an existing draft answer or revise it using retrieved evidence, as in answer-revision systems. Draft confidence estimates whether the current answer is correct, but the decision requires estimating the effect of a specified revision. For offline training and evaluation, we grade both the returned draft and its candidate revision under the same correctness judge, which makes repair, harm, and the gap to an oracle observable. We call this paired effect its recoverability, and we train policies to predict it before revision. On 25,870 held-out open-domain questions across three revision setups, a scorer trained on the paired outcome has greater area under the accuracy--revision-rate curve than a matched draft-correctness scorer in all nine Llama setup--seed fits, and gains 0.23--0.68 accuracy points on average at development-selected thresholds, a difference significant across training runs only for dense retrieval. The resulting policy improves on always revising and on average closes more than a third of the oracle gap, although it still applies 38--46% of the harmful revisions. When a draft-free standard-RAG answer is also available, however, choosing between the draft and that answer is stronger by about two points for Llama and four for OLMo, and adding candidate revision as a third option yields no significant gain. Recoverability describes one revision; its value as an available action also depends on the alternatives.",
+      "published": "2026-09-24T16:35:54Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30087",
+        "pdf": "https://arxiv.org/pdf/2609.30087"
+      },
+      "comment": "25 pages, 4 figures",
+      "titleZh": "返回还是修改?学习何时修改对检索增强问答有帮助",
+      "summaryZh": "答案修订系统需要决定返回已有草稿还是用检索证据修改它，而草稿置信度只衡量当前答案对错，无法估计指定修订的效果。作者用同一正确性评判器对草稿与候选修订配对打分，把这种配对效应称为 recoverability，并在修订前训练策略预测它。在 25,870 道留出开放域问题、三套修订设置上，该打分器在九次 Llama 拟合中均优于匹配的草稿正确性打分器，开发集阈值下平均提升 0.23–0.68 个准确率点，弥补了三分之一以上的 oracle 差距，但仍执行 38–46% 的有害修订;若同时存在无草稿的标准 RAG 答案，在两者间选择更优约 2–4 点，加入修订选项无显著增益。",
+      "score": 6,
+      "reason": "RAG修订决策与评估方法学研究，结论扎实但范围偏窄",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30085",
+      "title": "Residual Correlation as a Diagnostic for Joint-Uncertainty Gains from GP Coregionalisation",
+      "authors": [
+        "Fangqin Zhou",
+        "Joaquin Vanschoren"
+      ],
+      "authorsTotal": 2,
+      "abstract": "In multi-target regression, correlated targets are often coupled through multi-output Gaussian processes with an intrinsic model of coregionalisation (GP-ICM), assuming that sharing statistical strength improves overall performance. In practice, the benefits are inconsistent. Across the settings studied, we find that the main benefit of coregionalisation is joint uncertainty quantification rather than point prediction. Raw target correlation does not predict when coupling helps; in the separable GP-ICM settings studied here, residual correlation, the cross-target dependence left unexplained by independent per-target predictors, is the strongest predictor of joint-uncertainty gains. We introduce a lightweight diagnostic, $D_{\\rm logdet}=-\\frac{1}{2}\\log\\det R_{\\rm res}$, which represents the idealised joint negative log-likelihood (NLL) gain from modelling a full rather than diagonal residual covariance and is computable from independent GPs alone. Across a controlled synthetic study, 16 multi-target benchmarks, and frozen transformer and convolutional neural network representations for keypoint regression, point prediction remains largely unchanged ($ΔR^2\\approx 0$). In contrast, $D_{\\rm logdet}$ strongly predicts observed ICM NLL improvements ($ρ_s=-0.83$, $p<0.001$), outperforming heuristics such as the feature-to-sample ratio. We also propose Residual-ICM, which preserves independent marginal variances while adding residual-correlation structure to the joint covariance. Residual-ICM achieves the best average joint NLL among the compared methods, while the diagnostic indicates when covariance coupling is likely to be useful. The diagnostic is specific to global Gaussian residual dependence, the structure captured by separable coregionalisation.",
+      "published": "2026-09-24T16:33:59Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30085",
+        "pdf": "https://arxiv.org/pdf/2609.30085"
+      },
+      "comment": "Accepted at ACML 2026",
+      "titleZh": "残差相关性:GP 共区域化联合不确定性增益的诊断指标",
+      "summaryZh": "多目标回归中常用多输出高斯过程(GP-ICM)耦合相关目标，假设共享统计强度能提升整体表现，但实际收益并不稳定。该工作发现共区域化的主要收益在联合不确定性量化而非点预测:原始目标相关性无法预测耦合是否有用，而独立预测器无法解释的跨目标残差相关性是最强预测因子。为此提出轻量诊断量 D_logdet = -1/2 log det R_res，仅用独立 GP 即可计算，表示全残差协方差相对对角协方差的理想化联合 NLL 增益;并提出 Residual-ICM，在保留独立边缘方差的同时向联合协方差加入残差相关结构。在受控合成实验、16 个多目标基准以及冻结 Transformer/CNN 表征的关键点回归上，点预测几乎不变(ΔR²≈0)，而 D_logdet 强预测 ICM 的 NLL 改善(ρs=-0.83,p<0.001)，优于特征样本比等启发式，Residual-ICM 取得最佳平均联合 NLL。",
+      "score": 2,
+      "reason": "经典 GP 多输出统计方法，与 LLM 与后训练方向无交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30079",
+      "title": "Reachability-Based Formal Verification of Graph Neural Networks with Node and Edge Features",
+      "authors": [
+        "Anne M. Tumlin",
+        "Ben Wooding",
+        "Zhenxuan Shao",
+        "Diego Manzanas Lopez",
+        "Tyler Derr",
+        "Taylor T. Johnson"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Graph neural networks (GNNs) have become a prominent approach for developing fast, topology-aware surrogates in electric power systems, supporting tasks such as power flow (PF) analysis, optimal power flow (OPF) estimation, and cascading failure analysis (CFA). Despite this growing use, formally verifying GNN-based models remains challenging, with existing methods limited in scope. We extend the neural network verification (NNV) framework to graph-structured inputs through GraphStar sets, a generalization of Star sets that captures uncertainty over both node and edge features. This extension enables the propagation of linear message-passing operations and the sound approximation of ReLU nonlinearities for GNN architectures, including graph convolutional network (GCN) and graph isomorphism network with edge features (GINE) layers. We evaluate GNNV across three power system tasks, PF, OPF, and CFA, on the IEEE-24, IEEE-39, and IEEE-118 test cases, as well as two standard graph classification benchmarks, ENZYMES and PROTEINS. Our results show that GNNV provides tighter robustness guarantees than CORA on graph classification models with ReLU-based activations and, for the first time, delivers edge-aware robustness guarantees for GINE-based PF and OPF models under joint node and edge perturbations.",
+      "published": "2026-09-24T16:29:32Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30079",
+        "pdf": "https://arxiv.org/pdf/2609.30079"
+      },
+      "titleZh": "基于可达性的带节点与边特征图神经网络形式化验证",
+      "summaryZh": "GNN 在电力系统中被广泛用作潮流分析、最优潮流估计与连锁故障分析的快速拓扑感知代理模型，但其形式化验证仍受限于现有方法的作用范围。该工作将神经网络验证框架 NNV 扩展到图结构输入，提出 GraphStar 集合——Star 集合在图上的推广，可同时刻画节点与边特征的不确定性，从而支持线性消息传递的传播与 ReLU 非线性的可靠近似，覆盖 GCN 与带边特征的 GINE 层。在电力系统的 PF、OPF、CFA 三类任务（IEEE-24/39/118）以及 ENZYMES、PROTEINS 两个图分类基准上，GNNV 对含 ReLU 的图分类模型给出比 CORA 更紧的鲁棒性保证，并首次为 GINE 的 PF 与 OPF 模型在节点与边联合扰动下提供边感知的鲁棒性保证。",
+      "score": 3,
+      "reason": "GNN 形式化验证，属非 LLM 的验证理论并落地电力系统应用",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30075",
+      "title": "A Native-Reference Phone-Class Geometry for Second-Language Pronunciation Analysis",
+      "authors": [
+        "Tina Raissi",
+        "Nhan Phan",
+        "Chenxiao Wang",
+        "Mikko Kurimo"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Automatic speaking assessment systems can provide holistic proficiency scores, but often lack interpretable measures that characterize pronunciation quality. We propose a native-reference phone-class geometry for measuring second language (L2) pronunciation deviation without requiring pronunciation labels, read-aloud prompts, or matched recordings of the same text from native and L2 speakers. Given a native speech corpus, we average frame-level self-supervised representations for each context-dependent phone-class and use singular value decomposition (SVD) to derive a compact native-reference coordinate system. For each L2 utterance, we compute the corresponding averages and project them into the native-reference space. We then demonstrate that the distances between L2 and native-reference coordinates for matched phone-classes show consistent negative correlations with holistic speaking proficiency on the Dev subset of the Speak and Improve Corpus 2025 (Spearman's $ρ\\!=\\!-0.53$) and with pronunciation quality on the learner subset of the English Read by Japanese Students dataset ($ρ\\!=\\!-0.34$). These findings suggest that the proposed geometry captures acoustic-phonetic information relevant for proficiency rating while remaining applicable to spontaneous L2 speech without matched native recordings.",
+      "published": "2026-09-24T16:28:45Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30075",
+        "pdf": "https://arxiv.org/pdf/2609.30075"
+      },
+      "comment": "Submitted to ICASSP 2027",
+      "titleZh": "用于第二语言发音分析的母语参照音素类几何",
+      "summaryZh": "自动口语评测通常只给出整体熟练度分数，缺乏可解释的发音质量指标。该工作以母语语音语料为基准，对每个上下文相关音素类平均帧级自监督表征，并用 SVD 导出紧凑的母语参照坐标系;将二语语音的同类平均表征投影到该空间，以同类音素坐标之间的距离衡量发音偏离。在 Speak and Improve Corpus 2025 开发集上，该距离与整体口语熟练度呈显著负相关(Spearman ρ=-0.53)，在 English Read by Japanese Students 学习者子集上与发音质量相关(ρ=-0.34)。方法无需发音标注、朗读提示或与母语者文本对齐的配对录音，适用于自发二语语音的评测。",
+      "score": 2,
+      "reason": "二语发音评测，属语音应用低分方向，与 LLM 主线无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30074",
+      "title": "How Reproducible Are Evaluation Conclusions? A Self-Audit of LLM-Inferred Prompt Structure",
+      "authors": [
+        "Dipankar Sarkar"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Evaluations of LLM systems routinely average over small prompt sets and report models as a ranked table. We ask how much confidence such a table deserves, using LLM-based prompt-structure inference as the case study: eight open model variants across five families and 8B to 675B parameters, caching disabled, 293 raw intermediate representations persisted. The measured phenomenon is unstable to begin with. Identical calls do not reliably recover identical structure, with mean node-set Jaccard from 0.39 to 0.96 and 72% of prompt-model cells never node-set-perfect. Auditing the evaluation weakens its conclusions further, and this is our main contribution. Under a joint cluster bootstrap over prompts, only the bottom of the ranking is firm: the two least reproducible models hold rank in 99% and 86% of replicates, the middle four in 27% to 48%, and the top two in 68% each, so the table identifies the worst model reliably but does not reliably identify the best. Two equally defensible rules for merging repeated campaigns change four of eight rows and move the study-wide headline by 7 percentage points. Checking the inferred structure against ground-truth annotations shows reproducibility cannot be read as accuracy. And four of the eight endpoints were withdrawn within ten weeks of measurement, so the study as specified can no longer be run. Small-sample LLM evaluations can therefore look far more definitive than their evidence supports. We recommend reporting rank stability, per-cell provenance, executed sensitivity comparisons, raw per-run outputs, and a measurement date alongside any ranking.",
+      "published": "2026-09-24T16:28:15Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30074",
+        "pdf": "https://arxiv.org/pdf/2609.30074"
+      },
+      "comment": "13 pages. Previously submitted to TAE (Trust-AI-Eval), a NeurIPS 2026 workshop",
+      "titleZh": "LLM 评测结论有多可复现?一项关于 LLM 推断提示结构的自我审计",
+      "summaryZh": "小规模 prompt 集上取平均、把模型排成榜单是 LLM 评测的常见做法，该工作以 LLM 推断提示结构为案例审计其可信度:覆盖 5 个家族、8 个开放模型变体(8B 至 675B)，关闭缓存并保留 293 份原始中间表示。同一调用无法稳定恢复同一结构，节点集 Jaccard 介于 0.39 与 0.96,72% 的 prompt-模型组合从未完全一致;按 prompt 做联合 cluster bootstrap 后仅排名底部稳固，最差两个模型在 99% 与 86% 的重复中保持名次，中间四个为 27%–48%，最好两个各 68%。两种同样合理的合并规则会改动 8 行中的 4 行、使总体结论移动 7 个百分点，且可复现性不能等同于准确性，8 个端点中 4 个在测量后十周内下架。建议榜单同时报告名次稳定性、逐单元来源与敏感性对比。",
+      "score": 7,
+      "reason": "LLM 评测可靠性与稳健性审计，正击方法学方向，但属 workshop 短文",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30071",
+      "title": "Scoring Both Directions: LLMs realize the MRS they cannot reliably parse",
+      "authors": [
+        "Soham Dan"
+      ],
+      "authorsTotal": 1,
+      "abstract": "The English Resource Grammar (ERG) is a hand-written computational grammar of English. Given a sentence, its processor, ACE, produces a formal meaning representation called Minimal Recursion Semantics (MRS): a graph of the sentence's predicates and their arguments. The grammar is bidirectional and can also turn an MRS back into an English sentence. \\citet{hajdik2019} used the ERG's treebank to build a benchmark for that generation task, MRS to text, and trained sequence-to-sequence models to solve it. The parsing task, text to MRS, can be tested on the same sentences. We reconstruct their 10K-sentence test split, and score two large language models, Claude Sonnet~4.5 and Claude Opus~5, in both directions against their trained systems and against ACE, with no task-specific training. Given an MRS and three examples, Opus writes the sentence at 76.3 BLEU, ten points above their system trained on 72k pairs (66.1 BLEU), and comparable to their system trained on a million extra pairs (77.2 BLEU). Sonnet scores 65.7 BLEU, and letting it choose among ACE's own candidate sentences lifts it to 69.6, while a pooled judge that keeps Opus's own sentence among the candidates adds 0.6 points (77.0 BLEU). In the parsing direction, however, the models fall far behind ACE: asked for the MRS of the same sentences, they reach 57.2 (Sonnet) and 65.5 (Opus) F$_1$ on the graph's predicates and arguments against 91.0 for ACE, and exact-match the gold on about 1\\% of sentences. We characterize the failure modes for the parsing tasks, and conclude that a generation score alone does not show that models understand formal semantic representations.",
+      "published": "2026-09-24T16:27:54Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30071",
+        "pdf": "https://arxiv.org/pdf/2609.30071"
+      },
+      "titleZh": "双向打分:LLM 能生成它们无法可靠解析的 MRS",
+      "summaryZh": "在 ERG 语法的 MRS 形式语义表示上做双向评测:生成方向，MRS 到文本时 Claude Opus 5 仅给三个示例即达 76.3 BLEU，超过在 7.2 万句对上训练的序列到序列系统(66.1)，并接近使用百万级额外句对的版本(77.2);Sonnet 得 65.7，借用 ACE 候选句可提升到 69.6。但反向的文本到 MRS 解析中，Opus 与 Sonnet 在谓词与论元图上只有 65.5 与 57.2 F1，远低于 ACE 的 91.0，金标精确匹配率约 1%。作者重建了 1 万句测试集并刻画失败模式，指出单看生成分数不足以证明模型理解形式语义表示。",
+      "score": 5,
+      "reason": "属评测方法学方向，但形式语义任务较窄、偏语言学",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30063",
+      "title": "Self-Play Pretraining with Zero Data",
+      "authors": [
+        "Aditya Cowsik",
+        "Kfir Dolev",
+        "Michael Y. Li",
+        "G. Bruno De Luca",
+        "Nourya Cohen",
+        "Noah D. Goodman"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Advances in language modeling have been driven by scaling pretraining on ever more data. Yet, the training data is still largely curated on the model's behalf. A more general approach to pretraining would let the model learn to generate the data most useful for its own improvement. This would provide an effectively unbounded source of training data, limited by compute rather than human knowledge. We introduce Self-Play Pretraining with Zero Data, an initial proof-of-concept towards realizing this vision. Our procedure casts synthetic data generation as a search over the space of all computable structure, taking inspiration from Solomonoff induction. Starting from random initialization, two models learn in tandem: a generator proposes programs interpreted by a universal Turing machine, generating byte sequences, while a learner autoregressively predicts these byte sequences. The learner is trained with standard cross-entropy, while the generator is trained with reinforcement learning to produce sequences at the frontier of the learner's capabilities, yielding an adaptive curriculum. A universal Turing machine gives us a search space over all computable data-generating processes, imposing little domain-specific structure, and self-play searches over this space for useful training data. We test whether zero-shot performance on natural data improves predictably with self-play compute; this is a clean test of transfer since neither generator nor learner is trained on natural data. Across several natural datasets, zero-shot loss exhibits predictable scaling in compute. The models also exhibit in-context learning, and discover recognizable mathematical sequences during training.",
+      "published": "2026-09-24T16:23:01Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30063",
+        "pdf": "https://arxiv.org/pdf/2609.30063"
+      },
+      "comment": "AC, KD, and MYL contributed equally; authors are listed alphabetically",
+      "titleZh": "零数据的自博弈预训练",
+      "summaryZh": "提出一种不依赖人类语料的预训练范式：把合成数据生成视为对全部可计算结构的搜索（受 Solomonoff 归纳启发），生成器输出由通用图灵机解释的程序并产生字节序列，学习器以标准交叉熵自回归预测这些字节，生成器则用强化学习训练，使其产出恰好落在学习器能力前沿的序列，从而形成自适应课程。生成器与学习器都未接触自然数据，但在多个自然数据集上零样本损失随自博弈算力呈可预测的 scaling，模型还表现出上下文学习能力，并在训练中发现可识别的数学序列。",
+      "score": 9,
+      "reason": "自博弈预训练新范式，零数据合成，命中预训练与自进化方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.30055",
+      "title": "Era by Eon: Benchmarking Enterprise Agents on Hidden Knowledge",
+      "authors": [
+        "Benjamin Gruenbaum",
+        "Doron Porat",
+        "Assaf Natanzon",
+        "Roy Zavida",
+        "Chen Dinachi",
+        "Or Itzahary"
+      ],
+      "authorsTotal": 6,
+      "abstract": "In the Era by Eon benchmark, each question states the rules for its answer, and code computes the answer from a generated company's data. When agents can run code, the four strongest models each answer 22 to 25 of 27 such questions, so the benchmark barely separates them. We add eight question templates that depend on hidden facts. No question or document states a hidden fact, and the records that seem to hold it show something else. Other data implies it. For example, the sales system says a customer dropped a purchase because of timing. On a recorded call, the customer blames an outage. For each generated company, code fills each template and computes an exact answer without a language model. We evaluate 12 agents. Each pairs a model with an agent program, which connects it to the company's systems. The best agent answers 18 of its 24 attempts, three per question, correctly. Four of the six models answer at most 6 of 24 with any program. The hardest questions require picking one of several similar records, such as which of three renewal offers a customer signed. All agents together answered two such questions correctly in only 1 of 84 attempts.",
+      "published": "2026-09-24T16:12:27Z",
+      "primaryCategory": "cs.SE",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30055",
+        "pdf": "https://arxiv.org/pdf/2609.30055"
+      },
+      "comment": "9 pages",
+      "titleZh": "Era by Eon:面向隐藏知识的企业Agent基准测试",
+      "summaryZh": "现有企业Agent基准的题目自带规则，答案可由代码直接算出，四个最强模型在27道题上各答对22–25道，区分度不足。为此新增八类依赖隐藏事实的问题模板:没有任何问题或文档直接陈述该事实，看似记录它的文档给出的是别的内容，线索需由其他数据推断，例如销售系统称客户因时机放弃购买，而通话录音中客户归因于服务中断。每家生成公司的模板由代码填充并算出精确答案，评测12个模型加Agent程序的组合。最强Agent在24次尝试(每题3次)中答对18次，六个模型中有四个在任何程序下最多答对6次;最难的题需在若干相似记录中择一，所有Agent在84次尝试中仅1次答对。",
+      "score": 7,
+      "reason": "企业Agent基准，隐藏知识加工具调用，命中Agent与评测方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30054",
+      "title": "SciWalker: Synthesizing Scientific Coding Problems with Operator Graphs and Execution Feedback",
+      "authors": [
+        "Chenxi Li",
+        "Wenxuan Zeng",
+        "Yun Luo",
+        "Fangchen Yu",
+        "Peng Ye",
+        "Yu Cheng"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Improving the scientific coding capabilities of large language models (LLMs) requires high-quality training data. However, such data remain scarce because manually authoring realistic problems is costly and time-consuming, while systematically covering diverse scientific domains and algorithmic combinations remains challenging. To address this, we introduce SciWalker, a framework for synthesizing scientific coding problems through operator-chain sampling and execution feedback. The framework combines scientific library interfaces with operation modes to instantiate operators, organizes them into operator graphs, and samples operator chains as computational workflow cues. Guided by these cues, we adopt LLMs to generate scientifically grounded problem statements, reference solutions, and tests, with failed generations iteratively repaired using execution feedback. By combining structured workflow composition with verification and quality review, SciWalker enables scalable task generation while promoting scientific grounding, computational diversity, and executability. Using this framework, we construct 8,178 high-quality problems spanning 5 scientific domains and 32 subdomains. To evaluate their training utility, we conduct reinforcement learning on Qwen3.5-9B using the GSPO algorithm. This training improves SciCode subproblem accuracy by 9.9 percentage points, from 29.3% to 39.2%, with gains across scientific code generation, code repair, and reasoning benchmarks. The code for SciWalker is available at https://github.com/lichenx1/SciWalker.",
+      "published": "2026-09-24T16:12:14Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30054",
+        "pdf": "https://arxiv.org/pdf/2609.30054"
+      },
+      "titleZh": "SciWalker:用算子图与执行反馈合成科学编程问题",
+      "summaryZh": "科学编程训练数据稀缺，人工出题成本高且难以覆盖多领域与算法组合。SciWalker 将科学库接口与操作模式实例化为算子，组织成算子图并采样算子链作为计算流程线索，再由 LLM 据此生成题目、参考解与测试，并用执行反馈迭代修复失败样本。该框架构建了覆盖 5 个科学领域、32 个子域的 8178 道题，在 Qwen3.5-9B 上用 GSPO 做强化学习后，SciCode 子问题准确率从 29.3% 提升到 39.2%(+9.9 个百分点)，科学代码生成、代码修复与推理基准均有增益。",
+      "score": 8,
+      "reason": "科学代码数据合成+执行反馈+RL 训练，命中代码智能与后训练"
+    },
+    {
+      "id": "2609.30050",
+      "title": "NNV3: Expanding Neural Network Verification to New Architectures and Domains",
+      "authors": [
+        "Anne M. Tumlin",
+        "Samuel Sasaki",
+        "Ben Wooding",
+        "Diego Manzanas Lopez",
+        "Muhammad Usama Zubair",
+        "Navid Hashemi"
+      ],
+      "authorsTotal": 11,
+      "abstract": "We present NNV3, the latest version of the Neural Network Verification (NNV) tool, a MATLAB framework for formal verification of deep learning models and learning-enabled cyber-physical systems. Building on the set-based reachability foundation of NNV 1.0 (FFNNs, CNNs, NNCS) and NNV 2.0 (RNNs, SSNNs, neural ODEs), NNV3 introduces new members of the Star-set family: ModelStar for verifying networks under weight perturbation, VolumeStar for video and 3D volumetric inputs, and GraphStar for graph neural networks. A conformal-inference-based probabilistic reachability mode complements sound analysis for problems where deterministic verification is intractable, while FairNNV certifies counterfactual and individual fairness properties over continuous input regions. NNV3 introduces new benchmarks for malware detection, graph-based power-system models, medical imaging, variable-length time series data, and action recognition. NNV3 also incorporates tutorials and developer guides through a unified documentation site. This paper details these major updates, demonstrating NNV's maturation into a comprehensive, robust, and accessible verification tool for a diverse range of AI systems.",
+      "published": "2026-09-24T16:11:25Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30050",
+        "pdf": "https://arxiv.org/pdf/2609.30050"
+      },
+      "titleZh": "NNV3:将神经网络验证扩展到新架构与新领域",
+      "summaryZh": "NNV3 是神经网络验证工具 NNV 的第三版，一个用于深度学习模型与学习使能信息物理系统形式化验证的 MATLAB 框架。在 NNV 1.0(前馈网络、CNN、NNCS)与 2.0(RNN、SSNN、神经常微分方程)的集合式可达性基础上，新增 Star 集族成员:面向权重扰动下验证的 ModelStar、支持视频与三维体数据输入的 VolumeStar、面向图神经网络的 GraphStar，并补充基于保形推断的概率可达性模式与 FairNNV 的连续输入区域公平性认证。工具同时发布恶意软件检测、图电网模型、医学影像、变长时间序列与动作识别等基准，并通过统一文档站点提供教程与开发者指南。",
+      "score": 3,
+      "reason": "神经网络形式化验证工具，偏控制与信息物理系统，与 LLM 方向交集有限",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30048",
+      "title": "Style, Not Self: Surface Cues Explain Zero-Shot Code Attribution by Large Language Models",
+      "authors": [
+        "Ehsan Barkhordar",
+        "Surendrabikram Thapa"
+      ],
+      "authorsTotal": 2,
+      "abstract": "If a language model can recognize code it wrote, it may favor that code as a judge, and instances of one model monitoring each other could collude. We test this zero-shot on current commercial models. Five LLMs generate solutions to MBPP, HumanEval, and DS-1000, seven more to MBPP, and models act as evaluators in four tasks: picking their own solution from a pair, judging whether a single solution is their own, identifying which of two solutions a named model wrote, and judging quality blind. In the single-solution task, balanced accuracy is 49-58% for all 15 model-benchmark combinations, while raw accuracy (38-67%) mostly reflects how readily a model claims authorship. In the pairwise task, accuracy across 14 evaluator-opponent combinations correlates at r=0.93 with how often the evaluator's solution is longer. Attribution to a named model succeeds on some pairs and is consistently inverted on others. A rule-based normalization that strips docstrings, comments, type hints, and local names preserves Pass@1 and leaves ten of twelve re-tested results at chance; the other two follow a length difference it leaves, although a trained classifier still separates most normalized pairs. Claude Haiku's self-preference also disappears. We recommend reporting balanced accuracy, heuristic baselines, and label consistency.",
+      "published": "2026-09-24T16:11:21Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30048",
+        "pdf": "https://arxiv.org/pdf/2609.30048"
+      },
+      "comment": "18 pages, 1 figure. Code and data: https://github.com/ebarkhordar/llm-collusion",
+      "titleZh": "风格而非自我:表面线索足以解释大语言模型的零样本代码归属",
+      "summaryZh": "LLM若能认出自己写的代码，作为评判者时可能偏袒自身，模型互评还存在串通风险。在MBPP、HumanEval、DS-1000上零样本测试15个模型-基准组合的四项任务:挑出自己的解、判断单解归属、识别指定模型的解、盲评质量。单解任务平衡准确率仅49–58%，原始准确率38–67%主要反映认领倾向;成对任务准确率与评估者解更长的频率相关r=0.93。规则归一化剥离docstring、注释、类型标注与局部变量名后Pass@1不变，12项重测有10项落回随机，Claude Haiku自偏好消失;建议报告平衡准确率、启发式基线与标签一致性。",
+      "score": 7,
+      "reason": "LLM-as-judge自偏好与评估可靠性，命中评测方法学方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30036",
+      "title": "Aim Short to Reach Far: Your Frozen World Model Can Plan Better Than You Think",
+      "authors": [
+        "Xvyuan Liu",
+        "Jianjie Fang",
+        "Chen Gao",
+        "Yong Li"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Planners built on visual world models commonly score each predicted outcome by its distance to the encoded goal image. We show that this target can limit control even with exact dynamics and globally optimal short-horizon search: reaching a goal may require actions that initially move away from it. With frozen LeWM models, intermediate targets substantially improve action synthesis and recorded-action ranking on Cube, PushT, Reacher, and TwoRoom. Learned targets and targets drawn from observed experience both produce these gains. We introduce Anchored Planning, which retrieves a recorded segment whose start and end resemble the current and goal observations, then aims at an observation shortly after its start. The frozen model scores actions toward this target from the current state. Without additional training, planning toward observed targets outperforms the released LeWM planner on every task in our long-range evaluation. Additional final-goal search falls short of the same gains. Lower successor-prediction error need not translate into better control. Success also depends on how far ahead the target is placed and on shrinking the retrieval span as execution advances. Changing only the target lets the same frozen model and planner reach goals that final-goal scoring misses.",
+      "published": "2026-09-24T16:05:02Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30036",
+        "pdf": "https://arxiv.org/pdf/2609.30036"
+      },
+      "titleZh": "「瞄准近处，方能致远:你的冻结世界模型比你想象的更会规划」",
+      "summaryZh": "基于视觉世界模型的规划器通常以预测结果与目标图像编码的距离打分，但即使动力学精确、短时域搜索全局最优，该目标也会限制控制:抵达目标常需先远离它。Anchored Planning检索起点与终点分别接近当前、目标观测的已记录片段，以其起点稍后的一帧为中间目标，由冻结模型从当前状态对动作打分，无需再训练。在Cube、PushT、Reacher、TwoRoom上，中间目标改善了动作合成与动作排序;长程评测中该方法在每个任务上都优于官方LeWM规划器，仅追加最终目标搜索则达不到同样增益。可见后继预测误差更低不等于控制更好，目标前瞻距离与随执行收缩检索跨度同样重要。",
+      "score": 3,
+      "reason": "视觉世界模型控制规划，属具身/控制方向，偏离LLM关注点",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30030",
+      "title": "Artificial Societies Benchmark: A Validation Framework for Synthetic Research",
+      "authors": [
+        "Edoardo Chidichimo",
+        "Min Jun Jung",
+        "Felix P. S. Wallis",
+        "James K. He"
+      ],
+      "authorsTotal": 4,
+      "abstract": "A synthetic survey can reproduce the average answer while misrepresenting how people differ, how their answers relate to one another, or how they respond to changes in conditions. We introduce the Artificial Societies Benchmark to help researchers assess whether synthetic populations support their intended analyses. The framework combines eleven tests across internal, construct, and external validity, drawing on twenty human sources and comparing nine language models. It connects each research use to the evidence it requires and tests how results change with the information we supply about respondents. Importantly, strong performance in one domain does not establish fidelity in the others. Models often answer too consistently, compress response scales, and alter relationships between traits whilst richer profiles improve prediction for some models and worsen it for others. The resulting scorecard helps researchers identify which aspects of a synthetic population can support their analysis and where researchers need further human evidence.",
+      "published": "2026-09-24T16:03:28Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30030",
+        "pdf": "https://arxiv.org/pdf/2609.30030"
+      },
+      "comment": "36 pages, 9 figures, 9 tables",
+      "titleZh": "人工社会基准:面向合成研究的验证框架",
+      "summaryZh": "用语言模型合成人群回答问卷时，平均答案或许能复现，但个体差异、答案之间的关联以及条件变化下的响应常被扭曲。Artificial Societies Benchmark 从内部效度、构念效度、外部效度三方面设计十一项测试，基于二十个人类数据源对比九个语言模型，并把每类研究用途与其所需证据对应起来。结果显示模型回答过于一致、压缩量表、改变特质间关系，更丰富的受访者画像对部分模型改善预测、对另一些则相反，且某一维度的良好表现无法保证其他维度。",
+      "score": 5,
+      "reason": "合成人群效度评测，方法学擦边，非核心方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30028",
+      "title": "How does Adversarial Influence Scale in Multi-Agent Systems?",
+      "authors": [
+        "Addison J. Wu",
+        "Jasin Cekinmez",
+        "Michel Liao",
+        "Karthik Narasimhan",
+        "Thomas L. Griffiths"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Multi-agent deliberation can improve performance, but what happens when some agents do not act in good faith? In practice, an agent may be deceptive and work to subvert the group, whether through its own objectives or external instruction. We study how susceptibility to deception scales as groups increase in size and deceivers become more prevalent. It is not the number of agents in the group that matters, but the proportion of deceivers. We observe that the defection rate, how often initially correct agents switch to an incorrect final answer, rises linearly with this proportion. Whereas humans in comparable conformity studies are reliably swayed only when misleading confederates form a majority, LLM agents defect regularly even when deceivers remain a minority. Susceptibility also depends on which models are interacting, especially on the honest agent side. Unexpectedly, allowing deceivers to coordinate privately can make them less effective. Altogether, our results show that adding more agents is therefore not a sufficient defense, because the adversary can simply scale with the group.",
+      "published": "2026-09-24T16:02:40Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30028",
+        "pdf": "https://arxiv.org/pdf/2609.30028"
+      },
+      "titleZh": "对抗性影响在多智能体系统中如何扩展?",
+      "summaryZh": "研究多智能体审议中欺骗智能体的影响如何随群体规模扩展：起决定作用的是欺骗者占比而非绝对数量，初始正确的智能体转向错误答案的倒戈率随该占比线性上升。与人类从众实验中误导者需占多数才会被影响不同，LLM智能体在欺骗者仍是少数时就频繁倒戈；敏感性还取决于参与交互的模型组合，尤其是诚实方所用模型，而允许欺骗者私下串通反而使其效果下降。这说明单纯增加智能体数量不足以构成防御，攻击者可同步扩大规模。",
+      "score": 7,
+      "reason": "多智能体欺骗鲁棒性实证研究，命中Agent方向，规模规律有新意",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30027",
+      "title": "Synthetic Hospital: An Open, Verifiable, Physician-Validated Longitudinal EHR Benchmark",
+      "authors": [
+        "Christine Park",
+        "Valerie Chen",
+        "Tim Dettmers"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Frontier language models are rarely used in clinical workflows because the realistic, longitudinal benchmarks needed to develop them are scarce. Real electronic health record (EHR) data cannot be openly shared due to privacy, ethics or data use issues and it does not contain verifiable ground truth since the chart records only reflect what clinicians documented. We introduce Synthetic Hospital, an open, fully synthetic, fact-grounded longitudinal EHR benchmark that resolves the open sharing and verifiable ground truth barriers. Built entirely from public medical-education material with no protected health information, it comprises 1,268 longitudinal patients and 5,602 encounters, where every diagnosis, finding, and temporal relation is grounded in standard ontologies (ICD-10-CM, SNOMED CT, LOINC) and with a complete provenance chain back to its source medical education material. Synthetic Hospital is served through a simulated hospital record system that mirrors real EHR infrastructure (standard interoperability APIs, role-based access and function-calling interface). In a blinded review, physicians distinguished its records from real patient charts at near-chance rates (53\\%). Across 10 frontier and open models, none approaches ceiling: the best model reconstructs a patient's longitudinal problem list with a severity-weighted F1 of 0.73, level with the mean of seven physicians on a matched subset but well below the best of them (0.89), and misses roughly half of clinically relevant findings when summarizing a chart. Overall, these results highlight that Synthetic Hospital is a difficult and realistic test of clinical AI performance.",
+      "published": "2026-09-24T16:00:56Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30027",
+        "pdf": "https://arxiv.org/pdf/2609.30027"
+      },
+      "comment": "29 pages, 2 figures, 12 tables",
+      "titleZh": "Synthetic Hospital:一个开放、可验证、经医师验证的纵向 EHR 基准",
+      "summaryZh": "真实电子健康记录因隐私与伦理限制无法公开共享，且只反映医生已记录的内容，缺少可验证真值，制约临床大模型的开发与评测。Synthetic Hospital 基于公开医学教育材料构建，含 1268 名纵向患者、5602 次就诊，每条诊断、发现与时序关系均锚定 ICD-10-CM、SNOMED CT、LOINC 本体并保留完整溯源链，通过模拟医院系统提供标准互操作 API、角色权限与函数调用接口。盲评中医生区分合成与真实病历的准确率仅 53%;10 个前沿与开源模型最优的纵向问题列表重建严重度加权 F1 为 0.73，低于七位医生最优的 0.89，摘要病历时漏掉约一半临床相关发现。",
+      "score": 4,
+      "reason": "临床 EHR 评测基准，属医疗垂直应用，与关注方向交集有限",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30017",
+      "title": "Canopy: Exploiting Piecewise Smooth Tree Priors for Multi-Fidelity Bandits",
+      "authors": [
+        "Michael Jerge",
+        "Suman Jana"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Many LLM inference problems, including model routing, prefix-cache management, prompt trimming, and test-time search, can be viewed as optimization over a tree. This structure arises naturally from autoregressive generation: every prefix defines a node, and its continuations form a subtree below it. Internal nodes of the tree provide cheap but biased estimates of a region's value, while leaf evaluations are expensive but accurate. Hierarchical bandit methods can exploit this structure, but typically require a specific smoothness schedule to be specified in advance, even though real objectives are often only piecewise smooth and their optima may lie near sharp boundaries. We introduce CANOPY, a multi-fidelity tree bandit that learns where the smoothness prior is valid rather than assuming it globally. CANOPY uses cheap random-path probes to construct an online certificate of local aggregation bias, then directs expensive leaf evaluations toward cells where the certificate detects a smoothness violation. We prove fixed-budget and regret guarantees whose additional cost is additive in the number of discontinuities, recovering the smooth-tree rate when no violations are present and approaching structure-blind search as violations become dense. Across routing, top-$k$ identification, test-time search, caching, and prompt trimming, CANOPY consistently improves matched-budget performance, including $2.9\\times$ higher top-10 recall on a 1000-model pool, $1.6\\times$ more SWE-bench Verified issues resolved than best-of-$N$, and $3.6\\times$ lower median time-to-first-token with prefix caching.",
+      "published": "2026-09-24T15:55:24Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30017",
+        "pdf": "https://arxiv.org/pdf/2609.30017"
+      },
+      "titleZh": "Canopy:利用分段光滑树先验的多保真 Bandit",
+      "summaryZh": "针对 LLM 推理中的模型路由、前缀缓存、prompt 裁剪与测试时搜索等树结构优化问题:内部节点估计廉价但有偏，叶子评估昂贵却准确，而现有层次化 bandit 需预先指定光滑性，真实目标往往只是分段光滑、最优解可能贴近尖锐边界。CANOPY 用廉价的随机路径探测在线构造局部聚合偏差证书，把昂贵的叶子评估导向检出光滑性被破坏的单元，自适应地学习光滑先验在何处成立，并给出固定预算与 regret 保证，额外代价仅随不连续点数量可加增长。在路由、top-k 识别、测试时搜索、缓存与 prompt 裁剪上同预算表现均提升:1000 模型池上 top-10 召回高 2.9 倍，SWE-bench Verified 解决数比 best-of-N 多 1.6 倍，前缀缓存下中位首 token 时延低 3.6 倍。",
+      "score": 7,
+      "reason": "树结构 bandit 服务 LLM 路由与测试时搜索，方法清晰结果扎实",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30012",
+      "title": "Low-Cost Assays for Measuring Model Behavior Across Vendors and Releases",
+      "authors": [
+        "Tapan Parikh"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Language models advise people, keep them company, and write software while they sleep. Measuring what they do is hard: behavior has to be sampled repeatedly across models, prompts and releases, most of it lives in unstructured text that has to be coded before it can be counted, and the result has to be legible and rigorous enough to meaningfully compare models and vendors. To address these constraints, we present a simple, cheap, scalable, and replicable model for studying model behavior. Each study is a frozen, public stimulus run identically on a cross-vendor panel, at a few dollars per model or less. Each reads its transcripts one of three ways, chosen by how much interpretation the behavior needs: exact match on a clamped reply, a codebook applied by LLM judges whose agreement with a human coder is reported per code, and an instrumented environment that records what an agent did independently of what it said. Run across four years of model releases from both frontier and open-source labs, these instruments find four things. Convergence: asked to pick a word, 27 of 44 models answer serendipity at least once in four tries. Resistance: a trailing \"right?\" moves endorsement by up to 32 points, and the sign flips from sycophantic to resistant as generations advance, keyed to the tag's surface form. House: whether a model holds a position under pressure tracks its generation, and how it holds tracks the lab that built it. Account: told to do something the documentation in their repository contradicts, some coding agents never went along silently and others always did, and the same model can change with the harness it runs in. Re-run on every release, batteries like these track how behavior is changing across vendors and over time.",
+      "published": "2026-09-24T15:51:17Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30012",
+        "pdf": "https://arxiv.org/pdf/2609.30012"
+      },
+      "comment": "6 pages. Code and data: https://github.com/tap2k/modelun",
+      "titleZh": "跨厂商与跨版本测量模型行为的低成本测评",
+      "summaryZh": "为解决模型行为测量成本高、跨厂商难比较的问题，提出低成本可复现的测评流程:在跨厂商模型面板上运行同一套冻结的公开刺激，每个模型成本仅数美元，并按所需解释程度选用三种读取方式——钳制回答的精确匹配、LLM 评判员按码本打分并逐码报告与人编码的一致率、独立记录智能体动作的插桩环境。覆盖四年模型发布得到:44 个模型中 27 个至少一次答出 serendipity;句尾「right?」使附和率变动最多 32 个百分点，并随代际由迎合转为抗拒;压力下是否坚持立场与代际相关、坚持方式与实验室相关;面对与仓库文档冲突的指令，编程智能体或从不默默照做或总是照做，且随 harness 变化。该方法可在每次发布时重跑，追踪跨厂商、跨时间的行为漂移。",
+      "score": 8,
+      "reason": "跨厂商行为测评方法论，含 LLM-as-judge 与 harness 效应，命中评测方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30009",
+      "title": "Automated Regulatory Compliance Question Answering in Financial Services with Domain-Adapted Retrieval-Augmented Generation",
+      "authors": [
+        "Tobias Deußer",
+        "Abhishek Pillai",
+        "Aurelio F. Bariviera",
+        "Dhananjay Bhardwaj",
+        "Lorenz Sparrenberg",
+        "David Berghaus"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Financial institutions operate under dense, frequently amended rulebooks, and answering a compliance question correctly requires not only fluency but verifiable grounding in the authoritative text. Large language models are attractive for this task, yet the models that firms can realistically deploy on-premise are compact ones, and compact models hallucinate obligations. We study whether a carefully domain-adapted retrieval-augmented generation pipeline closes that gap. Our retriever is built in three stages on top of LegalBERT: entailment tuning that recasts question--passage matching as premise--hypothesis reconstruction, contrastive tuning with in-batch negatives, and score-level fusion with BM25. Our generator is a compact model (2B--12B parameters) served under 4-bit quantization, either prompted or adapted with retrieval-aware fine-tuning (RAFT) through LoRA. On ObliQA, a question-answering benchmark built from the Abu Dhabi Global Market rulebooks, the staged retriever raises Recall@10 from 0.256 to 0.774 and outperforms BM25 (0.678) and E5-large-v2 (0.758), the strongest general-purpose dense encoder we tested. RAFT-LoRA then improves the composite RePASs answer-quality score for every model we could adapt, with the largest gain on the weakest one. However, the adapted models do not transfer to Australian case-law questions, and a closed-book model that receives no passages at all scores within 0.011 RePASs of the full pipeline while producing answers that cite nothing and misstate obligations. The retrieval gain is therefore measured directly, the generation gain is a gain in RePASs rather than demonstrated grounding, and grounding itself requires an evaluation protocol that RePASs does not provide.",
+      "published": "2026-09-24T15:48:59Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30009",
+        "pdf": "https://arxiv.org/pdf/2609.30009"
+      },
+      "comment": "Currently under review",
+      "titleZh": "面向金融服务的领域自适应检索增强生成自动化合规问答",
+      "summaryZh": "金融机构规则手册密集且频繁修订，合规问答需在权威文本上可验证地溯源，而可本地部署的小模型容易凭空编造义务。工作基于 LegalBERT 分三阶段构建检索器(蕴含调优把问答匹配重构为前提—假设、批内负样本对比学习、与 BM25 分数级融合)，生成端用 4-bit 量化的 2B–12B 模型，以提示或 LoRA 做检索感知微调(RAFT)。在 ADGM 规则手册构建的 ObliQA 上，Recall@10 从 0.256 升至 0.774，超过 BM25(0.678)与 E5-large-v2(0.758),RAFT-LoRA 提升所有可适配模型的 RePASs。但模型无法迁移到澳大利亚判例法，且闭卷模型 RePASs 仅低 0.011 却错述义务，说明该评测协议不足以验证 grounding。",
+      "score": 6,
+      "reason": "RAG 领域自适应扎实，但属金融合规垂直应用，增量为主",
+      "deepDive": false
+    },
+    {
+      "id": "2609.30005",
+      "title": "VietPrism: A large-scale Vietnamese speech and deepfake corpus with diverse dialects and code-switching",
+      "authors": [
+        "Minh Hoang",
+        "Thai Le"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Vietnamese speech research is constrained by resources that isolate automatic speech recognition from speaker, dialect, code-switching, and deepfake analysis. We introduce VietPrism, an open, multi-domain corpus that brings these dimensions together at scale: 993.4 hours and 403,941 bona fide utterances from 1,262 verified speakers across 8,388 real-world videos. To our knowledge, it is the first large-scale Vietnamese corpus to jointly provide transcripts, consistent speaker identities, five dialect groups, and naturally occurring Vietnamese--English code-switching, which constitutes nearly half of the corpus by duration. We further create over 3.1K hours of spoof speech with four open-source and commercial synthesis systems. Every spoof is conditioned on a verified speaker reference and paired with a transcript- and speaker-matched bona fide utterance, enabling unique controlled evaluation with reduced lexical and identity confounds. Zero-shot evaluation of five pretrained multilingual detectors reveals striking brittleness: EER greatly varies across detector--generator pairings, while recent multilingual detector DFA-1B degrades from 16.3% to 33.6% as speaker similarity increases. Dialect-stratified results expose further model-dependent disparities. By unifying natural linguistic diversity with controlled spoof generation, VietPrism provides a challenging foundation for Vietnamese speech modeling and trustworthy audio-deepfake detection.",
+      "published": "2026-09-24T15:48:23Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30005",
+        "pdf": "https://arxiv.org/pdf/2609.30005"
+      },
+      "comment": "Preprint for ICASSP 2027 submission",
+      "titleZh": "VietPrism:一个大规模越南语语音与深度伪造语料库，涵盖多样方言与语码转换",
+      "summaryZh": "越南语语音研究受限于资源割裂，自动语音识别与说话人、方言、语码转换及深度伪造分析彼此孤立。VietPrism 将这些维度整合进一个开源多域语料库:8388 个真实视频、1262 名验证说话人的 993.4 小时、403941 条真实语音，首次同时提供转写、一致的说话人身份、五个方言分组及自然出现的越南语—英语语码转换(时长占比近半)。研究另用四种开源与商业合成系统生成逾 3.1K 小时伪造语音，每条以验证说话人为条件并与转写、说话人匹配的真实语音配对，实现受控评测。五个预训练多语言检测器零样本评测显示明显脆弱:EER 随检测器—生成器组合大幅波动，DFA-1B 在说话人相似度升高时从 16.3% 恶化至 33.6%。",
+      "score": 2,
+      "reason": "越南语语音与音频深伪语料库，属语音应用方向，不在关注范围",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.30001",
+      "title": "Advancing Model Research in AgentX: Long-Horizon Autonomy for Industrial Recommender Systems",
+      "authors": [
+        "Shuang Yang",
+        "Zijie Zhuang",
+        "Changxin Lao",
+        "Pengbo Xu",
+        "Hanwen Xu",
+        "Yusheng Huang"
+      ],
+      "authorsTotal": 23,
+      "abstract": "Sustaining industrial recommendation research requires using the results of one experiment to decide what to investigate next. We present AgentX-Model, the next generation of AgentX's model research framework, which connects proposal development and model experimentation within sandboxes defined by business inputs and prediction tasks. AgentX-Model adopts a dual-agent architecture comprising a Research Agent and a Model Agent. The Research Agent develops independently reviewed proposals from papers and experimental findings, while the Model Agent conducts multi-round investigations and returns code, measurements, and unresolved questions. Using the returned results, the Research Agent selects a starting implementation and formulates the next research question, allowing subsequent experiments to build on earlier findings. We organize this continuing research around four actions: Reproduce, Follow-up, Composition, and Diagnose. The first three actions drive routine research, while Diagnose acquires the evidence needed to choose a repair, including for issues raised by business feedback and online evaluation, such as prediction bias measured by PCOC. Across the production evaluation, 560 of 636 completed model-changing experiments recorded AUC above their business baselines. As research continued, some experiments recorded AUC above every comparable ancestor in their lineages. The five latest online A/B evaluations across different business settings reported gains including 10-15% in acquisition efficiency, 15-20% in target-segment advertising spend, and 0.3-0.8% in watch time; the watch-time model used approximately 10% fewer FLOPs and parameters. A dependency-aware historical-replay benchmark further evaluates research allocation, with initial results showing no consistent efficiency gain from more complex scheduling when agents already analyze and select concrete candidates.",
+      "published": "2026-09-24T15:45:07Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.30001",
+        "pdf": "https://arxiv.org/pdf/2609.30001"
+      },
+      "comment": "Technical report. 37 pages, 11 figures, 13 tables, including appendices",
+      "titleZh": "推进 AgentX 中的模型研究:面向工业推荐系统的长时程自主性",
+      "summaryZh": "面向工业推荐系统的模型研究自动化，AgentX-Model用Research Agent与Model Agent双智能体把提案开发与沙箱内实验串成闭环。Research Agent从论文与实验结果产出经独立评审的提案，Model Agent做多轮调研并回传代码、指标与未解问题，前者据此选定实现起点并提出下一个问题，研究沿复现、跟进、组合、诊断四类动作持续推进。636个改变模型的实验中560个AUC超过业务基线，五次线上A/B报告获客效率提升10-15%、目标人群广告花费提升15-20%、观看时长提升0.3-0.8%，观看时长模型参数量与FLOPs减少约10%。",
+      "score": 8,
+      "reason": "科研智能体闭环加线上收益，命中AI for Research方向"
+    }
+  ]
 }
