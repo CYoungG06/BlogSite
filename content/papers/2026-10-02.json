@@ -1,0 +1,854 @@
+{
+  "date": "2026-10-02",
+  "generatedAt": "2026-10-03T08:06:15.449182+00:00",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2610.01762",
+      "title": "OneStreamer: Unifying Perception, Memory, and Proactive Response in Streaming Video Interaction",
+      "authors": [
+        "Xiangyu Zeng",
+        "Yuandong Yang",
+        "Zhiqiu Zhang",
+        "Yuhan Zhu",
+        "Xinhao Li",
+        "Qingyi Si"
+      ],
+      "authorsTotal": 24,
+      "abstract": "Streaming video LLMs must retain evidence before its relevance to future tasks is known and respond when sufficient evidence becomes available. The challenge is to form reusable factual memory without compromising real-time perception. We introduce OneStreamer, which jointly learns query-independent evidence recording and task response through a shared proactive generation process. Its Proactive Hierarchical Caption Memory (PHCM) produces time-grounded local-detail captions and summaries of completed events. Streaming caption targets supervise the interpretation of observed video prefixes during training. At inference, model-generated records complement a recent visual window, providing reusable factual context without revisiting historical visual features. Proactive State Transition Learning (PSTL) reduces the dominance of repeated waiting states by preserving supervision at all output anchors and selecting representative state-change and state-persistence tokens. We further develop a streaming data synthesis pipeline that aligns output content and timing with available evidence. Combining the resulting streaming captions and QA with cleaned open-source data yields OneStreamer-1M, a broad-coverage streaming video interaction dataset with over one million records spanning diverse tasks. Our 4B model achieves the best results among the compared methods across all eight evaluated streaming video understanding benchmarks. Ablations show that retaining generated captions improves historical QA without degrading real-time perception. PSTL also outperforms dense state supervision while supervising only 27.5% of annotated state tokens. Together, these results support proactive generation as a shared learning interface connecting perception, memory formation, and timely response in streaming video interaction.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.01762",
+        "pdf": "https://arxiv.org/pdf/2610.01762"
+      },
+      "upvotes": 152,
+      "githubRepo": "https://github.com/MCG-NJU/OneStreamer",
+      "githubStars": 45,
+      "projectPage": "https://mcg-nju.github.io/OneStreamer",
+      "numComments": 1,
+      "titleZh": "OneStreamer:在流式视频交互中统一感知、记忆与主动响应",
+      "summaryZh": "流式视频大模型需在证据与未来任务的相关性尚不可知时先记录，并在证据充分时及时作答，难点是实时感知与可复用事实记忆的取舍。OneStreamer 用共享的主动生成过程联合学习与查询无关的证据记录和任务响应:分层描述记忆生成带时间锚定的细节描述与已完成事件摘要，推理时以自生成记录补充近期视觉窗口，无需回看历史视觉特征;状态转移学习仅监督 27.5% 的状态 token，抑制重复等待状态。工作还产出超百万条的 OneStreamer-1M 数据集，4B 模型在八个流式视频理解基准上均优于对比方法，消融显示保留生成描述可提升历史问答且不损害实时感知。",
+      "score": 6,
+      "reason": "流式视频 MLLM 的记忆与主动响应机制，属多模态理解侧但偏垂直",
+      "deepDive": false
+    },
+    {
+      "id": "2609.35259",
+      "title": "On-Policy or Off-Policy Learning? A Systematic Study of Distillation Dynamics",
+      "authors": [
+        "Julianna Piskorz",
+        "Antonin Berthon",
+        "Mihaela van der Schaar"
+      ],
+      "authorsTotal": 3,
+      "abstract": "On-policy learning has been argued to reduce catastrophic forgetting, produce sparser parameter updates, and improve generalisation. However, existing comparisons between supervised fine-tuning and reinforcement learning vary many factors simultaneously, making the contribution of rollout policy difficult to isolate. We study the effect of rollout policy in a controlled strong-to-weak distillation setting, by independently varying rollout policy, token-level KL direction, and learning rate across the Llama3 and Qwen2.5 model families and reasoning tasks spanning scientific, medical, and arithmetic domains. Our analysis reveals a nuanced picture of distillation dynamics in which rollout policy does not necessarily play a central role. Instead, token-level KL direction more clearly shapes task performance and output coverage, while learning rate governs forgetting and update sparsity. Analysis of KL gradients and experiments along a continuous student-teacher rollout-policy spectrum explain this pattern: forward KL is remarkably robust to rollout policy, with its performance stable and strong despite changes to the rollout policy, whereas reverse KL is substantially more sensitive and favours student-generated rollouts. On-policy data nevertheless improves generalisation to harder variants of the Countdown arithmetic task under both KL directions, although this advantage does not reliably persist after subsequent RLVR. Our broader conclusions remain robust to removing gradient clipping, using sampled KL estimators, and training on tasks requiring longer reasoning chains. Overall, our results challenge the view that on-policy rollouts are inherently preferable and show that their value depends critically on the objective, evaluation setting, and optimisation hyperparameters.",
+      "published": "2026-09-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.35259",
+        "pdf": "https://arxiv.org/pdf/2609.35259"
+      },
+      "upvotes": 130,
+      "numComments": 1,
+      "titleZh": "同策略还是异策略学习?对蒸馏动力学的系统研究",
+      "summaryZh": "在强到弱蒸馏设定下，把 rollout 策略、token 级 KL 方向与学习率三者独立变化，覆盖 Llama3 与 Qwen2.5 两个模型家族及科学、医学、算术推理任务，以厘清 on-policy 数据究竟贡献了什么。结果显示 rollout 策略并非决定因素:KL 方向更明显地影响任务性能与输出覆盖度，学习率则主导遗忘程度与更新稀疏性;前向 KL 对 rollout 策略异常鲁棒，反向 KL 敏感且偏好学生自身生成的样本。on-policy 数据在 Countdown 更难变体上仍能提升泛化，但该优势在后续 RLVR 后并不稳定复现，说明其价值取决于目标函数、评测设置与优化超参。",
+      "score": 8,
+      "reason": "on-policy 蒸馏的系统性受控研究，直击后训练热点",
+      "deepDive": true
+    },
+    {
+      "id": "2609.37200",
+      "title": "Adaptive Reward Routing: Dynamic Multi-Reward Optimization for Joint Audio-Video Diffusion via Forward-Process RL",
+      "authors": [
+        "Songlin Yang",
+        "Xiaotong Zhao",
+        "Jiacheng Zhang",
+        "Zhe Wang",
+        "Toyota Li",
+        "Eric Liu"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Multi-reward guided reinforcement learning (i.e., RL) offers a promising way to improve joint audio-video diffusion models along several complementary objectives, including modality-specific quality, cross-modal semantic alignment, and temporal synchronization. Its effectiveness, however, depends on two quantities that change during training: where reward-driven updates should act, and how competing rewards should be combined. Existing methods tend to rely on fixed routing and reward weights, failing to track evolving model functions. To address these limitations, we propose Adaptive Reward Routing to jointly adapt update locations and reward coordination during forward-process RL (i.e., DiffusionNFT) of joint audio-video diffusion models. Our method consists of two components. (i) Cross-Modal Influence-Guided Routing (Localizing Updates): We use bidirectional cross-attention responses as an efficient proxy for evolving cross-modal influence, dynamically reweighting token-aware losses and scaling gradients across cross-modal layers without additional model interventions. (ii) Preference-Preserving Modality-Aware Reweighting (Coordinating Rewards): We preserve predefined weights as preference priors and use branch-specific reward-gradient interactions as residual corrections after warm-up. This resolves evolving conflicts without letting dominant rewards suppress weak but essential objectives. Extensive experiments demonstrate consistent improvements in modality quality, semantic consistency, and audio-video synchronization over strong RL baselines. Ablations and mechanism analyses further validate the complementary benefits of adaptive update routing and reward coordination.",
+      "published": "2026-09-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.37200",
+        "pdf": "https://arxiv.org/pdf/2609.37200"
+      },
+      "upvotes": 118,
+      "numComments": 2,
+      "titleZh": "自适应奖励路由:通过前向过程 RL 实现联合音视频扩散的动态多奖励优化",
+      "summaryZh": "联合音视频扩散模型的多奖励强化学习通常依赖固定的更新位置与奖励权重，无法跟踪训练中不断演化的模型功能。该方法提出自适应奖励路由:用双向 cross-attention 响应作为跨模态影响的廉价代理，动态重加权 token 级损失并缩放跨模态层梯度;同时以预设权重为偏好先验，用分支特定的奖励梯度交互作为预热后的残差修正，避免强势奖励压制弱势但必要的目标。实验表明其在模态质量、语义一致性与音视频同步上稳定优于强 RL 基线，消融与机制分析验证了两部分的自适应机制互补有效。",
+      "score": 2,
+      "reason": "音视频扩散生成，属低分方向，仅奖励路由略沾 RL 边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.01415",
+      "title": "Beyond Memory: Harnessing Long-Horizon Agents with Explicit Belief States",
+      "authors": [
+        "Yu Luo",
+        "Jiamin Jiang",
+        "Yimin Zuo",
+        "Xidao Wen",
+        "Rongchen Gao",
+        "Yongqian Sun"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Large language model (LLM) agents can now undertake increasingly complex tasks, but the way they organize interaction history into memory does not ensure a coherent understanding of the current world. We introduce PoS, an inference-time framework that constructs and continually maintains explicit belief states as the agent's decision context. Each belief combines an estimate of the current world state with unresolved task requirements, making explicit what the agent still needs to learn and accomplish. To keep this belief reliable and actionable, PoS validates its consistency and monitors task progress to detect Belief Trapping, where the agent continues to act without making meaningful progress toward the goal. Recovery is then tailored to both the trapping pattern and the type of unresolved task requirement. Experiments on four benchmarks spanning execution and diagnosis show that PoS achieves the highest overall performance on every benchmark with all three LLM backbones. Ablations demonstrate the importance of consistency validation and recovery, while context-scaling experiments show resilience to context growth. Together, these results support belief construction and continual maintenance as a foundation for long-horizon context management beyond history retention and compression.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.01415",
+        "pdf": "https://arxiv.org/pdf/2610.01415"
+      },
+      "upvotes": 71,
+      "githubRepo": "https://github.com/luoyu100/PoS",
+      "githubStars": 20,
+      "projectPage": "https://luoyu100.github.io/projects/progression-of-states/project/",
+      "numComments": 3,
+      "titleZh": "超越记忆:以显式信念状态驾驭长时程 Agent",
+      "summaryZh": "长时程 LLM Agent 通常把交互历史压缩成记忆，但这并不保证对当前世界状态形成一致理解。PoS 在推理时构建并持续维护显式信念状态作为决策上下文，每个信念同时包含对当前世界状态的估计与尚未完成的任务需求，并通过一致性校验与任务进度监控检测「信念陷阱」，再按陷阱模式与未决需求类型定制恢复策略。在覆盖执行与诊断的四项 benchmark 上，PoS 在三种 LLM 骨干下均取得最高总体成绩，消融实验验证了一致性校验与恢复机制的作用，上下文扩展实验显示其对上下文增长的鲁棒性。",
+      "score": 9,
+      "reason": "Agent 长时程上下文管理新范式，命中 Agent 与记忆方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.01509",
+      "title": "Sharpening Tax in Post-Training",
+      "authors": [
+        "Changdae Oh",
+        "Qi Zeng",
+        "Qi Qi",
+        "Andrey Zhmoginov",
+        "Deren Lei",
+        "Yun He"
+      ],
+      "authorsTotal": 10,
+      "abstract": "An emerging hypothesis about reinforcement learning (RL) post-training of large language models (LLMs) is that it merely sharpens existing behaviors of a base model, improving single-shot accuracy at the cost of solution coverage. Although this trade-off has been observed in math and coding tasks, it need not extend to agentic tasks, where multi-turn tool use and interaction may require capabilities newly acquired during post-training. Our surprising finding is that pre-trained LLMs, equipped with a light inference harness, can serve as capable agents. Despite far lower accuracy (pass@1), they often surpass their post-trained counterparts in solution coverage (pass@K) given a sufficient test-time budget. We further analyze the underlying mechanism and show that post-training pushes tasks toward two extremes, always solved or never solved, and thereby improves sampling efficiency and consistency at the cost of solution coverage. To measure this cost, we propose Sharpening Tax, a diagnostic metric that quantifies the loss in test-time scalability after post-training. Across 14 base/post-trained model pairs from four families and three agentic benchmarks (42 cases in total), the tax is prevalent in most settings, can be estimated from a few rollouts, and correlates well with other metrics. Finally, we present posterior-tempered group sampling (PTGS), a simple plug-and-play Bayesian sampler that adapts the sampling temperature per prompt to its estimated difficulty. Applied during RL training in two agentic environments, PTGS pays a smaller tax than the fixed-temperature baseline, solving more tasks under repeated sampling while also improving single-shot accuracy.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.01509",
+        "pdf": "https://arxiv.org/pdf/2610.01509"
+      },
+      "upvotes": 69,
+      "githubRepo": "https://github.com/changdaeoh/sharpening-tax",
+      "githubStars": 19,
+      "projectPage": "https://changdaeoh.github.io/sharpening-tax/",
+      "numComments": 2,
+      "titleZh": "后训练中的锐化税",
+      "summaryZh": "针对「RL后训练只是锐化基座模型行为、以解覆盖率为代价换取单次准确率」的假说，本文在agentic任务上给出反例:配备轻量推理harness的预训练模型虽pass@1低，但测试时预算充足时pass@K常超过后训练版本。机制分析发现后训练把任务推向必解或必不解的两极，提升采样效率却牺牲解覆盖率;为此提出Sharpening Tax指标量化后训练的测试时可扩展性损失，在4个模型家族14对模型、3个agentic基准共42例中普遍存在且可由少量rollout估计。进一步提出PTGS，按prompt难度自适应调节采样温度，在RL训练中比固定温度基线交税更少，重复采样解出更多任务且单次准确率更高。",
+      "score": 8,
+      "reason": "后训练机制分析加自适应采样新方法，直击RL后训练与Agent方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.02193",
+      "title": "Hierarchical Continuous Diffusion Language Models",
+      "authors": [
+        "Hui Ren",
+        "Zihan Li",
+        "Chang Liu",
+        "Huidong Liu",
+        "Alexander Schwing"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Discrete diffusion language models offer a compelling alternative to autoregressive generation for tasks demanding bidirectional reasoning and global constraint satisfaction. Yet they share a structural bottleneck: when decoding in parallel, each token is sampled independently from its marginal, severing the statistical dependencies among the tokens decoded together. Continuous diffusion language models avoid this by denoising a shared continuous state, but their denoiser sees only that state, so nothing ties it to a valid token configuration until it is finally decoded. To address this, we propose Hierarchical Continuous Diffusion Language Models (HC-DLM), which couple discrete token generation with a continuous latent trajectory in a single, principled denoising process, whose training objective is derived from a variational bound on the token likelihood. In contrast to recent methods that attach continuous context to a self-contained discrete chain, HC-DLM makes the latent the only persistent generative state: tokens are read out from it at every step and feed back as a scaffold for the next latent update. On structured reasoning (Sudoku), mathematical planning (Countdown) and language modeling (LM1B), HC-DLM improves over discrete and continuous diffusion baselines at matched model size, in puzzle accuracy on Sudoku and Countdown and in generative perplexity on LM1B. Project page: https://hc-dlm.github.io/.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.02193",
+        "pdf": "https://arxiv.org/pdf/2610.02193"
+      },
+      "upvotes": 69,
+      "githubRepo": "https://github.com/rhfeiyang/HC-DLM",
+      "githubStars": 52,
+      "projectPage": "https://hc-dlm.github.io/",
+      "numComments": 2,
+      "titleZh": "层次化连续扩散语言模型",
+      "summaryZh": "离散扩散语言模型并行解码时各 token 从边缘分布独立采样，切断了同批 token 间的统计依赖;连续扩散模型虽去噪共享的连续状态，但去噪器只看到该状态，直到最终解码前都与合法 token 配置没有绑定。HC-DLM 把离散 token 生成与连续隐轨迹耦合进单一去噪过程，训练目标由 token 似然的变分下界导出，并让隐状态成为唯一持续存在的生成状态——每步从中读出 token，再回馈为下一步隐更新的支架。在 Sudoku、Countdown 与 LM1B 上，同模型规模下相较离散与连续扩散基线均有提升，puzzle 准确率与生成困惑度改善。",
+      "score": 2,
+      "reason": "扩散语言模型属画像明确列出的低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.35690",
+      "title": "Agent Priors-guided Policy Learning",
+      "authors": [
+        "Puming Jiang",
+        "Tianrun Hu",
+        "Haozhe Du",
+        "Yibo Li",
+        "Zhiwei Xue",
+        "Xinhu Li"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Robots that learn from a few demonstrations often require two forms of generalization. Compositional generalization recombines skills to solve new tasks, and skill generalization lets the learned policy behind each skill work in new situations. The two depend on each other, yet information is lost between composition and the skills it calls. Where a skill works is determined by the structure its policy is trained with, while composition sees the skill only through a separate description, such as a name, an instruction, or a symbolic operator, that omits this structure. Our key idea is to use each policy's structural prior as part of the interface between composition and the skill. A structural prior states what a behavior depends on, for example that a grasp depends only on the gripper's pose relative to the object. Built into training, it shapes where the policy generalizes; stated in language, it tells composition where the policy applies. We instantiate this idea in Agent Priors-guided Policy Learning (APPL). A construction agent segments complete demonstrations into reusable skills, proposes several structural priors for each skill, and trains and verifies one policy per prior. A runtime agent then selects among these prior-specific policies and composes them toward new task goals using their interfaces. Across MetaWorld and long-horizon ManiSkill tasks, APPL improves out-of-distribution skill generalization and enables previously unseen skill compositions; ablating the interface information substantially reduces performance. These results support the use of training-time structural assumptions as a bridge between skill learning and skill composition.",
+      "published": "2026-09-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.35690",
+        "pdf": "https://arxiv.org/pdf/2609.35690"
+      },
+      "upvotes": 68,
+      "githubRepo": "https://github.com/Agentics-robotics/Agent-Priors-guided-Policy-Learning",
+      "githubStars": 3,
+      "projectPage": "https://agentics-robotics.github.io/APPL/",
+      "numComments": 1,
+      "titleZh": "Agent先验引导的策略学习",
+      "summaryZh": "机器人从少量示范学习时需同时具备组合泛化与技能泛化，但组合层只能通过技能名称或指令等描述调用技能，丢失了策略训练时的结构信息。APPL让构造智能体把完整示范切分为可复用技能，为每个技能提出多个结构先验(如抓取只依赖夹爪与物体的相对位姿)，并按先验分别训练与验证策略;运行智能体再依据这些接口选择并组合策略以达成新目标。在MetaWorld与长时程ManiSkill任务上，该方法提升了分布外技能泛化并支持未见过的技能组合，消融接口信息后性能明显下降。",
+      "score": 2,
+      "reason": "机器人操作策略学习，属具身智能低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.39027",
+      "title": "A Missing Piece for Trustworthy AI Reviewers: From Benchmarking Rhetorical Robustness to SciCore Review",
+      "authors": [
+        "Chenguang Wang",
+        "Ming Li",
+        "Chengrui Fan",
+        "Jianpeng Chen",
+        "Han Chen",
+        "Tianyi Zhou"
+      ],
+      "authorsTotal": 7,
+      "abstract": "AI reviewers can assign different judgments to manuscripts that report the same science in different wording, potentially rewarding rhetorical optimization over scientific improvement. We formulate Rhetorical Robustness as the joint requirement of stability across content-preserving rewrites and discrimination across papers. We introduce RobustReview, a controlled full-manuscript benchmark with 1,260 manuscript versions, and evaluate 30 reviewer configurations. The benchmark reveals false robustness, where low rewrite sensitivity coincides with score collapse across papers, and shows that human alignment and rhetorical robustness rank reviewers differently. Moreover, the evaluated content-focused prompting protocol does not consistently improve robustness across backbones. Motivated by these findings, we introduce SciCore, a dual-branch reviewer that averages a full-manuscript judgment with a judgment based on an extracted, structured science core. This design combines manuscript-level assessment with a content-normalized view intended to reduce rhetorical sensitivity. In our primary GPT-5.5 comparison, SciCore achieves a leading joint stability-discrimination profile among the benchmarked reviewers while maintaining competitive human alignment. These results identify rhetorical robustness as a distinct evaluation target and demonstrate the potential of science-core review to improve it.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.39027",
+        "pdf": "https://arxiv.org/pdf/2609.39027"
+      },
+      "upvotes": 65,
+      "numComments": 2,
+      "titleZh": "可信 AI 审稿人缺失的一环:从修辞鲁棒性基准测试到 SciCore 审稿",
+      "summaryZh": "AI 审稿人面对报告同一科学、措辞不同的稿件会给出不同判断，可能奖励修辞优化而非科学改进。工作将修辞鲁棒性定义为内容保持改写下的稳定性与跨论文区分度的联合要求，构建含 1260 个稿件版本、30 种审稿配置的 RobustReview 基准，揭示出低改写敏感度与跨论文分数塌缩并存的虚假鲁棒性，以及人类对齐与鲁棒性排序不一致、内容聚焦提示难以稳定改善鲁棒性。为此提出双分支审稿器 SciCore，将全文判断与结构化科学核心判断取平均，在 GPT-5.5 对比中取得最优的稳定性-区分度联合表现且人类对齐具竞争力。该工作把修辞鲁棒性确立为独立的评测目标，适用于 AI 审稿与 LLM-as-judge 可靠性研究。",
+      "score": 7,
+      "reason": "LLM-as-judge 可靠性评测，含新基准与审稿器方法，属评测方法学方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.02162",
+      "title": "World Observer: Joint Actor-Observer Generation for Persistent World Modeling",
+      "authors": [
+        "Hyunwook Choi",
+        "Dahyun Chung",
+        "Hyunsung Kim",
+        "Siyoon Jin",
+        "Jinhyeok Choi",
+        "Junyoung Seo"
+      ],
+      "authorsTotal": 7,
+      "abstract": "How can a world model continuously observe regions beyond the actor's current view? Video world models simulate how an environment evolves from an agent's actions, yet remain actor-centric. Once an object leaves the actor's view, they lose direct evidence of its evolution, often failing to preserve its state and dynamics upon re-entry. To address this, we introduce World Observer, which decouples observing from acting by jointly generating a perspective actor for the agent-centric view with one or more panoramic observers that watch selected world regions. This allows objects that leave the actor's view to remain visually evolving in an observer, so their updated states are reflected when they re-enter. We ground the actor and observers by warping from a shared panoramic source for explicit geometric correspondence, and introduce an Observer Sink of high-resolution perspective references to restore fine appearance upon re-entry. Since the observers are decoupled from the actor, they can be placed freely across the scene, extended to multiple locations for broader coverage, and driven by control signals to steer out-of-view evolution. To evaluate out-of-view evolution, we further introduce world-space metrics and a benchmark spanning real and synthetic scenes. World Observer substantially improves out-of-view dynamics while remaining competitive in visual fidelity, camera control, and 3D adherence.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.02162",
+        "pdf": "https://arxiv.org/pdf/2610.02162"
+      },
+      "upvotes": 65,
+      "githubRepo": "https://github.com/cvlab-kaist/world-observer",
+      "githubStars": 21,
+      "projectPage": "https://cvlab-kaist.github.io/world-observer/",
+      "numComments": 4,
+      "titleZh": "World Observer:面向持久世界建模的联合 Actor-Observer 生成",
+      "summaryZh": "视频世界模型以智能体为中心，物体一旦离开视野就失去其演化的直接证据，重新进入时往往无法保持原有状态与动态。World Observer 将「观察」与「行动」解耦，在生成智能体视角的同时联合生成一个或多个覆盖指定世界区域的全景观察者视角，使离开视野的物体仍在观察者画面中持续演化，回场时可反映最新状态;方法通过从共享全景源做 warp 建立几何对应的显式锚定，并引入 Observer Sink 保存高分辨率透视参考以恢复回场细节。作者还提出 world-space 指标及覆盖真实与合成场景的基准，结果显示视野外动态显著改善，视觉保真度、相机控制与 3D 一致性保持竞争力。",
+      "score": 3,
+      "reason": "视频世界模型生成方向，与 Agent 世界模型仅擦边，属低分领域",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.36585",
+      "title": "Transformers Stop Thinking Too Early, and a Tiny LoRA Fixes It",
+      "authors": [
+        "Zehao Jin",
+        "Ruixuan Deng",
+        "Junran Wang"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Pretrained transformers use little of their depth to follow references in context. Thirteen base models reliably follow only 1.4-3.6 lines, and extra pretrained loops add little. A task-trained rank-8 LoRA at one early layer extends this computation with all model weights frozen. Qwen3-8B improves from 15.5% to 99% exact accuracy on 24-line chains; a longer-trained LoRA reaches 50 lines. Ouro-1.4B reaches 60 lines after four loops and at least 160 after eight. The LoRA starts a relay: program lines pass on their chain identity through a short range of middle layers. Frozen heads read progressively further up the chain, and removing parent-line attention stops the relay. A frozen-model measurement locates the last useful intervention layer within tolerance in three of four held-out models. Task-specific LoRAs also improve MuSiQue. Default answers therefore understate the computation accessible through a tiny edit. Code and an interactive demo are available at https://lunamos.github.io/stop-thinking-too-early/",
+      "published": "2026-09-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.36585",
+        "pdf": "https://arxiv.org/pdf/2609.36585"
+      },
+      "upvotes": 55,
+      "githubRepo": "https://github.com/Lunamos/stop-thinking-too-early",
+      "githubStars": 2,
+      "projectPage": "https://lunamos.github.io/stop-thinking-too-early/",
+      "numComments": 2,
+      "titleZh": "Transformer过早停止思考，一个微小LoRA即可修复",
+      "summaryZh": "预训练Transformer在上下文引用链任务上只用到很浅的深度，13个基座模型仅能可靠跟随1.4-3.6行，追加预训练循环也几乎无增益。做法是在某个早期层插入任务训练的rank-8 LoRA并冻结全部原权重，由LoRA在中间若干层接力式传递「链身份」信息，冻结的输出头逐层读取更远的链，移除父行注意力即中断接力。Qwen3-8B在24行链上从15.5%提升到99%精确准确率，Ouro-1.4B四循环达60行、八循环至少160行，MuSiQue上同样有提升。这说明默认答案低估了微小编辑所能解锁的计算量，并为上下文计算的深度利用提供了机制性解释。",
+      "score": 8,
+      "reason": "以LoRA解锁深度计算，机制清晰结果强，命中架构与后训练",
+      "deepDive": true
+    },
+    {
+      "id": "2609.37533",
+      "title": "E-MoE: Enhanced Mixture-of-Experts for Non-Factorized Diffusion Language Models",
+      "authors": [
+        "Arseny Ivanov",
+        "Alexander Kolesov",
+        "Alexander Korotin",
+        "Ivan Oseledets",
+        "Mikhail Goncharov"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Masked diffusion models (MDMs) generate sequences by progressively unmasking several tokens per denoising step, but their reverse process is typically factorized over positions, limiting sample quality in the few-step regime where diffusion's speed advantage over autoregressive decoding matters most. A recent line of work introduces a continuous Gaussian latent, trained as a variational autoencoder, to capture correlations across positions, but such approaches are prone to posterior collapse, where the latent is silently ignored. We propose Enhanced Mixture-of-Experts (E-MoE), which builds the reverse process as a mixture of factorized distributions over a discrete shared latent given by the expert-routing decisions of a Mixture-of-Experts (MoE) backbone, without increasing active parameters over the factorized baseline. Across synthetic multi-modal benchmarks, binarized MNIST, and LM1B, E-MoE improves few-step generation over factorized baselines.",
+      "published": "2026-09-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.37533",
+        "pdf": "https://arxiv.org/pdf/2609.37533"
+      },
+      "upvotes": 50,
+      "numComments": 2,
+      "titleZh": "E-MoE:面向非因子化扩散语言模型的增强混合专家",
+      "summaryZh": "掩码扩散模型(MDM)每个去噪步只解掩码部分 token，反向过程通常按位置因子化，在少步生成这一速度优势最关键的场景下限制了样本质量;此前用连续高斯隐变量做 VAE 来建模位置间相关性的做法容易发生后验坍缩，隐变量被悄然忽略。E-MoE 改以 MoE 主干的专家路由决策作为离散共享隐变量，把反向过程写成对它的因子化分布混合，激活参数量与因子化基线持平。在合成多模态基准、二值化 MNIST 与 LM1B 上，其少步生成质量优于因子化基线。",
+      "score": 2,
+      "reason": "扩散语言模型，画像中属一刀切低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.00906",
+      "title": "ActiveSaddler: Automated Curriculum Learning for Agent Harness Optimization",
+      "authors": [
+        "Sungho Park",
+        "Wonjoong Kim",
+        "Jue Zhang",
+        "Wook-Shin Han",
+        "Pengfei Gao",
+        "Chanyoung Park"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Automated harness optimization can substantially improve LLM agents by iteratively updating their prompts, tool interfaces, and control logic from execution feedback. However, existing methods primarily optimize how the harness is updated while largely fixing which training scenarios generate the feedback that drives those updates. As the harness evolves, the scenarios most useful for further optimization can change, suggesting that the training curriculum itself should adapt alongside the harness. We formulate this missing dimension of harness optimization as an automated curriculum learning problem and introduce ActiveSaddler. ActiveSaddler models the evolving curriculum as a non-stationary bandit with dynamically instantiated optimization targets. It abstracts recurring failures into reusable failure-pattern arms, estimates the potential learning progress from further targeting each pattern, and adaptively balances revisiting known weaknesses with exploring unseen scenarios for new ones. Optimization outcomes continually update both the set of discovered failure patterns and their priorities, allowing the curriculum to co-evolve with the harness. Experiments on GAIA2 and Terminal-Bench 2.0 show that ActiveSaddler consistently discovers stronger harnesses, improving test Pass@1 by 4.4 and 7.5 percentage points over the same harness optimizer using a scenario order fixed before optimization, respectively. Ablations further show that these gains depend on dynamically constructing optimization targets, estimating their evolving utility, and balancing continued optimization with new failure discovery. Together, these results establish automated curriculum learning as a new crucial optimization dimension for harness optimization.",
+      "published": "2026-10-01T01:36:03.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.00906",
+        "pdf": "https://arxiv.org/pdf/2610.00906"
+      },
+      "upvotes": 50,
+      "projectPage": "https://autosaddler-projectpage.github.io/activesaddler/",
+      "numComments": 2,
+      "titleZh": "ActiveSaddler：面向 Agent Harness 优化的自动化课程学习",
+      "summaryZh": "现有 Agent harness 优化方法只改提示词、工具接口与控制逻辑，却把生成反馈的训练场景固定不变，忽视了课程本身也应随 harness 演化而调整。ActiveSaddler 把这一维度形式化为自动化课程学习问题，用非平稳 bandit 建模动态课程：将反复出现的失败抽象为可复用的失败模式臂，估计继续优化各模式的潜在学习进度，并在重访已知弱点与探索新场景之间自适应权衡，使课程与 harness 共同演化。在 GAIA2 与 Terminal-Bench 2.0 上，相比使用优化前固定场景顺序的同一优化器，测试 Pass@1 分别提升 4.4 与 7.5 个百分点；消融显示增益依赖动态构建优化目标、估计其变化效用以及平衡持续优化与新失败发现。",
+      "score": 9,
+      "reason": "Agent harness 自优化叠加自动化课程学习，方法新且命中 Agent 方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.02205",
+      "title": "ROWBench: Do Video Models Render What the Program Specifies?",
+      "authors": [
+        "Zheng-Hui Huang",
+        "Guixu Lin",
+        "Yu-Ju Tsai",
+        "Jian-Kai Zhu",
+        "Fengbo Lan",
+        "Yu-Lun Liu"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Programmable world models separate executable dynamics from visual generation, offering a promising foundation for next-generation game engines. However, their visual adherence to explicit rules and interactions remains insufficiently evaluated. Existing benchmarks assess visual quality, controllability, and instruction or physical adherence, but rarely test fidelity to fine-grained, program-specified world events. We introduce PROWBench, comprising 170 programmatically constructed episodes and 600 proxy videos covering diverse scenes and interactions. PROWBench logs entity states and timestamped events, including those outside the camera's field of view, as replayable world records, from which it renders synchronized views and proxy representations. This enables generated videos to be checked against the observable consequences of program execution. An extensible framework constructs scenes, controls behaviors, and can render each camera view in different representations, such as coarse 3D, and bounding boxes. The benchmark covers first- and third-person perspectives, with synchronized multi-view observations available for a subset of episodes. Grounded in these records, PROWBench evaluates entity control, long-horizon memory, and, with two VLM-based metrics, Logic-Render Alignment and Interaction Success Rate, adherence to the prescribed timeline and the visual realization of timestamped engine-recorded events.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.02205",
+        "pdf": "https://arxiv.org/pdf/2610.02205"
+      },
+      "upvotes": 50,
+      "githubRepo": "https://github.com/AlayaLab/PROWBench",
+      "githubStars": 26,
+      "projectPage": "https://alaya-lab.github.io/PROWBench",
+      "numComments": 2,
+      "titleZh": "ROWBench:视频模型能否渲染出程序所指定的内容?",
+      "summaryZh": "可编程世界模型把可执行动力学与视觉生成分开，但生成视频对显式规则与交互的视觉遵循程度缺乏评估。PROWBench 由 170 个程序化构建的片段与 600 段代理视频组成，记录实体状态与带时间戳事件(含相机视野外的)，形成可回放的世界记录，再渲染同步视图与代理表示，使生成视频能与程序执行的可观测后果逐条比对。框架覆盖第一人称与第三人称视角，部分片段提供同步多视角，并可渲染粗 3D、包围盒等多种表示。基于这些记录，该基准考察实体控制、长时程记忆，并用两个 VLM 指标衡量 Logic-Render Alignment 与 Interaction Success Rate。",
+      "score": 2,
+      "reason": "视频生成模型评测基准，整体落在视觉生成低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.00574",
+      "title": "Make Sparse Rewards Count: Density-Aware Reward Aggregation for Multi-Reward RL",
+      "authors": [
+        "Tong Zheng",
+        "Skylar Zhai",
+        "Zhan Cheng",
+        "TianMing Sha",
+        "Youling Huang",
+        "Shuo Zhou"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Multi-reward reinforcement learning trains large language models to satisfy multiple behavioral objectives simultaneously. Reward-wise normalization, as used in GDPO, preserves reward-specific relative information within rollout groups, but different objectives can still exhibit uneven learning progress. We study this behavior through advantage energy, the sum of a reward's squared advantages over a batch. Under idealized GDPO normalization, we show that this energy is proportional to active-group density: the fraction of rollout groups in which the reward provides nonzero relative advantages. This reveals a residual batch-level signal imbalance and provides a basis for calibrating reward contributions. Based on this relation, we propose Density-Aware Reward Aggregation (DARA). We derive an inverse-square-root density correction that gives greater weight to signals from less frequently active rewards. DARA computes its weights from each rollout batch, adapting to changes in reward activity throughout training without modifying the underlying policy optimization objective. Experiments on tool calling and mathematical reasoning show that DARA learns the targeted behaviors faster than GDPO, reaching high format compliance in up to 26% fewer training steps on tool calling and near-saturated length compliance in up to 65% fewer steps on mathematical reasoning, while remaining competitive in final performance. Our code is available at https://github.com/zhaihaotian/DARA.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.00574",
+        "pdf": "https://arxiv.org/pdf/2610.00574"
+      },
+      "upvotes": 43,
+      "githubRepo": "https://github.com/zhaihaotian/DARA",
+      "githubStars": 2,
+      "projectPage": "https://zhaihaotian.github.io/DARA/",
+      "numComments": 2,
+      "titleZh": "让稀疏奖励发挥作用：多奖励 RL 中的密度感知奖励聚合",
+      "summaryZh": "多奖励 RL 中，不同行为目标的学习进度常不一致：GDPO 式的奖励维度归一化保留了组内相对信息，但各奖励在 batch 内活跃频率不同，仍存在批级信号失衡。以 advantage energy（batch 内平方优势之和）为分析工具，在理想化归一化下可证明其正比于 active-group density，即该奖励产生非零相对优势的 rollout 组占比；据此提出的 DARA 用逆平方根密度校正给低频活跃奖励更大权重，权重逐 batch 计算，不改动底层策略优化目标。工具调用与数学推理实验中，DARA 比 GDPO 更快学到目标行为，格式合规最多少用 26% 训练步数，数学推理长度合规近饱和最多少用 65% 步数，最终性能保持相当。",
+      "score": 8,
+      "reason": "GRPO/GDPO 多奖励聚合改进，直接命中后训练 RL 方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.01215",
+      "title": "AutoGUIWorld: Image Generators as Visual World Models for GUI Agent",
+      "authors": [
+        "Cheng Yang",
+        "Yifan Wu",
+        "Yutao Huang",
+        "Zhaohua Zhang",
+        "Beiduo Chen",
+        "Muxi Chen"
+      ],
+      "authorsTotal": 21,
+      "abstract": "GUI agents require high-quality interaction trajectories to learn how software environments respond to actions, maintain state, and support multi-step workflows. However, the diversity of available trajectories is constrained by the applications, interface states, and workflows accessible in the underlying environments. Expanding this coverage requires deploying increasingly diverse and complex software, with specialized applications imposing additional installation, configuration, and runtime costs. We introduce AutoGUIWorld, a data generation framework that combines the visual priors of image generators with the task knowledge of a planner to synthesize GUI interaction trajectories without deploying or running the corresponding software environments. AutoGUIWorld samples initial GUI scenes from structured specifications of operating-system context, visual appearance, and interface state, and generates tasks conditioned on those scenes. A planner then specifies atomic actions and their intended visual consequences, while an image generator iteratively edits the current screenshot to produce subsequent observations. Action grounding and transition-level quality filtering yield 79,266 spatially annotated step-level training samples across Ubuntu, Windows, macOS, and Chrome. Fine-tuning Qwen3.5-35B-A3B on AutoGUIWorld trajectories improves the mean task score on OSWorld from 33.0% to 40.8% and the task success rate on ScienceBoard from 14.0% to 32.2%. These results show that generated trajectories improve GUI-agent performance on real desktop and scientific tasks.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.01215",
+        "pdf": "https://arxiv.org/pdf/2610.01215"
+      },
+      "upvotes": 43,
+      "githubRepo": "https://github.com/ImYangC7/AutoGUIWorld",
+      "githubStars": 4,
+      "numComments": 2,
+      "titleZh": "AutoGUIWorld:以图像生成器作为 GUI Agent 的视觉世界模型",
+      "summaryZh": "GUI Agent 训练依赖高质量交互轨迹，但轨迹多样性受限于可部署的软件环境，扩展覆盖需安装配置大量专用应用。AutoGUIWorld 从操作系统上下文、视觉外观与界面状态的结构化规格采样初始界面并生成任务，规划器给出原子动作及预期视觉后果，图像生成器迭代编辑当前截图产出后续观测，经动作 grounding 与转移级质量过滤得到覆盖 Ubuntu、Windows、macOS、Chrome 的 79,266 条带空间标注步级样本。微调 Qwen3.5-35B-A3B 后，OSWorld 平均任务分从 33.0% 升至 40.8%,ScienceBoard 任务成功率从 14.0% 升至 32.2%，表明合成轨迹可提升真实桌面与科研任务上的表现。",
+      "score": 8,
+      "reason": "用图像生成器做 Agent 环境与轨迹合成，命中 Agent 数据生成方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.38024",
+      "title": "Retrieval-Augmented Skill Optimization via Cross-Harness Adaptation",
+      "authors": [
+        "Jaewon Chu",
+        "Ji Soo Lee",
+        "Jihwan Park",
+        "Dohwan Ko",
+        "Jeehye Na",
+        "Seunghun Lee"
+      ],
+      "authorsTotal": 11,
+      "abstract": "An agent skill is a reusable, actionable natural-language artifact that guides an agent to perform a task effectively under a given harness. Recent studies have explored the optimization of agent skills, contributing to a growing collection of publicly available skills spanning diverse tasks, domains, and harnesses. Despite millions of publicly shared skills, existing skill optimization methods largely overlook this accumulated knowledge, instead relying solely on expensive agent rollouts to iteratively refine skills for a target task. To address this, we propose Retrieval-Augmented Skill Optimization (RASO), a framework that leverages an external skill corpus as prior knowledge throughout skill optimization. RASO retrieves relevant knowledge from existing skills and adapts it to the target task and harness via Cross-Harness Adaptation, accounting for mismatches in both domain and harness. RASO comprises two complementary stages: Retrieval-Augmented Skill Initialization (RASI) constructs a knowledge-grounded initial skill without requiring agent rollouts, while Retrieval-Augmented Skill Update (RASU) iteratively refines the skill by retrieving external knowledge guided by execution feedback. Across four agent benchmarks and two models, extensive experiments show that RASO consistently outperforms baselines without retrieval-augmented skill initialization and updating.",
+      "published": "2026-09-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.38024",
+        "pdf": "https://arxiv.org/pdf/2609.38024"
+      },
+      "upvotes": 41,
+      "numComments": 2,
+      "titleZh": "通过跨 Harness 适配的检索增强技能优化",
+      "summaryZh": "公开技能库已积累海量可复用的 agent 技能，但现有技能优化方法基本不利用这些知识，只靠昂贵的 agent rollout 在目标任务上反复打磨。RASO 把外部技能语料当作先验：先从已有技能中检索相关知识，再通过 Cross-Harness Adaptation 同时对齐领域与 harness 的差异；其中 RASI 无需 rollout 即构建知识接地的初始技能，RASU 则依据执行反馈检索外部知识迭代更新技能。在四个 agent benchmark、两个模型上，RASO 一致优于没有检索增强初始化与更新的基线，说明复用公开技能库可降低技能优化的 rollout 成本。",
+      "score": 8,
+      "reason": "Agent 技能优化＋跨 harness 检索迁移，直接命中 Agent 方向",
+      "deepDive": true
+    },
+    {
+      "id": "2609.39378",
+      "title": "EgoTools: Towards Tool-Centric Reasoning in Real-World Egocentric Videos",
+      "authors": [
+        "Shulin Tian",
+        "Junsu Kim",
+        "Shuai Liu",
+        "Hao Li",
+        "Yujiao Shen",
+        "Sihan Li"
+      ],
+      "authorsTotal": 20,
+      "abstract": "Real-world embodied tasks, from everyday activities to professional procedures, require agents to act under physical constraints while tracking evolving object and task states. Tool use sits at the heart of such tasks, as many everyday and professional activities are tool-mediated. Understanding them requires reasoning about affordances, hand-tool-object geometry, procedural progress, and causal effects on target objects. Yet despite strong performance on perception-oriented video tasks such as captioning and general video QA, current multimodal video models remain limited in this form of tool-centric embodied reasoning. Progress in this direction has been limited by the lack of real-world egocentric data and diagnostic benchmarks. To address this gap, we introduce EgoTools, the first comprehensive suite for egocentric tool-use understanding. It consists of two complementary components: EgoTools-Data, a large-scale corpus of 100 hours of tool-centric egocentric recordings with synchronized audio, dense captions, reasoning-heavy narrations, and supplementary 3D information; and EgoTools-Bench, a diagnostic benchmark of 1,000 QA pairs across four tracks that cover tool-use understanding from perception and geometry to procedure and causal reasoning. Experimental results show that current models still struggle to ground tool use in visual evidence: Gemini-3.1-Pro achieves 66.9% overall accuracy but only 51.7% on Perception & Grounding. Beyond evaluation, we validate EgoTools-Data as a training resource. On the full 1,000-question benchmark, full supervised fine-tuning improves Qwen3-VL-8B-Instruct from 50.0% to 60.9%, under strict source-video separation. Together, these results establish EgoTools as a unified resource for both training and diagnostic evaluation of real-world egocentric tool-use understanding.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.39378",
+        "pdf": "https://arxiv.org/pdf/2609.39378"
+      },
+      "upvotes": 37,
+      "githubRepo": "https://github.com/Ropedia/EgoTools",
+      "githubStars": 2,
+      "projectPage": "https://ropedia.github.io/egotools/",
+      "numComments": 1,
+      "titleZh": "EgoTools:迈向真实世界第一人称视频中以工具为中心的推理",
+      "summaryZh": "现有视频多模态模型在描述与通用视频问答上表现不错，但在第一人称视角下围绕工具使用的推理上仍显薄弱，瓶颈在于缺少真实世界数据与诊断性基准。EgoTools 包含两部分:100 小时带同步音频、密集描述、推理型叙述及辅助 3D 信息的第一人称工具使用语料 EgoTools-Data;以及覆盖感知与定位、几何、流程、因果四个方向共 1,000 道问答的基准 EgoTools-Bench。实验中 Gemini-3.1-Pro 总体准确率 66.9%，感知与定位仅 51.7%;在严格源视频隔离下对 Qwen3-VL-8B-Instruct 全监督微调，基准成绩从 50.0% 提升到 60.9%。",
+      "score": 6,
+      "reason": "多模态视频基准与数据集，属评测方向但偏第一人称具身推理",
+      "deepDive": false
+    },
+    {
+      "id": "2610.02196",
+      "title": "InterEvolve: Test-Time Evolution of Reward Programs for Humanoid Loco-Manipulation",
+      "authors": [
+        "Zhuo Lin",
+        "Sirui Xu",
+        "Liuyu Bian",
+        "Yu-Xiong Wang",
+        "Liang-Yan Gui"
+      ],
+      "authorsTotal": 5,
+      "abstract": "We study test-time evolution for humanoid loco-manipulation: solving tasks that a controller was never trained for by repurposing its existing skills, improving from its own attempts, and retaining what it learns, without retraining. Our key insight is that a broad controller already holds much of the competence a new task needs, and that this competence becomes accessible through an interface between planning and control that is expressive enough to specify contact-rich, multi-stage interactions, yet executable and measurable enough that execution feedback can guide planning from experience. InterEvolve realizes this interface with two components. First, we develop an object-aware forward-backward (FB) behavioral foundation model, whose object residuals on a frozen body prior turn a new reward about the body or objects into loco-manipulation behavior at test time. Second, we specify tasks as reward programs: staged rewards with completion conditions and tunable constants. A large language model (LLM) agent revises the program structure in context, drawing on execution feedback and a skill library of verified programs, while a numerical optimizer tunes its constants. With every candidate verified across parallel simulation scenarios, the program explores new ways to induce, repurpose, and compose the controller's existing motor competence for the task at hand, and thus improves over iterations. Experiments show that human-designed rewards leave much of the FB model's loco-manipulation competence untapped, whereas the programs InterEvolve evolves release it, sometimes through novel strategies. It further produces behaviors for diverse tasks, complex scenes, and long-horizon compositions in simulation, and evolved skills run autonomously on a physical Unitree G1 from egocentric onboard perception.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.02196",
+        "pdf": "https://arxiv.org/pdf/2610.02196"
+      },
+      "upvotes": 37,
+      "projectPage": "https://sirui-xu.github.io/InterEvolve/",
+      "numComments": 1,
+      "titleZh": "InterEvolve：面向人形移动操作的奖励程序测试时进化",
+      "summaryZh": "人形机器人面对未训练过的新任务时，难以在不重训练的前提下复用已有技能并从自身尝试中持续改进。InterEvolve 把任务表述为奖励程序——带完成条件与可调常数的分阶段奖励，由 LLM 智能体结合执行反馈与已验证程序的技能库在上下文中改写结构，数值优化器负责调参，候选方案在并行仿真场景中逐一验证;底层是带物体残差的前向—后向行为基础模型，能把关于身体或物体的新奖励在测试时转化为移动操作行为。实验表明人工设计奖励远未释放该模型的移动操作能力，进化得到的程序可覆盖多样任务、复杂场景与长程组合，并能基于 Unitree G1 自身视角的机载感知自主运行。",
+      "score": 2,
+      "reason": "人形移动操作属具身智能低分方向，仅 LLM 改奖励擦边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.32019",
+      "title": "Decentralized Master-Mind: Joint Action Refinement through Iterative Intent Denoising in Multi-Agent Pathfinding",
+      "authors": [
+        "Valeriy Vyaltsev",
+        "Anton Andreychuk",
+        "Taisia Zlotnikova",
+        "Konstantin Yakovlev",
+        "Aleksandr Panov",
+        "Alexey Skrynnik"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Decentralized multi-agent path finding (MAPF) with communication requires agents to reach individual goals without collisions under partial observability. Learnable policies trained on expert data provide an effective approach to this problem. However, when several coordinated joint actions are valid in the same context, independently sampling from per-agent distributions can recombine locally valid choices into incompatible joint actions. This failure can arise from the final sampling mechanism even when the per-agent action distributions are learned correctly. DMM (Decentralized Master-Mind) addresses this by replacing one-shot action sampling with discrete, iterative refinement of action intents across communication rounds, inspired by denoising in diffusion models. Agents initialize random action intents and refine them through local communication, coupling their choices before commitment. DMM is pretrained with imitation learning on expert MAPF solutions and further optimized with MICPO, a critic-free group-relative reinforcement-learning method designed for multi-agent, multi-round action refinement. DMM generally achieves higher success rates and lower solution costs than the evaluated learnable baselines. On 1,600 MovingAI tasks, DMM fine-tuned with MICPO solves 1,598, the highest coverage among the evaluated methods, while achieving solution costs close to those of the strongest baselines. DMM also scales to over one million simultaneously acting agents in obstacle-rich environments. These results show that round-level intent refinement can improve joint-action coordination while preserving decentralized execution.",
+      "published": "2026-09-25T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.32019",
+        "pdf": "https://arxiv.org/pdf/2609.32019"
+      },
+      "upvotes": 36,
+      "githubRepo": "https://github.com/CognitiveAISystems/DMM",
+      "githubStars": 3,
+      "numComments": 1,
+      "titleZh": "去中心化主脑：多智能体路径规划中通过迭代意图去噪实现联合动作细化",
+      "summaryZh": "在多智能体路径规划（MAPF）的部分可观测设定下，各智能体独立采样自身动作分布时，局部可行的选择会被重新组合成互不兼容的联合动作，即便单智能体分布已学正确也难以避免。DMM 把一次性采样换成通信轮次间的离散动作意图迭代细化：智能体先初始化随机意图，再经局部通信多轮修正，在最终决策前耦合彼此选择。训练上先用专家解做模仿学习预训练，再用无 critic 的组相对强化学习方法 MICPO 面向多智能体多轮细化微调。在 1600 个 MovingAI 任务上求解 1598 个，覆盖率居评测方法之首，解代价接近最强基线，并可扩展到障碍密集环境中百万级同时行动的智能体。",
+      "score": 7,
+      "reason": "多智能体协同加组相对无 critic RL，切中 Agentic RL 方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.01016",
+      "title": "Scaling and Distilling Text Embeddings for Better Diffusibility",
+      "authors": [
+        "Zekai Zhang",
+        "Yunjie Tian",
+        "Yanjin He",
+        "Xiaoyan Zhang",
+        "Dongdi Zhao",
+        "Qing Qu"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Diffusion language models (DLMs) offer a promising alternative to autoregressive (AR) language generation. Recent advances in continuous DLMs, which apply latent diffusion to continuous text embeddings, raise a practical question: which embedding makes the best latent space, i.e., the most diffusible? To answer this, we search through different embeddings and find that scaling the embedding model to stronger ones within the same family (T5 to T5Gemma-1 to T5Gemma-2) greatly improves generative performance. But the raw T5Gemma-2 embeddings are still not optimal. They are so discriminative that even the embeddings of plausible alternative words are separated, which makes the generation vulnerable to imperfect sampling. Consequently, continuous diffusion often fails to reach any of them and ends up at an invalid embedding instead. To address this, we distill T5Gemma-2 into a student encoder that learns the teacher's decoded probabilities as soft labels. Learning from such soft labels makes the student pull the alternative embeddings closer while maintaining the encoding-decoding mechanism. The distilled embeddings form a more connected and diffusible latent space, improving over the vanilla T5Gemma-2 embeddings. As a result, our medium-sized DLM achieves Gen. PPL 17.8 (against real-text PPL 15.4) at real-text entropy on OpenWebText, outperforming GPT-2-M on Gen. PPL.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.01016",
+        "pdf": "https://arxiv.org/pdf/2610.01016"
+      },
+      "upvotes": 36,
+      "githubRepo": "https://github.com/la0ka1/diffusing-scaled-text-embeddings",
+      "githubStars": 2,
+      "projectPage": "https://la0ka1.github.io/diffusing-scaled-text-embeddings/",
+      "numComments": 2,
+      "titleZh": "扩展与蒸馏文本嵌入以获得更好的可扩散性",
+      "summaryZh": "连续扩散语言模型把文本编码到隐空间再做扩散生成，但哪种嵌入最适合作为隐空间尚无定论。作者在同一模型家族内从 T5 扩展到 T5Gemma-1 与 T5Gemma-2，发现嵌入模型越强生成越好，但 T5Gemma-2 的嵌入区分度过高，相近候选词的嵌入彼此分离，采样稍有偏差即落到无效嵌入上。于是将 T5Gemma-2 蒸馏为学生编码器，以教师解码概率作软标签，使候选嵌入相互靠近并保持编解码机制，得到更连通、更易扩散的隐空间。在 OpenWebText 上，中等规模模型的生成困惑度为 17.8（真实文本 15.4），优于 GPT-2-M。",
+      "score": 3,
+      "reason": "扩散语言模型属低分方向，仅嵌入蒸馏略沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.38923",
+      "title": "GraphForge: Training Working Agents with Graph-Anchored Workspace Synthesis",
+      "authors": [
+        "Qisheng Su",
+        "Hanchen Wang",
+        "Guanru Zhu",
+        "Huicheng Jiang",
+        "Qiuyinzhe Zhang",
+        "Kou Shi"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Working agents need to read diverse files, coordinate tools, and produce deliverables. Training such agents requires tasks built on many real files with verifiable results, but few pipelines exist to synthesize this kind of data. Existing pipelines either generate files with models, which lack realism and diversity, or build tasks on real files without task-specific verifiers, leaving result quality unchecked. We introduce GraphForge, an evidence-graph based framework that grounds both the task and its verification in real files. Starting from occupation-grounded seeds for controlled diversity, GraphForge assembles a workspace of real files for each seed and builds an evidence graph over their relations. Since the task statement and rubrics are both derived from this graph, task requirements are backed by the workspace files and each criterion is anchored to the files needed to verify it. An initial rollout further tests executability, and a revision agent repairs the task and rubrics against the original files before trajectories are collected. Fine-tuning Qwen3.6-27B on 2,169 GraphForge trajectories brings GDPVal to 1445.7 (+65.7) under OpenHands, and Workspace-Bench-Lite and SpreadsheetBench II to 63.7 (+7.7) and 24.0 (+13.7) under Claude Code. Rejection fine-tuning on the SFT model's own rollouts, with candidates selected by the evidence-anchored rubrics, yields further improvements on all three benchmarks, suggesting that the rubrics provide a useful selection signal. The data and models are available.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.38923",
+        "pdf": "https://arxiv.org/pdf/2609.38923"
+      },
+      "upvotes": 34,
+      "numComments": 2,
+      "titleZh": "GraphForge：用图锚定的工作区合成训练工作型 Agent",
+      "summaryZh": "训练能读写真实文件、调用工具并交付成果的工作型 Agent，难点在于缺少带可验证结果的任务数据：模型生成的文件不够真实，基于真实文件的任务又常缺专用验证器。GraphForge 以职业种子为起点组装真实文件工作区，并在文件关系上构建证据图，任务描述与评分细则均由该图派生，使每条标准都能锚定到可验证的文件；初始 rollout 检验可执行性，修订 Agent 再对照原文件修复任务与细则，之后才采集轨迹。在 Qwen3.6-27B 上用 2,169 条轨迹微调，OpenHands 下 GDPVal 达 1445.7（+65.7），Claude Code 下 Workspace-Bench-Lite 与 SpreadsheetBench II 分别为 63.7（+7.7）和 24.0（+13.7）；用证据锚定细则挑选自身 rollout 做拒绝微调还能进一步提升，说明细则可作为有效的选择信号。",
+      "score": 8,
+      "reason": "Agent 任务与验证器合成，兼agentic 后训练，直接命中方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.00812",
+      "title": "Video Generation Models: A Survey of Post-Training and Alignment",
+      "authors": [
+        "Chaoyu Li",
+        "Xiaoyi Gu",
+        "Yogesh Kulkarni",
+        "Eun Woo Im",
+        "Mohammadmahdi Honarmand",
+        "Zeyu Wang"
+      ],
+      "authorsTotal": 13,
+      "abstract": "Video generation has rapidly progressed from short, low-quality clips to high-resolution, long-duration sequences with complex spatiotemporal dynamics. Despite strong generative priors learned through large-scale pretraining, pretrained video models often fail to reliably follow human intent, maintain temporal coherence, or satisfy physical and safety constraints. Compared with image and text generation, alignment in video generation presents unique challenges, including error accumulation over time, motion-appearance coupling, multi-objective trade-offs, and limited supervision for temporal properties. These challenges motivate systematic post-training strategies that adapt pretrained models without retraining them from scratch. In this survey, we present the first comprehensive review of post-training and alignment in video generation models. We frame post-training as a unifying framework and distinguish between implicit alignment and explicit alignment based on how alignment signals are enforced. From this perspective, we organize existing approaches into four broad categories: supervised fine-tuning methods, self-training and distillation methods, preference- and reward-based methods, and inference-time methods. This taxonomy provides a coherent view of how alignment signals shape model behavior across both training and deployment. Beyond methodological advances, we review commonly used datasets, benchmarks, and evaluation practices, and discuss open challenges such as scalable reward design, long-horizon temporal consistency, stability-expressiveness trade-offs, and safety-aware generation. This survey aims to provide a structured conceptual foundation and practical guidance for advancing controllable and reliable video generation models.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.00812",
+        "pdf": "https://arxiv.org/pdf/2610.00812"
+      },
+      "upvotes": 31,
+      "githubRepo": "https://github.com/people-robots/Awesome-Video-Generation-Post-Training",
+      "githubStars": 191,
+      "numComments": 1,
+      "titleZh": "视频生成模型:后训练与对齐综述",
+      "summaryZh": "预训练视频生成模型虽具备强生成先验，却常难以遵循人类意图、维持长时程时序一致并满足物理与安全约束，且存在误差累积、运动与外观耦合、多目标权衡、时序监督稀缺等特有难题。该综述将后训练统一为一个框架，按对齐信号的施加方式区分隐式对齐与显式对齐，并把现有方法归为监督微调、自训练与蒸馏、偏好与奖励驱动、推理时方法四类，同时梳理常用数据集、基准与评估实践。文中还讨论了可扩展奖励设计、长时程时序一致性、稳定性与表现力权衡、安全感知生成等开放挑战，为可控可靠的视频生成提供概念框架与选型参考。",
+      "score": 3,
+      "reason": "后训练与对齐框架沾边，但视频生成属低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.39375",
+      "title": "Beyond the Current Scene: Event-Referential Grasping with Active View Selection",
+      "authors": [
+        "Hyunjoon Lee",
+        "Haebeom Jung",
+        "Eunsung Cha",
+        "Daeun Lee",
+        "Yu-Chiang Frank Wang",
+        "Jaesung Choe"
+      ],
+      "authorsTotal": 7,
+      "abstract": "A robot that observes people interacting with objects should be able to carry out later requests that refer back to those interactions. Such requests may specify a grasp target by the role it played in a past event rather than by its name or appearance. Moreover, the target may no longer be visible when the robot is asked to act. We present BeyondSCe, a zero-shot robotic grasping system for this event-referential setting. Given the event history and the current scene, the system identifies the requested object or part and localizes it for grasping. If the target is occluded, it combines an event prior recovered from the history with current scene geometry to select camera viewpoints likely to reveal the target. The system uses pretrained models without additional task-specific training. In real-robot experiments with a single wrist-mounted RGB-D camera, it achieves grasp success rates of 76% and 77% for initially visible and occluded targets, respectively, compared with 40% and 55% for the strongest baseline in each condition. On four additional scenes with heavy occlusion, it increases grasp success rates from 75% to 95% while reducing the mean number of views from 3.35 to 2.20, compared with an active-perception baseline given the target's ground-truth 3D bounding box.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.39375",
+        "pdf": "https://arxiv.org/pdf/2609.39375"
+      },
+      "upvotes": 31,
+      "githubRepo": "https://github.com/SNU-VGILab/BeyondCSe",
+      "githubStars": 5,
+      "projectPage": "https://www.haebeom.com/BeyondCSe/",
+      "numComments": 2,
+      "titleZh": "超越当前场景:基于事件指代的主动视角选择抓取",
+      "summaryZh": "针对机器人需要理解「过去某次人机交互中扮演某一角色的物体」这类指代式请求，且目标在提问时可能已被遮挡或移出视野的问题，提出零样本抓取系统 BeyondSCe。系统从事件历史中恢复事件先验，结合当前场景几何判断目标是否可见;若被遮挡，则用该先验与场景几何联合选择最可能暴露目标的相机视角，全程只调用预训练模型，不做任务特定训练。在单腕部 RGB-D 相机的真机实验中，初始可见与初始遮挡目标的抓取成功率分别为 76% 与 77%，最强基线仅 40% 与 55%;在四个重度遮挡场景中成功率由 75% 提升至 95%，平均观察视角数由 3.35 降至 2.20。",
+      "score": 2,
+      "reason": "机器人抓取与主动视角选择，属具身智能低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.01939",
+      "title": "Fewer Tokens, Better Action: GPT-6 Astra Robot Agents with 14% Higher Success Rate but 65% Fewer Tokens",
+      "authors": [
+        "Ruiyang Si",
+        "Jianxin Bi",
+        "Shunyu Yang",
+        "Rui Ni",
+        "Wenbo Huang",
+        "Qiang Wang"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Vision language model (VLM) agents can control robots through visual feedback and action primitives, but repeated model invocations and redundant observations incur substantial token overhead. We introduce PyRUA-Lean, an interactive code-execution framework that couples feedback-driven primitive composition with selective observation: the agent composes classical robot primitives and learned vision-language-action (VLA) policies into Python cells that perform conditional checks and local retries, returning only explicitly requested images and state feedback for replanning. Across 700 simulated task instances from LIBERO-PRO, RoboTwin 2.0, and RoboCasa365, we compare PyRUA-Lean with a tool-calling baseline using the same GPT-6 Astra planner and underlying robot primitives. Under equal LLM-call budgets, PyRUA-Lean increases overall success from 63.1% to 71.7%. On instances solved by both agents, it uses 49% fewer LLM calls and 65% fewer input tokens.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.01939",
+        "pdf": "https://arxiv.org/pdf/2610.01939"
+      },
+      "upvotes": 27,
+      "githubRepo": "https://github.com/DAGroup-PKU/PyRUA-Lean",
+      "githubStars": 17,
+      "projectPage": "https://dagroup-pku.github.io/PyRUA-Lean/",
+      "numComments": 2,
+      "titleZh": "更少的 Token，更好的动作:GPT-6 Astra 机器人智能体成功率提升 14%,Token 减少 65%",
+      "summaryZh": "视觉语言模型智能体依凭视觉反馈与动作原语操控机器人时，反复调用模型和冗余观测带来大量 token 开销。PyRUA-Lean 把经典机器人原语与 VLA 策略组合成可执行 Python 单元，在单元内做条件判断与局部重试，只回传显式请求的图像与状态用于重新规划。在 LIBERO-PRO、RoboTwin 2.0 与 RoboCasa365 共 700 个仿真任务上，与使用同一 GPT-6 Astra 规划器的工具调用基线相比，同等 LLM 调用预算下成功率从 63.1% 提升到 71.7%，在双方均解出的任务上 LLM 调用少 49%、输入 token 少 65%。这一代码执行式 harness 思路对通用 Agent 的观测裁剪与调用开销控制同样可借鉴，但验证场景仍限机器人操控仿真。",
+      "score": 4,
+      "reason": "机器人操控域属低分，但代码执行式Agent harness与token优化可迁移",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.02160",
+      "title": "4Director: Controlling Video World Models with Rigid 3D Geometry",
+      "authors": [
+        "Wei Cao",
+        "Hao Zhang",
+        "Vikram Voleti",
+        "Yuqun Wu",
+        "Mallikarjun B R",
+        "Shimon Vainer"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Precise control over camera and object motion is essential for professional video production. Existing methods control objects only coarsely, through image-plane cues that are ambiguous in depth and rotation or through 3D tracks and blobs that lack complete geometry and lose consistency across viewpoint changes. We introduce 4Director, a video world model conditioned on an explicit 4D scene representation: each object is reconstructed once from the input image as a canonical mesh and moved by one prescribed rigid transformation per frame. This representation provides an intuitive 3D control interface and prevents unobserved geometry from being regenerated independently in every frame. We render the controlled scene as a depth video and introduce a Motion Adapter that transforms this geometric scaffold into video while synthesizing view-consistent appearance, illumination, and non-rigid dynamics. For training, we construct RealCOD-Rigid, a new dataset of 20,774 clips annotated with rigid 3D scenes by our automatic pipeline. We further introduce Identity-Gated IoU (IG-IoU), which jointly evaluates adherence to prescribed object motion and preservation of object identity. Experiments demonstrate that 4Director consistently outperforms prior methods in visual quality and in camera and object control.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.02160",
+        "pdf": "https://arxiv.org/pdf/2610.02160"
+      },
+      "upvotes": 22,
+      "githubRepo": "https://github.com/VVeiCao/4Director",
+      "githubStars": 8,
+      "projectPage": "https://stability-ai.github.io/4director/",
+      "numComments": 2,
+      "titleZh": "4Director:用刚性 3D 几何控制视频世界模型",
+      "summaryZh": "视频世界模型对相机与物体运动的控制多依赖图像平面线索或 3D 轨迹，深度与旋转存在歧义，跨视角一致性差。4Director 以显式 4D 场景表示为条件:每个物体从输入图像重建为规范网格，每帧仅施加一个预设刚性变换，再渲染成深度视频，由 Motion Adapter 将其转换为具备视角一致外观、光照与非刚性动态的视频。作者构建了含 20774 个片段、带刚性 3D 场景标注的 RealCOD-Rigid 数据集，并提出 Identity-Gated IoU 联合评估运动遵循度与物体身份保持。实验显示其在视觉质量与相机、物体控制上均优于已有方法。",
+      "score": 2,
+      "reason": "视频世界模型与视觉生成控制，属不关注的生成方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.40362",
+      "title": "Multimodal Flow: Unified Flow Modeling of Language and Vision in Embedding Spaces",
+      "authors": [
+        "Hongyuan Tao",
+        "Xinggang Wang",
+        "Lianghui Zhu",
+        "Yongkang Li",
+        "Yunchao Wei",
+        "Bin Feng"
+      ],
+      "authorsTotal": 10,
+      "abstract": "We present Multimodal Flow, a fully continuous generative model of language and vision. Most unified multimodal models either model both language and quantized images as discrete tokens or combine discrete language prediction with continuous image generation. The former introduces a visual quantization bottleneck. The latter requires modality-dependent objectives and sampling procedures. Fully continuous modeling avoids these trade-offs and enables a shared generative process, but remains underexplored for multimodal pretraining. Multimodal Flow introduces a unified continuous architecture that integrates multimodal continuous representations with a shared chunk-causal flow backbone. It organizes text blocks and images as ordered continuous hyperchunks, preserving textual token order and visual spatial structure. The backbone learns a single vector field over these hyperchunks through Flow Matching. Joint attention enables cross-modal interaction, while modality-specific feed-forward networks process each modality. The model predicts multiple target chunks in parallel during training and generates hyperchunks sequentially at inference. We instantiate MF-1 and pretrain it on multimodal data. Across 0.6B, 1.2B, and 1.6B scales, continued pretraining consistently improves multimodal modeling. With only 150B pretraining tokens, MF-1 achieves an average score of 82.8 across GenEval and DPG-Bench and 75.3 across VQAv2, MMBench, and POPE, remaining competitive with unified models trained on substantially more data. Under matched data, optimization, and parameter budgets, Multimodal Flow further outperforms representative hybrid and discrete models. These results establish continuous chunk-based embedding flow modeling as a new fully continuous paradigm for unified multimodal modeling. The related code and model are publicly released at https://github.com/hustvl/Multimodal-Flow.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.40362",
+        "pdf": "https://arxiv.org/pdf/2609.40362"
+      },
+      "upvotes": 20,
+      "githubRepo": "https://github.com/hustvl/Multimodal-Flow",
+      "githubStars": 13,
+      "projectPage": "https://hustvl.github.io/Multimodal-Flow",
+      "numComments": 1,
+      "titleZh": "Multimodal Flow:在嵌入空间中统一建模语言与视觉的流模型",
+      "summaryZh": "针对统一多模态建模中视觉量化瓶颈与混合目标的两难，提出全连续模型 Multimodal Flow:将文本块与图像组织为有序连续 hyperchunk，共享 chunk-causal flow backbone 以 Flow Matching 学习统一向量场，联合注意力做跨模态交互，训练并行预测多个 chunk、推理顺序生成。MF-1 在 0.6B—1.6B 三档规模上持续预训练均稳定提升，仅 150B token 即在 GenEval、DPG-Bench 上平均 82.8,VQAv2、MMBench、POPE 平均 75.3，与用更多数据的统一模型相当。",
+      "score": 6,
+      "reason": "统一多模态架构新范式，但偏生成与流匹配，与理解侧关联有限",
+      "deepDive": false
+    },
+    {
+      "id": "2609.40097",
+      "title": "AutoDataBench: A Data-centric Testbed for Accelerating Auto Research",
+      "authors": [
+        "Ruifeng Yuan",
+        "Yizhi Li",
+        "Yaxin Du",
+        "Fengyu Cai",
+        "Yiqi Liu",
+        "Hou Pong Chan"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Existing auto-research benchmarks often entangle multiple sources of improvement, including training frameworks, hyperparameters, compute budgets, and data, making it difficult to attribute why one frontier agent outperforms another to specific research capabilities. In this work, we isolate and systematically evaluate Data Intelligence: an agent's ability to understand, manipulate, and improve the data that shapes model capabilities. We introduce AutoDataBench, a controlled testbed built on a conceptual framework of data intelligence spanning data diagnosis, data organization, and data construction, instantiated through three highly curated optimization tasks while holding non-data factors fixed. Across tool use, retrieval, and knowledge injection, we evaluate frontier LLMs' ability to improve training data through iterative experimentation under task-specific resource budgets. Beyond optimization performance, we ask: do LLMs understand what their data interventions do? We compare predictions made before training with observed outcomes to seek evidence of data-effect reasoning beyond trial and error, and explore whether iterative feedback helps LLMs better understand how changes to training data affect model performance. Finally, we show that reusing AutoDataBench trajectories for mid-training improves downstream coding performance, highlighting its value in both evaluating data intelligence and generating high-quality training data. Code and resources are available at https://github.com/AutoDataBench/AutoDataBench.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.40097",
+        "pdf": "https://arxiv.org/pdf/2609.40097"
+      },
+      "upvotes": 20,
+      "githubRepo": "https://github.com/AutoDataBench/AutoDataBench",
+      "githubStars": 4,
+      "numComments": 2,
+      "titleZh": "AutoDataBench:一个加速自动研究的数据中心化试验床",
+      "summaryZh": "现有 auto-research 基准把训练框架、超参数、算力与数据等多重改进来源混在一起，难以归因 agent 之间的能力差异。AutoDataBench 固定非数据因素，围绕数据诊断、数据组织与数据构建三个维度设计三个数据优化任务，在工具调用、检索与知识注入场景下考察前沿 LLM 在资源预算内迭代实验、改进训练数据的能力;并对比训练前的效果预测与实测结果，检验模型是否具备超越试错的数据效应推理能力。实验还显示，复用该基准的轨迹做 mid-training 可提升下游代码表现，使其兼具评测数据智能与生成高质量训练数据的双重价值。",
+      "score": 8,
+      "reason": "AI for Research 方向的 agent 基准，数据智能评测，选题对口",
+      "deepDive": false
+    },
+    {
+      "id": "2609.32993",
+      "title": "X-Tree: Tokenizing Reusable Experience for Efficient Agent Generalization",
+      "authors": [
+        "Sitao Cheng",
+        "Xunjian Yin",
+        "Zhiyuan Sun",
+        "Yuxuan Li",
+        "Ruiwen Zhou",
+        "Xiangru Jian"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Multi-step agents are trained on flat action streams: SFT and RLVR weight every token uniformly and ignore the sub-procedures that recur across tasks, the hierarchy that lets humans plan top-down from reusable routines. This structure sits unused, and flat training uses each scarce trajectory less fully than its content allows. Recent agents do use that structure, but only as LLM-written skills in context, never in the weights, so their gains do not generalize beyond retrieval. We instead recover this hierarchy from the data itself and train on it, with no LLM calls. Following text tokenizers, which build a vocabulary by counting alone, we score action spans by reusability and merge canonicalized actions into a reusable eXperience tree (X-Tree). Each X-Tree node captures how a frequent and success-bearing skill is composed from sub-skills, guiding efficient generalization. We integrate X-Tree into three training settings: offline RL, with each node as a training instance; online RLVR, with an adaptive skill bonus; and on-policy self-distillation, with X-Tree as the self-teacher's privileged context. Across WebArena, ScienceWorld, and WebShop at three model scales, X-Tree improves over standard recipes at matched data and budget by up to 4.5% SR on WebArena, 5.8% SR on ScienceWorld and 4.1% success on WebShop. Matched analyses attribute the gains to the X-Tree structure and the three integrations.",
+      "published": "2026-09-26T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.32993",
+        "pdf": "https://arxiv.org/pdf/2609.32993"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/sitaocheng/X-Tree",
+      "githubStars": 1,
+      "projectPage": "https://sitaocheng.github.io/xtree/",
+      "numComments": 2,
+      "titleZh": "X-Tree:为高效 Agent 泛化而将可复用经验 Token 化",
+      "summaryZh": "多步 Agent 的训练把动作流拍平处理， SFT 与 RLVR 对每个 token 等权， 忽略了跨任务反复出现的子过程与人类式自顶向下规划所用的层级结构。X-Tree 不调用 LLM, 仿照文本分词器仅靠计数构建词表: 按可复用性为动作片段打分， 把规范化后的动作合并成一棵可复用经验树， 每个节点刻画一个高频且带来成功的技能如何由子技能组合而成。该结构接入三种训练设置: 离线 RL 中每个节点作为一个训练实例， 在线 RLVR 中作为自适应技能奖励， on-policy 自蒸馏中作为自教师的特权上下文。在 WebArena, ScienceWorld, WebShop 三个环境与三种模型规模上， 同等数据与预算下成功率最高提升 4.5%, 5.8% 与 4.1%, 消融将收益归因于树结构与三种集成方式。",
+      "score": 8,
+      "reason": "Agent 层级经验训练并接入 RLVR 与自蒸馏， 直接命中 Agent 与后训练",
+      "deepDive": true
+    },
+    {
+      "id": "2610.02185",
+      "title": "Decoding Looped Transformers Better for (Almost) Free",
+      "authors": [
+        "Weihao Liu",
+        "Huangjie Zheng",
+        "Tianrong Chen",
+        "Rohit Dilip",
+        "Richard He Bai",
+        "Yizhu Jiao"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Looped Transformers achieve parameter efficiency by repeatedly executing a shared block across recurrent loops. Each loop yields an intermediate representation decodable for the same next token, yet standard decoding discards earlier states. Because earlier loops embody less computation, recurrence inherently supplies aligned weak-and-strong prediction pairs without auxiliary models or external training. We introduce LoopCD, a training-free contrastive decoding framework that guides token selection by contrasting the final prediction with an earlier recurrent pass, operating either in logit space with one extra output pass (LoopCD-Logits) or in hidden-state space with zero output overhead (LoopCD-Hidden). Across four looped Transformer families, LoopCD delivers substantial, consistent gains at full recurrent depth: LoopCD-Logits raises Ouro-2.6B-Thinking's AIME 2024 pass@1 from 61.88% to 73.33%, while LoopCD-Hidden lifts Huginn's HumanEval pass@1 from 22.56% to 31.71%. Crucially, these performance gains enable halving the number of recurrent loops while still matching or exceeding full-depth unguided baselines, reducing forward FLOPs by 22.5% to 48.2%. By transforming intermediate recurrent states into effective guidance signals, LoopCD achieves superior decoding quality while substantially reducing inference compute.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.02185",
+        "pdf": "https://arxiv.org/pdf/2610.02185"
+      },
+      "upvotes": 19,
+      "numComments": 2,
+      "titleZh": "更好且（几乎）免费地解码循环 Transformer",
+      "summaryZh": "循环 Transformer 靠重复执行共享块实现参数效率，每次循环都会产生一个可解码同一 next token 的中间表征，而标准解码把这些早期状态全部丢弃。LoopCD 是免训练的对比解码框架，用最终预测与较早一次循环的预测做对比来指导 token 选择，既可在 logit 空间运行（LoopCD-Logits，只多一次输出前向），也可在隐藏状态空间运行（LoopCD-Hidden，零输出开销）。在四类循环 Transformer 上均取得稳定增益：Ouro-2.6B-Thinking 的 AIME 2024 pass@1 从 61.88% 升到 73.33%，Huginn 的 HumanEval pass@1 从 22.56% 升到 31.71%；这些增益还允许把循环数减半而仍匹配或超过全深度基线，前向 FLOPs 下降 22.5% 到 48.2%。",
+      "score": 8,
+      "reason": "循环 Transformer 解码与推理效率改进，方法新颖、数据扎实"
+    },
+    {
+      "id": "2610.02201",
+      "title": "SILSA: Sliding-Window Slice Latents for Topology-Preserving High-Resolution 3D Generation",
+      "authors": [
+        "Tianjiao Yu",
+        "Xinzhuo Li",
+        "Yifan Shen",
+        "Ying Shen",
+        "Kiet A. Nguyen",
+        "Adheesh Sunil Juvekar"
+      ],
+      "authorsTotal": 7,
+      "abstract": "High-resolution 3D generation increasingly relies on voxel latents and multi-stage pipelines that first predict active structure and then synthesize local geometry. While effective, this design fragments continuous surfaces into many local tokens, inflates generation cost, and often weakens topological consistency for thin or highly connected shapes. We introduce SILSA, a topology-aware 3D generation framework that represents shapes with compact sliding-window slice latents. Instead of generating expensive voxel tokens, SILSA uses a fixed set of overlapping slices along the three canonical axes, where each token summarizes a local depth window to preserve cross-sectional continuity and support single-stage rectified-flow generation. A Slice VAE encodes oriented surface samples into multi-axis slice latents and reconstructs them with a sparse volumetric decoder, while a Volumetric Anchor Lattice coordinates directional slice streams through a shared 3D workspace. To preserve structural correctness, we introduce slice-level topology supervision that matches persistence diagrams and aligns Betti transitions across neighboring slices. Experiments show that SILSA improves structural fidelity while substantially reducing generation cost. SILSA improves PSNR by 8.7%, coverage by 5.96 absolute points, and Betti error by 9.2% over the strongest baseline, while using 70.0% fewer tokens than the next-most compact baseline and over 98% fewer tokens than sparse or hierarchical tokenizers, effectively reducing training memory by 40.4% and inference time by 58.5%. Qualitative results further show improved preservation of thin structures, repeated components, and long-range connectivity.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.02201",
+        "pdf": "https://arxiv.org/pdf/2610.02201"
+      },
+      "upvotes": 19,
+      "projectPage": "https://plan-lab.github.io/projects/silsa",
+      "numComments": 1,
+      "titleZh": "SILSA：用于拓扑保持高分辨率3D生成的滑动窗口切片潜变量",
+      "summaryZh": "针对高分辨率3D生成中体素潜变量把连续表面切碎成大量局部token、生成成本高且薄壁或强连通形状拓扑一致性差的问题，SILSA用三条主轴上一组固定的重叠切片表示形状，每个token概括一个局部深度窗口，配合Slice VAE与稀疏体解码器，并通过共享3D工作区的Volumetric Anchor Lattice协调各方向切片流，实现单阶段rectified flow生成，另加切片级拓扑监督对齐持久图与相邻切片的Betti变换。实验显示PSNR提升8.7%、覆盖率提升5.96个绝对点、Betti误差降低9.2%，token数比次紧凑基线少70.0%、比稀疏或分层tokenizer少98%以上，训练显存降40.4%、推理时间降58.5%，在薄结构、重复部件与长程连通性上更保真。",
+      "score": 2,
+      "reason": "3D生成与拓扑建模，属视觉生成低分方向",
+      "deepDive": false,
+      "relevant": false
+    }
+  ],
+  "arxiv": []
+}
