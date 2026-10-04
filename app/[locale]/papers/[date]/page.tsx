@@ -73,6 +73,11 @@ export default async function PaperDigestPage({
   // 相关性过滤:正文只显示相关论文,被过滤的收进底部折叠区
   const hfRel = digest.hf.filter(isRelevant);
   const arxivRel = digest.arxiv.filter(isRelevant);
+  const arxivLabel = arxivRel.length === 0 && digest.arxivStatus === "pending"
+    ? t("arxivPendingShort")
+    : arxivRel.length === 0 && digest.arxivStatus === "error"
+      ? t("arxivErrorShort")
+      : t("arxivCount", { count: arxivRel.length });
   const filtered = [...digest.hf, ...digest.arxiv].filter((p) => !isRelevant(p));
 
   // 今日焦点:HF 榜前 3,面板突出;其余 HF 进入常规列表
@@ -122,7 +127,7 @@ export default async function PaperDigestPage({
     <Container>
       <PageHeader
         title={t("digestTitle", { date: digest.date })}
-        description={`${t("hfCount", { count: hfRel.length })} · ${t("arxivCount", { count: arxivRel.length })}${filtered.length > 0 ? ` · ${t("filteredCount", { count: filtered.length })}` : ""}`}
+        description={`${t("hfCount", { count: hfRel.length })} · ${arxivLabel}${filtered.length > 0 ? ` · ${t("filteredCount", { count: filtered.length })}` : ""}`}
       />
       <ExportButtons url={`/export/papers/${digest.date}.md`} />
 
@@ -184,6 +189,12 @@ export default async function PaperDigestPage({
               ))}
             </div>
           </section>
+        ) : null}
+
+        {digest.arxivStatus === "pending" || digest.arxivStatus === "error" ? (
+          <p className="mb-8 rounded-2xl bg-surface px-5 py-4 text-sm leading-relaxed text-muted ring-1 ring-hairline">
+            {t(digest.arxivStatus === "pending" ? "arxivPendingNotice" : "arxivErrorNotice")}
+          </p>
         ) : null}
 
         {arxivRel.length > 0 ? (

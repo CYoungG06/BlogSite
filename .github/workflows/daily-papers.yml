@@ -2,7 +2,8 @@ name: Daily Papers
 
 # 两班制生成前一天的论文速递:
 # - 早间 02:17 UTC(北京 10:17):只出 HF 先行版(arXiv 批次尚未完成 API 入库)
-# - 下午 08:17 UTC(北京 16:17):重抓补全 arXiv 侧出完整版
+# - 下午 08:17 UTC(北京 16:17):补全 arXiv,回查最近 14 天未完成的已有速递
+# 周末公告/入库延迟记为待更新;来源异常保留旧数据,可用部分照常发布后报错。
 # 重抓会按 id 保留已有中文导读;有新内容时显式 dispatch Deploy 上线;
 # 任一步骤失败自动开 Issue 提醒。
 on:
@@ -39,26 +40,47 @@ jobs:
 
       - name: Resolve date
         id: d
+        env:
+          INPUT_DATE: ${{ github.event.inputs.date }}
         run: |
-          DATE="${{ github.event.inputs.date }}"
+          DATE="$INPUT_DATE"
           if [ -z "$DATE" ]; then DATE=$(date -u -d "yesterday" +%F); fi
+          python3 -c 'import datetime,sys; datetime.date.fromisoformat(sys.argv[1])' "$DATE"
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
 
+      - name: Test paper fetcher
+        run: python3 -B -m unittest discover -s scripts -p 'test_fetch_daily_papers.py'
+
       - name: Fetch daily papers
+        id: fetch
+        continue-on-error: true
+        env:
+          DIGEST_DATE: ${{ steps.d.outputs.date }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
-          # 早间那班只抓 HF;手动触发与下午班抓全量
-          SKIP=""
-          if [ "${{ github.event.schedule }}" = "17 2 * * *" ]; then SKIP="--skip-arxiv"; fi
-          python3 scripts/fetch-daily-papers.py --date "${{ steps.d.outputs.date }}" $SKIP
+          ARGS=(--date "$DIGEST_DATE" --changed-dates-file "$RUNNER_TEMP/paper-dates")
+          if [ "$SCHEDULE" = "17 2 * * *" ]; then
+            ARGS+=(--skip-arxiv)
+          else
+            ARGS+=(--lookback-days 14)
+          fi
+          python3 scripts/fetch-daily-papers.py "${ARGS[@]}"
 
       # 无 key 时脚本会跳过(速递页照常出英文版),不阻塞发布
       - name: Add AI Chinese summaries
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: python3 scripts/summarize-digest.py "${{ steps.d.outputs.date }}"
+        run: |
+          # 一轮可能补回多个旧日期;已有导读由脚本按 id 复用。
+          test -f "$RUNNER_TEMP/paper-dates"
+          while IFS= read -r DATE; do
+            python3 scripts/summarize-digest.py "$DATE"
+          done < "$RUNNER_TEMP/paper-dates"
 
       - name: Commit digest
         id: commit
+        env:
+          DIGEST_DATE: ${{ steps.d.outputs.date }}
         run: |
           if [ -z "$(git status --porcelain content/papers)" ]; then
             echo "No new digest to commit."
@@ -68,7 +90,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add content/papers
-          git commit -m "content: 论文速递 ${{ steps.d.outputs.date }}"
+          git commit -m "content: 论文速递更新至 $DIGEST_DATE"
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
@@ -79,6 +101,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run deploy.yml --ref main
+
+      # 先发布可用数据,再恢复失败信号,避免 continue-on-error 掩盖来源异常。
+      - name: Report fetch failures
+        if: steps.fetch.outcome == 'failure'
+        run: exit 1
 
       # 任一步骤失败时开 Issue 提醒(成功信号 = bot 的 content 提交本身)
       - name: Open issue on failure

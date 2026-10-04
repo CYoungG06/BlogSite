@@ -48,6 +48,8 @@ export interface PapersDigest {
   categories: string[];
   hf: PaperItem[];
   arxiv: PaperItem[];
+  /** 缺省为旧版数据;待公告或暂时失败的来源会在后续运行中补抓。 */
+  arxivStatus?: "pending" | "complete" | "error";
 }
 
 const PAPERS_DIR = path.join(CONTENT_ROOT, "papers");

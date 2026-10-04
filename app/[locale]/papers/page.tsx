@@ -133,7 +133,11 @@ export default async function PapersPage({
                     <span className="shrink-0 font-mono text-xs text-muted">
                       {t("hfCount", { count: digest.hf.length })}
                       {" · "}
-                      {t("arxivCount", { count: digest.arxiv.length })}
+                      {digest.arxiv.length === 0 && digest.arxivStatus === "pending"
+                        ? t("arxivPendingShort")
+                        : digest.arxiv.length === 0 && digest.arxivStatus === "error"
+                          ? t("arxivErrorShort")
+                          : t("arxivCount", { count: digest.arxiv.length })}
                     </span>
                     <ArrowUpRight
                       size={14}

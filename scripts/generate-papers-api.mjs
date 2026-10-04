@@ -48,6 +48,7 @@ async function main() {
       url: `${SITE}/api/papers/${date}.json`,
       page: `${SITE}/zh/papers/${date}/`,
       papers: digest.hf.length + digest.arxiv.length,
+      arxivStatus: digest.arxivStatus,
       relevant:
         digest.hf.filter(relevant).length + digest.arxiv.filter(relevant).length,
     });

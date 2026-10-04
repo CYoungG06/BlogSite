@@ -97,6 +97,11 @@ function exportPapers() {
     const hf = relevant(digest.hf);
     const arxiv = relevant(digest.arxiv);
     const parts = [`# 论文速递 ${digest.date}`];
+    if (digest.arxivStatus === "pending") {
+      parts.push("> arXiv 部分待更新，后续会自动补齐。");
+    } else if (digest.arxivStatus === "error") {
+      parts.push("> arXiv 本轮更新未完成，已有内容已保留，后续会自动重试。");
+    }
     if (hf.length) {
       parts.push(`## Hugging Face 热门(${hf.length} 篇)\n`);
       parts.push(hf.map(paperBlock).join("\n---\n\n"));
