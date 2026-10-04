@@ -451,12 +451,12 @@ def refresh_digest(day: date_type, categories: list, primary_cats: list,
 
 
 def catchup_dates(day: date_type, output_dir: str, lookback: int) -> list:
-    """Retry existing incomplete digests; do not create empty weekend archives."""
+    """Retry missing or incomplete dates; empty replies never create archives."""
     dates = [day]
     for offset in range(1, lookback + 1):
         earlier = day - timedelta(days=offset)
         old = read_digest(os.path.join(output_dir, earlier.isoformat() + ".json"))
-        if old and (not old.get("arxiv") or old.get("arxivStatus") in ("pending", "error")):
+        if not old or not old.get("arxiv") or old.get("arxivStatus") in ("pending", "error"):
             dates.append(earlier)
     return sorted(dates)
 
@@ -470,7 +470,7 @@ def main() -> None:
     ap.add_argument("--arxiv-limit", type=int, default=50)
     ap.add_argument("--skip-arxiv", action="store_true", help="HF-only update; preserve existing arXiv papers")
     ap.add_argument("--arxiv-only", action="store_true", help="reuse existing HF papers when repairing a digest")
-    ap.add_argument("--lookback-days", type=int, default=0, help="also retry incomplete existing digests from this many previous days")
+    ap.add_argument("--lookback-days", type=int, default=0, help="also retry missing or incomplete digests from this many previous days")
     ap.add_argument("--changed-dates-file", help="write changed dates, one per line, for the summary step")
     ap.add_argument("--output-dir", default="content/papers")
     args = ap.parse_args()
@@ -495,10 +495,13 @@ def main() -> None:
             pass
     targets = catchup_dates(day, args.output_dir, 0 if args.skip_arxiv else args.lookback_days)
     for target in targets:
+        preserve_hf = args.arxiv_only or (
+            target != day and os.path.exists(os.path.join(args.output_dir, target.isoformat() + ".json"))
+        )
         updated, failures = refresh_digest(
             target, categories, primary_cats, args.hf_limit, args.arxiv_limit,
             args.output_dir, skip_arxiv=args.skip_arxiv,
-            reuse_hf=args.arxiv_only or target != day, now=now,
+            reuse_hf=preserve_hf, now=now,
         )
         errors.extend(failures)
         if updated:

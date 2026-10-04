@@ -285,15 +285,36 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(self.read("2026-10-02"), old)
 
     def test_catchup_includes_failed_old_dates_and_skips_complete_ones(self):
+        self.save("2026-09-15")
         self.save("2026-09-25")
         self.save("2026-09-26", arxiv=[paper("retained")], status="error")
         self.save("2026-09-28", arxiv=[paper("done")], status="complete")
         self.save("2026-10-02")
         dates = fetch.catchup_dates(date(2026, 10, 3), str(self.output), 14)
-        self.assertEqual([d.isoformat() for d in dates], ["2026-09-25", "2026-09-26", "2026-10-02", "2026-10-03"])
+        actual = {d.isoformat() for d in dates}
+        self.assertTrue({"2026-09-25", "2026-09-26", "2026-09-27", "2026-10-02", "2026-10-03"} <= actual)
+        self.assertNotIn("2026-09-28", actual)
+        self.assertNotIn("2026-09-15", actual)
+
+    def test_missing_weekend_archive_is_created_when_papers_become_available(self):
+        with patch.object(fetch, "fetch_hf", return_value=[]), patch.object(fetch, "fetch_arxiv") as get:
+            self.refresh(day="2026-09-26", now="2026-09-27T12:00:00+00:00")
+        get.assert_not_called()
+        self.assertFalse((self.output / "2026-09-26.json").exists())
+        self.assertIn(date(2026, 9, 26), fetch.catchup_dates(date(2026, 9, 28), str(self.output), 3))
+        with patch.object(fetch, "fetch_hf", return_value=[]), patch.object(
+            fetch, "fetch_arxiv", return_value=[paper("weekend", "2026-09-26")]
+        ):
+            changed, errors = self.refresh(day="2026-09-26", now="2026-09-29T12:00:00+00:00")
+        self.assertTrue(changed)
+        self.assertEqual(errors, [])
+        self.assertEqual(self.read("2026-09-26")["arxivStatus"], "complete")
+        self.assertEqual(self.read("2026-09-26")["arxiv"][0]["id"], "weekend")
 
     def test_cli_records_all_changed_dates_even_when_one_source_fails(self):
         self.save("2026-09-25")
+        self.save("2026-09-26", arxiv=[paper("complete-26", "2026-09-26")], status="complete")
+        self.save("2026-09-27", arxiv=[paper("complete-27", "2026-09-27")], status="complete")
         changed_file = self.output / "changed.txt"
         argv = ["fetch-daily-papers.py", "--date", "2026-09-28", "--lookback-days", "3",
                 "--output-dir", str(self.output), "--changed-dates-file", str(changed_file)]
@@ -305,6 +326,19 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(error.exception.code, 1)
         self.assertEqual(refresh.call_count, 2)
         self.assertEqual(changed_file.read_text(), "2026-09-25\n2026-09-28\n")
+        self.assertTrue(refresh.call_args_list[0].kwargs["reuse_hf"])
+        self.assertFalse(refresh.call_args_list[1].kwargs["reuse_hf"])
+
+    def test_cli_fetches_both_sources_when_an_older_archive_is_missing(self):
+        argv = ["fetch-daily-papers.py", "--date", "2026-09-28", "--lookback-days", "2",
+                "--output-dir", str(self.output)]
+        with patch.object(fetch.sys, "argv", argv), patch.object(fetch, "datetime", wraps=datetime) as clock, patch.object(
+            fetch, "refresh_digest", return_value=(False, [])
+        ) as refresh:
+            clock.now.return_value = datetime(2026, 9, 29, 12, tzinfo=timezone.utc)
+            fetch.main()
+        self.assertEqual(refresh.call_count, 3)
+        self.assertTrue(all(not call.kwargs["reuse_hf"] for call in refresh.call_args_list))
 
 
 if __name__ == "__main__":
