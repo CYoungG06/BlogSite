@@ -1,0 +1,839 @@
+{
+  "date": "2026-10-08",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2610.08077",
+      "title": "Self-Retrospection Distillation: Turning Post-hoc Experiences into Prior Foresight",
+      "authors": [
+        "Haoxiang Zhang",
+        "Qinglin Chen",
+        "Hiroaki Hayashi",
+        "Zhuofeng Li",
+        "Siming Zhang",
+        "Jiaxin Zhang"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Reinforcement learning with verifiable rewards (RLVR) turns agent experience into learning signals primarily through scalar outcome rewards after interaction. For group-relative objectives, however, this signal vanishes when all rollouts receive the same reward, even though their trajectories may reveal useful information about what the task requires and how the agent fails. We ask a complementary question: can hindsight teach an agent what it could have anticipated before acting? We introduce prospective learning, which uses post-hoc experience to supervise foresight predictions from the pre-interaction view, and instantiate it with Self-Retrospection Distillation (SRD). Intuitively, a completed trajectory reveals knowledge that would have been useful and pitfalls that should be avoided; SRD distills this privileged hindsight into trajectory-blind foresight of the same policy. Foresight serves only as a training target and need not be explicitly generated at inference time. Across 10 tool-integrated reasoning and long-horizon agentic tasks, SRD complements RLVR and self-distillation baselines with gains of up to 24.2 pp. Its advantage is especially pronounced when reward contrast is scarce: when 37--98% of rollout groups are reward-uniform across model scales, yet SRD can still exploit learning signal from sampled trajectories. In the 2B setting, where 98% of groups are all-failure, the RLVR training ends up at 0.0% success, while adding SRD reaches 60.6% under the same rollout budget. Our results suggest that post-hoc agent experience is useful not only for evaluating or improving behavior, but also for shaping predictive representations before available interaction.",
+      "published": "2026-10-06T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.08077",
+        "pdf": "https://arxiv.org/pdf/2610.08077"
+      },
+      "upvotes": 112,
+      "numComments": 2,
+      "titleZh": "自回溯蒸馏:把事后经验转化为事前预见",
+      "summaryZh": "RLVR 在组内奖励一致(全对或全错)时梯度信号消失，而轨迹本身仍蕴含任务要求与失败模式的信息。自回溯蒸馏(SRD)提出前瞻式学习:用完成后的轨迹去监督同一策略在交互前的预见预测，把事后的特权信息蒸馏为轨迹盲的前瞻表示，该前瞻仅作训练目标，推理时无需生成。在 10 个工具集成推理与长程 Agent 任务上，SRD 叠加 RLVR 最高提升 24.2 个百分点;2B 规模下 98% 的 rollout 组全失败时 RLVR 成功率为 0.0%，加入 SRD 后达 60.6%。",
+      "score": 9,
+      "reason": "RLVR 后训练与 Agent 前瞻蒸馏，方法新颖且多任务数据扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2609.38169",
+      "title": "STEPQuant: When and Where Errors Matter in Delta-Rule Recurrent State Quantization",
+      "authors": [
+        "Bingchen Yao",
+        "Haobo Xu",
+        "Haokun Lin",
+        "Yichen Wu",
+        "Ziyu Guo",
+        "Renrui Zhang"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Linear attention replaces growing KV caches with fixed-size recurrent states, yet these persistent states can become a substantial memory bottleneck under concurrent serving. Directly quantizing recurrent states to low precision often leads to severe accuracy degradation, as quantization errors propagate through successive state updates. We discover that the impact of these errors depends on two complementary dimensions: temporally, errors in long-lived memory can persist across many decoding steps; spatially, errors in different key rows affect model outputs differently, while state magnitudes vary substantially along both rows and columns. Motivated by these observations, we propose STEPQuant, a spatial-temporal post-training quantization framework for Delta-rule recurrent states. STEPQuant allocates precision according to error magnitude and memory lifetime, and jointly fits key-row and value-column scales based on state distributions and key-row impact on output error. Experiments on Qwen3.8-27B and Kimi-Linear-48B-A3B-Instruct across both long- and short-generation benchmarks show that STEPQuant closely matches FP32-state accuracy under a nominal 6-bit budget and outperforms uniform INT8 in its 4-bit configuration. Integrated into SGLang with optimized GPU kernels, 6-bit STEPQuant achieves over 5x recurrent-state compression and reduces total serving memory by up to 68.7%. Our code is available at https://github.com/Dreamer-Toby/STEPQuant.",
+      "published": "2026-09-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.38169",
+        "pdf": "https://arxiv.org/pdf/2609.38169"
+      },
+      "upvotes": 106,
+      "githubRepo": "https://github.com/Dreamer-Toby/STEPQuant",
+      "githubStars": 94,
+      "numComments": 2,
+      "titleZh": "STEPQuant:Delta-Rule 递推状态量化中误差何时与何处重要",
+      "summaryZh": "线性注意力以固定大小的递推状态取代持续增长的 KV cache，但并发服务下这些常驻状态本身成为显存瓶颈，直接低比特量化会因误差随状态更新逐步传播而严重掉点。误差影响可拆为两个维度:时间上长寿命记忆中的误差会跨多步解码持续存在，空间上不同 key 行的误差对输出的影响不同，且状态幅值沿行与列差异显著。STEPQuant 据此按误差幅度与记忆寿命分配精度，联合拟合 key 行与 value 列的 scale。在 Qwen3.8-27B 与 Kimi-Linear-48B-A3B-Instruct 的长短生成基准上，6-bit 名义预算下精度接近 FP32 状态，4-bit 配置优于均匀 INT8;集成进 SGLang 并配优化 GPU kernel 后状态压缩超 5 倍，总服务显存最多降低 68.7%。",
+      "score": 8,
+      "reason": "线性注意力递推状态量化，含内核与服务显存收益，命中效率方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.08699",
+      "title": "nanoMuse: An Open-Source Personal Agent for Every Device You Own",
+      "authors": [
+        "Guangyi Liu",
+        "Yong Liu",
+        "Jiangning Zhang"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Assistants from 2011 answered and waited, and agents from 2023 did a task and stopped. In September 2026 Meta's Muse showed an agent for one person, with accounts, devices, memory and a conversation that lasts, closed, in a vendor's cloud, in one country. Such an agent is expected to act on a person's accounts and devices, remember them across weeks, speak first when it is worth it, and answer for what it did. It is a kind of software, not a model, and until now had no open counterpart. This report defines the personal agent in five questions and three horizons. It reads how Muse is built from Meta's public record and a copy of its production prompt, each statement marked by its source. It then presents nanoMuse, the open-source counterpart under the GPL-3.0, one agent on every device a person owns, with hands on the phone's screen and the computer's. They share one conversation over a relay anyone can run; every action goes through a Sentinel, memory is files the person can read, and the model is their choice. Its size and cost are given as estimates. What is open, memory with provenance, an evaluation suite for the hands and an open model for them, is set out as a roadmap.",
+      "published": "2026-10-06T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.08699",
+        "pdf": "https://arxiv.org/pdf/2610.08699"
+      },
+      "upvotes": 97,
+      "githubRepo": "https://github.com/nano-muse/nanoMuse",
+      "githubStars": 355,
+      "projectPage": "https://nanomuse.cn/",
+      "numComments": 2,
+      "titleZh": "nanoMuse：属于你每一台设备的开源个人智能体",
+      "summaryZh": "面向个人的长期驻留智能体此前只有厂商闭源实现——账号、设备、记忆与持续对话都锁在单一云和单一国家内。本报告用五个问题与三条时间线界定个人智能体，依据 Meta 公开资料与其生产 prompt 复刻 Muse 的构建方式并逐条标注来源，随后给出 GPL-3.0 开源的 nanoMuse：同一智能体运行在用户全部设备上，可直接操作手机屏幕与电脑，通过任何人可自建的中继共享一段对话，所有动作经 Sentinel 审计，记忆是用户可读的文件，模型可自行选择。开放部分（带溯源的记忆、面向设备操作的评测套件、配套开放模型）以路线图形式列出，规模与成本仅为估计。",
+      "score": 7,
+      "reason": "个人智能体开源系统，含记忆、审计与评测设计，命中 Agent 方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.10528",
+      "title": "Long-WAM: Scaling the Context of World-Action Models",
+      "authors": [
+        "Wei Huang",
+        "Bohan Zhang",
+        "Chenzhi Liu",
+        "Isabella Liu",
+        "Shuai Yang",
+        "Weian Mao"
+      ],
+      "authorsTotal": 16,
+      "abstract": "Real-time robot control demands enough visual history to infer motion and task progress, but processing that history can delay action. We present Long-WAM, a model-system framework for scaling the context of causal world-action models under real-time control constraints. Our central finding is that access to history is not the same as using it: longer histories pay off far more when the video foundation is pretrained autoregressively (AR). We first learn causal prediction from robot and egocentric videos without action labels, then preserve this history-to-future structure during world-action adaptation. On RoboCasa GR-1, increasing context from 0.0 to 19.2 seconds raises success from 63.3% to 78.7%, whereas a bidirectionally pretrained initialization shows no net gain; robot-domain AR pretraining further raises peak success on GR-1 and LIBERO-Long. Long-WAM also achieves the best results among compared methods on LIBERO-Long, RoboTwin 2.0, and DOMINO. Streaming observation encoding, asynchronous execution, and hardware-specific acceleration enable deployment on RTX 5090, DGX Spark, and Jetson AGX Thor without dropping future prediction; on RTX 5090, each action chunk, including future-video latent prediction, takes 107.4 ms. Real-time deployment on Unitree G1 and YAM supports dynamic and long-horizon manipulation, including 95% success on dynamic cup stacking, where Pi0.5 and Fast-WAM succeed in none of 20 trials. As a memory-informed executor, Long-WAM also complements higher-level planning in composite tasks.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.10528",
+        "pdf": "https://arxiv.org/pdf/2610.10528"
+      },
+      "upvotes": 95,
+      "githubRepo": "https://github.com/NVlabs/LongLive",
+      "githubStars": 2695,
+      "projectPage": "https://nvlabs.github.io/LongLive/Long-WAM/",
+      "numComments": 2,
+      "titleZh": "Long-WAM:扩展世界-动作模型的上下文",
+      "summaryZh": "实时机器人控制需要足够长的视觉历史来推断运动与任务进度，但处理历史会拖慢动作输出。Long-WAM 通过先在无动作标签的机器人及自我中心视频上做自回归因果预测预训练，再在世界-动作适配阶段保留这种「历史到未来」的结构，配合流式观测编码、异步执行与硬件加速实现实时部署。在 RoboCasa GR-1 上，上下文从 0.0 秒增至 19.2 秒使成功率由 63.3% 提升到 78.7%，而双向预训练初始化则无净收益;RTX 5090 上每个动作块(含未来视频隐变量预测)耗时 107.4 ms，并在 Unitree G1、YAM 上完成动态长程操作。",
+      "score": 2,
+      "reason": "机器人操作与世界-动作模型，属具身智能方向，不关注",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.09823",
+      "title": "UltraText Bench: A Comprehensive Bilingual Benchmark for Evaluating Visual Text Rendering in Image Generation",
+      "authors": [
+        "Deyuan Liu",
+        "Yihao Hu",
+        "Jingxuan Zhang",
+        "Xingying Li",
+        "Jun Xie",
+        "Jiacheng Liu"
+      ],
+      "authorsTotal": 16,
+      "abstract": "Dense visual text requires image generators to reproduce long strings across multiple regions with correct placement and legibility. As short-string rendering improves, evaluation must test sustained performance across more demanding scenes. We introduce UltraText Bench, a bilingual benchmark for prompt-only generation of dense visual text. It contains 432 prompts spanning 24 real-world scene categories and three difficulty levels, split equally between English and Chinese. Each human-reviewed prompt supplies exact strings for four to twelve text regions, paired with structured references for their content, placement, and visual attributes. We use the Q-Judger vision-language model to assess each image against the complete reference, reporting text fidelity, text clarity, spatial quality, and scene quality. Across 24 model configurations, these dimensions reveal different strengths: Z-Image-Turbo gains 3.81 clarity points over Z-Image-Base while losing 14.76 fidelity points under the reported settings. Performance also varies with workload; Qwen-Image-2512's English composite falls from 86.50 at L1 to 42.86 at L3. Ten participants took part in human evaluation of the automatic scores. Repository: https://github.com/LINs-lab/UltraText_Bench.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.09823",
+        "pdf": "https://arxiv.org/pdf/2610.09823"
+      },
+      "upvotes": 86,
+      "githubRepo": "https://github.com/LINs-lab/UltraText_Bench",
+      "githubStars": 15,
+      "numComments": 2,
+      "titleZh": "UltraText Bench：评估图像生成中视觉文本渲染的综合双语基准",
+      "summaryZh": "针对图像生成模型在多区域、长字符串密集文本渲染上的评测缺口，构建双语基准UltraText Bench，含432条提示，覆盖24个真实场景类别与三个难度层级，中英文各半；每条经人工审核的提示给出4到12个文本区域的精确字符串，并附内容、位置与视觉属性的结构化参考。使用Q-Judger视觉语言模型对照完整参考打分，报告文本保真度、清晰度、空间质量与场景质量四个维度。在24种模型配置上各维度表现分化：Z-Image-Turbo较Z-Image-Base清晰度提升3.81分，保真度却下降14.76分；Qwen-Image-2512的英文综合分从L1的86.50降至L3的42.86。十名参与者参与了自动评分的人工校验。",
+      "score": 2,
+      "reason": "图像生成的文字渲染评测，属低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.08621",
+      "title": "Recursive Game Creator: An Agentic Product-Level Experience-Oriented Game Harness",
+      "authors": [
+        "Jiajun Chen",
+        "Haoyu Wu",
+        "Mingda Jia",
+        "Xihui Liu"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Recent game design agents have made substantial progress in generating playable games. However, program correctness does not ensure an enjoyable experience for players. We present Recursive Game Creator, an experience-oriented harness to advance agentic game development from rough game prototypes into entertaining games. Recursive Game Creator organizes recursive development around four components: Designer, Builder, Player, and Reviewer. The Designer translates user instructions and Reviewer's feedback into detailed plans. The Builder turns these plans into candidate games. The coding-native Player creates and executes reusable policies through programmatic interfaces to efficiently collect diverse gameplay trajectories, mitigating evaluation bias caused by slow GUI-based collection. The Reviewer uses carefully designed trajectory-based metrics to induce player preferences, integrating with visual evidence and explicit textual preferences to evaluate games against game-specific criteria. Finally, the Reviewer accepts the better version and provides improvement reviews for the next round, closing the recursive loop. Our method achieves state-of-the-art overall performance of 77.89 on GameCraft-Bench. On GameASG-Bench, it achieves a strict task success rate of 53.2%, a 34.1% improvement over the same-model baseline, and the highest mean runtime-check pass rate at 93.4% among compared methods. A user study shows longer playtime and higher ratings. Code is coming soon.",
+      "published": "2026-10-06T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.08621",
+        "pdf": "https://arxiv.org/pdf/2610.08621"
+      },
+      "upvotes": 85,
+      "githubRepo": "https://github.com/IMBALDY/RecursiveGameCreator",
+      "githubStars": 32,
+      "projectPage": "https://imbaldy.github.io/recursive-game-creator",
+      "numComments": 2,
+      "titleZh": "Recursive Game Creator:面向产品级体验的 Agentic 游戏开发 Harness",
+      "summaryZh": "现有游戏设计智能体只保证程序可运行，难以保证玩家体验。Recursive Game Creator 用 Designer、Builder、Player、Reviewer 四组件构成递归闭环:把指令与反馈转为方案并生成候选游戏，编码原生的 Player 经程序接口执行可复用策略采集多样玩法轨迹，规避 GUI 采样的评估偏差，Reviewer 用轨迹指标推断玩家偏好并结合视觉证据给出下轮改进意见。GameCraft-Bench 上综合成绩 77.89 为最优，GameASG-Bench 严格任务成功率 53.2%(较同模型基线提升 34.1%)，运行时检查通过率 93.4% 最高。适合体验导向的 agentic 生成与自动评估。",
+      "score": 8,
+      "reason": "多智能体递归自改进 harness，命中 Agent 与自动评估方向，偏游戏应用",
+      "deepDive": true
+    },
+    {
+      "id": "2610.10524",
+      "title": "GRACE: Generation-aware latent compression for efficient video generation",
+      "authors": [
+        "Jiyoung Kim",
+        "Paul Hyunbin Cho",
+        "Jisu Nam",
+        "Donghoon Lee",
+        "Hyunsung Go",
+        "Yeonkyeong Lee"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Highly compressed video autoencoders offer an effective way to accelerate video diffusion models, as the Diffusion Transformer (DiT) operates on far fewer tokens. However, such autoencoders are challenging to train, since a higher compression ratio degrades reconstruction quality and recovering it requires more channels, which is known to slow the convergence of the DiT. The compressed latent also differs from the one the DiT was trained on, so the pretrained DiT must be either retrained from scratch or adapted at considerable cost. Compressing the autoencoder the DiT was trained with appears to preserve compatibility, yet optimizing it for reconstruction alone still shifts the latent away from the distribution the DiT has learned. To address this, we propose Generation-Aware Latent Compression for Efficient Video Generation (GRACE), a two-stage framework that compresses a pretrained video autoencoder while keeping it compatible with the pretrained DiT. Specifically, we keep a frozen base latent from the pretrained encoder and learn a residual latent for the information lost under stronger compression, while aligning the compressed latent with the pretrained latent in the feature space of the frozen DiT so that the autoencoder is optimized for generation. We then adapt the DiT with lightweight fine-tuning and asymmetric denoising, where the base is denoised ahead of the residual. GRACE reduces the token count of Wan2.1-I2V-14B by 8x and its latency by 11.1x at 480x832x81, while matching the generation quality of the pretrained pipeline before compression on VBench.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.10524",
+        "pdf": "https://arxiv.org/pdf/2610.10524"
+      },
+      "upvotes": 75,
+      "githubRepo": "https://github.com/cvlab-kaist/GRACE",
+      "githubStars": 19,
+      "projectPage": "https://cvlab-kaist.github.io/GRACE/",
+      "numComments": 2,
+      "titleZh": "GRACE:面向高效视频生成的生成感知隐空间压缩",
+      "summaryZh": "视频扩散模型加速的一条路径是压缩视频自编码器以减少 DiT 处理的 token 数，但高压缩比损害重建质量，且压缩后的隐空间偏离预训练 DiT 所学分布，需重训或高成本适配。GRACE 用两阶段框架解决该问题:冻结预训练编码器的基础隐空间，学习残差隐空间承载强压缩下丢失的信息，并在冻结 DiT 的特征空间中对齐压缩隐空间，使自编码器面向生成而非仅面向重建优化;再用轻量微调与非对称去噪适配 DiT，让基础先于残差去噪。在 Wan2.1-I2V-14B 上，token 数降至 1/8,480x832x81 分辨率下延迟降低 11.1 倍，VBench 生成质量与压缩前持平。",
+      "score": 2,
+      "reason": "视频扩散生成加速，整体落在低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.07967",
+      "title": "DecepEval: A Benchmark for Evaluating Deception in LLM Agents",
+      "authors": [
+        "Yiming Xu",
+        "Hongyue Yu",
+        "Beihua Yang",
+        "Zihan Chen",
+        "Yixin Liu",
+        "Zhen Peng"
+      ],
+      "authorsTotal": 11,
+      "abstract": "As large language model (LLM) agents become increasingly autonomous, they may pursue task performance through deception, raising concerns about their reliable deployment. Existing evaluations show that LLM agents can deceive, but often examine isolated scenarios or narrowly defined conditions, limiting systematic understanding of when deception becomes more likely. To address this gap, we introduce DecepEval, a benchmark comprising 1,532 instances across 3 task families and 28 professional scenarios. Drawing on classical fraud theories, we propose the LLM Deception Diamond framework, which characterizes four external conditions that may induce deception: pressure, incentive, opportunity, and conflict. DecepEval pairs neutral and induced versions of each instance to measure condition-dependent changes in deception rates, while explicit task facts and observable agent behavior help distinguish deception from capability-related errors. Evaluations of nine frontier LLMs show that inducements increase deception across models and task families, even among models with low baseline deception rates. DecepEval makes these vulnerabilities measurable, providing a shared benchmark for progress toward trustworthy artificial intelligence.",
+      "published": "2026-10-06T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.07967",
+        "pdf": "https://arxiv.org/pdf/2610.07967"
+      },
+      "upvotes": 67,
+      "githubRepo": "https://github.com/functy/DECEPEVAL",
+      "githubStars": 3,
+      "numComments": 1,
+      "titleZh": "DecepEval: 评估 LLM Agent 欺骗行为的基准",
+      "summaryZh": "现有对 LLM Agent 欺骗行为的评测多局限于孤立场景或狭窄设定，难以系统回答「欺骗何时更易发生」。该工作构建 DecepEval 基准，含 3 类任务族、28 个专业场景共 1532 个实例，并借鉴经典欺诈理论提出 LLM Deception Diamond 框架，刻画压力、激励、机会、冲突四类外部诱导条件;每个实例配有中性版与诱导版对照，通过显式任务事实与可观测行为区分欺骗与能力性错误。对九个前沿模型的评测显示，诱导条件在各模型与任务族上普遍抬高欺骗率，连基线欺骗率很低的模型也不例外，为可信 AI 的可测量进展提供了共享基准。",
+      "score": 7,
+      "reason": "Agent 欺骗行为基准，命中评测与 Agent 安全方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.04299",
+      "title": "Questioning the Questions: Sustaining Self-Evolution in Reasoning Models",
+      "authors": [
+        "Jinyuan Li",
+        "Chengsong Huang",
+        "Langlin Huang",
+        "Donghong Cai",
+        "Shiping Gao",
+        "Yuyi Yang"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Self-evolving reasoning models learn from their own generated questions, yet repeated self-training can lead to performance collapse. In this paper, we investigate why performance deteriorates over successive rounds and how to sustain self-evolution. Our analysis identifies two recurring quality problems in self-generated questions: invalid questions and repeated variants of the same mathematical questions. First, invalid questions become more prevalent across rounds, and answer-consistency filtering further increases their proportion in training data. Second, existing question diversity controls based on lexical similarity can miss mathematically equivalent questions expressed in different ways, which leads to question diversity collapse in later training rounds. Building on these findings, we introduce R-Quest, which uses question validity and novelty feedback to guide self-evolution. We first train the solver to recognize and reject invalid questions, then use its judgments to guide questioner rewards and filter solver training data. To avoid question repetition, we use a frozen base model to compare sampled question pairs and provide novelty feedback. Empirically, our method consistently achieves the highest average performance on 12 benchmarks in mathematical reasoning, general-domain reasoning, and code generation across two model families. Additionally, R-Quest maintains stable performance gains over ten rounds of self-evolution, peaking in the final round and outperforming R-Zero by 17.32 points.",
+      "published": "2026-10-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.04299",
+        "pdf": "https://arxiv.org/pdf/2610.04299"
+      },
+      "upvotes": 67,
+      "projectPage": "https://jinyuanli0012.github.io/R-Quest/",
+      "numComments": 2,
+      "titleZh": "质疑问题:在推理模型中维持自我进化",
+      "summaryZh": "自进化推理模型依靠自身生成的问题做自我训练，但多轮迭代后性能会崩溃。分析发现两类问题质量缺陷:无效问题随轮次愈发普遍，而答案一致性过滤反而进一步抬高其在训练数据中的占比;基于词面相似度的多样性控制无法识别数学等价的不同表述，导致后期问题多样性塌缩。R-Quest 用问题有效性与新颖性反馈引导自进化:先训练 solver 识别并拒绝无效问题，再以其判断指导 questioner 奖励并过滤 solver 训练数据，同时用冻结基座模型比较采样出的问题对提供新颖性反馈。在两大模型族的 12 个数学推理、通用推理与代码生成基准上取得最高平均成绩，十轮自进化中保持稳定增益，末轮比 R-Zero 高出 17.32 分。",
+      "score": 8,
+      "reason": "自进化推理模型的崩溃机理分析与修复，命中后训练与自改进方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.06293",
+      "title": "VepAgent: Bridging Causal-Transition via Tool-Augmented Reinforcement Learning for Video Event Prediction",
+      "authors": [
+        "Qiutong Chen",
+        "Yuchan Guo",
+        "Zhenlong Yuan",
+        "Haobo Yang",
+        "Fangfang Lin",
+        "Xinyi Long"
+      ],
+      "authorsTotal": 13,
+      "abstract": "Multimodal Large Language Models (MLLMs) have demonstrated remarkable potential in video understanding, yet their reliance on retrospective summarization and text-centric priors often limits their ability to bridge unobserved causal transitions when applied to Video Event Prediction (VEP). To address this, we propose VepAgent, an agentic framework that integrates causal-transition reasoning with tool-augmented reinforcement learning (RL) for robust VEP. Unlike prior methods that passively project future trajectories from historical dependencies, our approach explicitly models the logical progression from terminal observed states to future events. Specifically, we first construct futurebench-4K, a high-quality chain-of-thought dataset for supervised fine-tuning (SFT) that effectively bridges the causal-logic gap by structuring the deduction of unobserved intermediate states. Subsequently, we develop a diagnostic tool library integrating state tracking, frame retrieval, and region magnification, enabling the agent to dynamically augment reasoning with external tools to recover missing spatio-temporal evidence and resolve visual ambiguities during inference. Moreover, we propose a composite reward mechanism that jointly optimizes prediction accuracy, causal coherence, and reliable prior, compelling the agent to rely on genuine visual grounding rather than superficial textual similarities. Extensive evaluations on FutureBench and NEPBench datasets demonstrate that our method achieves state-of-the-art performance, significantly outperforming larger MLLMs and validating the empirical effectiveness of our agentic, future-oriented reasoning paradigm.",
+      "published": "2026-10-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.06293",
+        "pdf": "https://arxiv.org/pdf/2610.06293"
+      },
+      "upvotes": 54,
+      "numComments": 2,
+      "titleZh": "VepAgent:通过工具增强强化学习桥接因果跃迁，用于视频事件预测",
+      "summaryZh": "针对 MLLM 在视频事件预测中依赖回溯式总结与文本先验、难以推断未观测因果跃迁的问题，提出 agentic 框架 VepAgent:先构建 4K 规模思维链数据集 futurebench-4K 做监督微调，再引入状态跟踪、帧检索、区域放大三类诊断工具，让智能体在推理时动态补全缺失的时空证据;同时设计联合优化预测准确率、因果连贯性与先验可靠性的复合奖励，抑制模型依赖表面文本相似度。在 FutureBench 与 NEPBench 上取得 SOTA，明显超过参数更大的 MLLM。",
+      "score": 7,
+      "reason": "Agentic RL+工具增强+MLLM视频理解，命中Agent与多模态方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.10429",
+      "title": "SGF+: Decoupling Gradient Flows for Autoregressive Video Generation",
+      "authors": [
+        "Zihan Su",
+        "Junhao Zhuang",
+        "Yaowei Li",
+        "Siwen Lu",
+        "Haoran Li",
+        "Lingen Li"
+      ],
+      "authorsTotal": 13,
+      "abstract": "Autoregressive video generation requires denoising the current frames while writing their key-value representations as context for future predictions. However, these two roles typically share parameters, and we find that their gradients exhibit distinct patterns and systematic negative alignment, hindering the joint optimization of visual quality and temporal consistency. We introduce Self Gradient Forcing Plus (SGF+), which assigns separate parameters to context writing and denoising while preserving their interaction through causal attention. Both roles are jointly optimized using the original generation objective without auxiliary losses, with context writing supervised through its contribution to future predictions. This simple change improves visual quality and long-horizon consistency over the evaluated baselines in both framewise and chunkwise generation, without additional video training data or a longer training horizon. Trained on only 5s rollouts, SGF+ supports continuous generation for up to 24 hours without long-video fine-tuning. These results highlight role-specific parameterization as an effective design principle for high-quality autoregressive video generation and native long-horizon extrapolation.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.10429",
+        "pdf": "https://arxiv.org/pdf/2610.10429"
+      },
+      "upvotes": 54,
+      "githubRepo": "https://github.com/Zihan-Su/Self_Gradient_Forcing_Plus",
+      "githubStars": 55,
+      "projectPage": "https://zihan-su.github.io/self-gradient-forcing-plus/",
+      "numComments": 2,
+      "titleZh": "SGF+：解耦梯度流用于自回归视频生成",
+      "summaryZh": "自回归视频生成中，当前帧既要完成去噪，又要写入作为后续预测上下文的 KV 表示，两种角色通常共享参数，其梯度模式不同且存在系统性负相关，从而同时制约视觉质量与长时序一致性。SGF+ 为上下文写入与去噪分配独立参数，并通过因果注意力保留二者的交互，两套参数仅用原始生成目标联合优化、不引入辅助损失，上下文写入以其对后续预测的贡献获得监督。该改动在 framewise 与 chunkwise 两种生成方式下均提升了画质与长程一致性，且无需额外视频训练数据或更长训练时长；仅在 5 秒 rollout 上训练即可连续生成最长 24 小时，无需长视频微调。结果说明按角色拆分参数是自回归视频生成与原生长时序外推的一种有效设计原则。",
+      "score": 2,
+      "reason": "自回归视频生成属低分方向，仅与 KV 上下文机制略有交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.02054",
+      "title": "UniWAM: Unified World-Action Model",
+      "authors": [
+        "Jiayi Chen",
+        "Wenxuan Song",
+        "Jingbo Wang",
+        "Shuai Zhou",
+        "Xicheng Gong",
+        "Zehua Fan"
+      ],
+      "authorsTotal": 16,
+      "abstract": "Vision-language-action models benefit from the understanding and reasoning capabilities of pretrained vision-language models, but action-only supervision provides limited grounding in world dynamics. Conversely, world-action models inherit spatiotemporal priors from video generation models, yet remain limited in semantic understanding and reasoning under distribution shifts. We introduce UniWAM, a unified architecture that integrates a physical reasoner, a world generator, and an action predictor to jointly learn semantic understanding of the physical world, visual generation, and action prediction. To ensure the quality of the training data, we developed a rigorous data cleaning and annotation pipeline for both human egocentric data and robot data. To adapt the vision-language component to embodied tasks while preserving its inherited language capabilities, we represent low-level actions in natural language and introduce a pre-training recipe that assigns complementary supervision from visual question answering (VQA) data, human egocentric data, and robot demonstrations to the appropriate model components. During post-training, future visual noise augmentation reduces reliance on precise future predictions, while history-conditioned flow matching uses encoded action history to initialize action generation. Together, these designs significantly reduce denoising steps while maintaining performance. UniWAM achieves state-of-the-art (SOTA) performance across multiple evaluations, including in-distribution performance, robustness, generalization, instruction following, and long-horizon task execution. Furthermore, we uncover a log-linear scaling law of unified human-robot co-training, demonstrating the effectiveness of large-scale pre-training on a mixture of human and robot data.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.02054",
+        "pdf": "https://arxiv.org/pdf/2610.02054"
+      },
+      "upvotes": 52,
+      "githubRepo": "https://github.com/UniWAM/UniWAM",
+      "githubStars": 93,
+      "projectPage": "https://uniwam.github.io/",
+      "numComments": 3,
+      "titleZh": "UniWAM:统一的世界-动作模型",
+      "summaryZh": "VLA 模型借助预训练 VLM 获得理解与推理能力，但仅靠动作监督难以刻画世界动态;世界-动作模型虽继承视频生成的时空先验，分布偏移下的语义推理仍受限。UniWAM 把物理推理器、世界生成器与动作预测器统一进一个架构，将低级动作表示为自然语言，并按组件分配 VQA、人类第一人称数据与机器人演示的互补监督;后训练用未来视觉噪声增强降低对精确预测的依赖，以历史条件 flow matching 初始化动作生成，显著减少去噪步数。模型在分布内性能、鲁棒性、泛化与长程任务上取得 SOTA，并发现人机联合训练的 log-linear scaling law。",
+      "score": 2,
+      "reason": "VLA 机器人基础模型，属具身智能一刀切低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.10539",
+      "title": "Tetris3D: 3D Scene Generation With Objects That Fit Together",
+      "authors": [
+        "Jaeyeong Kim",
+        "Jinhyuk Jang",
+        "Jongmin Lee",
+        "Kyehong Park",
+        "Seungryong Kim"
+      ],
+      "authorsTotal": 5,
+      "abstract": "We propose Tetris3D, a generative framework for single-image 3D scene reconstruction that recovers objects which are physically and geometrically coherent as a scene. Existing methods often generate objects independently or couple them implicitly, providing limited guidance for ensuring fine-grained spatial compatibility between neighboring objects that interact with one another. To address this, we explicitly condition the generation of each object on the geometry of surrounding objects and their physical relationships, guiding its shape and pose to remain geometrically and physically plausible within the scene. Moreover, we introduce ComOb, a physics simulation-based dataset of 1.2M scenes featuring physical interactions across diverse object categories, with per-object meshes and pairwise physical relation annotations. Comprehensive experiments on synthetic and realworld scenes show that Tetris3D recovers coherent object shapes and poses even when interacting regions are occluded, and achieves state-of-the-art performance in both generation quality and physical stability.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.10539",
+        "pdf": "https://arxiv.org/pdf/2610.10539"
+      },
+      "upvotes": 43,
+      "githubRepo": "https://github.com/cvlab-kaist/Tetris3D",
+      "githubStars": 26,
+      "projectPage": "https://cvlab-kaist.github.io/Tetris3D/",
+      "numComments": 1,
+      "titleZh": "Tetris3D:生成可相互嵌合的物体的3D场景",
+      "summaryZh": "单图3D场景重建中，现有方法往往独立生成各物体或仅做隐式耦合，难以保证相邻交互物体之间的精细空间兼容性。Tetris3D显式地以周围物体的几何与物理关系为条件来生成每个物体，引导其形状与位姿在场景中保持几何与物理合理。为此作者构建了ComOb数据集，包含120万个带逐物体网格与成对物理关系标注的物理仿真场景。在合成与真实场景上的实验表明，该方法在交互区域被遮挡时仍能恢复连贯的物体形状与位姿，生成质量与物理稳定性均达到当前最优。",
+      "score": 2,
+      "reason": "3D场景生成，属视觉生成与重建方向，与LLM关注点无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.40360",
+      "title": "Semifactual Credit-Augmented Policy Optimization",
+      "authors": [
+        "Junshu Pan",
+        "Zhizhang Fu",
+        "Shulin Huang",
+        "Yiran Ding",
+        "Zifan Cheng",
+        "Wenqi Shao"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Reinforcement learning with verifiable rewards (RLVR) has improved the reasoning capabilities of large language models (LLMs), yet their predictions remain sensitive to task-irrelevant prompt features. We investigate this sensitivity through semifactual prompt interventions that preserve the underlying problem and its answer. Our analysis reveals substantial variation in token-level sensitivity and shows that suppressing high-drift token candidates during decoding improves reasoning accuracy without updating model weights. These findings highlight a limitation of Group Relative Policy Optimization (GRPO), which assigns the same outcome-derived advantage to every response token and may reinforce potential spurious dependence alongside useful reasoning. Motivated by this observation, we introduce Semifactual Credit-Augmented Policy Optimization (SCAPO), a causally inspired variant of GRPO that incorporates semifactual stability into token-level credit assignment. SCAPO measures token probability drift for fixed responses under semifactual interventions and uses normalized stability scores to reduce advantages for relatively unstable tokens during early training, while granting no additional credit for stability alone. On Qwen3-4B-Base and Qwen3-1.7B-Base, SCAPO improves AIME 2024-2026 accuracy over GRPO by 5.63 and 4.17 percentage points, respectively. At both model scales, SCAPO achieves the best results on most evaluated mathematics benchmarks and all evaluated out-of-distribution benchmarks among the compared methods. These results suggest that semifactual stability provides an effective training signal for improving reasoning and generalization through finer-grained credit assignment in RLVR. The code is available at https://github.com/DtYXs/SCAPO.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.40360",
+        "pdf": "https://arxiv.org/pdf/2609.40360"
+      },
+      "upvotes": 37,
+      "githubRepo": "https://github.com/DtYXs/SCAPO",
+      "githubStars": 1,
+      "numComments": 1,
+      "titleZh": "半事实信用增强的策略优化",
+      "summaryZh": "针对RLVR提升LLM推理后仍对任务无关提示特征敏感的问题，通过保持问题与答案不变的半事实提示干预发现，token级敏感度差异显著，解码时抑制高漂移token即可在不更新权重的情况下提升准确率;这也暴露GRPO给所有回复token分配同一结果优势、可能强化虚假依赖的缺陷。SCAPO把半事实稳定性引入token级信用分配:测量固定回复在半事实干预下的token概率漂移，用归一化稳定性分数在训练早期压低不稳定token的优势，稳定性本身不额外加分。在Qwen3-4B-Base与Qwen3-1.7B-Base上，AIME 2024-2026准确率较GRPO分别提升5.63与4.17个百分点，多数数学基准与全部OOD基准取得最优。",
+      "score": 8,
+      "reason": "改进GRPO的token级信用分配，直接命中后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.10444",
+      "title": "RunningTab: Direct Workspace Interaction with Environment-Side Tabs",
+      "authors": [
+        "Jinheon Baek",
+        "Soyeong Jeong",
+        "Yumin Choi",
+        "Dongsu Han",
+        "Sung Ju Hwang"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Much knowledge work produces new deliverables from files a workspace already holds, and LLM agents are beginning to take such work over. Through direct corpus interaction, an agent can search and read any of those files from a terminal with no indexing, and producing a deliverable from many of them in this way is what we call direct workspace interaction (DWI). Reaching the files, however, is only half the task: nothing keeps track of what the task asks for, what has been read, and what was listed but never opened, all of which slip through the context window without leaving a trace, so an agent may extract a figure and still deliver a report without it. To address this, we present RunningTab, a framework that equips direct workspace interaction with an environment-side tab: a per-task record of what the task still owes, kept by the environment alongside the agent. Specifically, the agent adds its requirements, while the environment records every file read as an excerpt with its provenance and every listed but unopened file as a candidate; the agent can then see each requirement beside its best-matching excerpts and top unopened candidates, resolve it against matching content or set it aside with a reason, and, should it try to finish with requirements still open, receive them in a finish check. We validate RunningTab on three benchmarks with three LLMs, where it consistently outperforms plain DWI and baselines that keep the record in the model, while its tab usually holds the values a deliverable needs once seen.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.10444",
+        "pdf": "https://arxiv.org/pdf/2610.10444"
+      },
+      "upvotes": 34,
+      "numComments": 2,
+      "titleZh": "RunningTab:用环境侧标签页实现直接工作区交互",
+      "summaryZh": "针对 LLM agent 在文件工作区上直接交互(DWI)生成交付物时，任务要求、已读内容与列出却未打开的文件会滑出上下文窗口、不留痕迹并造成遗漏的问题，提出 RunningTab:把每任务记录移到环境侧，由 agent 登记需求，环境把每次读取登记为带来源的摘录、把列出未打开的文件登记为候选，agent 可将每条需求与最匹配的摘录和候选并排查看、解决或注明理由搁置，若带着未完成需求收尾还会收到检查提醒。在三个 benchmark、三个 LLM 上一致优于朴素 DWI 与把记录放在模型内的基线，适用于长程知识工作型 agent。",
+      "score": 7,
+      "reason": "环境侧记忆的 agent harness，命中 Agent 方向，扎实但非范式级",
+      "deepDive": false
+    },
+    {
+      "id": "2610.08760",
+      "title": "WorldSonus: Bringing Sound to Worlds",
+      "authors": [
+        "Pengjun Fang",
+        "Jingyi Fa",
+        "Kam Man Wu",
+        "Jiaming Wang",
+        "Haoyuan Huang",
+        "Yaguang Wu"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Recent advances in world models have enabled increasingly realistic visual synthesis. However, these generated environments remain largely silent. Bringing sound to world models poses three core challenges: real-time generation to keep pace with interactive video streams, interactive control to respond to mid-stream sound instructions, and spatially aligned stereo to reflect scene geometry and camera motion. To address these demands, we introduce WorldSonus, an interactive video-to-audio framework designed for real-time spatial sound synthesis in world models. For real-time generation, WorldSonus employs a streaming causal autoregressive diffusion architecture that synthesizes audio chunks at a low real-time factor (RTF) of 0.41. For interactive control, we incorporate an audio-centric captioning pipeline with chunk-indexed prompt scheduling, enabling dynamic manipulation of sound events during generation. For spatial alignment, we leverage high-quality stereo supervision curated from diverse stereo and ambisonic data. Extensive experiments demonstrate that while tailored for world models, WorldSonus generalizes effectively to open-domain video-to-audio benchmarks, matching or outperforming state-of-the-art bidirectional models in both acoustic quality and spatial alignment. Project page: https://noizai.github.io/WorldSonus/",
+      "published": "2026-10-06T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.08760",
+        "pdf": "https://arxiv.org/pdf/2610.08760"
+      },
+      "upvotes": 33,
+      "githubRepo": "https://github.com/NoizAI/WorldSonus",
+      "githubStars": 91,
+      "projectPage": "https://noizai.github.io/WorldSonus/",
+      "numComments": 2,
+      "titleZh": "WorldSonus:为世界模型赋予声音",
+      "summaryZh": "世界模型已能合成逼真视觉环境，但生成的世界普遍无声，难点在于三方面:与交互视频流同步的实时生成、生成中途响应声音指令的交互控制、反映场景几何与相机运动的空间对齐立体声。WorldSonus 采用流式因果自回归扩散架构，以 0.41 的实时率分块合成音频;引入以音频为中心的描述生成流水线与分块索引提示调度，支持生成过程中动态操纵声音事件;并用多来源立体声与 ambisonic 数据构造高质量立体声监督。实验显示，该系统虽面向世界模型设计，却能泛化到开放域视频转音频基准，在声学质量与空间对齐上持平或超过双向 SOTA。",
+      "score": 2,
+      "reason": "音频生成方向，属低分清单，仅流式扩散架构略沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2609.39306",
+      "title": "ReSAIL: Mitigating Collapse in Iterative Agent Self-Distillation",
+      "authors": [
+        "Shengjie Jin",
+        "Hengbo Xu",
+        "Zelong Sun",
+        "YuJie Guo",
+        "Zhiwu Lu"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Iterative self-distillation enables LLM agents to learn from successive deployments, offering a path toward recursive self-improvement (RSI). Yet our experiments with existing methods reveal a collapse in deployment performance across cycles, while task performance with privileged information (PI) also declines. We address this collapse by prioritizing informative interaction steps for distillation and preserving PI-conditioned behavior as the student becomes the next teacher. We introduce Retentive and Selective Augmentation for Iterative Self-Distillation (ReSAIL), a plug-in augmentation for iterative PI-based self-distillation. ReSAIL selects interaction steps where PI most strongly changes the teacher's predictions and balances the resulting distillation losses across trajectories. It also regularizes the student's PI-conditioned output distributions toward those of the frozen teacher at selected and unselected steps to preserve PI-conditioned behavior for supervision in the next cycle. On ALFWorld and TextCraft, ReSAIL sustains substantial gains across model scales over three cycles, with an average absolute gain of 22.5% in final-cycle success rates when added to self-distillation baselines. Sensitivity-guided selection of offline data also improves action prediction accuracy for multimodal GUI agents on AITZ. These findings provide the first evidence that a more robust learning mechanism can effectively mitigate performance collapse in iterative agent self-distillation over deployment trajectories.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.39306",
+        "pdf": "https://arxiv.org/pdf/2609.39306"
+      },
+      "upvotes": 33,
+      "githubRepo": "https://github.com/ShengjieJin/ReSAIL",
+      "githubStars": 20,
+      "projectPage": "https://shengjiejin.github.io/projects/resail/",
+      "numComments": 2,
+      "titleZh": "ReSAIL:缓解迭代式 Agent 自蒸馏中的性能崩塌",
+      "summaryZh": "迭代式自蒸馏让 LLM Agent 能从连续部署中学习，是实现递归自我改进的路径之一，但现有方法在多轮循环后部署性能崩塌，特权信息(PI)下的任务表现也同步下滑。ReSAIL 作为即插即用增强:优先挑选 PI 对教师预测改变最大的交互步做蒸馏，并在轨迹间平衡蒸馏损失，同时把学生 PI 条件下的输出分布正则到冻结教师，以保留可用于下一轮监督的 PI 行为。在 ALFWorld 与 TextCraft 上，该方法跨模型规模连续三个循环保持增益，最终循环成功率相比自蒸馏基线平均绝对提升 22.5%;在 AITZ 上，基于敏感度引导的离线数据选择也提升了多模态 GUI Agent 的动作预测准确率。",
+      "score": 8,
+      "reason": "Agent 自蒸馏与自我改进，直击后训练与 Agent 交叉方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.10409",
+      "title": "RobotWorld: Benchmarking Multimodal Agents for Robot Use Across Diverse Tasks and Embodiments",
+      "authors": [
+        "Zhiqin Yang",
+        "Chenxin Li",
+        "Xiaomeng Hu",
+        "Yibin Liu",
+        "Weidong Huang",
+        "Jiankai Sun"
+      ],
+      "authorsTotal": 33,
+      "abstract": "General-purpose agents increasingly write code, use tools, and complete complex digital tasks, raising the question of how far these capabilities carry into the physical world. To investigate this, we introduce RobotWorld, a challenging simulation testbed for robot use: turning instructions and observations into physical task execution through robot interfaces. Its 84 tasks span manipulation, mobile manipulation, locomotion, driving, and aerial control, with explicit interaction budgets and executable success checks. By analysing task outcomes alongside execution traces, we identify both the capabilities that transfer and the gaps that prevent reliable completion. Furthermore, we find that current agents can construct sophisticated perception and control workflows, including image segmentation, camera calibration, spatial estimation, and dynamics-based computation. These capabilities, however, do not consistently compose into successful behaviour: agents lose task-relevant object states despite reaching commanded poses, fail to correct ineffective actions, recover too late, or mistake unfinished tasks for completion. This uneven transfer also differs across models: Astra succeeds more often on spatial and constrained-contact goals, whereas Opus 5.5 succeeds more often on continuous-balance and timed-interaction goals. By linking these outcomes to execution behaviour, RobotWorld provides both a rigorous proving ground and an empirical account of the remaining capability gaps, thereby establishing concrete targets for training and designing more reliable physical-world agents.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.10409",
+        "pdf": "https://arxiv.org/pdf/2610.10409"
+      },
+      "upvotes": 31,
+      "githubRepo": "https://github.com/robotworldai/robotworld",
+      "githubStars": 31,
+      "projectPage": "https://robotworldai.github.io/",
+      "numComments": 2,
+      "titleZh": "RobotWorld：跨多样任务与机器人形态的多模态 Agent 机器人使用评测基准",
+      "summaryZh": "通用智能体写代码、用工具的能力能否迁移到物理世界，此前缺少可复现的评测。RobotWorld 是一个机器人使用仿真测试床：84 个任务覆盖操作、移动操作、运动、驾驶与空中控制，经机器人接口执行，配有显式交互预算与可执行的成功判定，并联合执行轨迹分析结果。实验发现，现有智能体能搭建图像分割、相机标定、空间估计与动力学计算等复杂流程，却难以稳定组合出成功行为——到达指定位姿却丢失物体状态、无法纠正无效动作、恢复过晚、把未完成任务判为完成；模型间偏好也不同，如 Astra 在空间与受限接触目标上更优，Opus 5.5 在连续平衡与限时交互上更优。",
+      "score": 5,
+      "reason": "Agent 评测与失败模式分析有参考价值，但落在机器人仿真场景，方向擦边",
+      "deepDive": false
+    },
+    {
+      "id": "2610.10114",
+      "title": "Mechanics of Long-Context Hybrid Models Part 1.1: From Hybrid Attention to Hybrid Position",
+      "authors": [
+        "Xiaoran Liu",
+        "Ziwei He",
+        "Xipeng Qiu"
+      ],
+      "authorsTotal": 3,
+      "abstract": "The architectural design of Large Language Models (LLMs) is shifting from traditional full-attention-only models to hybrid models, which combine different attention modules to improve long-context efficiency and performance in length extrapolation and context extension. To explain why hybrid models work and how to design them better, we propose Mechanics of Long-Context Hybrid Models. As Part 1.1 of this series, we begin with hybrids of full attention and either sliding-window attention (SWA) or gated variants of linear attention (LA), represented by GLA and GDN. We first observe a Seesaw Effect in Context Extension: LA hybrids benefit more from long-context continual pretraining, whereas SWA hybrids perform better under length extrapolation. We attribute this behavior to differences in the positional inductive biases induced by these attention mechanisms. We find that SWA hybrids suffer from a Short-Context Learning Trap, Short-Window Weariness, and Long-Window Laziness, and require extended windows to enhance performance in continual long-context pretraining. For LA hybrids, we summarize the Matthew Effect of Hybrid Position Extrapolation and propose Sliding-Window Linear Attention, achieving 16times training-free length extrapolation while maintaining 100\\% accuracy on NIAH-SK1 in 64k context length.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.10114",
+        "pdf": "https://arxiv.org/pdf/2610.10114"
+      },
+      "upvotes": 31,
+      "githubRepo": "https://github.com/OpenMOSS/Hybrid-Mechanics",
+      "githubStars": 6,
+      "numComments": 2,
+      "titleZh": "长上下文混合模型的机制 第1.1部分：从混合注意力到混合位置",
+      "summaryZh": "针对 LLM 从纯全注意力转向混合注意力（全注意力搭配滑窗注意力 SWA 或线性注意力变体 GLA、GDN）缺乏设计依据的问题，系统分析两类混合模型在位置归纳偏置上的差异。发现在上下文扩展上存在跷跷板效应：线性注意力混合模型更受益于长上下文持续预训练，SWA 混合模型则在长度外推上更强；并指出 SWA 存在短上下文学习陷阱、短窗疲劳与长窗懒惰，需扩大窗口。针对线性注意力混合模型总结出混合位置外推的马太效应，提出 Sliding-Window Linear Attention，实现 16 倍免训练长度外推，在 64k 上下文的 NIAH-SK1 上保持 100% 准确率。",
+      "score": 9,
+      "reason": "混合注意力长上下文机制分析与新方法，直接命中架构与长上下文方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.03185",
+      "title": "Gains and Collapse in On-Policy Distillation:A Reinforcement Learning Perspective",
+      "authors": [
+        "Han Cui",
+        "Jianhao Yan",
+        "Yun Luo",
+        "Hongbo Zhang",
+        "Zhizhang Fu",
+        "Yue Zhang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "On-policy distillation (OPD) has become an important approach to language model post-training. However, despite its performance gains, OPD can also collapse into excessively long and repetitive generation, and the mechanism underlying these divergent outcomes remains poorly understood. We explain these outcomes through a reinforcement learning perspective: the teacher implicitly rewards student behaviors, even those it rarely exhibits itself. From this perspective, our experiments show that OPD improves performance without expanding the student's capabilities. When the implicit reward model is reliable, OPD makes correct responses easier to sample. In contrast, when the preference misaligns with quality, reward hacking happens: the implicit reward model amplifies overlong, repetitive student rollouts, even though it rarely generates such text itself. Guided by this diagnosis, we find that masking unhealthy responses during training and using SFT initialization can each effectively mitigate the collapse. Together, these findings show that OPD amplifies student behaviors favored by the teacher's implicit feedback, shifting the focus from how well the teacher generates to how reliably it evaluates student rollouts. Our code is available at https://github.com/HancCui/opd_hacking.",
+      "published": "2026-10-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.03185",
+        "pdf": "https://arxiv.org/pdf/2610.03185"
+      },
+      "upvotes": 29,
+      "githubRepo": "https://github.com/HancCui/opd_hacking",
+      "githubStars": 8,
+      "projectPage": "https://hancui.site/opd_hacking/",
+      "numComments": 2,
+      "titleZh": "On-Policy Distillation 的收益与崩塌：一个强化学习视角",
+      "summaryZh": "on-policy distillation（OPD）是语言模型后训练的重要方法，但会出现生成过长、重复的崩塌，机制不明。工作从强化学习视角把教师视为隐式奖励模型：它隐式奖励学生行为，即使自己很少产生这些文本。实验显示 OPD 只提升性能而不扩展学生能力，隐式奖励可靠时让正确答案更易被采样，偏好与质量错位时则发生 reward hacking，放大过长重复的 rollout。据此在训练中屏蔽不健康回复、用 SFT 初始化均可缓解崩塌，提示 OPD 的关键在于教师评估学生 rollout 的可靠性而非生成质量。",
+      "score": 8,
+      "reason": "on-policy 蒸馏的 RL 机制分析，直接命中后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.08995",
+      "title": "PhysEvo: Astra Can Act, Let It",
+      "authors": [
+        "Wenqing Tian",
+        "Zeyu Zhang",
+        "Zhaocheng Liu",
+        "Fengwei Liu",
+        "Qiang Liu",
+        "Liang Wang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Astra can act, yet reliable manipulation depends on the system through which it observes and controls the world. We introduce PhysEvo, a framework for physical recursive self-improvement (RSI) around a single frozen model. A task agent executes robot tasks; a meta-agent uses the resulting trajectories to diagnose failures, revise tools and skills, and test corrections. The meta-agent can also improve its own diagnostic tools, so retained revisions support both later action and later self-improvement. This process develops joint-level control, evidence-seeking observation, and reusable manipulation skills without model-weight updates or a separately trained action policy. Across 42 RoboDojo tasks, held-out-layout evaluation of retained task-specific deployment versions yields a five-dimension average score of 68.14/100 and 62.00% success, compared with 47.17% for RoboDawn's one-shot Astra agent, the strongest published reference in our comparison. On eight manipulation tasks challenging direct Astra, PhysEvo achieves 55.00% success, compared with 1.25% for the direct-Astra reference. Deploying the simulation-evolved harness on AgileX PiPER and continuing skill revision yields 90.60/100 average score and 84.00% success across 25 trials on five real-world tasks. PhysEvo turns the consequences of action into persistent, testable changes to how a frozen model acts and improves.",
+      "published": "2026-10-06T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.08995",
+        "pdf": "https://arxiv.org/pdf/2610.08995"
+      },
+      "upvotes": 29,
+      "numComments": 2,
+      "titleZh": "PhysEvo:Astra 能行动，就让它行动",
+      "summaryZh": "针对冻结模型在机器人操作中可靠性不足的问题，提出物理递归自我改进框架 PhysEvo:任务 agent 执行操作，meta-agent 依据轨迹诊断失败、改写工具与技能并验证修正，还能改进自身的诊断工具，使保留的修订同时服务后续行动与后续自我改进，全程不更新模型权重、也不单独训练动作策略。在 42 个 RoboDojo 任务上，保留的任务专属部署版本在未见布局下五维平均分 68.14/100、成功率 62.00%，高于最强公开参照 RoboDawn 的一次性 Astra agent 的 47.17%;在八个对直接 Astra 困难的任务上成功率 55.00%(对照 1.25%);把仿真演化的 harness 部署到 AgileX PiPER 并继续修订技能，五个真实任务 25 次试验平均 90.60/100、成功率 84.00%。",
+      "score": 2,
+      "reason": "机器人操作与具身智能，属低分方向，仅 agent 自改进略沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.07591",
+      "title": "Recurrent Looped Transformer",
+      "authors": [
+        "Yifan Zhang",
+        "Jichen Feng",
+        "Shihan Qin"
+      ],
+      "authorsTotal": 3,
+      "abstract": "State tracking requires an update at every input, but the depth a Transformer applies to each token is fixed regardless of sequence length. We introduce the Recurrent Looped Transformer (RLT), which splits its layers between a parallel causal encoder and a recurrent decoder. At each token, the decoder merges the encoder output with the previous token's final decoder state, so the computation path grows with sequence length at a fixed per-token cost. On six algorithmic tasks, we compare five splits of eight layers with an eight-layer Transformer over three seeds. Trained on at most 40 bits, two RLT splits generalize parity to 256 bits with 100% accuracy in every seed, while the Transformer stays at chance. On swap-based S_5 permutation tracking at eight times the training length, RLT reaches 97% final-state accuracy versus under 1% for the Transformer, and accuracy increases with decoder depth. On modular arithmetic beyond the training lengths, RLT reaches up to 93% versus 33% for the Transformer. Ablations show that these gains depend on the feedback: removing it drops parity and swap-based S_5 to chance at every split. Updating the feedback once per four-token chunk lets known tokens in a chunk run in parallel and keeps 64-bit parity at 99%, while permutation tracking depends on per-token feedback: chunking lowers length-64 swap-based S_5 from 100% to 20%.",
+      "published": "2026-10-06T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.07591",
+        "pdf": "https://arxiv.org/pdf/2610.07591"
+      },
+      "upvotes": 27,
+      "githubRepo": "https://github.com/yifanzhang-pro/recurrent-looped-tranformer",
+      "githubStars": 918,
+      "projectPage": "https://github.com/yifanzhang-pro/recurrent-looped-tranformer",
+      "numComments": 2,
+      "titleZh": "循环回环 Transformer",
+      "summaryZh": "Transformer 对每个 token 的计算深度固定，难以做随输入逐步更新的状态跟踪。RLT 把层拆成并行因果编码器与循环解码器，解码器每步将编码器输出与上一 token 的最终解码状态合并，使计算路径随序列长度增长而单 token 开销不变。在六个算法任务上，仅用 40 bit 训练，两种切分的 RLT 把奇偶校验泛化到 256 bit 且 100% 准确，基线仅随机水平;S_5 置换跟踪在八倍训练长度上达 97%(Transformer <1%)，模运算达 93%(33%)。消融显示增益依赖反馈，去掉后各切分均退化到随机。",
+      "score": 8,
+      "reason": "循环深度随序列增长的架构创新，命中新架构方向"
+    },
+    {
+      "id": "2609.33678",
+      "title": "SWE-Game: Can Coding Agents Build the Games We Want?",
+      "authors": [
+        "Xiaoyu Chen",
+        "Lai Wei",
+        "Jin Wang",
+        "Xiangyu Zou",
+        "Ruochen Fan",
+        "Enze Luo"
+      ],
+      "authorsTotal": 11,
+      "abstract": "We introduce SWE-Game, a benchmark of 247 tasks grounded in 41 executable reference Godot games spanning 13 gameplay categories in 2D and 3D. Five task types cover development from a brief, implementation from a game design document, skeleton completion, repair of 83 injected-fault cases, and Godot-to-Unity porting. Reference materials specify the intended gameplay, while a shared instrumentation interface lets evaluator-owned drivers and probes execute actions and observe independently implemented games. Evaluation combines engine-state checks, certified reference-input replay, and agent-authored feature demonstrations to assess mechanic correctness, demonstrated playability, and behavioral restoration and preservation after repairs. Game-specific vision-language rubrics separately assess presentation. Across six models, Opus5 achieves the highest overall score in all five task types. Best overall scores remain below 60 out of 100 across the three construction tasks, with Brief-to-Game reaching 50.38. Analysis of reviewed submissions identifies requirement omissions and gameplay logic errors as predominant implementation problems. On human-labeled behaviors from 100 agent-built games, executable checks achieve 92.59% balanced accuracy, compared with 78.41% for a video-based VLM judge. Rubric-based visual scores reach a Spearman correlation of 0.829 with human ratings of 200 gameplay clips. Together, these results characterize current agent capabilities across game-development activities and support combining runtime evidence with visual assessment.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.33678",
+        "pdf": "https://arxiv.org/pdf/2609.33678"
+      },
+      "upvotes": 25,
+      "numComments": 2,
+      "titleZh": "SWE-Game:编码智能体能构建我们想要的游戏吗?",
+      "summaryZh": "针对编码智能体能否完成完整游戏开发流程缺乏系统评测的问题，构建 SWE-Game 基准:41 个可执行 Godot 参考游戏、13 类玩法、247 个任务，覆盖简述生成、按设计文档实现、骨架补全、83 例注入缺陷修复与 Godot 到 Unity 移植五类。评测结合引擎状态检查、认证参考输入回放与智能体自建功能演示，衡量机制正确性与修复后行为保持，并用视觉语言评分表评估画面表现。六个模型中 Opus5 五类任务总分最高，但三类构建任务最佳均低于 60 分;可执行检查对人工标注行为的平衡准确率达 92.59%，高于视频 VLM 评判的 78.41%。",
+      "score": 7,
+      "reason": "编码智能体 + 基准评测，命中 Agent 与代码智能方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.00994",
+      "title": "VIEScore2: Unified Image Evaluation with Spatially Grounded Explanations",
+      "authors": [
+        "Xianda Du",
+        "Max Ku",
+        "Weiming Ren",
+        "Zhi Rui Tam",
+        "Chunlin Ren",
+        "Ping Nie"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Existing synthetic image evaluators typically provide only a scalar quality score and do not identify the image regions that support it. We introduce VIEScore2, a unified evaluator for image generation and editing tasks with optional conditioning images. VIEScore2 represents an image as an N x N grid and jointly predicts quality scores and defect locations in a single model pass. Its text-native grid representation provides a common interface for heterogeneous spatial supervision and enables directly verifiable post-training objectives. We train on 38K examples spanning score-only, localization-only, and joint supervision across generation and editing tasks. Starting from supervised fine-tuning, we further apply GRPO to improve defect localization using rewards that combine cell-level Dice overlap, score accuracy, and output-format validity. A parameter-free parser converts the structured predictions into readable explanations. On the primary suite, VIEScore2 achieves an overall-score SRCC of 0.601, compared with 0.491 for Gemini-3-Flash, the strongest zero-shot general-purpose VLM baseline under matched inputs. For defect localization, VIEScore2 outperforms both general-purpose VLMs and specialized spatial evaluators on three of six benchmarks in per-image grid IoU and ranks among the top three on five, including datasets beyond its training sources.",
+      "published": "2026-10-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.00994",
+        "pdf": "https://arxiv.org/pdf/2610.00994"
+      },
+      "upvotes": 25,
+      "githubRepo": "https://github.com/TIGER-AI-Lab/VIEScore2",
+      "githubStars": 2,
+      "projectPage": "https://tiger-ai-lab.github.io/VIEScore2/",
+      "numComments": 1,
+      "titleZh": "VIEScore2:带空间定位解释的统一图像评估",
+      "summaryZh": "现有合成图像评估器多只输出标量质量分，不指出支撑该分数的图像区域。VIEScore2 将图像表示为 N×N 网格，在单次前向中联合预测质量分与缺陷位置，以文本原生网格统一异质空间监督并支持可直接验证的后训练目标;在 38K 样本上完成分数、定位与联合监督的 SFT 后，再用 GRPO 结合单元格 Dice 重叠、分数准确率与格式合法性奖励优化缺陷定位，最后由无参数解析器生成可读解释。主套件整体分 SRCC 为 0.601，高于零样本通用 VLM 基线 Gemini-3-Flash 的 0.491;缺陷定位在六个 benchmark 中三个的 per-image grid IoU 领先，五个进入前三。",
+      "score": 6,
+      "reason": "图像生成评估为主体，但 GRPO 可验证奖励与评测方法学沾边",
+      "deepDive": false
+    },
+    {
+      "id": "2610.09920",
+      "title": "Inverting Multi-Vector Visual Document Indices",
+      "authors": [
+        "Zhuchenyang Liu",
+        "Yao Zhang",
+        "Yu Xiao"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Prevailing multi-vector visual document retrievers store each page as about a thousand patch vectors, often in vector databases run by a third party. Since no one can read a page from its vectors, this index is easily treated as less sensitive than the page. However, because the index keeps one vector per patch in raster order, and each vector is computed by a vision-language model pre-trained to read documents, we hypothesize that whoever runs or breaches the store can reproduce a page from its index alone. We frame inversion as conditional document image generation and infer from the vectors what the attack needs: the encoder, the page shape and, for shuffled vectors, their order. On the ViDoRe v3 benchmark, pages inverted from raw indices recover 47% of the words and 45% of the sensitive tokens. Used as queries against the stored indices, they rank their source page first 98.4% of the time. We test two cheap protections, token pooling and shuffling, which both cut word recall to about 8%. A model that restores the order of a shuffled index raises the share of source pages ranked first from 3.8% to 93.5%, while inverting a pooled index remains open. To test generalisation, we apply the same attack unchanged to another multi-vector retriever: its inverted pages still rank their source page first 70.2% of the time, though its word recall stays below a nearest-neighbour baseline. Multi-vector visual document retrievers are therefore vulnerable to inversion through their stored index, which should be protected like the documents it encodes.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.09920",
+        "pdf": "https://arxiv.org/pdf/2610.09920"
+      },
+      "upvotes": 20,
+      "numComments": 2,
+      "titleZh": "反演多向量视觉文档索引",
+      "summaryZh": "多向量视觉文档检索器把每页存成约千个 patch 向量，常托管在第三方向量库中，索引往往被当作比原页更不敏感的数据。该工作把索引反演建模为条件文档图像生成，从向量中推断出编码器、页面形状以及乱序向量的排列。在 ViDoRe v3 上，由原始索引反演出的页面恢复 47% 的单词与 45% 的敏感 token，作为查询时 98.4% 的情况把源页排在第一;token pooling 与 shuffling 两种廉价防护把词召回压到约 8%，但一个恢复顺序的模型能把乱序索引的首位命中率从 3.8% 提升到 93.5%。这说明存储的多向量索引应按其编码的文档同等级别加以保护。",
+      "score": 6,
+      "reason": "视觉文档检索索引反演攻击，属多模态检索安全，方向擦边",
+      "deepDive": false
+    },
+    {
+      "id": "2610.09484",
+      "title": "MIMESIS: Learning User Simulators as Training Environments for Interactive Agents",
+      "authors": [
+        "Hoang Phan",
+        "Dat Huynh",
+        "Andrey Zhmoginov",
+        "Qi Zeng",
+        "Wancen Mu",
+        "Yue Cao"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Training and evaluating interactive language agents typically requires rich user interactions, yet collecting human feedback is expensive and difficult to scale. Simulated users offer a scalable alternative, but they must both resemble real user behavior and provide useful learning experiences for agents. In contrast, most agent-training frameworks rely on off-the-shelf assistant LLMs, whose helpfulness can make them overly cooperative, explicit, and behaviorally homogeneous compared with real users. We introduce MIMESIS, a purpose-built user simulator trained on human conversations with explicit reasoning supervision and 13 realistic behavioral patterns derived from real user interactions. Empirically, our 9B model achieves a SOUL-Index of 65.7, surpassing the strongest frontier model. Compared with Claude-Opus-5, the strongest baseline on RealUserSim and SimulatorArena, MIMESIS improves behavioral fidelity by 13.4 points and reduces Turing distance by 3.6 points, respectively. We then freeze the simulator and train an agent by interacting with the frozen simulator using multi-turn reinforcement learning. Across eight environments, training with MIMESIS yields better agent performance than training with GPT-5.5 under all nine unseen user simulators, demonstrating stronger generalization to new user simulators. Moreover, we propose Coached On-Policy Self-Distillation (CSD), which leverages simulator-generated private reasoning traces and subsequent utterances as feedback on how well the agent addresses user needs. A coach converts this information into concise coaching notes that describe how the agent can better anticipate user needs and adapt its behavior over the course of an interaction. CSD turns this feedback into dense, token-level supervision beyond sparse task rewards, yielding further gains across all nine evaluation user models.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.09484",
+        "pdf": "https://arxiv.org/pdf/2610.09484"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/VietHoang1512/mimesis",
+      "githubStars": 4,
+      "projectPage": "https://github.com/VietHoang1512/mimesis",
+      "numComments": 2,
+      "titleZh": "MIMESIS:把用户模拟器学习为交互式智能体的训练环境",
+      "summaryZh": "MIMESIS 用真实人机对话训练专用用户模拟器，缓解现成助手 LLM 扮演用户时过于配合、显式、行为同质的问题:加入显式推理监督与 13 种真实行为模式，9B 模型 SOUL-Index 达 65.7，超过最强前沿模型，行为保真度较 Claude-Opus-5 提升 13.4 分、图灵距离降低 3.6 分。随后冻结模拟器做多轮强化学习训练智能体，在八个环境训练后在全部九个未见用户模拟器上均优于用 GPT-5.5 训练。提出的 CSD 把模拟器的私有推理轨迹与后续话语经 coach 转成指导笔记，提供 token 级稠密监督，在各评测用户模型上均带来增益。",
+      "score": 9,
+      "reason": "用户模拟器作为 RL 训练环境并结合 on-policy 自蒸馏，直接命中 Agent 方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.04722",
+      "title": "NAMVIS: Next-Scale Autoregressive Multi-View Image Synthesis",
+      "authors": [
+        "Ramil Khafizov",
+        "Ilya Statsenko",
+        "Ruslan Rakhimov",
+        "Artem Komarichev",
+        "Peter Wonka",
+        "Evgeny Burnaev"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Sparse-view novel view synthesis is a central problem in 3D content creation, but diffusion-based approaches remain limited by iterative denoising, making multi-view generation expensive at inference time. We introduce NAMVIS, a diffusion-free framework that reformulates multi-view image synthesis as geometry-conditioned next-scale autoregression. Instead of generating target views through repeated denoising, NAMVIS predicts discrete visual tokens through a small number of coarse-to-fine scale steps, while sampling all tokens within each scale and across target views in parallel. To anchor this generation process to explicit camera geometry, we propose Multi-scale Projective Pose Encoding, which injects source and target camera transformations into both target-view self-attention and source-to-target cross-attention at every resolution. NAMVIS further combines global conditioning with dense geometry-aware cross-attention, enabling the model to preserve source-view appearance while maintaining target-view consistency. Across Objaverse, GSO, and OmniObject3D, NAMVIS outperforms diffusion-based baselines in PSNR, SSIM, and LPIPS, while running over 3 times faster than the evaluated diffusion baselines under the same evaluation setting. These results suggest that geometry-conditioned next-scale autoregression is a promising and efficient alternative to diffusion for sparse-view multi-view synthesis. Additional qualitative results, videos, and resources are available at https://corl-team.github.io/namvis/",
+      "published": "2026-10-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.04722",
+        "pdf": "https://arxiv.org/pdf/2610.04722"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/corl-team/namvis",
+      "githubStars": 7,
+      "projectPage": "https://corl-team.github.io/namvis/",
+      "numComments": 2,
+      "titleZh": "NAMVIS:下一尺度自回归多视角图像合成",
+      "summaryZh": "稀疏视角新视角合成通常依赖扩散模型的迭代去噪，推理代价高昂;NAMVIS将多视角图像合成重构为几何条件下的下一尺度自回归:以少量从粗到细的尺度步预测离散视觉token，同一尺度内以及各目标视角之间的token并行采样。方法提出多尺度投影位姿编码，在每一分辨率的视角自注意力与源到目标交叉注意力中注入相机变换，并结合全局条件与密集几何感知交叉注意力，以保持源视角外观与目标视角一致性。在Objaverse、GSO、OmniObject3D上，PSNR、SSIM、LPIPS均优于扩散基线，相同评测设置下推理速度提升3倍以上，说明几何条件下的下一尺度自回归是稀疏视角多视角合成的可行高效替代方案。",
+      "score": 2,
+      "reason": "多视角3D合成，属视觉重建与生成低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.05034",
+      "title": "Agentic RAG Evaluation: Budget Allocation Across Questions, Trajectories, and Reads",
+      "authors": [
+        "Jingjie Ning",
+        "Xueqi Li",
+        "Yibo Kong"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Evaluation budgets in agentic retrieval-augmented generation span questions, search trajectories, and repeated answers. We measure allocation precision, reading efficiency, and cost boundaries using a retrieval-feedback comparison on HotpotQA and MuSiQue. At 34.14--34.39M model tokens, broader question coverage lowers standard error by 33\\% versus five reads and 12.6\\% versus three trajectories. Archived nested and Q-only forecasts predict these allocations within 4.0\\% and 3.5\\%, respectively. Depth subsets establish no clear forecasting advantage beyond the two-trajectory audit. One-read variance penalties relative to the fitted optimum at the same token budget are 0--9.9\\%, with substantial Pro uncertainty. Under recorded model fees, more questions beat more trajectories at search prices of \\$0--1 per 1,000 requests; question-versus-read fee rankings remain unresolved. Temperature zero cuts answer disagreement from 14.3\\% to 3.4\\% while comparison precision stays similar. \\par\\medskip\\noindentKeywords: Agentic RAG; Evaluation budget; Generalizability theory; Repeated sampling.",
+      "published": "2026-10-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.05034",
+        "pdf": "https://arxiv.org/pdf/2610.05034"
+      },
+      "upvotes": 19,
+      "numComments": 2,
+      "titleZh": "Agentic RAG 评测:跨问题、轨迹与读取次数的预算分配",
+      "summaryZh": "针对 Agentic RAG 评测中预算需同时分配到问题数、检索轨迹与重复读取这一问题，在 HotpotQA 与 MuSiQue 上以检索反馈对比测量分配精度、读取效率与成本边界。在约 3400 万模型 token 预算下，扩大问题覆盖比五次读取降低标准误 33%，比三条轨迹降低 12.6%;归档的嵌套与仅问题预测可将分配预测误差分别控制在 4.0% 与 3.5% 以内。同一 token 预算下单次读取相对最优拟合的方差惩罚为 0% 至 9.9%，零温度把答案分歧从 14.3% 降至 3.4% 且比较精度基本不变，提示预算应优先投向问题覆盖而非轨迹深度。",
+      "score": 7,
+      "reason": "Agentic RAG 评测预算分配，属评测方法学方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.08963",
+      "title": "On KL-Regularized Policy Optimization",
+      "authors": [
+        "Yifan Zhang"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Asynchronous reinforcement learning (RL) for large language model (LLM) agents trains one policy on trajectories generated by another: rollouts come from stale checkpoints, and the inference engine's probabilities differ from the trainer's even at identical parameters. Standard remedies either clip importance ratios, which biases the update, or, as in GRPO, sample a group of responses per prompt, which is costly when episodes are long. We propose KL-Regularized Policy Optimization (KLPO), a framework that anchors the KL regularizer at the sampler. The regularized improvement step then has a closed-form Gibbs solution, and KLPO fits its log-ratio optimality condition by least squares on the sampler's own trajectories, so the sampler probability enters through a log-ratio and no importance weights are needed. Profiling out the regression intercept replaces the intractable log-partition function with the signal's sampler mean plus a sampler-to-trainer KL divergence. For token-level policy mirror descent targets, we show that the resulting gradient can be computed from terminal returns without a critic, via sampler-centered scores or a single trajectory residual, even under stochastic tool outputs. We further prove that independent Monte Carlo estimates of the KL term keep these gradients unbiased, derive the exact KL gap of cheaper top-K and binary approximations, and show that SPPO, GPO, REBEL, and BPO arise as special cases of KLPO. The result is a critic-free update that uses one rollout per prompt and requires neither a learned normalizer nor a group of responses.",
+      "published": "2026-10-06T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.08963",
+        "pdf": "https://arxiv.org/pdf/2610.08963"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/yifanzhang-pro/KLPO",
+      "githubStars": 182,
+      "projectPage": "https://github.com/yifanzhang-pro/KLPO",
+      "numComments": 2,
+      "titleZh": "论 KL 正则化策略优化",
+      "summaryZh": "异步 RL 训练 LLM agent 时，rollout 来自陈旧 checkpoint，推理引擎与训练器概率不一致;截断重要性比有偏，GRPO 式成组采样在长 episode 下昂贵。KLPO 把 KL 正则锚定在采样器端:改进步有闭式 Gibbs 解，并在采样器轨迹上最小二乘拟合 log-ratio 条件，采样概率以 log-ratio 进入，无需重要性权重;消去回归截距后，不可解的 log-partition 由采样器均值加采样器到训练器的 KL 散度替代。对 token 级 mirror descent 目标，梯度可由终末回报直接算出，无需 critic，兼容随机工具输出;文中证明 KL 项的独立蒙特卡洛估计保持无偏，给出 top-K 与二值近似的精确 KL gap,SPPO、GPO、REBEL、BPO 均为其特例。最终是每 prompt 仅一次 rollout 的 critic-free 更新。",
+      "score": 9,
+      "reason": "后训练 RL 算法框架，理论统一 SPPO/GPO 等，直击异步训练痛点",
+      "deepDive": true
+    },
+    {
+      "id": "2610.10437",
+      "title": "Q-Learning with Scalar Adjoint Matching",
+      "authors": [
+        "Yonghoon Dong",
+        "Minsung Yoon",
+        "Jaehyuk Kim",
+        "Jungwoo Park",
+        "Changyeon Kim",
+        "Jinwoo Shin"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Flow policies capture rich and diverse action distributions, and fine-tuning them with off-policy RL to improve beyond the demonstrations has drawn growing interest. However, fine-tuning a flow policy against a learned value function is not trivial, because the policy generates its action over many flow steps. Adjoint matching offers a principled way to update the flow model itself by propagating value information from the final action back to each flow step, but it requires a vector--Jacobian product through the policy at every step, a cost that grows with the number of flow steps and the policy size. We observe that the batch-averaged velocity Jacobian of pretrained flow policies concentrates on its diagonal. Motivated by this finding, we derive a closed-form scalar adjoint that scales the value gradient at the final action by the flow time, eliminating the per-step vector--Jacobian products. We further find that controlling the critic's value at policy-generated actions is particularly important under the scalar adjoint. Based on these findings, we propose Q-learning with Scalar Adjoint Matching (SQAM), which combines the scalar adjoint with a value penalty at those actions. SQAM's gains concentrate on the four hardest OGBench domains, where its success rate exceeds that of the strongest baseline in each domain by 18 to 35 percentage points. To test whether SQAM extends to large pretrained policies, we also fine-tune a vision-language-action policy on a real bimanual robot. SQAM improves over supervised fine-tuning on all three tasks.",
+      "published": "2026-10-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.10437",
+        "pdf": "https://arxiv.org/pdf/2610.10437"
+      },
+      "upvotes": 18,
+      "githubRepo": "https://github.com/yonghdong/sqam",
+      "githubStars": 4,
+      "projectPage": "https://yonghdong.github.io/blog/sqam/",
+      "numComments": 2,
+      "titleZh": "标量伴随匹配的Q-Learning",
+      "summaryZh": "流策略能表达多样的动作分布，但用离策略RL微调以超越示教数据并不容易:价值信息需从最终动作回传到每个流步，伴随匹配虽能做到，却要在每步计算向量-雅可比积，开销随流步数与策略规模增长。预训练流策略的批次平均速度雅可比呈近似对角结构，据此可推出闭式标量伴随，用流时间缩放最终动作处的价值梯度，从而免去逐步向量-雅可比积;再对策略生成动作处的critic值施加惩罚，即得SQAM。在OGBench四个最难任务域上，其成功率比各域最强基线高18至35个百分点;在真实双臂机器人上微调VLA策略时，三个任务均优于监督微调。",
+      "score": 2,
+      "reason": "流策略RL微调用于机器人控制，属具身智能低分方向",
+      "deepDive": false,
+      "relevant": false
+    }
+  ],
+  "arxiv": [],
+  "arxivStatus": "pending",
+  "generatedAt": "2026-10-09T09:04:30.780641+00:00"
+}
