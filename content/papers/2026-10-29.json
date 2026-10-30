@@ -1,0 +1,468 @@
+{
+  "date": "2026-10-29",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2610.32749",
+      "title": "Efficient Streaming Audio-Visual Target Speaker Extraction for Real-World Acoustic Scenes",
+      "authors": [
+        "Wendi Sang",
+        "Kai Li",
+        "Yifan Li",
+        "Jianqiang Huang",
+        "Xiaolin Hu"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Streaming audio-visual target speaker extraction (AVTSE) is essential for latency-sensitive applications. However, current causal systems face two coupled gaps. First, standard benchmarks fix the number of speakers at two and ignore the near-/far-field interference, reverberation, and sudden noise of real scenes. Second, high-performance causal architectures are too heavy for edge deployment. Lightweight alternatives try to reclaim capacity by repeatedly invoking a small separator, which offsets the savings. To address the first gap, we release RealSSA, a realistic AVTSE benchmark consisting of RealSSA-Sim and RealSSA-Real. RealSSA-Sim provides controllable simulated scenes with 1--5 dynamic near-field interfering speakers; scenes with far-field interference additionally include 10--15 far-field interfering speakers. RealSSA-Real provides a held-out real-recorded evaluation set. To address the second gap, we propose Falcon, a causal AVTSE method. Its Separator performs multi-scale time-frequency separation in a single encoder--decoder pass. We train Falcon with an encoder-space speaker contrastive loss. This loss suppresses near-field leakage at zero inference cost and transfers across backbones. Falcon achieves state-of-the-art extraction quality on RealSSA-Sim, LRS2-2Mix, LRS3-2Mix, and VoxCeleb2-2Mix. Compared with the causal AV-TFGridNet baseline, it cuts parameters by 91.9%, computation by 20.2 times, and GPU inference latency by 11.1 times. Code and demo are available at https://cslikai.cn/Falcon/.",
+      "published": "2026-10-23T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.32749",
+        "pdf": "https://arxiv.org/pdf/2610.32749"
+      },
+      "upvotes": 152,
+      "githubRepo": "https://github.com/JusperLee/Falcon",
+      "githubStars": 20,
+      "projectPage": "https://cslikai.cn/Falcon/",
+      "numComments": 2,
+      "titleZh": "面向真实声学场景的高效流式音视频目标说话人提取",
+      "summaryZh": "针对流式音视频目标说话人提取在真实场景下评测失真与模型过重的问题，构建 RealSSA 基准：RealSSA-Sim 支持1–5个动态近场干扰说话人，远场场景另含10–15个远场干扰源，并提供真实录音的留存评测集；同时提出因果方法 Falcon，其分离器在单次编解码中完成多尺度时频分离，并以编码器空间说话人对比损失在零推理开销下抑制近场泄漏。Falcon 在 RealSSA-Sim、LRS2-2Mix、LRS3-2Mix、VoxCeleb2-2Mix 上取得最优提取质量，相较因果 AV-TFGridNet 基线参数量减少91.9%、计算量降至1/20.2、GPU 推理延迟降至1/11.1。",
+      "score": 1,
+      "reason": "音视频语音分离与基准，属语音应用低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.35684",
+      "title": "OmniShowcase: Omnidirectional Subject-Consistent Video Generation from Multi-View Images",
+      "authors": [
+        "Junyeong Ahn",
+        "Geonwoo Kim",
+        "Kinam Kim",
+        "Gihwi Kim",
+        "Hoonjin Jung",
+        "Hyojin Jang"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Generating videos of a specific subject from a few reference images remains challenging when the camera reveals surfaces that are not visible in the input. Early subject-to-video (S2V) methods condition on a single reference image and must therefore infer the subject's unseen appearance and geometry as the viewpoint changes. To address this limitation, recent methods extend S2V to multiple reference views, providing more information about the subject from different viewpoints. However, they do not explicitly specify the 3D structure that connects these observations. In addition, existing training data do not guarantee that viewpoint changes preserve the same underlying 3D subject. We present OmniShowcase, built on two components: (i) a fully automated data synthesis pipeline that produces training videos along diverse camera trajectories, with viewpoint variation driven by underlying subject geometry, even spanning full 360-degree orbits; and (ii) a geometry-conditioning method that provides the video model with a turntable of surface-normal maps reconstructed from the reference views without requiring temporal alignment with the generated frames. We construct Showcase-4K, a corpus of 3D-asset-based videos covering twelve camera motions across 88 trajectory configurations with reconstruction-derived surface-normal conditioning, and ShowcaseBench, a held-out evaluation set with the source meshes and camera parameters used to render each video. Experiments show state-of-the-art subject identity and 3D consistency while maintaining competitive video quality and motion. Project page: justin4ai.github.io/OmniShowcase",
+      "published": "2026-10-26T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.35684",
+        "pdf": "https://arxiv.org/pdf/2610.35684"
+      },
+      "upvotes": 50,
+      "githubRepo": "https://github.com/justin4ai/OmniShowcase",
+      "githubStars": 10,
+      "projectPage": "https://justin4ai.github.io/OmniShowcase/",
+      "numComments": 2,
+      "titleZh": "OmniShowcase：从多视角图像生成全方位主体一致的视频",
+      "summaryZh": "从少量参考图生成特定主体的视频时，当相机转到输入中未出现的表面，主体外观与几何需要模型自行推断，容易失真。OmniShowcase 用两个组件应对：一套全自动数据合成管线，按底层主体几何驱动相机轨迹（可覆盖完整 360 度环绕）生成训练视频；以及一种几何条件注入方法，把从参考视角重建的表面法线图以转盘形式提供给视频模型，无需与生成帧做时间对齐。作者构建了 Showcase-4K（基于 3D 资产、涵盖 12 种相机运动与 88 种轨迹配置）和带源网格与相机参数的评测集 ShowcaseBench，实验在主体身份保持与 3D 一致性上达到最优，同时视频质量与运动表现保持竞争力。",
+      "score": 2,
+      "reason": "视频生成与3D一致性方向，属低分清单",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.31670",
+      "title": "Sensorimotor Alignment: A Platonic Proxy for Embodied Policy Success",
+      "authors": [
+        "Yunfei Xie",
+        "Howard H. Qian",
+        "Shiyi Lan",
+        "Kaiyu Hang",
+        "Chen Wei"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Robot foundation models are typically evaluated through costly closed-loop rollouts, motivating low-cost offline proxies for model capability. The Platonic Representation Hypothesis (PRH) suggests that as representations improve, modalities such as vision and language converge toward a shared statistical model of reality. We ask whether motion trajectories form another such modality: as embodied models become more capable, should their sensory representations converge toward the structure of physical motion? To test this, we propose Sensorimotor Alignment (S^2), a training-free offline metric that measures how well a model's sensory representation aligns with the geometry of physical motion. We find that S^2 correlates positively with downstream robot task success across model families, making it a low-cost offline proxy for prioritizing models before closed-loop evaluation. S^2 can also identify promising vision-language model (VLM) backbones before costly fine-tuning into vision-language-action models (VLAs). Beyond this correlation, S^2 offers representation-level explanations for phenomena observed in VLAs and world action models (WAMs). With S^2, we extend PRH to robotics and make sensorimotor alignment measurable, offering a low-cost, representation-level view of robot foundation models that closed-loop success rates alone cannot reveal.",
+      "published": "2026-10-23T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.31670",
+        "pdf": "https://arxiv.org/pdf/2610.31670"
+      },
+      "upvotes": 21,
+      "githubRepo": "https://github.com/yunfeixie233/sensorimotor-alignment",
+      "githubStars": 8,
+      "projectPage": "https://yunfeixie233.github.io/s2/",
+      "numComments": 2,
+      "titleZh": "Sensorimotor Alignment: A Platonic Proxy for Embodied Policy Success",
+      "summaryZh": "针对机器人基础模型依赖高成本闭环评测的问题，提出免训练的离线指标 S²( Sensorimotor Alignment)，用模型感官表征与物理运动几何的一致性来衡量能力。实验显示 S² 在不同模型族上与下游任务成功率正相关，可在闭环评测前低成本筛选模型，并提前识别有潜力的 VLM 主干以降低 VLA 微调成本。该工作把柏拉图表征假设扩展到机器人领域，为 VLA 与世界动作模型中的现象提供表征层面解释。",
+      "score": 2,
+      "reason": "VLA/具身策略评测，属机器人方向，按画像一刀切低分",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.37230",
+      "title": "TAO: Tool-Aware Joint Scheduling for LLM-Based Agentic Serving",
+      "authors": [
+        "Shuhuai Li",
+        "Shengdong Ye",
+        "Dongdong Ge",
+        "Yinyu Ye",
+        "Jianghao Lin"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Agentic services alternate between model inference on clustered GPUs and external tools on distributed CPUs. In this scenario, existing systems (1) overlook tool-return readiness in service evaluation, wasting limited resources, and (2) use heuristic strategies to decide admission and placement on GPUs, resulting in suboptimal scheduling decisions. To bridge this gap, we present TAO, a tool-aware joint scheduling framework for LLM-based agentic serving. Its value interface combines near-term tool readiness, node-specific cache credit with time-aware decay, and token footprint; a dynamic program jointly selects and places waiting sessions under capacity constraints. Across the 12 reported model-workload-concurrency settings, TAO reduces latency by up to 26.8%, reduces mean time to first token (TTFT) by up to 36.3%, and increases decode throughput by up to 29.5% relative to the best evaluated state-of-the-art baseline for each metric.",
+      "published": "2026-10-27T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.37230",
+        "pdf": "https://arxiv.org/pdf/2610.37230"
+      },
+      "upvotes": 18,
+      "numComments": 4,
+      "titleZh": "TAO：面向基于 LLM 的 Agentic 服务的工具感知联合调度",
+      "summaryZh": "针对 Agentic 服务中模型推理与外部工具调用交替进行的场景，现有系统在服务评价中忽略工具返回就绪状态、且 GPU 准入与放置依赖启发式策略，造成资源浪费与次优调度。TAO 提出工具感知的联合调度框架：价值接口融合近期工具就绪度、带时间衰减的节点级 cache credit 与 token footprint，并用动态规划在容量约束下联合选择与放置等待会话。在 12 组模型—负载—并发设置中，相较各指标最优基线，延迟最多降低 26.8%，平均 TTFT 最多降低 36.3%，decode 吞吐最多提升 29.5%。该工作适用于 Agent 推理服务的调度与资源管理。",
+      "score": 8,
+      "reason": "Agentic 服务调度与推理系统效率，直接命中 Agent 与系统方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.22507",
+      "title": "RealCLI: Toward a Unified Evaluation of Human-Agent Collaboration for CLI Agents",
+      "authors": [
+        "Yunqi Liu",
+        "Peiyu Wang",
+        "Bingli Wang",
+        "Leo Luo",
+        "Xuanwu Song",
+        "Xudong Ma"
+      ],
+      "authorsTotal": 24,
+      "abstract": "Command-line interface (CLI) agents increasingly execute longer-horizon tasks, yet existing benchmarks either assume that user instructions remain fixed throughout execution or evaluate task outcomes without capturing runtime collaboration quality. In this paper, we present REALCLI, a paired benchmark that unifies the evaluation of task execution and human-agent collaboration quality on realistic CLI tasks. To comprehensively measure collaboration, REALCLI builds a five-dimensional framework, operationalized into 22 sub-dimensions and 51 interaction scenario templates. REALCLI provides two modes for paired comparison: REALCLI-EXEC supplies complete specifications upfront, whereas REALCLI-COLLAB introduces a scripted user that delivers progressive information, corrections, constraint revisions, and authorization decisions. Evaluations reveal profound capability gaps in frontier agents: the best configuration attains an average score of only 49.2%, and when evaluated by the joint collaboration score (J_{collab}), the peak performance reaches merely 37.6%. These results show that task effectiveness diverges sharply from collaboration quality, with models consistently struggling in steerability, trust calibration, and safety boundary management. REALCLI provides a rigorous, reproducible foundation for measuring and advancing collaborative CLI agents.",
+      "published": "2026-10-15T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.22507",
+        "pdf": "https://arxiv.org/pdf/2610.22507"
+      },
+      "upvotes": 17,
+      "numComments": 2,
+      "titleZh": "RealCLI：迈向 CLI 智能体人机协作的统一评测",
+      "summaryZh": "现有 CLI 智能体基准要么假定用户指令在整个执行过程中固定不变，要么只评测任务结果、不捕捉运行时的协作质量。RealCLI 构建成对基准：用五维框架、22 个子维度与 51 个交互场景模板刻画协作，并提供两种配对模式——EXEC 一次性给出完整规格，COLLAB 则由脚本化用户逐步提供信息、纠错、修改约束并做授权决策。评测显示前沿模型存在显著能力缺口：最佳配置平均分仅 49.2%，联合协作分 J_collab 峰值仅 37.6%，任务完成效果与协作质量明显脱节，模型在可引导性、信任校准与安全边界管理上系统性偏弱。该基准为可复现地衡量并推进协作式 CLI 智能体提供了基础。",
+      "score": 8,
+      "reason": "CLI Agent 人机协作评测基准，直接命中 Agent 与评测方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.22990",
+      "title": "PersonaCUABench: Benchmarking Computer-Use Agents Serving Diverse Personas",
+      "authors": [
+        "Haoming Li",
+        "Defu Cao",
+        "Xu Hu",
+        "Yingtao Luo",
+        "Yiyang Wang",
+        "Xianghe Xu"
+      ],
+      "authorsTotal": 26,
+      "abstract": "Computer-use agents (CUAs) are commonly evaluated against fixed task specifications, but users may omit requirements, add constraints, or require approval before consequential actions. Completing the benchmark instruction does not guarantee serving the person who asked. We introduce PersonaCUABench, which holds 74 tasks across 11 domains fixed and varies only who asks. A persona agent, playing one of 44 personas in four groups, rewrites each instruction in that user's own words and answers the CUA's questions, while the CUA sees only the dialogue, never the profile or the original instruction. Across nine backbones (3,330 runs), mean task completion falls by 36% relative to the original requests. The losses have two sources: in 59.9% of cells that lose points, the agent engages with what the user asked for and still gets it wrong, and 11.2% are stops the user requested that the checker scores as failures. Even when a persona request is fully completed, the user gives the top satisfaction rating in only 62.7% of cells, against 84.1% for the original requests. CUAs should therefore be evaluated not only on task completion but also on whether they meet the requirements and constraints users express. Code: https://github.com/MatrAIx-ai/PersonaCUABench. Project page: https://matraix.ai/research/persona-cua.html",
+      "published": "2026-10-16T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.22990",
+        "pdf": "https://arxiv.org/pdf/2610.22990"
+      },
+      "upvotes": 14,
+      "githubRepo": "https://github.com/MatrAIx-ai/PersonaCUABench",
+      "githubStars": 2,
+      "projectPage": "https://matraix.ai/research/persona-cua.html",
+      "numComments": 1,
+      "titleZh": "PersonaCUABench：评测服务多样化用户画像的计算机使用智能体",
+      "summaryZh": "现有CUA评测多在固定任务描述下进行，但真实用户会省略需求、追加约束或要求关键操作前确认，完成任务并不等于服务好提问者。PersonaCUABench固定11个领域74个任务，只改变提问者：44个画像分四组，由画像智能体用该用户的口吻改写指令并回答CUA的追问，CUA只能看到对话。在九个基座上共3330次运行中，平均任务完成率相对原始请求下降36%；失分案例中59.9%是智能体按用户所说执行却仍出错，11.2%是用户要求的停止被判定为失败。即使任务完整完成，最高满意度评价也仅占62.7%（原始请求为84.1%），表明CUA评测需同时覆盖用户表达的需求与约束。",
+      "score": 8,
+      "reason": "Agent评测方法学，揭示固定指令评测盲区，实验数据扎实",
+      "deepDive": false
+    },
+    {
+      "id": "2610.30161",
+      "title": "TauIndianBankBench: Procedure-Aware, Action-Oriented Evaluation of Tool-Using Conversational Agents",
+      "authors": [
+        "Krishanu Adhikary",
+        "Prashant Devadiga"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Many Indian banks serve customers through FAQ pages and scripted chatbots. Assistants based on language models could respond faster and carry out requests such as blocking a card, but only if they give correct information and follow the bank's rules. These rules prescribe a procedure, a set of required steps, such as obtaining a closure quote before closing a deposit. Adapting models to this domain requires measuring how well they follow the procedure, before and after training. Benchmarks usually judge only the records left at the end of a conversation. Many required steps, however, leave the records unchanged, so an assistant that skips them can still be judged successful. We present TauIndianBankBench, an action-oriented benchmark of 1,000 Indian retail-banking tasks where an assistant helps a simulated customer. Besides the final records, it checks that the assistant took every required step and made no unrequested change. For every model, 6.5-12.0% of sessions are judged successful when only the final records are checked, although the assistant skipped a required step or made an unrequested change. Scoring both procedure and outcome shows more accurately how well language models perform in Indian retail banking.",
+      "published": "2026-09-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.30161",
+        "pdf": "https://arxiv.org/pdf/2610.30161"
+      },
+      "upvotes": 9,
+      "githubRepo": "https://github.com/npci/TauIndianBankBench",
+      "githubStars": 6,
+      "numComments": 3,
+      "titleZh": "TauIndianBankBench：面向流程、以行动为导向的工具使用对话智能体评测",
+      "summaryZh": "现有基准多只检查对话结束时的最终记录，而银行流程中许多必需步骤（如销户前先取closure quote）并不改变记录，导致跳过步骤的助手仍被判成功。构建了 1000 个印度零售银行任务的基准，由助手服务模拟客户，同时校验最终记录、每个必需步骤是否执行以及是否存在未被请求的更改。结果显示，各模型有 6.5%–12.0% 的会话在仅看最终记录时被判成功，实际却漏做了必需步骤或做了多余改动。该工作说明过程级评分对工具型智能体的真实能力评估不可省略，适用于银行等强合规流程场景。",
+      "score": 7,
+      "reason": "工具智能体的过程级评测基准，命中 Agent 与评测方法学方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.20832",
+      "title": "Amortizing Sequential Experimental Design in Reasoning LLMs",
+      "authors": [
+        "Anita Kriz",
+        "Antonin Berthon",
+        "Nicolás Astorga",
+        "Mihaela van der Schaar"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Despite their extensive pretraining knowledge and strong reasoning capabilities, large language models (LLMs) struggle to adaptively gather information in experimental design tasks. We study how to amortize sequential Bayesian experimental design (BED) into an LLM by explicitly training the reasoning that guides action selection using information-gain rewards. Our approach specifies the experimental generative model independently of the LLM's own beliefs, allowing us to optimize expected information gain under a model of our choosing. We investigate the design choices for amortization, including alternative generative-model constructions, reward estimation, hypothesis-space specification, multi-step objectives, and computational costs relative to training- and inference-time BED baselines. On Twenty Questions, the resulting policies improve information acquisition and task performance, outperform inference- and training-time BED baselines at substantially lower computational cost, and generalize to unseen categories. We further demonstrate positive transfer from Twenty Questions training to Medi-Q, a real-world clinical dialogue benchmark. These results suggest that information gathering can be learned as a generalizable reasoning skill in LLMs.",
+      "published": "2026-10-14T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.20832",
+        "pdf": "https://arxiv.org/pdf/2610.20832"
+      },
+      "upvotes": 6,
+      "githubRepo": "https://github.com/anitakriz/ar-bed",
+      "githubStars": 2,
+      "numComments": 2,
+      "titleZh": "将序贯实验设计摊销进推理LLM",
+      "summaryZh": "LLM 虽有丰富的预训练知识与较强推理能力，却难以在实验设计任务中自适应地收集信息。该工作用信息增益奖励显式训练「引导动作选择」的推理过程，把序贯贝叶斯实验设计(BED)摊销进模型参数，并让实验生成模型独立于 LLM 自身信念，从而在自选模型下优化期望信息增益;同时系统考察生成模型构造、奖励估计、假设空间设定与多步目标等设计选择。在 Twenty Questions 上，所得策略提升了信息获取与任务表现，以显著更低的计算成本优于推理时与训练时 BED 基线，并可泛化到未见类别;在真实临床对话基准 Medi-Q 上也观察到正向迁移。结果表明信息收集可以作为可泛化的推理技能被学习，对后训练中的奖励设计与 Agent 信息搜集有参考价值。",
+      "score": 7,
+      "reason": "信息增益奖励训练推理，命中后训练与Agent信息收集，但任务规模偏小",
+      "deepDive": false
+    },
+    {
+      "id": "2610.30132",
+      "title": "LongZero: Enhancing Long-Context Reasoning in LLMs from Zero Data",
+      "authors": [
+        "Zhennan Wan",
+        "Jianfei Chen"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Reinforcement learning (RL) is an effective way to strengthen the long-context reasoning of large language models (LLMs), but it needs training data that are long, diverse, challenging, and verifiable. Human annotation of such data is expensive, naturally occurring data are too scarce to sustain RL, and existing synthesis methods depend on external corpora or stronger teacher models, which become harder to obtain as the trained models get stronger. Recently, RL from zero data, in which a model learns from tasks it proposes itself, has achieved excellent performance, but existing methods target short-context tasks. Therefore, we propose LongZero, a method that lets an LLM improve its own long-context reasoning without any external data. Instead of writing questions and answers over existing documents, LongZero first has the model synthesize the question and answer with its supporting evidence in a compact structured form, and only then separately expands the evidence into a long multi-document context. LongZero combines these self-written multi-hop reasoning tasks with self-written multi-round retrieval tasks and trains the model with GRPO. We evaluate LongZero on two LLMs across five long-context reasoning benchmarks and compare it with RL on data synthesized from external corpora. Experimental results show that LongZero can generalize to real tasks, and outperforms both baselines, suggesting a viable and promising path to improving long-context reasoning of LLMs.",
+      "published": "2026-10-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.30132",
+        "pdf": "https://arxiv.org/pdf/2610.30132"
+      },
+      "upvotes": 6,
+      "githubRepo": "https://github.com/zhennan1/LongZero",
+      "githubStars": 4,
+      "numComments": 2,
+      "titleZh": "LongZero：从零数据增强 LLM 的长上下文推理",
+      "summaryZh": "长上下文强化学习依赖长而多样、可验证的训练数据，人工标注昂贵、自然数据稀缺，现有合成方法又依赖外部语料或更强的教师模型。LongZero 让模型先以紧凑的结构化形式自行生成问题、答案与支撑证据，再单独把证据扩展成多文档长上下文，并把自写的多跳推理任务与多轮检索任务结合，用 GRPO 训练。在两个 LLM、五个长上下文推理基准上，该方法能泛化到真实任务，并优于基于外部语料合成数据的 RL 基线，为无外部数据的长上下文自我进化提供了可行路径。",
+      "score": 8,
+      "reason": "零数据自写任务 + 长上下文 GRPO 后训练，直接命中关注方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.35671",
+      "title": "Evaluating DeepSeek V4.1 Flash-1017 for loss of control and harmful manipulation risks",
+      "authors": [
+        "Yao Huang",
+        "Zhiyuan Zeng",
+        "Yu Wang",
+        "Zhitong Zhu",
+        "Dingcheng Duan",
+        "Hao Li"
+      ],
+      "authorsTotal": 17,
+      "abstract": "As frontier language models grow increasingly capable and autonomous, independent third-party evaluations are critical for characterizing their systemic safety risks. While closed-source releases are routinely accompanied by comprehensive system cards, open-weight models receive less scrutiny regarding frontier risks. To address this gap, we present an independent safety evaluation of DeepSeek V4.1 Flash-1017, the latest version of V4.1 Flash that departs from V4 with a new architecture, scaled-up training, and strong agentic capabilities. Drawing on the EU General-Purpose AI Code of Practice, we evaluate the model across 34 benchmarks, including 5 in-house suites, spanning evaluation integrity, loss of control, and harmful manipulation. Conforming to the AEF-1 standard, we compare V4.1 Flash-1017 against V4.1 Flash, earlier DeepSeek V4 models, and leading closed-source systems (GPT-6 Astra, GPT-5.6 Sol, and Gemini 3.8 Flash). Overall, V4.1 Flash-1017 shows substantial safety improvements over the V4 generation and approaches or matches leading closed-source baselines on several dimensions, while still exhibiting notable behaviors that warrant continued attention. Building on our findings, we highlight three key observations and recommendations. First, because safety can shift and even regress across minor updates, developers should integrate safety evaluation into incremental releases. Second, as final-turn outputs and end-state checks alone cannot reliably detect loss-of-control behaviors, deployments require process-level observability across both reasoning traces and action logs. Third, because public benchmarks elicit strong evaluation awareness and face data contamination risks, developing private benchmarks is essential for trustworthy frontier evaluation.",
+      "published": "2026-10-26T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.35671",
+        "pdf": "https://arxiv.org/pdf/2610.35671"
+      },
+      "upvotes": 4,
+      "numComments": 2,
+      "titleZh": "评估 DeepSeek V4.1 Flash-1017 的失控与有害操纵风险",
+      "summaryZh": "开源权重模型缺少前沿风险的第三方评估，本文参照欧盟 GPAI 行为准则设计评估框架，覆盖评估完整性、失控与有害操纵三类风险，共 34 个 benchmark（含 5 个自建套件），按 AEF-1 标准将 DeepSeek V4.1 Flash-1017 与 V4.1 Flash、早期 V4 及 GPT-6 Astra、GPT-5.6 Sol、Gemini 3.8 Flash 横向对比。结果显示，其安全性较 V4 世代显著提升，多个维度接近或匹配领先闭源基线，但仍存在值得持续关注的行为。作者据此建议将安全评估纳入增量发布流程，在推理轨迹与动作日志上做过程级可观测性，并建设私有 benchmark 以规避评测感知与数据污染。",
+      "score": 7,
+      "reason": "前沿模型第三方安全评测，命中评测与对齐方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.29702",
+      "title": "CausGround: Causal Interaction Grounding for Adaptive Embodied Planning",
+      "authors": [
+        "Yijun Shen",
+        "Diqi He",
+        "Jinbang Guo",
+        "Wanyue Zhang",
+        "Jiaming Mi",
+        "Huan Yang"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Multimodal large language models (MLLMs) show promising reasoning capabilities, but reliable physical interaction requires planning that accounts for when actions are executable and how they change the world. These preconditions and effects are environment-dependent and often not captured by MLLMs, making adaptation challenging. Yet existing approaches either require costly environment-specific training or rely on unstructured interaction experience that is difficult to reuse. Therefore, we introduce CausGround, a non-parametric causal interaction grounding framework that distills interaction experience into reusable action-centered causal knowledge. CausGround identifies action preconditions and effects and organizes them in a factorized world-state representation capturing object attributes and inter-object relations. At planning time, task-relevant causal dependencies are grounded in current observations to support backward reasoning over preconditions and forward reasoning over effects for action selection and multi-step planning. We evaluate CausGround on simulated high-level planning, interaction reasoning, and real-world robot manipulation. On adapted VirtualHome and RoboCasa benchmarks, CausGround improves vision-based high-level planning across MLLM backbones, increasing average task success from 24.9% to 53.3% on VirtualHome and closed-loop planning success from 43.0% to 57.0% on RoboCasa. On SWITCH, average interaction reasoning accuracy increases from 25.8% to 31.9%, indicating improved action selection, recovery, and verification. Moreover, real-world experiments show that CausGround reasons backward from MLLM-interpreted goals to derive executable high-level action sequences for sequential manipulation. These results demonstrate that reusable action preconditions and effects support long-horizon embodied planning across diverse environments without parameter updates.",
+      "published": "2026-10-21T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.29702",
+        "pdf": "https://arxiv.org/pdf/2610.29702"
+      },
+      "upvotes": 4,
+      "githubRepo": "https://github.com/Intelligent-Interaction/CausGround",
+      "githubStars": 1,
+      "projectPage": "https://causground.github.io/",
+      "numComments": 2,
+      "titleZh": "CausGround:面向自适应具身规划的因果交互接地",
+      "summaryZh": "多模态大模型难以判断动作何时可执行、执行后如何改变世界，而这类前置条件与效果依赖具体环境;现有做法要么需昂贵的环境专属训练，要么依赖难以复用的非结构化交互经验。CausGround 将交互经验蒸馏为可复用的、以动作为中心的因果知识，显式识别动作前置条件与效果，并以分解式世界状态表示组织物体属性与物体间关系;规划时把任务相关因果依赖接地到当前观测上，用前置条件反向推理、效果正向推理来选动作与多步规划，全程不更新参数。在 VirtualHome 上视觉高层规划平均任务成功率由 24.9% 升至 53.3%,RoboCasa 闭环规划成功率由 43.0% 升至 57.0%,SWITCH 上交互推理准确率由 25.8% 升至 31.9%，并在真实机器人顺序操作中由 MLLM 解析的目标反推可执行动作序列。",
+      "score": 2,
+      "reason": "具身智能与机器人操作，按画像归低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.33645",
+      "title": "PreView: Enhancing GUI Grounding with Preprocessed Views and Cues",
+      "authors": [
+        "Wenjun Hou",
+        "Kaishuai Xu"
+      ],
+      "authorsTotal": 2,
+      "abstract": "GUI grounding requires locating small controls in cluttered screenshots and identifying which control a natural-language instruction refers to. Cropping and enlargement can expose local detail, but the resulting image may still leave ambiguity about the intended target. We propose PreView, an auxiliary preprocessor that improves the inputs to an existing grounding model without further training that model. PreView prepares two complementary types of input features: task-relevant views for localization and candidate-specific cues for target understanding. A trained lightweight auxiliary model predicts and refines a center, crops the screenshot into a local view, and enlarges that view for zoomed-in grounding. It also prepares a visual cue (i.e., a red-circle marker with a location hint) and a textual cue describing the candidate's identity or function. The frozen grounding model uses the prepared inputs to predict the final click. Across five benchmarks, PreView improves the average grounding accuracy of Qwen3-VL-2B, OS-Atlas-4B, and Qwen3-VL-4B without further training these grounding models. Extensive analyses examine the contributions of views and cues, center refinement, and visual input budgets.",
+      "published": "2026-10-24T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.33645",
+        "pdf": "https://arxiv.org/pdf/2610.33645"
+      },
+      "upvotes": 2,
+      "numComments": 1,
+      "titleZh": "PreView:用预处理视图与线索增强 GUI grounding",
+      "summaryZh": "GUI grounding 需要在杂乱截图中定位小控件并判断指令所指目标，裁剪放大后仍可能歧义。PreView 作为不重训 grounding 模型的辅助预处理器，训练轻量模型预测并细化目标中心，裁剪出任务相关局部视图并放大，同时生成红圈标记加位置提示的视觉线索与描述候选身份的文本线索，供冻结的 grounding 模型预测最终点击。在五个基准上，PreView 无需额外训练即提升 Qwen3-VL-2B、OS-Atlas-4B 与 Qwen3-VL-4B 的平均 grounding 准确率，并分析了视图、线索、中心细化与视觉输入预算的贡献。",
+      "score": 7,
+      "reason": "GUI grounding 预处理增强，属 Agent 感知环节的扎实工作",
+      "deepDive": false
+    },
+    {
+      "id": "2610.27100",
+      "title": "LOB-Impact Benchmark: Emergent Market Impact in Generative Limit Order Book Models",
+      "authors": [
+        "George Nigmatulin",
+        "Valentin Mohl",
+        "Sascha Frey",
+        "Kang Li",
+        "Aramis Marti-Shahandeh",
+        "Mihai Cucuringu"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Realistic market impact is essential for generative limit order book (LOB) models to serve as world models for trading agents. If a simulator misprices this mechanism, agents learn policies that are optimal in the simulator but wrong in the real market. Existing metrics assess generated streams purely through distributional comparison with historical data, leaving counterfactual response to an agent's own orders largely unexplored. Here, we show that market impact emerges naturally in neural LOB generators trained solely for next-token prediction. We inject execution-style metaorders into the generated message flow of five autoregressive models across five NASDAQ stocks and measure the response using estimators from the empirical impact literature, validated on baselines whose physics is known in advance. Our benchmark evaluates any message-level generator in three phases: free generation (reading order-flow persistence against price diffusivity); metaorder injection (yielding the impact law's exponent and amplitude); and a post-execution window (measuring relaxation). In addition, comparing each visible injection to a blind, simulator-only control isolates the model's learned response from standard book mechanics. For every model on every stock, we measure how the impact responds as a function of cumulative metaorder participation. Interestingly, we observe emergent impact in generative models of market data, with exponents in the range of 0.63 to 1.21, slightly above the traditional 0.5 of the square-root law of impact. In the family of models tested, we are so far unable to observe impact decay during relaxation. We tentatively attribute this to the still-short context windows of the models. We release the benchmark as open source to validate future generative models for market data.",
+      "published": "2026-10-19T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.27100",
+        "pdf": "https://arxiv.org/pdf/2610.27100"
+      },
+      "upvotes": 2,
+      "githubRepo": "https://github.com/george-nigmatulin/lob_impact",
+      "githubStars": 3,
+      "projectPage": "https://george-nigmatulin.github.io/lob_impact/",
+      "numComments": 2,
+      "titleZh": "LOB-Impact 基准：生成式限价订单簿模型中的涌现市场冲击",
+      "summaryZh": "生成式限价订单簿模型如果要充当交易 Agent 的世界模型，就必须复现真实的市场冲击；现有指标只把生成流与历史数据做分布比对，不检验模型对 Agent 自身下单的反事实响应。该基准分三阶段评测任意消息级生成器：自由生成阶段考察订单流持续性与价格扩散性；metaorder 注入阶段拟合冲击律的指数与幅度；执行后窗口阶段测量松弛，并用仅模拟器的盲对照剥离订单簿机械效应。在五个 NASDAQ 股票与五个自回归模型上，注入执行型 metaorder 后涌现出指数为 0.63–1.21 的市场冲击，略高于平方根律的 0.5；受模型上下文窗口仍偏短所限，尚未观察到松弛期的冲击衰减。",
+      "score": 4,
+      "reason": "金融 LOB 生成模型评测，属垂直应用，仅与 Agent 世界模型沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.37626",
+      "title": "Know, then Draw: A New Learning Paradigm for Visual Generation",
+      "authors": [
+        "Yucheng Mao",
+        "Chongjian Ge",
+        "Zhuowen Tu",
+        "Hao Tan",
+        "Hanwen Jiang"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Visual generation requires both high-level semantic knowledge and fine-grained pixel details. We propose a learning paradigm that assigns these roles to autoregressive pretraining for knowledge acquisition and diffusion post-training for high-fidelity rendering. Within this framework, we study the objective, representation, and scaling of knowledge acquisition and rendering. Controlled comparisons identify autoregression as the stronger pretraining objective for downstream rendering, improving both learning efficiency and final generation quality. We further find that AR-only generation quality does not necessarily correlate with final performance; semantic quality matters more. This motivates a purely semantic tokenizer trained with language supervision alone, without an image decoder or reconstruction loss. We establish compute-optimal scaling laws for knowledge acquisition and rendering, and find that autoregressive pretraining lowers the fitted asymptotic rendering loss compared with pixel diffusion models trained from scratch. Guided by the laws, we train a 3B-parameter text-to-image model with only 6,600 H100 GPU-hours, achieving 86 on GenEval and 87 on DPG-Bench and validating the proposed paradigm at scale.",
+      "published": "2026-10-27T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.37626",
+        "pdf": "https://arxiv.org/pdf/2610.37626"
+      },
+      "upvotes": 2,
+      "numComments": 2,
+      "titleZh": "先知晓，再绘制:视觉生成的新学习范式",
+      "summaryZh": "视觉生成同时需要高层语义知识与像素级细节，该工作把两者拆给两个阶段:自回归预训练负责知识获取，扩散后训练负责高保真渲染。受控对比显示自回归是更强的预训练目标，且纯自回归生成质量与最终效果并不必然相关，语义质量更为关键;据此提出仅用语言监督训练、不含图像解码器与重建损失的纯语义 tokenizer。作者还建立了知识获取与渲染的计算最优 scaling law，发现自回归预训练相比从零训练的像素扩散模型降低了拟合的渐近渲染损失，并据此用 6600 H100 GPU 小时训练出 3B 文本到图像模型，GenEval 达 86、DPG-Bench 达 87。",
+      "score": 3,
+      "reason": "属视觉生成方向，仅自回归预训练与 scaling law 沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.36095",
+      "title": "Instruction Capacity: Behavior and Degradation of Language Models under Controlled Load",
+      "authors": [
+        "Hennadii Kutomanov"
+      ],
+      "authorsTotal": 1,
+      "abstract": "The quality with which language models follow instructions falls as the load grows, yet there is still no quantity that expresses the limit of a model in units of load with an uncertainty. We propose an instrument in which the load consists of rules that replace single-token words in a text without meaning: such an instruction is atomic, the rules are independent by the construction of the task, and the outcome of every application of a rule is determined by a computable reference answer. Every occurrence of a word to be replaced becomes a Bernoulli trial with a known position in the answer and a known rule number. The statistical model first measures the shape of the dependence of the probability of a right replacement on the text length, the word position, the replacement density, the number of rules and the rule number, then describes it by smooth laws and restores a reference level that does not depend on the choice of the coding. The model yields the instruction capacity - the number of rules held at a given share of right replacements - with an uncertainty. A measurement of GPT-4o mini (2958 requests, 642,430 trials) gave regular laws for every load factor and for the collapse of the answer; the instruction capacity was about 37-38 rules at a share of right replacements of 0.95, and about 18-19 rules at the full replacement density. The code of the instrument, the measurement data and the passport are open, and every number of the passport is recomputed from the published points. The passport of a model serves as the calibration of a future meter of the instruction load of prompts.",
+      "published": "2026-10-26T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.36095",
+        "pdf": "https://arxiv.org/pdf/2610.36095"
+      },
+      "upvotes": 2,
+      "githubRepo": "https://github.com/kutomanovhennadii/instruction-capacity",
+      "githubStars": 0,
+      "projectPage": "https://huggingface.co/spaces/kutomanovhennadii/iec-instrument",
+      "numComments": 2,
+      "titleZh": "指令容量：语言模型在受控负载下的行为与退化",
+      "summaryZh": "针对语言模型随指令负载增加而遵循质量下降、却缺乏带不确定度的负载极限度量的问题，将负载设计为在无意义文本中按独立规则替换单词，使每次替换成为位置和规则编号已知的伯努利试验，并用统计模型拟合正确替换概率随文本长度、词位置、替换密度、规则数与规则编号的变化，进而估计给定正确率下的指令容量及不确定度。对GPT-4o mini的2958次请求、642430次试验测得0.95正确率下容量约37到38条规则，满替换密度下约18到19条，可作为提示指令负载计的校准。",
+      "score": 7,
+      "reason": "指令遵循负载的量化评测工具，属评测方法学扎实工作",
+      "deepDive": false
+    },
+    {
+      "id": "2610.34186",
+      "title": "HuGe: Scaling Humanoid Generalist Vision-Language-Action Models with Egocentric Experience",
+      "authors": [
+        "Yang Liu",
+        "Jiacheng Liu",
+        "Hengtao Li",
+        "Yuheng Huang",
+        "Zijian Yang",
+        "Ji Dai"
+      ],
+      "authorsTotal": 17,
+      "abstract": "Extending Vision-Language-Action models (VLAs) to humanoid robots requires coordinated whole-body control and diverse demonstrations that are costly to collect in real-world scenarios. Although egocentric human demonstrations provide a complementary source of task experience, differences in visual embodiment and missing robot proprioception complicate transfer to humanoid policies. To address these challenges, we introduce HuGe, a family of Humanoid Generalist VLAs pre-trained on over 2,000 hours of egocentric human and robot data. Specifically, HuGe employs three existing representative VLA architectures to predict latent motion tokens for a pretrained whole-body controller, together with hand-control signals. Based on this, we introduce a three-stage training pipeline that combines egocentric pre-training, humanoid adaptation, and downstream fine-tuning. To facilitate transfer across embodiments, we construct pseudo-proprioceptive states through simulation playback during pre-training and modify arm appearance in egocentric observations through re-rendering during downstream fine-tuning. With this pipeline, HuGe achieves the state-of-the-art on simulation benchmark HumanoidArena. Furthermore, real-world experiments on the Unitree G1 indicate that augmenting robot demonstrations with visually adapted egocentric demonstrations significantly increases success on a pick-and-drop task.",
+      "published": "2026-10-25T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.34186",
+        "pdf": "https://arxiv.org/pdf/2610.34186"
+      },
+      "upvotes": 2,
+      "githubRepo": "https://github.com/yliu-cs/HuGe",
+      "githubStars": 11,
+      "projectPage": "https://yliu-cs.github.io/HuGe",
+      "numComments": 2,
+      "titleZh": "HuGe:用第一人称视角经验扩展人形通用视觉-语言-动作模型",
+      "summaryZh": "人形机器人的全身控制策略依赖昂贵的真机示范，第一人称人类数据虽能补充任务经验，却存在视角差异与缺失本体感知导致的迁移障碍。HuGe 基于三种代表性 VLA 架构，预测预训练全身控制器的隐式运动 token 与手部控制信号，并配套第一人称预训练、人形适配、下游微调的三阶段训练流程:预训练时通过仿真回放构造伪本体感知状态，微调时重渲染改变手臂外观以缩小跨本体视觉差异。该方案在仿真基准 HumanoidArena 上取得 SOTA,Unitree G1 真机实验表明，用视觉适配后的第一人称示范增广机器人数据可显著提升抓取放置任务的成功率。",
+      "score": 1,
+      "reason": "人形机器人 VLA，落在画像中具身智能低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2601.15351",
+      "title": "OmniSpectra: A Unified Foundation Model for Universal Spectra Representation Learning",
+      "authors": [
+        "Md Khairul Islam",
+        "Zeyu Xia",
+        "Adam S. Bolton",
+        "Judy Fox"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Standard sequence models encode position by token rank rather than physical coordinate, typically forcing practitioners to destructively resample continuous physical signals such as spectra observed across heterogeneous instruments. We identify this coordinate mismatch as a structural limitation in cross-instrument representation learning, and propose OmniSpectra, a wavelength-native foundation model for spectral representation learning: a continuous-coordinate masked autoencoder that discards the integer pixel indexing of sequence modeling. Mapping physical coordinates to a logarithmic basis turns the multiplicative scaling induced by cosmological redshift into a uniform additive shift. In continuous rotary position embeddings, this shared shift cancels from relative token distances rather than producing grid-dependent positional distortion. We further counter the spectral bias inherent to implicit neural decoders with a physics-grounded, resolution-gated Fourier decoder that provides anti-aliasing. Pretrained on eight surveys and benchmarked against seven baselines, our model reaches state-of-the-art performance with only 12.2M parameters while outperforming substantially larger models, indicating that encoding physical structure can substitute for parameter scale.",
+      "published": "2026-10-23T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2601.15351",
+        "pdf": "https://arxiv.org/pdf/2601.15351"
+      },
+      "upvotes": 2,
+      "numComments": 2,
+      "titleZh": "OmniSpectra:面向通用光谱表示学习的统一基础模型",
+      "summaryZh": "标准序列模型按 token 序号而非物理坐标编码位置，导致跨仪器观测的连续物理信号(如光谱)必须被破坏性重采样。该工作把物理坐标映射到对数基，使宇宙学红移带来的乘性尺度变化转为统一的加性平移，并在连续旋转位置编码中让该平移从相对 token 距离中抵消，避免网格相关的定位畸变;同时用分辨率门控的傅里叶解码器抑制隐式神经解码器的谱偏置并提供抗混叠。在八个巡天数据集上预训练、对比七个基线，以仅 12.2M 参数取得 SOTA 并超过更大模型，说明编码物理结构可替代参数规模。",
+      "score": 2,
+      "reason": "天文光谱基础模型，仅位置编码沾边架构方向",
+      "deepDive": false,
+      "relevant": false
+    }
+  ],
+  "arxiv": [],
+  "arxivStatus": "pending",
+  "generatedAt": "2026-10-30T08:39:02.648828+00:00"
+}
