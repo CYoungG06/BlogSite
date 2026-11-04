@@ -1,0 +1,832 @@
+{
+  "date": "2026-11-03",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2611.01860",
+      "title": "Advances in Agentic Computer Graphics",
+      "authors": [
+        "Hengyu Liu",
+        "Jihyeon Je",
+        "Ruiqi Wang",
+        "Mingxuan Wu",
+        "Haven Feng",
+        "Qixing Huang"
+      ],
+      "authorsTotal": 14,
+      "abstract": "Computer graphics is built on code. Large language model (LLM) agents can now generate graphics code and iteratively refine it through various feedback. This capability opens the door to a potentially new paradigm of computer graphics, with graphics algorithms increasingly built around agentic systems to automate progressively complex tasks. Over the past years, research on agentic graphics has expanded rapidly across a diverse range of tasks. This rapid growth makes it increasingly difficult for manual literature reviews to keep pace with new developments. At the same time, similar ideas are often described using different terminology across these tasks, further complicating efforts to develop a systematic understanding of the field. In this report, we address these challenges through two contributions. First, we introduce a unified taxonomy for characterizing agentic systems across diverse computer graphics tasks. Second, we develop an agentic literature system that can assist human researchers in analyzing existing and newly published papers at scale. Building on these contributions, we analyze emerging research trends and discuss open challenges in coordinating agents and tools across graphics tasks, designing interfaces and representations for human-agent collaboration, sustaining long-horizon planning and refinement, and reliably evaluating interactive graphics systems.",
+      "published": "2026-11-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.01860",
+        "pdf": "https://arxiv.org/pdf/2611.01860"
+      },
+      "upvotes": 126,
+      "numComments": 1,
+      "titleZh": "智能体化计算机图形学的进展",
+      "summaryZh": "图形学算法以代码为载体，LLM智能体已能生成图形代码并借助多种反馈迭代改进，由此催生「智能体图形学」这一新范式;但相关研究分散、术语不统一，人工综述难以跟进。本报告给出一个统一分类体系来刻画各类图形任务中的智能体系统，并构建智能体文献系统辅助研究者大规模分析新旧论文，在此基础上梳理研究趋势，并讨论跨任务协调智能体与工具、人机协作的接口与表示设计、长程规划与迭代改进的维持、交互式图形系统的可靠评测等开放挑战。",
+      "score": 5,
+      "reason": "LLM智能体应用于图形学，方向擦边且为综述性质",
+      "deepDive": false
+    },
+    {
+      "id": "2611.00859",
+      "title": "Wave Forcing: Towards Speed-of-Light Streaming Video Generation",
+      "authors": [
+        "Yijie Jin",
+        "Yuxuan Liu",
+        "Jiajun Xu",
+        "Ye Huang",
+        "Chuzhi Wang",
+        "Jiayang Li"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Real-time long-video generation requires continuous output with consistent appearance and natural motion. Existing chunk-wise autoregressive methods face challenges in both generation efficiency and long-video quality: serialized denoising and history-cache refresh require two forward passes even with one-step denoising, and longer rollouts can degrade quality and cause camera drift. We propose Wave Forcing (WF), which co-designs generation, training, and execution for continuous video output with multi-step denoising. WF uses chunk-wise causal attention to access earlier, cleaner chunks before their denoising is complete, and distributes staggered denoising and cache-refresh stages across full-model replicas to achieve 1F1C: one output chunk per concurrent forward round after pipeline fill. To adapt the model to this continuous generation process, we develop a three-stage training procedure that successively introduces mixed-noise denoising, motion supervision, and causal adaptation using self-generated history. To execute this process efficiently, Wave Runtime (WaveRT) uses Wave Parallelism (WP) for early K/V delivery and communication-computation overlap, together with optimized kernels and pipelined VAE decoding. Experiments on Wan2.1-T2V-1.3B show that 5-step WF maintains overall quality comparable to Rolling Forcing while achieving higher Dynamic Degree on both short and long videos. Our system efficiency experiments show that 4-step WF achieves 147.6 DiT FPS and 134.8 end-to-end FPS on eight H200 GPUs, yielding 7.07x the single-GPU end-to-end throughput. In DiT-only tests with matched SageAttention+W8A8 backends, denoising steps, and GPU counts, WP delivers up to 2.53x the throughput of the faster of the Ulysses and Ring context-parallel baselines across six model scales (1.3B-14B).",
+      "published": "2026-10-31T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.00859",
+        "pdf": "https://arxiv.org/pdf/2611.00859"
+      },
+      "upvotes": 120,
+      "githubRepo": "https://github.com/SJTU-DENG-Lab/WaveForcing",
+      "githubStars": 110,
+      "projectPage": "https://sjtu-deng-lab.github.io/WaveForcing/",
+      "numComments": 5,
+      "titleZh": "Wave Forcing：迈向光速级流式视频生成",
+      "summaryZh": "流式长视频生成需要连续输出，并保持外观与运动一致，而现有分块自回归方法即使单步去噪也要两次前向，长程 rollout 还会质量下降、镜头漂移。Wave Forcing 协同设计生成、训练与执行：分块因果注意力提前读取更干净的前序块，并把错峰去噪与缓存刷新分摊到多个全模型副本，实现每轮前向产出一个块的 1F1C 流水；配合三阶段训练与 Wave Runtime（早发 K/V、通信计算重叠）。在 Wan2.1-T2V-1.3B 上，5 步版本质量与 Rolling Forcing 相当而动态程度更高；八卡 H200 上 4 步达 134.8 端到端 FPS，为单卡 7.07 倍，其并行在 1.3B–14B 六个规模上最高为 Ulysses/Ring 较快者的 2.53 倍。",
+      "score": 4,
+      "reason": "扩散式流式视频生成属低分方向，仅并行推理系统部分擦边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.03126",
+      "title": "CUA-Master: Scaling Computer-use Agents through Open-World Recursive Improvements",
+      "authors": [
+        "Xinlei Yu",
+        "Gen Li",
+        "Ji Zhao",
+        "Zhangquan Chen",
+        "Congcong Wang",
+        "Shuai Dong"
+      ],
+      "authorsTotal": 18,
+      "abstract": "Despite recent advances in CUAs, their development remains constrained by the limited diversity, controllability, and reliability of interaction data. Moreover, conventional optimization pipelines lack iterative feedback, while existing recursive improvement approaches often rely on self-generated experiences, limiting ability expansion and yielding diminishing returns. To address these challenges, we introduce CUA-Master, a nested double-loop recursive improvement framework. At the system level, an outer world-data-model flywheel continuously incorporates open-world corpus and leverages evolving model weaknesses to guide subsequent data construction and optimization iterations. At the data level, an inner flywheel couples open-world seeding and autocatalytic propagation. The former mines authentic workflows as seed tasks from instructional videos, and employs visual-semantic dual-path trajectory reconstruction; The latter transforms these seeds into reusable primitives for controllable synthesis of diverse, complex, and verifiable tasks. To enable efficient and reliable trajectory collection, we further introduce a feedback-guided snapshot-rollback retry mechanism in various real environments. Extensive experiments demonstrate that CUA-Master-27B achieves competitive performance across GUI-only and GUI-CLI hybrid benchmarks, scoring 80.2 on OSWorld Verified, 36.9 on OSWorld 2.0, 43.9 on WeaveBench, and 25.0 on Agents' Last Exam. Our framework also substantially improves the quality and efficiency of data synthesis, and exhibits continuous gains across recursive iterations.",
+      "published": "2026-11-02T13:41:14.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03126",
+        "pdf": "https://arxiv.org/pdf/2611.03126"
+      },
+      "upvotes": 97,
+      "githubRepo": "https://github.com/xlyu0106/CUA-Master",
+      "githubStars": 88,
+      "projectPage": "https://xlyu0106.github.io/CUA-Master/",
+      "numComments": 1,
+      "titleZh": "CUA-Master：通过开放世界递归改进扩展 computer-use agent",
+      "summaryZh": "针对 computer-use agent 的交互数据在多样性、可控性与可靠性上的不足，以及现有递归自我改进依赖自生成经验、收益递减的问题，提出嵌套双环框架 CUA-Master：外层由世界、数据、模型构成递归改进流程，持续吸收开放世界语料，并以模型弱点指导后续数据构建与优化迭代；内层从教学视频挖掘真实工作流作为种子任务，经视觉—语义双路径轨迹重建转为可复用基础单元，进而可控地合成多样、可验证的任务，并配合反馈引导的快照回滚重试机制，在真实环境中采集轨迹。CUA-Master-27B 在 OSWorld Verified 得 80.2、OSWorld 2.0 得 36.9、WeaveBench 得 43.9、Agents' Last Exam 得 25.0，并在递归迭代中持续增益。",
+      "score": 8,
+      "reason": "Agent 数据合成与递归自我改进系统性工作，OSWorld 结果扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2611.03178",
+      "title": "CoworkOS:Scaling Agent Coworkers for Real-world Automation",
+      "authors": [
+        "Jiajie Jin",
+        "Guanting Dong",
+        "Chengjun Pan",
+        "Xin Deng",
+        "Zhuohui Sheng",
+        "Guoqiang Wang"
+      ],
+      "authorsTotal": 40,
+      "abstract": "Rapid advances in cowork agents are shifting human-AI collaboration toward real-world automation, delivering software, designs, and other artifacts. However, such productivity work demands both high-quality delivery on complex productivity tasks and continued monitoring and decision-making over long horizons, a combination that remains an open challenge. We introduce CoworkOS, a general-purpose harness for long-horizon work that separates task strategy from execution management: the model decides actions, delegation, and acceptance, while the runtime maintains state and feedback. Its three-layer architecture enables direct execution or delegation to Subagents, synchronously or asynchronously, under stable responsibilities. Through a shared application layer, humans and agents inspect and revise the same evolving documents, presentations, CAD models, and Blender scenes, so human-in-the-loop participation can enter both through conversation and through direct modification of the work itself. To sustain continuity across agents and sessions, CoworkOS further introduces hierarchical workspaces and persistent semantic memory, so working files, key decisions, and long-running Job logs remain shareable, reusable, and resumable after interruption. Across 12 benchmarks and 6 categories of real-world applications, CoworkOS proves highly competitive with frontier agent applications such as Codex and DeepSeek Harness. As a sustained-work case study, CoworkOS uses GLM-5.3 as its backbone to conduct RSI-driven automated post-training on Qwen3.6-35B-A3B. Over five rounds, the model's average score across eight benchmarks rose from 33.19 to 42.95 (+9.76). Looking ahead, we believe CoworkOS opens a meaningful path toward general cowork-agent intelligence.",
+      "published": "2026-11-02T14:15:11.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03178",
+        "pdf": "https://arxiv.org/pdf/2611.03178"
+      },
+      "upvotes": 92,
+      "githubRepo": "https://github.com/RUC-NLPIR/CoworkOS",
+      "githubStars": 104,
+      "projectPage": "https://coworkos-ai.github.io",
+      "numComments": 2,
+      "titleZh": "CoworkOS:扩展智能体协作者以实现真实世界自动化",
+      "summaryZh": "面向长周期生产力任务，将任务策略与执行管理解耦:模型负责决策、委派与验收，运行时维护状态与反馈;三层架构支持直接执行或同步/异步委派给Subagent，人类与智能体可在同一应用层编辑同一份文档、演示、CAD与Blender场景。分层工作区与持久语义记忆让工作文件、关键决策与长任务日志可共享、复用、断点续跑。在12个benchmark、6类真实应用中与Codex、DeepSeek Harness等前沿agent应用竞争力相当;并以GLM-5.3为骨干对Qwen3.6-35B-A3B执行RSI自动化后训练，五轮后八个benchmark均分从33.19升至42.95(+9.76)。",
+      "score": 9,
+      "reason": "Agent harness+持久记忆+RSI自动后训练，直接命中Agent与后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.40191",
+      "title": "Video Generation Meets Agent Harness: Agentic Video Generation, Agentic World Modeling and Recursive Self-Improvement",
+      "authors": [
+        "Liaoyuan Fan",
+        "Yuhao Zheng",
+        "Dongxing Mao",
+        "Hangyu Ran",
+        "Siyuan Hu",
+        "Weijia Mao"
+      ],
+      "authorsTotal": 21,
+      "abstract": "Video generation is shifting from end-to-end synthesis toward agentic generation, where planning, tool use, and feedback enable coherent, controllable multi-shot videos. In parallel, video world models provide action-conditioned observations and predicted futures, serving as interactive environments for agents. We study their intersection through the agent harness: an executable runtime that constructs context, exposes tools, maintains state, routes feedback, and manages budgets around video models. This report examines three directions. First, agentic video generation, where harnesses coordinate scripting, shot planning, asset management, production, and editing, alongside the evaluation challenges of these systems. Second, agentic world modeling, where harnesses mediate observation, control, execution, and state. We discuss hybrid designs in which game engines or agent-written programs maintain world state while video models render observations, and how agents and world models can mutually evaluate and improve one another. Third, recursive self-improvement (RSI) in video model development, distinguishing output revisions, updates to harness state, generator parameters, and evaluators, and changes to the improvement procedure itself. We identify how these improvements feed back into subsequent development. Across these directions, we analyze essential agent capabilities, including audiovisual perception, long-horizon planning, memory, code-based interaction, feedback-guided control, skill reuse, and multi-agent coordination. We conclude with challenges in autonomous video production, lifelong memory, programmable hybrid control, autonomous model development, provenance, cost accounting, and evaluation linking video quality and task performance to sustained improvements in models and harnesses.",
+      "published": "2026-10-29T14:47:39.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.40191",
+        "pdf": "https://arxiv.org/pdf/2610.40191"
+      },
+      "upvotes": 73,
+      "githubRepo": "https://github.com/agentic-videogen/awesome-agentic-videogen",
+      "githubStars": 42,
+      "projectPage": "https://agentic-videogen.github.io/",
+      "numComments": 2,
+      "titleZh": "视频生成遇上Agent Harness:Agentic视频生成、Agentic世界建模与递归自我改进",
+      "summaryZh": "以agent harness(负责构建上下文、暴露工具、维护状态、路由反馈与管理预算的可执行运行时)为统一视角，考察视频生成从端到端合成转向由规划与工具调用驱动的agentic生成:agentic视频生成中由harness协调剧本、分镜、素材、制作与剪辑，并讨论其评测难题;agentic世界建模中由harness中介观测、控制与状态，游戏引擎或agent编写的程序维护世界状态、视频模型渲染观测;以及视频模型开发中的递归自我改进，区分输出修订、harness状态、生成器参数、评估器与改进流程本身的变更。报告还梳理视听感知、长程规划、记忆、代码交互、反馈引导控制与多智能体协作等能力，并列出自主视频生产、终身记忆、可编程混合控制与评测联动的开放挑战。",
+      "score": 6,
+      "reason": "harness与RSI视角切中Agent方向，但落点在视频生成",
+      "deepDive": false
+    },
+    {
+      "id": "2611.01560",
+      "title": "Democratizing Robot-Use Agents: A Unified Harness with Open Models",
+      "authors": [
+        "Jiarui Yuan",
+        "Yuxin Zuo",
+        "Xiaoyu Huang",
+        "Wenbo Zhang",
+        "Kwanyoung Park",
+        "Junlin Yang"
+      ],
+      "authorsTotal": 28,
+      "abstract": "Robot-use Agents (RUAs) have shown promising zero-shot manipulation capabilities, but reliance on frontier, proprietary models limits research into further training. To democratize RUA research, we introduce uni-robot-agent, a unified harness for competitive open-weight robot use that supports further training. Without privileged inputs, an out-of-the-box Qwen3.8-Flash-Next achieves a RoboDojo Score of 31.39, surpassing the published GPT-6 Astra-RoboProbe result of 28.97 and many VLA/WAM baselines, and performs competitively on 19 real-world tasks. Our analysis across model generations, families, and sizes links effective robot use to four general capabilities, suggesting that future RUA training should develop them jointly.",
+      "published": "2026-11-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.01560",
+        "pdf": "https://arxiv.org/pdf/2611.01560"
+      },
+      "upvotes": 43,
+      "githubRepo": "https://github.com/Open-RUA/uni-robot-agent",
+      "githubStars": 162,
+      "projectPage": "https://openrua.ai/uni-robot-agent",
+      "numComments": 1,
+      "titleZh": "让机器人使用智能体走向大众：一套统一 harness 与开放模型",
+      "summaryZh": "针对机器人使用智能体（RUA）研究受限于闭源前沿模型、难以进一步训练的问题，构建了统一 harness「uni-robot-agent」，支持开放权重模型接入与后续训练，且不依赖特权输入。开箱即用的 Qwen3.8-Flash-Next 在该框架下取得 31.39 的 RoboDojo 分数，超过已发表的 GPT-6 Astra-RoboProbe 结果 28.97，并在 19 个真实任务上表现有竞争力。跨模型代际、家族与规模的分析将有效机器人使用归结为四项通用能力，认为未来 RUA 训练应联合培养这些能力。",
+      "score": 2,
+      "reason": "机器人与具身操作方向，按画像归低分",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.02074",
+      "title": "SWE-Trail: History-Guided Trajectory Collection for Coding Agent Training",
+      "authors": [
+        "Ziming Li",
+        "Lu Yu",
+        "Jiatan Huang",
+        "Qing Cui",
+        "Jun Zhou",
+        "Chuxu Zhang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Coding agents solve repository issues through long sequences of exploration, editing, and validation. These trajectories are increasingly used as post-training data, so how they are collected shapes what the trained model learns. A common approach is to sample multiple trajectories independently for each issue and then select or curate them. However, as more trajectories are sampled independently, later trajectories become increasingly redundant, even though earlier trajectories could guide where subsequent collection effort should be spent. A natural way to use this history is to expose it to the coding agent as advice. But training on such trajectories can make the model rely on advice that is unavailable at test time, creating a train-test mismatch. Instead, we argue that history should guide where collection effort is spent, while the coding agent decides what to generate. We introduce SWE-Trail, a trajectory collector that uses earlier trajectories to guide subsequent collection while keeping that history outside the coding agent's context. During a new rollout, SWE-Trail uses history to identify a state where additional collection effort may be useful. There, the coding agent proposes candidate next actions from its ordinary context, and SWE-Trail briefly executes them from the same checkpoint to decide which route continues. We evaluate collection approaches by training student models on the trajectories they produce. For a 124B student initialized from Ling-3.0-flash-base, SWE-Trail improves mean resolution over independent sampling by 2.33 and 1.60 percentage points on SWE-bench Multilingual and SWE-bench Pro, respectively. Without history, the same pipeline produces more resolved trajectories than independent sampling, but improves by only 0.11 points on Multilingual. These results show the value of using history to guide collection without exposing it to the coding agent.",
+      "published": "2026-11-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02074",
+        "pdf": "https://arxiv.org/pdf/2611.02074"
+      },
+      "upvotes": 37,
+      "numComments": 1,
+      "titleZh": "SWE-Trail：面向编码智能体训练的历史引导轨迹收集",
+      "summaryZh": "编码智能体的训练数据来自仓库问题求解的长轨迹，独立多次采样会迅速产生冗余，而把历史当作建议暴露给模型又会造成训练与测试不一致。SWE-Trail 让历史留在智能体上下文之外，只用它定位值得追加采集的状态；在该状态由智能体依据原始上下文提出候选动作，再从同一检查点短暂执行以选择路线。在由 Ling-3.0-flash-base 初始化的 124B 学生模型上，SWE-bench Multilingual 与 SWE-bench Pro 的平均解决率分别比独立采样高 2.33 与 1.60 个百分点，而无历史引导的同管线仅提升 0.11 个百分点。结果表明，历史应指导采集位置，而非进入模型上下文。",
+      "score": 8,
+      "reason": "编码智能体轨迹采集新方法，直接命中代码智能与 Agent 方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.03424",
+      "title": "IdeaTaste: Do LLMs Share the Research Taste of Human Researchers?",
+      "authors": [
+        "Shanshan Zhong",
+        "Chen Xu",
+        "Jingjie Ning",
+        "Zhengzhong Liu",
+        "Aviral Kumar",
+        "Chenyan Xiong"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Research taste, the judgment of what to read, which problems to pursue, and which methods to try, increasingly shapes the work of AI scientists, yet it remains far less understood than their ability to execute research. We introduce IdeaTaste, a benchmark that scores an LLM by how closely the research proposals it writes from a literature snapshot frozen at 2025 match the work the same communities published in 2026. Our experiments span six contemporary language models and four research areas from established to emerging fields, covering more than 90{,}000 proposals in total. LLM agents fall well short of human communities in both the literature they cite and the ideas they state, reaching about 26\\% of the human level on citation matching and only 18\\% on idea matching. Their populations can cite as diversely as a community and take up its tasks and methods, yet rarely arrive at the concrete approaches and research plans it pursues. Neither richer field context nor larger populations substantially close this gap. In blinded expert review, AI proposals trail the 2026 papers least in presentation and most in expected success, echoing their gap in concrete approaches, and those whose ideas no human paper shares fare worst, suggesting weaker directions rather than overlooked opportunities. These results indicate that the main bottleneck in AI research taste lies less in finding the directions a community works on than in turning them into the concrete approaches it goes on to pursue. We release IdeaTaste as an open, continuously updated leaderboard (https://cxcscmu.github.io/IdeaTaste) that benchmarks contemporary AI proposals against future publication cycles.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03424",
+        "pdf": "https://arxiv.org/pdf/2611.03424"
+      },
+      "upvotes": 36,
+      "githubRepo": "https://github.com/cxcscmu/IdeaTaste",
+      "githubStars": 3,
+      "projectPage": "https://cxcscmu.github.io/IdeaTaste/",
+      "numComments": 1,
+      "titleZh": "IdeaTaste：LLM 是否拥有人类研究者的科研品味？",
+      "summaryZh": "评估 LLM 的科研品味：能否像人类研究者一样判断读什么、追什么问题、试什么方法。构建 IdeaTaste 基准，以 2025 年文献快照为输入，让模型撰写研究提案，再与同一社区 2026 年实际发表的论文比对。覆盖 6 个当代语言模型、4 个从成熟到新兴的研究领域，共 9 万余条提案；模型在引用匹配上仅达人类水平约 26%，在想法匹配上仅 18%。扩大领域上下文或采样规模均无法显著缩小差距；盲审显示 AI 提案在具体方法上最弱。结果表明 AI 科研品味的主要瓶颈不在选题方向，而在把方向转化为具体可执行方案。",
+      "score": 8,
+      "reason": "LLM 科研品味评测新基准，关乎 AI for Research 与 Agent 规划",
+      "deepDive": true
+    },
+    {
+      "id": "2611.02897",
+      "title": "PhotoGuider: Composition-Aware Cropping and 360^{circ} View Framing with Explainable Photographic Assessments",
+      "authors": [
+        "Yuan-Kang Lee",
+        "Kuan-Lin Chen",
+        "Chia-Che Chang",
+        "Yu-Lun Liu"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Traditional image cropping assumes the photograph already contains the composition worth keeping, and asks only where to crop. A full 360^{circ} scene offers no such guarantee: the viewing direction in a scene has to be discovered before anything can be framed. We present PhotoGuider, a measure-then-frame method that answers both questions with compact learned scorers over one shared set of composition-aware features. The designed features are extracted using foundation and task-specific vision models and structured into four photographic tokens: Subject, Composition, Aesthetics, and Integrity. Our MLLM explainer is fine-tuned to generate composition-related explanations conditioned on images and measured token assessments. To our knowledge, PhotoGuider is the first method to combine explicit composition-based direction selection in 360^{circ} panoramas with refined framing, camera-parameter output for native re-rendering, and measurement-conditioned explanations. On two standard 2D cropping benchmarks, PhotoGuider achieves the highest average mIoU performance against ground-truth crops. In a blind ranking study, 120 participants ranked three cropping methods over 100 panoramic scenes from the public Poly Haven HDRI library, placing our framings first in 53.2% of cases, against 27.3% and 19.5% for two strong alternatives. Project page: https://ntuneillee.github.io/research/photoguider/",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02897",
+        "pdf": "https://arxiv.org/pdf/2611.02897"
+      },
+      "upvotes": 33,
+      "githubRepo": "https://github.com/NTUneillee/PhotoGuider",
+      "githubStars": 37,
+      "projectPage": "https://ntuneillee.github.io/research/photoguider/",
+      "numComments": 1,
+      "titleZh": "PhotoGuider：构图感知的裁剪与 360° 全景取景，附可解释的摄影评估",
+      "summaryZh": "传统图像裁剪默认照片已含值得保留的构图，只决定裁在哪里；360°全景则必须先找到可取的观察方向。PhotoGuider 用一组共享的构图感知特征「先测量再取景」：借助基础视觉模型与任务专用模型提取 Subject、Composition、Aesthetics、Integrity 四类摄影 token，再由紧凑的学习打分器同时完成全景方向选择与精细取景，输出相机参数以支持原生重渲染，并微调 MLLM 基于 token 评估生成构图解释。在两个 2D 裁剪基准上平均 mIoU 最高；120 人盲评 100 个 Poly Haven 全景场景，其取景 53.2% 居首（对比 27.3%、19.5%）。",
+      "score": 3,
+      "reason": "图像裁剪与全景取景属摄影应用，与关注方向几乎无交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.02102",
+      "title": "NorthCUA Technical Report: Turbocharging Computer-Use Agents through Experience at Scale",
+      "authors": [
+        "Chaoyun Zhang",
+        "Bingxuan Li",
+        "Pinxue Guo",
+        "Yangfan Gao",
+        "Zikun Cai",
+        "Tianci Xie"
+      ],
+      "authorsTotal": 30,
+      "abstract": "Scaling computer-use agents from individual actions to complex software work requires experience that connects decisions to complete outcomes. We present NorthCUA, an integrated system for turbocharging computer-use agents through experience at scale. Its Experience Flywheel supplies diverse executable tasks to the NorthCUA Harness, which sustains long interactions, records decisions, and checks task outcomes. The Flywheel uses these records to curate verified trajectories. For unsolved tasks, recursive self-improvement evolves reusable skills and preserves verified milestones so later attempts build on earlier progress. Staged Learning combines this experience with grounding data from the Flywheel to develop GUI competence through mid-training and long-horizon supervised fine-tuning. The policy then learns from fresh attempts in the same Harness through joint desktop-web reinforcement learning, closing the loop between experience production and policy improvement. The resulting Nano, Mini, and Pro family achieves state-of-the-art results among open-source models across GUI grounding, desktop execution, and Web interaction under the reported evaluation settings. For more responsive Web workflows, NorthCUA-Ultrafast pairs direct action selection with open-ended generation on pre-RL Nano, offering a measured quality-latency tradeoff. Together, these advances establish NorthCUA as a high-performing model family and a reusable foundation for agents that carry complex software work from intent to completion.",
+      "published": "2026-11-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02102",
+        "pdf": "https://arxiv.org/pdf/2611.02102"
+      },
+      "upvotes": 31,
+      "githubRepo": "https://github.com/beipo-ai/NorthCUA",
+      "githubStars": 39,
+      "projectPage": "https://beipo.top/blog/northcua/",
+      "numComments": 1,
+      "titleZh": "NorthCUA 技术报告：以规模化经验为计算机使用智能体提速",
+      "summaryZh": "面向计算机使用智能体从单步操作走向复杂软件工作的问题，构建了包含经验飞轮、NorthCUA Harness 与分阶段学习的整套系统：飞轮持续供给可执行任务，Harness 承载长程交互、记录决策并校验任务结果，据此筛选出经验证轨迹；对未解决任务采用递归自我改进演化可复用技能并保留已验证里程碑。训练上将飞轮接地数据用于中期训练与长程监督微调，再在同一 Harness 中用桌面与 Web 联合强化学习从新尝试中更新策略，闭合经验生产与策略改进的回路。所得 Nano、Mini、Pro 系列在 GUI grounding、桌面执行与 Web 交互上取得开源模型中的 SOTA，另有 NorthCUA-Ultrafast 以直接动作选择加开放生成给出可控的质量—延迟折中。",
+      "score": 9,
+      "reason": "计算机使用智能体系统级技术报告，Agentic RL 与自改进闭环直接命中方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.02112",
+      "title": "Order-Only On-Policy Distillation",
+      "authors": [
+        "Guangzeng Han",
+        "Yu Wu",
+        "Xiaolei Huang"
+      ],
+      "authorsTotal": 3,
+      "abstract": "On-policy distillation (OPD) trains a student on its own generations by matching the teacher's token probabilities. These probabilities entangle two kinds of information: which tokens the teacher prefers, and how confident it is. The latter reflects the teacher's own capacity and calibration, which a smaller student may be unable to reproduce. Because the teacher temperature changes these values without changing the ordering, OPD is also sensitive to the temperature choice. We ask whether the teacher's ordering of candidate tokens is enough, and propose Order-Only On-Policy Distillation (O^{3}PD). At each student-generated prefix, O^{3}PD trains the student to reproduce the order of the teacher's top-K tokens, without fitting their probability values. The objective is therefore invariant to the teacher temperature and needs no temperature tuning. Across six teacher--student pairs, O^{3}PD outperforms OPD on the average over HMMT25, AIME24, and AIME25 in every pair, by up to 2.9 points, with gains of up to 5.6 points on AIME25. Other ranking losses yield similar gains, so the benefit comes from ordinal supervision itself. Analysis shows that O^{3}PD departs further from the teacher's probabilities than OPD, yet reproduces its ranking more faithfully and yields a stronger student. The ranking, not the probability values, thus carries the knowledge that on-policy distillation needs to transfer.",
+      "published": "2026-11-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02112",
+        "pdf": "https://arxiv.org/pdf/2611.02112"
+      },
+      "upvotes": 30,
+      "numComments": 2,
+      "titleZh": "仅基于排序的在策略蒸馏",
+      "summaryZh": "针对on-policy distillation中教师token概率同时编码偏好与置信度、学生难以复现且对教师温度敏感的问题，提出仅利用教师top-K token排序的O³PD：在学生自生成前缀上训练学生复现候选token顺序，而不拟合概率值，目标对教师温度不变且无需调温。六个教师—学生组合上，O³PD在HMMT25、AIME24、AIME25平均分上全面优于OPD，最高提升2.9分，AIME25最高提升5.6分；其他排序损失也有类似收益。分析表明其虽更偏离教师概率，却更忠实复现排序并得到更强学生，说明on-policy distillation迁移的关键是排序而非概率值。",
+      "score": 8,
+      "reason": "on-policy蒸馏新目标，直接命中后训练蒸馏方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.27954",
+      "title": "Lost in Recovery: Demystifying Recovery Behavior of Computer-Use Agents via Goal-Oriented Action Replay",
+      "authors": [
+        "Byeonghun Bang",
+        "Sangwoo Park",
+        "Jinheon Baek",
+        "Kangsan Kim",
+        "Youngwan Lee",
+        "Sung Ju Hwang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Recent advances in large (vision) language models have enabled computer-use agents that automate digital workflows via fine-grained keyboard and mouse operations. However, such agents remain fragile in long-horizon settings, where errors accumulate and executed actions leave unintended side effects, making the ability to recover from failures critical. Yet, existing remedies remain inadequate: environment resets are infeasible in proprietary settings, action replay is prohibitively expensive over long horizons, and API-based rollback is limited to web environments, leaving model-based recovery largely unexplored. To address this gap, we present ReTrace, a scalable evaluation framework for systematically studying recovery behavior in computer-use agents. We formalize Transition-Consistent Recovery: identical downstream actions from the recovered and target states must yield identical outcomes. We operationalize this criterion through goal-oriented action replay following controlled error injection. Using ReTrace, we present the first systematic study of autonomous, model-based recovery, revealing that (i) ideal recovery can unlock model's latent task completion capabilities, (ii) current computer-use agents fail to exploit their latent recovery capabilities, and (iii) accurate model-based recovery yields measurable end-to-end gains. Together, these findings establish recovery as a fundamental capability for building reliable computer-use agents. Our code and dataset is available at https://github.com/BangProx/ReTRACE.",
+      "published": "2026-10-20T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.27954",
+        "pdf": "https://arxiv.org/pdf/2610.27954"
+      },
+      "upvotes": 30,
+      "githubRepo": "https://github.com/BangProx/ReTRACE",
+      "githubStars": 4,
+      "numComments": 2,
+      "titleZh": "Lost in Recovery:通过面向目标的动作重放揭示计算机使用智能体的恢复行为",
+      "summaryZh": "长程任务中错误累积与动作副作用使计算机使用智能体极易失稳，而环境重置、动作重放与 API 回滚等现有恢复手段在成本或适用范围上均受限。工作提出 ReTrace 评测框架，形式化「转移一致性恢复」准则:从恢复态与目标态执行相同后续动作须产生相同结果，并通过受控错误注入后的面向目标动作重放来可扩展地判定恢复质量。基于该框架的系统研究显示，理想恢复能释放模型潜在的任务完成能力，现有智能体却未能利用这一潜力，而准确的模型级恢复可带来可测量的端到端收益。该工作把恢复确立为构建可靠计算机使用智能体的基础能力，适用于 GUI/Agent 可靠性评测与训练。",
+      "score": 7,
+      "reason": "计算机使用智能体的恢复能力评测框架，属 Agent 与评测方向扎实工作",
+      "deepDive": false
+    },
+    {
+      "id": "2611.03602",
+      "title": "Reviso: Not All Visual Evidence Deserves Equal Attention in Video Captioning",
+      "authors": [
+        "Tengfei Liu",
+        "Yang Shi",
+        "Yuran Wang",
+        "Yuqi Tang",
+        "Yizhuo Jia",
+        "Zhuoran Zhang"
+      ],
+      "authorsTotal": 15,
+      "abstract": "Multimodal large language models (MLLMs) can generate detailed video captions, yet they may overemphasize minor details while overlooking essential context and key events. We argue that not all visual evidence deserves equal attention, as the importance of visual information depends on the content of each video. Motivated by this observation, we propose Reviso, an agentic video captioning framework that learns what to observe and how to gather relevant visual evidence. From a low-frame-rate global preview, Reviso constructs a hierarchical Context--Focus--Points (CFP) observation plan that identifies the video context, prioritizes key aspects, and defines concrete observation targets and corresponding tools. Guided by this plan, Reviso performs goal-directed active perception by selectively revisiting temporal segments and combining tools for fine-grained inspection. It interprets the acquired evidence, updates its plan as needed, and integrates global and local information to generate the final caption. To learn this observation strategy, we develop a verification-guided pipeline that constructs high-quality training trajectories through factual verification and teacher-guided refinement. We further train Reviso using Group Relative Policy Optimization (GRPO), incorporating a key-fact reward for caption quality, a Plan Alignment Reward (PAR) for identifying important observation targets, and an Unproductive Tool-Call Penalty (UTCP) that adjusts observation-cost penalties based on caption quality. Experiments across four video captioning benchmarks show that Reviso outperforms the evaluated open-source baselines, while its generated captions better support downstream video question answering. These findings highlight the effectiveness and potential of priority-guided active observation for video captioning.",
+      "published": "2026-11-02T18:41:14.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03602",
+        "pdf": "https://arxiv.org/pdf/2611.03602"
+      },
+      "upvotes": 25,
+      "numComments": 2,
+      "titleZh": "Reviso：并非所有视觉证据在视频描述生成中都值得同等关注",
+      "summaryZh": "针对多模态大模型在视频描述中过度关注细枝末节、忽略关键事件的问题，提出智能体式框架 Reviso：先从低帧率全局预览构建「上下文—焦点—要点」（CFP）分层观察计划，再据此选择性回看时间片段并组合工具做细粒度检查，边观察边更新计划，最终融合全局与局部信息生成描述。训练侧用事实核验与教师精修构建高质量轨迹，并以 GRPO 优化，引入关键事实奖励、计划对齐奖励（PAR）和按描述质量调节的低效工具调用惩罚（UTCP）。在四个视频描述基准上优于所评估的开源基线，生成的描述在下游视频问答中效果更好。",
+      "score": 8,
+      "reason": "Agentic RL＋GRPO 奖励设计，直接命中 Agent 与后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.01484",
+      "title": "CrossSWE: Benchmarking Cross-Repository Joint Development for Coding Agents",
+      "authors": [
+        "Silin Chen",
+        "Yuling Shi",
+        "Heng Lian",
+        "Zihan Zhang",
+        "Xiaodong Gu",
+        "Haotian Lin"
+      ],
+      "authorsTotal": 7,
+      "abstract": "As coding agents achieve increasingly high success rates on software engineering benchmarks, recent efforts have sought to increase task complexity through longer horizons and more extensive code modifications. However, real-world software development often spans multiple interdependent repositories, introducing additional challenges in dependency reasoning, change propagation, and interface consistency. Rather than further increasing complexity within individual repositories, we introduce CrossSWE, a benchmark for cross-repository joint development comprising 171 real-world instances spanning 165 repositories, 20 technical domains, and 13 programming languages. CrossSWE verifies the necessity of coordinated changes by testing whether partial repository modifications are insufficient to achieve the intended behavior. Our evaluation of five LLMs reveals substantial challenges, with the strongest model, GPT-6.1 Sol, achieving only 58.48% Pass@1. Furthermore, cross-repository inconsistencies emerge as the most prevalent failure mode (44.2%), highlighting the difficulty of maintaining consistency across interdependent repositories.",
+      "published": "2026-11-01T03:16:52.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.01484",
+        "pdf": "https://arxiv.org/pdf/2611.01484"
+      },
+      "upvotes": 23,
+      "projectPage": "https://huggingface.co/datasets/CrossSWE/CrossSWE-Bench",
+      "numComments": 1,
+      "titleZh": "CrossSWE：面向编码智能体的跨仓库协同开发基准",
+      "summaryZh": "现有编码智能体基准多聚焦单个仓库内的长程任务，而真实软件开发常跨越多个相互依赖的仓库，带来依赖推理、变更传播与接口一致性难题。CrossSWE 构建了 171 个真实跨仓库实例，覆盖 165 个仓库、20 个技术领域与 13 种编程语言，并通过检验「仅修改部分仓库是否足以实现目标行为」来确认任务确实需要协同改动。评测五个 LLM 显示，最强模型 GPT-6.1 Sol 的 Pass@1 仅 58.48%，跨仓库不一致成为最主要失败模式（44.2%），凸显跨依赖仓库间保持一致性的难度。",
+      "score": 8,
+      "reason": "编码智能体跨仓库 SWE 基准，直接命中代码智能与评测方向",
+      "deepDive": false
+    },
+    {
+      "id": "2611.00172",
+      "title": "From Fragmentation to Fusion: A Survey and Roadmap for Omnimodal Embeddings",
+      "authors": [
+        "Ziyin Zhang",
+        "Yuyu Guo",
+        "Ying Zhang",
+        "Siqiao Xue",
+        "Zihan Liao",
+        "Jin Qin"
+      ],
+      "authorsTotal": 18,
+      "abstract": "Embedding models underpin virtually every modern AI system, from search engines to recommendation systems. Despite shared mathematical foundations, research on embedding models remains fragmented by modality: the communities develop largely in isolation, seldom exchanging insights. We argue that this fragmentation obscures a deeper convergence. Driven by contrastive learning, Transformer architectures, and a granularity shift, embedding research across modalities is converging toward a common set of principles, even as modality-specific challenges remain underexplored. To reason across this convergence without conflating it, we propose a framework of three progressively harder capabilities: coverage, comparability, and compositionality. Three paths toward unification satisfy these in turn: transformation broadens coverage, alignment enables comparability, and joint embedding, the terminus we advocate, aims at compositionality. This position paper traces the resulting evolution, providing the first unified, cross-cutting treatment of omnimodal embedding research.",
+      "published": "2026-10-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.00172",
+        "pdf": "https://arxiv.org/pdf/2611.00172"
+      },
+      "upvotes": 22,
+      "githubRepo": "https://github.com/codefuse-ai/Awesome-Omnimodal-Embeddings",
+      "githubStars": 19,
+      "numComments": 1,
+      "titleZh": "从碎片化到融合:全模态嵌入的综述与路线图",
+      "summaryZh": "嵌入模型支撑搜索、推荐等各类AI系统，但各模态的嵌入研究长期各自为战，缺少交叉借鉴。这篇立场论文指出，在对比学习、Transformer架构与表征粒度迁移的共同驱动下，不同模态的嵌入研究正收敛到同一套原则，并据此提出覆盖、可比、可组合三层递进能力框架，对应变换、对齐、联合嵌入三条通向统一的路经。论文首次对全模态嵌入研究做了跨模态的统一梳理，并给出以联合嵌入为终点的路线图。",
+      "score": 6,
+      "reason": "全模态嵌入综述，与RAG检索、多模态表征相关但非后训练核心",
+      "deepDive": false
+    },
+    {
+      "id": "2611.01815",
+      "title": "When Does Latent Prediction Error Support Physical Surprise Claims in Video World Models?",
+      "authors": [
+        "Anton Hristov",
+        "Aleksandar Slavov",
+        "Vasil Vasilev"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Prediction errors from video world models are often treated as physical surprise, but they can also reflect appearance, static content, motion, or ordinary prediction difficulty. We present an evaluation framework that separates what frozen representations contain, how they organize appearance and physical differences, and what changes a model's own prediction error. On IntPhys2, a benchmark of physically possible and impossible events, we compare representations from latent prediction, masked pixel reconstruction, and simple visual statistics. Appearance remains easy to decode, while V-JEPA2 exposes modest information about whether events are possible or impossible. Looking at the latent geometry, appearance changes become smaller compared with differences between videos, their directions line up more consistently across scenes, and their overlap with physical changes decreases in deeper layers. Across action-conditioned models, incorrect actions raise prediction error, while appearance changes also produce substantial responses. In Physion++ video clips, repeating a single frame can produce higher error than the original clip, while changing color throughout the clip can lower it. Using Kubric, a simulation and rendering framework, we find that impossible events can produce lower error than possible events. A fixed error threshold also incorrectly flags many possible events as impossible. A model can therefore represent physical information and respond to incorrect actions without its native prediction error reliably measuring physical surprise.",
+      "published": "2026-11-01T11:31:09.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.01815",
+        "pdf": "https://arxiv.org/pdf/2611.01815"
+      },
+      "upvotes": 21,
+      "githubRepo": "https://github.com/3-ml/jepa-surprise",
+      "githubStars": 0,
+      "projectPage": "https://3-ml.github.io/jepa-surprise/",
+      "numComments": 1,
+      "titleZh": "视频世界模型中潜在预测误差何时能支持物理意外性判断？",
+      "summaryZh": "视频世界模型的预测误差常被当作物理意外性信号，但误差也可能来自外观、静态内容、运动或普通预测难度。提出评估框架，区分冻结表征内容、外观与物理差异的组织方式及误差驱动因素，并在 IntPhys2 上比较潜在预测、掩码像素重建与简单视觉统计。结果显示外观信息可解码，V-JEPA2 仅含少量事件可能性信息；错误动作会升高动作条件模型的误差，但外观变化也引发响应，重复单帧或整段改色会改变误差，Kubric 中不可能事件误差可低于可能事件。模型可表征物理信息并响应错误动作，但原生预测误差未必能可靠度量物理意外性。",
+      "score": 5,
+      "reason": "视频世界模型物理惊喜评测，触及多模态理解与方法学，但偏离LLM主线",
+      "deepDive": false
+    },
+    {
+      "id": "2610.39419",
+      "title": "Diagnosing the Reference Gap: What Visual Scaffolds Can and Cannot Fix in Multimodal Reasoning",
+      "authors": [
+        "Guizhen Chen",
+        "Weiwen Xu",
+        "Wotao Yin",
+        "Anh Tuan Luu",
+        "Hou Pong Chan"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Multimodal large language models can recognize visual content yet struggle to reason reliably over it across multiple steps. In counting, a model may see all objects but lose track of which ones it has counted. We argue that such failures, commonly attributed to perception, reveal a reference gap: the failure to bind language to the relevant visual entities, regions, or locations. Motivated by the theory of visual routines, we test whether external references such as numbering can narrow this gap. We introduce ReGap-Bench, a paired benchmark of five visual reasoning tasks in which the scene, question, and answer are fixed and only the reference varies. Results show that task-matched references improve accuracy by up to 25\\%, while mismatched references provide little benefit or even hurt performance. These findings identify the reference gap as a bottleneck distinct from visual perception and show that constructing task-appropriate visual references can serve as a training-free visual skill for improving multimodal reasoning.",
+      "published": "2026-10-29T06:00:35.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.39419",
+        "pdf": "https://arxiv.org/pdf/2610.39419"
+      },
+      "upvotes": 18,
+      "githubRepo": "https://github.com/regap-bench/ReGap-Bench",
+      "githubStars": 3,
+      "projectPage": "https://regap-bench.github.io/",
+      "numComments": 3,
+      "titleZh": "诊断指代鸿沟：视觉脚手架在多模态推理中能修复什么、不能修复什么",
+      "summaryZh": "多模态大模型能识别视觉内容，却在多步推理中不可靠，如计数时看见所有物体却丢失已计数的对象。这类失败常被归因于感知，该工作认为其实是指代鸿沟:语言未能绑定到对应的视觉实体、区域或位置。受视觉例程理论启发，作者构建 ReGap-Bench，包含五个视觉推理任务的配对样本，场景、问题与答案固定，仅改变外部指代(如编号)。结果显示任务匹配的指代最高提升准确率 25%，不匹配的指代收益甚微甚至有害，表明构造任务适配的视觉指代可作为一种免训练的视觉技能。",
+      "score": 7,
+      "reason": "多模态理解侧的评测与方法学工作，指代鸿沟分析清晰",
+      "deepDive": false
+    },
+    {
+      "id": "2611.03344",
+      "title": "FLAMIA: FLAsh MIcroscaling Attention for Fast and Causally Safe Training on Blackwell",
+      "authors": [
+        "Fedor Velikonivtsev",
+        "Mikhail Koltakov",
+        "Denis Kuznedelev"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Attention remains a substantial computational cost in Transformer training, particularly at long context lengths. NVIDIA Blackwell GPUs provide high-throughput low-precision matrix multiplication, but exploiting it in attention requires addressing quantization overhead, causal information leakage through shared scales, and numerical inconsistencies between the forward and backward passes. We present FLAMIA, a family of attention kernels for Blackwell with MXFP8 and mixed NVFP4/FP8 training paths. Our design combines token-block scaling that reuses quantized operands across matrix orientations, targeted safeguards against scale-induced leakage, and consistent forward and backward computations. Fused quantization and architecture-specific kernel optimizations reduce overhead, while document-local scaling and workload-aware scheduling support variable-length documents directly in packed layouts without repacking. Across various causal packed-document workloads, the MXFP8 path accelerates the combined forward and backward attention call, including quantization, by factors of 1.10--1.40times on B200 and 1.06--1.42times on B300 relative to the fastest evaluated baseline for each workload. We validate training stability and quality preservation on pretraining Llama-style models. These results show how jointly designing quantization, training numerics, and document scheduling translates low-bit hardware throughput into practical attention acceleration.",
+      "published": "2026-11-02T16:00:12.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03344",
+        "pdf": "https://arxiv.org/pdf/2611.03344"
+      },
+      "upvotes": 17,
+      "githubRepo": "https://github.com/yandex-research/flamia-blackwell-attention",
+      "githubStars": 5,
+      "numComments": 1,
+      "titleZh": "FLAMIA：面向 Blackwell 的闪存微缩放注意力，实现快速且因果安全的训练",
+      "summaryZh": "Transformer 训练中的注意力计算开销大，Blackwell 的 MXFP8／NVFP4 低精度算力又受量化开销、共享缩放导致的因果信息泄漏、前反向数值不一致等问题制约。FLAMIA 通过 token 块缩放跨矩阵方向复用已量化操作数、针对缩放泄漏的定向防护机制、前反向一致的数值路径，以及文档局部缩放和按负载调度，让变长文档在 packed 布局下免重排直接训练。在 B200 与 B300 上，MXFP8 路径相比各负载最快基线，将含量化的前反向注意力调用加速 1.10–1.40× 与 1.06–1.42×，并在 Llama 式预训练中验证了训练稳定性与质量保持。工作说明量化、训练数值与调度需协同设计，才能把低比特硬件吞吐转化为实际注意力加速。",
+      "score": 9,
+      "reason": "Blackwell 低精度注意力 kernel，命中架构与高效训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.02782",
+      "title": "History Forcing: Distilling History-Dependent Continuations for Long-Horizon Video World Models",
+      "authors": [
+        "Hangyi Kuang",
+        "Chengzhi Wang",
+        "Yefei He",
+        "Weijie Wang",
+        "Yuke Zhao",
+        "Zhuokun Chen"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Few-step autoregressive video diffusion enables efficient generation, yet maintaining consistency over long rollouts remains challenging, especially when subjects or scenes reappear after going out of sight. Despite progress in fidelity and rollout robustness, existing distillation methods do not fully exploit richer historical information to constrain the student's current prediction. To address this gap, we introduce History Forcing, a unified on-policy distillation framework that strengthens historical supervision for few-step autoregressive video generators. The framework uses the residual between teacher predictions with and without informative historical context to decouple this supervision. Such a historical context can be obtained using earlier generated chunks with less accumulated drift or a fixed-view teacher rollout that keeps the scene visible while the student looks away. The residual is then weighted and added to the score or velocity prediction used for distillation, forming a corrected target. By aligning the student with this corrected target through distillation, History Forcing incorporates long-range historical constraints into autoregressive generation. Our method achieves state-of-the-art performance among 1.3B models, with a VBench quality score of 85.07 for 15s video generation and a VBench-Long aggregate score of 79.82 for 60s generation. For out-of-sight world modeling, evaluations further demonstrate more plausible scene evolution and more consistent states when the camera returns, with Evolution Quality improving from 2.35 to 2.70 on PlayWorld and Object Consistency from 58.43 to 62.18 on MemoBench.",
+      "published": "2026-11-02T09:00:31.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02782",
+        "pdf": "https://arxiv.org/pdf/2611.02782"
+      },
+      "upvotes": 15,
+      "githubRepo": "https://github.com/ziplab/History-Forcing",
+      "githubStars": 27,
+      "projectPage": "https://ziplab.co/History-Forcing-Project-Page/",
+      "numComments": 1,
+      "titleZh": "History Forcing：为长时程视频世界模型蒸馏依赖历史的续写",
+      "summaryZh": "少步自回归视频扩散模型在长时程 rollout 中难以保持一致性，主体或场景离开视野后重新出现时尤为明显；现有蒸馏方法未充分利用更丰富的历史信息约束学生模型的当前预测。History Forcing 提出统一在线策略蒸馏框架，用「有／无信息性历史上下文」两种教师预测的残差解耦出历史监督信号，加权后叠加到 score 或 velocity 预测上形成修正目标，让学生对齐该目标，从而把长程历史约束注入自回归生成。历史上下文可取自漂移更小的早期生成片段，或取自保持场景可见的固定视角教师 rollout。1.3B 规模模型上取得 SOTA：15 秒生成 VBench 质量分 85.07，60 秒生成 VBench-Long 聚合分 79.82；PlayWorld 的 Evolution Quality 由 2.35 升至 2.70，MemoBench 的 Object Consistency 由 58.43 升至 62.18。",
+      "score": 2,
+      "reason": "视频扩散世界模型蒸馏，属视频生成与扩散方向，不匹配关注画像",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.03092",
+      "title": "Avatar Intelligence: Amplifying Human Agency Through Persistent Personal Agents",
+      "authors": [
+        "Zheng Wu",
+        "Xinbei Ma",
+        "Yao Yao",
+        "Zhaoyuan Huang",
+        "Haowen Hu",
+        "Yijie Lu"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Personal AI agents are increasingly capable of handling long-horizon tasks across applications, yet users often need to invest substantial effort in specifying goals, resolving ambiguity, and verifying outcomes. We argue that progress should be measured by how effectively agents amplify human agency: enabling people to pursue their goals with less routine supervision while retaining control over consequential decisions. We advocate Avatar Intelligence, a paradigm of persistent personal agents that represent users' goals, values, and constraints through sustained decision delegation across contexts and time. We describe a maturity roadmap from human-directed execution to autonomous operation within delegated domains, and introduce the Agentic Oversight Index (AOI) as a framework for evaluating delivered value against agent-side operational cost and human oversight burden. We identify three core research challenges: identity-continuous personalization that carries user preferences across tasks, user-situated evolution through Rehearsal Engineering, and safety mechanisms that combine technical control with accountability and recourse. These directions define a research agenda for reliable decision delegation to personal agents across tasks and over time.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03092",
+        "pdf": "https://arxiv.org/pdf/2611.03092"
+      },
+      "upvotes": 15,
+      "numComments": 1,
+      "titleZh": "化身智能：以持久个人智能体放大人的能动性",
+      "summaryZh": "针对个人 AI 智能体在长程任务中仍需用户大量指定目标、消解歧义并核验结果的问题，提出以「人的能动性是否被放大」作为进展度量，并倡导「化身智能」范式：由跨情境、跨时间持续承载用户目标、价值观与约束的持久个人智能体承担决策委托。给出从人类主导执行到在授权领域内自主运行的成熟度路线图，并提出 Agentic Oversight Index（AOI），把交付价值与智能体侧运行成本、人类监督负担放在同一框架下衡量。指出三项核心挑战：跨任务延续用户偏好的身份连续个性化、基于 Rehearsal Engineering 的用户情境化演化、以及技术控制与可问责性、救济机制结合的安全设计。",
+      "score": 6,
+      "reason": "Agent 与评测方法学的立场论文，方向契合但缺实证",
+      "deepDive": false
+    },
+    {
+      "id": "2610.42128",
+      "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+      "authors": [
+        "Yanran Wu",
+        "Dian Yu",
+        "Chongyang Bai",
+        "Jieyi Zhang",
+        "Rui Liu",
+        "Tianyi Chen"
+      ],
+      "authorsTotal": 13,
+      "abstract": "Decision models target structured tasks by directly predicting choices or scores, avoiding autoregressive decoding latency. However, transferring a generative LLM's ranking knowledge to a decision model remains challenging: the teacher expresses preferences through a ranked list of document ID sequences, while the student determines the ranking using scores from the first-token position. To bridge this gap, we introduce DecisionRank, a decision model trained through item-space on-policy distillation (OPD). Item-space OPD constructs the student's rollout by sorting its document scores into a ranked sequence. A generative teacher takes the resulting ranking list as inputs and provides conditional feedback to directly supervise those scores. Combined with offline ranking supervision, DecisionRank achieves state-of-the-art performance on both general and reasoning-intensive retrieval benchmarks such as TREC DL, BEIR, and BRIGHT. Across four benchmarks, item-space OPD consistently outperforms alternative training objectives. Even at 1.7B parameters, DecisionRank surpasses its 27B generative teacher on TREC DL19--23. At 8B, it outperforms its generative listwise counterpart while running 24.5times faster on TREC DL and 16.7times faster on BRIGHT.",
+      "published": "2026-10-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.42128",
+        "pdf": "https://arxiv.org/pdf/2610.42128"
+      },
+      "upvotes": 15,
+      "numComments": 2,
+      "titleZh": "DecisionRank：面向决策模型重排器的同策略蒸馏",
+      "summaryZh": "决策模型通过直接预测选项或分数规避自回归解码延迟，但生成式LLM的排序知识难以迁移到其上:教师以文档ID序列的排序列表表达偏好，学生则依据首token位置的分数定序。为此提出条目空间同策略蒸馏(item-space OPD)，将学生的文档分数排序成序列作为 rollout，让生成式教师以该排序列表为输入给出条件反馈，直接监督这些分数，并与离线排序监督联合训练。在TREC DL、BEIR、BRIGHT等通用与推理密集型检索基准上取得SOTA，四项基准上均优于其他训练目标;1.7B模型在TREC DL19–23上超过27B生成式教师，8B模型超过生成式listwise方案且在TREC DL上快24.5倍、BRIGHT上快16.7倍。",
+      "score": 7,
+      "reason": "同策略蒸馏机制清晰，命中蒸馏方向，但落在检索重排场景",
+      "deepDive": false
+    },
+    {
+      "id": "2611.02633",
+      "title": "Measuring AI Agents as Teammates with Collaborative Intelligence",
+      "authors": [
+        "Sean Wu",
+        "Aneesh Pappu",
+        "Jiaru Zou",
+        "Yubin Kim",
+        "Yuncong Mao",
+        "Hongjian Zhou"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Progress in AI is often measured by what a single model can do on its own. Yet teams of AI agents are starting to make breakthroughs and discoveries in science, medicine, mathematics and software engineering. As AI begins to work in teams of agents and people, the ability to collaborate becomes a core part of their intelligence. Research on human teams has measured this ability for decades. Inspired by this, we introduce the Collaborative Intelligence Benchmark, which measures how well an AI agent works as a teammate. It contains 240 tasks across 8 dimensions of teamwork, from refusing an unsafe shortcut to checking the work that a weaker model leaves behind. Each task comes from a real record or an existing benchmark, from aviation accident reports and clinical cases to coding tasks and negotiations, and has a programmatically verifiable outcome. To isolate teamwork from individual capability, models are scored only on tasks that they can solve by themselves when they have full information. We evaluate 18 closed- and open-weight models and find that every model, across sizes and families, has clear weaknesses as a teammate, with the best model scoring only 82.2 out of 100. Frontier models almost always refuse unsafe shortcuts and report misconduct, yet they cave under interpersonal pressure, reaching the best overall deal in only 14% of conflicts, and their pass rate drops from 97% to 81% when they take over a task in which a weaker model has cheated. Crucially, general capability does not guarantee good teamwork, as models with nearly the same capability score differ by up to 11 points as teammates. The benchmark includes 160 public tasks with code and data, along with 80 held-out tasks for evaluation. As AI agents increasingly work alongside other agents and people, the ability to collaborate effectively is becoming a crucial capability to measure and develop.",
+      "published": "2026-11-02T06:59:08.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02633",
+        "pdf": "https://arxiv.org/pdf/2611.02633"
+      },
+      "upvotes": 14,
+      "githubRepo": "https://github.com/zou-group/collaborative-intelligence",
+      "githubStars": 15,
+      "projectPage": "https://zou-group.github.io/collaborative-intelligence/",
+      "numComments": 1,
+      "titleZh": "以协作智能衡量作为队友的 AI Agent",
+      "summaryZh": "AI Agent 常与其它 Agent 和人类组队工作，但评测仍主要衡量单模型独立完成任务的能力。作者提出 Collaborative Intelligence Benchmark，从航空事故、临床案例、编程与谈判等真实记录中采集 240 个结果可程序化验证的任务，覆盖拒绝不安全捷径、检查弱模型遗留工作等 8 个协作维度，且只在模型能独立解出的任务上计分以剥离个体能力。评测 18 个模型:最强仅 82.2/100，前沿模型在人际压力下仅 14% 的冲突达成最优协议，接手被弱模型作弊过的任务时通过率从 97% 降到 81%，能力相近者队友得分可差 11 分。基准含 160 个公开与 80 个留出任务，为 Agent 协作能力提供可复现度量。",
+      "score": 8,
+      "reason": "Agent 协作能力评测基准，切中 Agent 与评测方向",
+      "deepDive": false
+    },
+    {
+      "id": "2611.02332",
+      "title": "LEANGUARD: Lean-Verified Guardrails for Tool-Using Agents",
+      "authors": [
+        "Sreehari Sankar",
+        "Debargha Ganguly",
+        "Vikash Singh",
+        "Mohsen Hariri",
+        "Weicong Chen",
+        "Yanyan Zhang"
+      ],
+      "authorsTotal": 20,
+      "abstract": "Tool-using language-model agents often execute actions that their domain policies forbid. We present LeanGuard, a runtime that checks every proposed tool call against a policy written in Lean4 before the call reaches the environment. Policies combine state predicates with scoped past-time temporal operators over the execution history, evaluation is fail-closed, and the decision procedure is proved equivalent to a LeanLTL semantics. A denied call can be corrected in two ways. With feedback, the agent receives the violated rule and a hint; with proof-guided repair, Lean metaprogramming searches for a nearby call that preserves the user's intent and proves that the policy admits it, without the model. On Tau-Bench with five Qwen models (0.8B-27B), unguarded agents execute at least 33 calls that the Lean policy forbids, while LeanGuard executes none; with feedback, task success does not change significantly. On DTap, LeanGuard reduces direct prompt-injection success from 57.9% to 5.9%, and in telecom, where benign tasks need no writes, benign success is unchanged. Feedback reduces repeated blocked calls and raises task success for four of five models over a bare denial. On replayed denials, repair proves an admissible edit for 88 of 252 denials caused by argument values, in a median of 2,ms.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02332",
+        "pdf": "https://arxiv.org/pdf/2611.02332"
+      },
+      "upvotes": 9,
+      "githubRepo": "https://github.com/DebarghaG/LeanGuard",
+      "githubStars": 8,
+      "numComments": 2,
+      "titleZh": "LeanGuard:面向工具调用智能体的 Lean 验证护栏",
+      "summaryZh": "解决工具调用智能体执行领域策略所禁止动作的问题。LeanGuard 在调用抵达环境之前，用 Lean4 编写的策略(状态谓词 + 作用域化的过去时时序算子)校验每一次提议的工具调用，评估采用 fail-closed，并证明其判定过程与 LeanLTL 语义等价;被拒调用可通过反馈或由 Lean 元编程搜索并证明的可采纳修复来纠正，无需模型参与。在 Tau-Bench 上五个 Qwen 模型(0.8B–27B)的无护栏智能体至少执行 33 次策略禁止的调用，LeanGuard 为零，且加反馈后任务成功率无显著变化;DTap 上直接提示注入成功率从 57.9% 降至 5.9%;在参数值导致的 252 次拒绝中，修复为 88 次证明出可采纳修改，中位耗时 2ms。",
+      "score": 8,
+      "reason": "工具调用智能体的形式化运行时护栏，机制与实验都扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2610.41574",
+      "title": "BYOD: Build Your Own DLM - Efficient Autoregressive-to-Diffusion Language Model Conversion",
+      "authors": [
+        "Ruurd J. A. Kuiper",
+        "Robert A. Bagheri"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Unlike autoregressive (AR) models, diffusion language models (DLMs) permit parallel token updates, flexible generation, and bidirectional attention, but leading systems rely on costly pretraining or full-model fine-tuning. We present Build Your Own DLM (BYOD), a generalizable LoRA-only recipe for parameter-efficient AR-to-DLM conversion. Without architecture-specific tuning, BYOD induces diffusion generation in Gemma 2 9B, Llama 3.1 8B, Qwen2.5 7B, and Ministral 8B; to our knowledge, this is the first reported AR-to-DLM conversion of a Mistral model. The adapters comprise 4.1-5.8% of final parameters while every base-model parameter remains frozen; each 25,000-iteration conversion needs at most 102.4M tokens, processed in 3.1-4.0 hours on one Google Colab GPU. All four models generate from fully masked sequences, use bidirectional context in a controlled attention test, and retain substantial parent-model knowledge. BYOD-Gemma is the strongest BYOD conversion on our nine-task evaluation, reaching 50.6% average accuracy compared with 51.9% for LLaDA 8B Instruct in the same harness. Open-generation quality at low network function evaluation (NFE) budgets remains the principal limitation: BYOD perplexity is 8.3-11.1 versus 4.1 for LLaDA and 2.2-3.0 for the AR parents when generating 128 tokens in 64 steps. To enable further experimentation and inspection, we provide a standalone training and evaluation implementation and interactive demos for all four conversions. BYOD thus provides a practical route for extending diffusion generation to other existing model families while identifying the gap that efficient conversion must next close.",
+      "published": "2026-10-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.41574",
+        "pdf": "https://arxiv.org/pdf/2610.41574"
+      },
+      "upvotes": 9,
+      "githubRepo": "https://github.com/RuurdKuiper/BYOD",
+      "githubStars": 2,
+      "projectPage": "https://colab.research.google.com/github/RuurdKuiper/BYOD/blob/main/notebooks/train_diffusion.ipynb",
+      "numComments": 5,
+      "titleZh": "BYOD：构建你自己的 DLM——高效的自回归到扩散语言模型转换",
+      "summaryZh": "扩散语言模型通常依赖昂贵的预训练或全参数微调。BYOD 给出通用的仅用 LoRA 适配器的转换配方：冻结全部基础模型参数，只训练占最终参数 4.1%–5.8% 的适配器，将 Gemma 2 9B、Llama 3.1 8B、Qwen2.5 7B、Ministral 8B 转换为扩散生成模型；单次 25000 步转换最多消耗 102.4M token，在单张 Colab GPU 上耗时 3.1–4.0 小时。四个模型都能从完全掩码的序列生成，并在受控注意力测试中使用双向上下文，同时保留可观的母模型知识；BYOD-Gemma 在九项任务上平均准确率 50.6%，接近同一套评测框架下 LLaDA 8B Instruct 的 51.9%。主要短板是低 NFE 预算下的开放生成质量，困惑度为 8.3–11.1，远高于 LLaDA 的 4.1。",
+      "score": 3,
+      "reason": "扩散语言模型属明确低分方向，仅 LoRA 转换与 LLM 架构略有交集",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.40293",
+      "title": "MAServeBench: Benchmarking Multi-Agent LLM Serving Systems with Hierarchical Collaboration Workloads",
+      "authors": [
+        "Shengxuan Qiu",
+        "Haochen Huang",
+        "Shuzhang Zhong",
+        "Zizhuo Fu",
+        "Zebin Yang",
+        "Jianming Tong"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Large language model (LLM)-based multi-agent systems (MAS) coordinate specialized agents to solve complex tasks, turning each user request into interdependent model and tool operations. Unlike independent requests, these operations become ready at different times and consume evolving context as agents coordinate and exchange results. This creates changing patterns of concurrency, computation, and memory demand that can expose different bottlenecks in LLM serving hardware. Yet benchmarking these effects requires capturing the collaboration rules that generate serving workloads, beyond the requests observed during execution. We present MAServeBench, a benchmark that treats multi-agent collaboration as a configurable dimension of serving workloads for LLM serving and hardware evaluation. Its composable stages capture how agents coordinate and exchange context in documented MAS workflows, enabling native executions to generate different workloads even when task inputs and tools remain unchanged. Hierarchical Semantic Traces preserve realized operations and dependencies for reproducible comparisons of legal release constraints at fixed work. Task-linked measurements connect these workloads to serving execution and GPU/NPU hardware behavior, revealing why serving efficiency does not always translate into timely task completion. The benchmark code is available at https://github.com/ShengxuanQiu/MAServeBench.",
+      "published": "2026-10-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.40293",
+        "pdf": "https://arxiv.org/pdf/2610.40293"
+      },
+      "upvotes": 9,
+      "githubRepo": "https://github.com/ShengxuanQiu/MAServeBench",
+      "githubStars": 3,
+      "numComments": 2,
+      "titleZh": "MAServeBench:面向多智能体LLM服务系统的分层协作工作负载基准测试",
+      "summaryZh": "多智能体系统中的一次用户请求会展开成相互依赖的模型与工具调用，这些操作在不同时刻就绪、上下文随协作过程不断演化，导致并发、算力与内存需求持续变化，而仅凭执行期观测到的请求无法刻画这种负载。MAServeBench把多智能体协作规则当作可配置的负载维度，用可组合阶段描述文档化的协作流程，使任务输入与工具不变时也能生成不同负载，并以分层语义轨迹(Hierarchical Semantic Traces)记录实际操作与依赖，支持在固定工作量下复现并比较合法释放约束。配套的任务关联测量把负载与推理执行以及GPU/NPU硬件行为对齐，揭示服务效率为何不总能转化为任务的及时完成。适用于多智能体服务系统与推理硬件的评测。",
+      "score": 7,
+      "reason": "多智能体服务负载基准，命中Agent与推理系统效率方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.37826",
+      "title": "DeFT-RAG: Decomposing Multi-Hop Questions into Self-Contained Sub-Questions with Reusable Answers",
+      "authors": [
+        "Dingyi Kang",
+        "Bingzhe Li"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Retrieval-augmented generation (RAG) lets a large language model (LLM) answer questions by retrieving relevant passages from a large corpus. However, RAG struggles with multi-hop questions, which require chaining facts spread across several documents through intermediate entities that the question never mentions. Graph-based RAG methods retrieve once from the entities a question names and so rarely recover the full evidence chain. Iterative RAG methods recover it step by step, but their accuracy is limited by the many tasks they ask the LLM to perform, such as planning the sub-questions, deciding their dependencies, rewriting them as answers arrive, and keeping track of what is known. We propose DeFT-RAG, a RAG framework built on three components. First, DeFT-RAG generates one self-contained sub-question at a time from the original question and the sub-questions answered so far with their answers (QA pairs). Each sub-question names every entity it asks about, which removes the need to plan, track dependencies or rewrite, and lets the LLM focus on a single fine-grained task at a time. Second, DeFT-RAG moves the remaining LLM work outside the LLM: rule-based updates to a QA table that keeps track of what is known, and yes/no decisions made by a fine-tuned lightweight decision model. Third, DeFT-RAG caches the QA pairs and reuses an answer when a later question asks a sub-question with the same meaning. On MuSiQue, 2WikiMultiHopQA and HotpotQA, DeFT-RAG achieves the best accuracy among thirteen baselines with both gpt-4o-mini and Qwen3.6 as the backbone, while giving the LLM fewer input tokens than any other iterative method. With a QA cache shared across 1,000 MuSiQue questions, 23.1% of sub-questions are answered from the cache, which reduces LLM calls by 12.9% without lowering accuracy.",
+      "published": "2026-10-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.37826",
+        "pdf": "https://arxiv.org/pdf/2610.37826"
+      },
+      "upvotes": 9,
+      "githubRepo": "https://github.com/Dingyi-Kang/DeFT-RAG",
+      "githubStars": 7,
+      "numComments": 3,
+      "titleZh": "DeFT-RAG：将多跳问题分解为带可复用答案的自包含子问题",
+      "summaryZh": "多跳问答需要串联分散在多个文档中的事实，图式 RAG 只从问题显式提及的实体检索一次，难以恢复完整证据链；迭代式 RAG 逐步检索，却把子问题规划、依赖判断、重写和状态跟踪都交给 LLM，准确率受限。DeFT-RAG 每次仅生成一个自包含子问题，子问题显式写出所问的每个实体，因而免去规划与依赖跟踪；同时用规则更新记录已知信息的 QA 表，并用微调的小型决策模型承担 yes/no 判断，还将 QA 对缓存，语义相同的子问题直接复用答案。在 MuSiQue、2WikiMultiHopQA 和 HotpotQA 上，以 gpt-4o-mini 与 Qwen3.6 为骨干时，该方法在十三个基线中准确率最高，且输入 token 少于所有迭代式方法；1000 道 MuSiQue 题共享缓存时，23.1% 的子问题由缓存作答，LLM 调用减少 12.9% 而准确率不降。",
+      "score": 8,
+      "reason": "多跳 RAG 分解与缓存复用，方法清晰且命中 RAG 方向",
+      "deepDive": false
+    },
+    {
+      "id": "2610.38623",
+      "title": "Cross-Primitive Consistency in Jev",
+      "authors": [
+        "Xu Liu",
+        "Guikun Chen",
+        "Kanzhi Wu",
+        "Wenguan Wang"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Jev enables efficient decision-making with large language models (LLMs) through typed querying primitives, allowing the same semantic state to be expressed in different formats, such as binary and multiple-choice queries. However, the consistency of decisions across primitives has not been systematically evaluated. This work introduces PrimaCons, a four-axis benchmark for assessing cross-primitive consistency while preserving the semantics of the query. Evaluations across three Jev sizes reveal consistency violations across all four axes. Our analysis shows that these violations follow systematic patterns and that cross-primitive discrepancies predict decision failure with a ROC-AUC of 0.91. To mitigate these inconsistencies, we propose the Cross-Primitive Residual Calibrator (CPRC), which attaches a lightweight residual network to a frozen backbone and jointly optimizes predictive accuracy and cross-primitive consistency. Under a leave-one-domain-out protocol, CPRC reduces cross-primitive inconsistency by 58.57% and improves accuracy by +2.97%., demonstrating its effectiveness in both in-domain and out-of-domain settings. Our findings establish cross-primitive consistency as a key dimension for evaluating Jev and provide a practical approach to improving the reliability of its decisions. Code and benchmark is available at https://github.com/67L1/PrimaCons-CRPR.",
+      "published": "2026-10-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.38623",
+        "pdf": "https://arxiv.org/pdf/2610.38623"
+      },
+      "upvotes": 8,
+      "githubRepo": "https://github.com/67L1/PrimaCons-CRPR",
+      "githubStars": 0,
+      "numComments": 2,
+      "titleZh": "Jev中的跨原语一致性",
+      "summaryZh": "Jev通过类型化查询原语让LLM高效决策，同一语义状态可用二选一、多选等不同格式表达，但跨原语的一致性从未被系统评估。工作提出PrimaCons四轴基准，在保持查询语义不变的前提下度量跨原语一致性，对三个规模的Jev模型评测发现四个轴均存在一致性违背，且这些分歧能以ROC-AUC 0.91预测决策失败。为此提出跨原语残差校准器(CPRC)，在冻结主干上挂接轻量残差网络并联合优化准确率与跨原语一致性;在留一领域协议下不一致性降低58.57%、准确率提升2.97%。结果把跨原语一致性确立为评估Jev可靠性的关键维度，并给出了可落地的校准方案。",
+      "score": 6,
+      "reason": "LLM决策输出格式一致性评测，贴近评估可靠性方向",
+      "deepDive": false
+    },
+    {
+      "id": "2611.03526",
+      "title": "Library of Layers (LoL): Adaptively Ordering Transformer Layers at Runtime",
+      "authors": [
+        "Abdellah Rahmani",
+        "Sean McLeish",
+        "Ang Li",
+        "Sanae Lotfi",
+        "Pascal Frossard",
+        "Micah Goldblum"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Computer programmers chain together the same reusable computational primitives, for example, conditional statements or loops, but in different orders to implement different algorithms. In contrast, existing language model architectures always execute their layers in the same order. We introduce Library of Layers (LoL), an architecture that dynamically orders its layers during inference to solve the problem at hand. LoL has a single hyperparameter, the size of its global library of transformer blocks, that allows it to transition seamlessly between parameter reuse and sparsity, generalizing the parameter-efficiency and FLOPs-efficiency tradeoffs of dense, depth-recurrent, and mixture of experts architectures in one unified family. We show that LoL achieves competitive performance with all three above baselines when pretrained on text data. On synthetic sudoku and maze data, we observe that the model employs distinct layer orderings to implement different solution strategies, and we can intervene on routing to force a model to apply a specific solution strategy to a problem instance. In a multilingual natural language setting, we find that LoL chooses different layer order patterns based on language and script. Similarly, we train LoL on safety data and fit probes to its router outputs, finding that these probes distinguish safe from unsafe text with high AUROC. LoL provides a path toward a future in which models dynamically compose their own computational graph, enabling more efficient and controllable reasoning.",
+      "published": "2026-11-02T17:57:53.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03526",
+        "pdf": "https://arxiv.org/pdf/2611.03526"
+      },
+      "upvotes": 8,
+      "githubRepo": "https://github.com/arahmani1/library-of-layers",
+      "githubStars": 14,
+      "numComments": 1,
+      "titleZh": "层库（LoL）：运行时自适应排序 Transformer 层",
+      "summaryZh": "现有语言模型在推理时总是以固定顺序执行各层，而 LoL 引入一个全局 Transformer 块库作为唯一超参数，在推理时动态选择并排序层，从而在参数复用（深度循环）与参数稀疏（MoE）之间连续过渡，统一了稠密、深度循环与专家混合三类架构在参数效率和 FLOPs 效率上的权衡。在文本预训练上，LoL 与这三类基线性能相当；在数独与迷宫合成任务上，模型针对不同策略采用不同的层序，且可通过干预路由强制指定解题策略；在多语言场景中，层序模式随语言与文字系统而变化；在安全数据上，路由探针区分安全与不安全文本的 AUROC 很高。该工作指向模型自行动态组合计算图的路径，兼顾效率与可控推理。",
+      "score": 8,
+      "reason": "动态层序新架构，属预训练架构创新，实验系统性强"
+    },
+    {
+      "id": "2610.35219",
+      "title": "Multi-Agent Relay Thinking",
+      "authors": [
+        "Xu Liu",
+        "Jungang Qiao",
+        "Guikun Chen",
+        "Xiaojuan Qi",
+        "Wenguan Wang"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Existing multi-agent collaboration (MAC) methods have primarily explored a group thinking collaboration topology, where agents independently generate solutions and aggregate their outputs. In this work, we investigate an alternative relay thinking topology, where reasoning ownership is dynamically transferred across agents, allowing subsequent agents to inherit and refine an evolving reasoning trajectory. We introduce Multi-Agent Confidence-guided Relay (MACR), a framework that enables dynamical relay collaboration among agents. The key challenge is determining when reasoning should be relayed and which agent should continue the process. method addresses this challenge through confidence-guided relay triggering and a bidding mechanism that selects the next agent based on its confidence. Experiments on four benchmarks show that method outperforms the strongest single-model strategies in accuracy, e.g., +3.3% on MathVista and +3.9% on MMStar, and remains on par with multi-agent strategies while consuming 6.0x less token overhead on HallusionBench and MMStar. Further analysis demonstrates that relay collaboration enables heterogeneous agents to progressively integrate complementary insights, combining heterogeneous capabilities across reasoning stages. Our source code is available at https://github.com/67L1/MACR.",
+      "published": "2026-10-27T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.35219",
+        "pdf": "https://arxiv.org/pdf/2610.35219"
+      },
+      "upvotes": 7,
+      "githubRepo": "https://github.com/67L1/MACR",
+      "githubStars": 0,
+      "numComments": 2,
+      "titleZh": "多智能体接力思考",
+      "summaryZh": "现有多智能体协作多采用「群体思考」拓扑，各智能体独立求解再聚合输出，推理轨迹彼此割裂。该工作改为接力思考拓扑:推理所有权在智能体间动态转移，后继智能体继承并精炼不断演化的推理轨迹;其核心机制是以置信度触发接力，并通过投标机制依据置信度选出下一位接手者。在四个基准上，方法优于最强单模型策略(MathVista +3.3%、MMStar +3.9%)，并在 HallusionBench 与 MMStar 上以 6.0 倍更少的 token 开销达到与多智能体策略相当的水平。分析显示接力协作能让异构智能体在各推理阶段逐步整合互补能力，适用于需要跨模型协同的推理任务。",
+      "score": 7,
+      "reason": "多智能体接力拓扑与置信度触发机制，命中 Agent 方向但增量有限",
+      "deepDive": false
+    },
+    {
+      "id": "2610.38637",
+      "title": "On-Policy Self-Distillation with Teacher Evolution",
+      "authors": [
+        "Shufan Shen",
+        "Zhongni Hou",
+        "Chao Bi",
+        "Yufei Zhang",
+        "Guojun Yin",
+        "Shuhui Wang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "On-Policy Self-Distillation (OPSD), which aligns a student model's token-level distribution with that of its self-teacher prompted by privileged context, has emerged as a promising direction to mitigate reward sparsity in sequence-level post-training paradigms. However, OPSD often fails to achieve continuous performance gains during training. In this paper, we find that the model's limited self-teaching capability underlies this phenomenon by generating unreliable guidance on certain samples. To address this problem, we propose Teacher-Evolution Self-Distillation (TESD), which enables the self-teacher to generate rollouts and receive environmental feedback based on task correctness and context independence. First, using these rewards as training objectives, we perform teacher-oriented optimization to continuously enhance the model's self-teaching capability during distillation. Second, by estimating teacher guidance reliability from these rewards, we apply adaptive student-oriented optimization to down-weight samples with unreliable guidance. Extensive experiments across multiple datasets and model scales show that TESD consistently outperforms representative token-level and sequence-level methods, highlighting the necessity of improving supervision quality in OPSD.",
+      "published": "2026-10-28T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.38637",
+        "pdf": "https://arxiv.org/pdf/2610.38637"
+      },
+      "upvotes": 6,
+      "numComments": 2,
+      "titleZh": "在策略自蒸馏与教师进化",
+      "summaryZh": "on-policy自蒸馏（OPSD）通过对齐学生模型与带特权上下文的自我教师的 token 级分布来缓解序列级后训练中的奖励稀疏问题，但训练中常出现性能停滞。作者将其归因于自我教学能力有限，在某些样本上给出不可靠的指导，据此提出 TESD：让自我教师采样 rollout 并依据任务正确性与上下文独立性获得环境反馈，一方面以这些奖励做教师侧优化，持续提升自我教学能力，另一方面用其估计指导可靠性，对学生侧优化做自适应降权。多数据集、多模型规模实验显示 TESD 稳定优于代表性 token 级与序列级方法。",
+      "score": 9,
+      "reason": "on-policy自蒸馏与教师自进化，直接命中后训练方向",
+      "deepDive": true
+    }
+  ],
+  "arxiv": [],
+  "arxivStatus": "pending",
+  "generatedAt": "2026-11-04T09:12:19.190672+00:00"
+}
