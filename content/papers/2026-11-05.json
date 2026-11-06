@@ -1,0 +1,839 @@
+{
+  "date": "2026-11-05",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2611.06728",
+      "title": "Turns Matter: Advancing Streaming Video RL via Turn-Level Credit",
+      "authors": [
+        "Shuai Dong",
+        "Kanghui Tian",
+        "Linghan Chen",
+        "Wenqi Shao",
+        "Hongrui Wu",
+        "Haowen Hou"
+      ],
+      "authorsTotal": 23,
+      "abstract": "Streaming video understanding requires models to repeatedly decide whether to respond or continue observing. Recently, Group Relative Policy Optimization (GRPO) has been applied to this setting, with existing approaches emphasizing reward design while retaining a single trajectory-level advantage across turns. Such shared credit can reinforce redundant replies after earlier successes and discourage useful follow-ups after earlier failures. We propose TurnWise, a turn-level GRPO framework that aligns learning with individual streaming decisions. TurnWise addresses the mismatch between trajectory-level feedback and turn-level interaction, promoting informative responses and reducing redundancy. Specifically, turn-level credit assignment uses silence-completed prefix scoring to construct group-relative advantages from each decision's remaining return, separating its learning signal from earlier rewards. Turn-mean policy optimization averages token losses within each turn and then across turns, giving response and waiting decisions equal weight regardless of output length. These complementary designs improve streaming policy learning without a learned critic or additional rollouts. Extensive experiments show our method outperforms prior RL approaches for streaming video understanding.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06728",
+        "pdf": "https://arxiv.org/pdf/2611.06728"
+      },
+      "upvotes": 86,
+      "githubRepo": "https://github.com/XD111ds/turn-wise-rl",
+      "githubStars": 63,
+      "numComments": 1,
+      "titleZh": "轮次很重要:通过轮次级信用推进流式视频 RL",
+      "summaryZh": "流式视频理解要求模型在每个时刻决定是立即回答还是继续观察，而现有基于 GRPO 的方法沿用整条轨迹共享的单一优势，导致早期成功后的冗余回复被强化、早期失败后的有用追问被抑制。TurnWise 将学习信号对齐到每一次流式决策:用「静默补全前缀打分」从每个决策的剩余回报构造组相对优势，把该决策的信用与更早的奖励分离;并采用轮次均值策略优化，先在轮内对 token 损失取平均、再跨轮平均，使回答与等待决策不受输出长度影响而获得相同权重。方法无需学习 critic 或额外 rollout，实验表明其在流式视频理解上优于已有 RL 方法。",
+      "score": 7,
+      "reason": "GRPO 轮次级信用改进，命中后训练与多模态理解方向",
+      "deepDive": false
+    },
+    {
+      "id": "2611.06918",
+      "title": "From Pixels to Actions - Towards Native Vision-Language-Action Policies",
+      "authors": [
+        "Weichen Fan",
+        "Haiwen Diao",
+        "Penghao Wu",
+        "Siyuan Hu",
+        "Ziqi Huang",
+        "Tianqi Liu"
+      ],
+      "authorsTotal": 17,
+      "abstract": "Vision-language-action models are typically built on a simple premise: perception is first compressed by visual encoders, and action reasoning begins only afterwards. Yet manipulation often hinges on precisely the visual signals most vulnerable to this abstraction, e.g., local geometry, boundaries, depth, and subtle state changes. This raises a fundamental question: should action policies inherit a fixed visual endpoint, or directly access evolving visual computation? We introduce NEO-VLA, a structurally encoder-free vision-language-action framework. Images are tokenized by lightweight patch convolutional layers and evolve jointly with language throughout the backbone, allowing a flow-matching action expert to draw from instruction-conditioned visual representations at different depths. This simple change reveals a consistent pattern. Native architectures outperform encoder-based counterparts under controlled comparisons; full fine-tuning reduces but does not erase the gap, and additional scale alone cannot recover it. More strikingly, layer-wise probing shows that the action-critical signals often peak well before the final visual representation. Across diverse manipulation settings and distribution shifts, NEO-VLA consequently achieves stronger and more robust control. Together, these results suggest that embodied control benefits from access to visual representations across the computational hierarchy, rather than a fixed encoder output.",
+      "published": "2026-11-04T18:59:58.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06918",
+        "pdf": "https://arxiv.org/pdf/2611.06918"
+      },
+      "upvotes": 57,
+      "projectPage": "https://www.lmms-lab.com/posts/neo_vla/",
+      "numComments": 2,
+      "titleZh": "从像素到动作——迈向原生视觉-语言-动作策略",
+      "summaryZh": "针对视觉-语言-动作模型普遍先用固定视觉编码器压缩感知、再进行动作推理这一前提，提出无编码器框架NEO-VLA:图像由轻量 patch 卷积层直接 token 化，与语言在骨干网络中共同演化，flow-matching 动作专家从不同深度的指令条件视觉表征中取用信息。层级探针显示，对动作关键的信号常在最终视觉表征之前就已达到峰值。在多种操作场景与分布偏移下，NEO-VLA取得更强、更鲁棒的控制表现，说明具身控制受益于跨计算层级的视觉表征访问，而非固定编码器输出。",
+      "score": 2,
+      "reason": "VLA与机器人操作，属明确低分的具身智能方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.06910",
+      "title": "FrontierPhysics: Evaluating Agents for End-to-End Physics Research",
+      "authors": [
+        "Bingran You",
+        "Wenjun Ke",
+        "Ria Rosenauer",
+        "Bo Liu",
+        "Wenbo Chen",
+        "Min Chen"
+      ],
+      "authorsTotal": 72,
+      "abstract": "AI agents are playing an increasingly important role in physics research. However, existing physics benchmarks only evaluate fixed questions, isolated sub-tasks, or paper reproduction with given solutions, and rarely check research quality alongside correctness. We introduce FrontierPhysics, an end-to-end benchmark with 56 tasks made by 42 physicists based on their own research, covering nine domains across theoretical, computational, and experimental physics. Each task requires agents to review the literature, develop a research plan, conduct research and experiments, and produce structured outputs and scientific manuscripts. Combining deterministic verifiers with expert-authored rubrics, FrontierPhysics evaluates whether agents' research is correct and publishable. Across 22 models in 26 configurations, no configuration passes more than 46 of its 168 rollouts. Manual review of agent trajectories shows that frontier agents' main weaknesses are insufficiently rigorous reasoning and limited expert intuition, rather than gaps in physics knowledge or execution errors.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06910",
+        "pdf": "https://arxiv.org/pdf/2611.06910"
+      },
+      "upvotes": 49,
+      "projectPage": "https://www.benchflow.ai/frontierphysics",
+      "numComments": 0,
+      "titleZh": "FrontierPhysics：面向端到端物理研究的智能体评测",
+      "summaryZh": "现有物理基准只考查固定题目、孤立子任务或按给定解法复现论文，且很少把研究质量与正确性一并纳入评测。FrontierPhysics 由 42 位物理学家基于自身研究构建 56 个任务，覆盖理论、计算与实验物理九个领域，要求智能体完成文献调研、研究规划、实验执行、结构化输出与论文撰写；评测时把确定性验证器与专家撰写的评分量表结合，同时检验正确性与可发表性。在 22 个模型、26 种配置上，没有一种配置在 168 次 rollout 中通过超过 46 次；对智能体轨迹的人工复核显示，前沿智能体的主要短板是推理不够严谨、缺乏专家直觉，而不是物理知识不足或执行出错。",
+      "score": 8,
+      "reason": "科研智能体端到端评测，结合专家评分量表，贴合 Agent 与 AI for Research",
+      "deepDive": false
+    },
+    {
+      "id": "2611.04408",
+      "title": "Halley: A Predictive Control Plane for Optical AI Data Center Networks",
+      "authors": [
+        "Manav Mishra",
+        "Krishna M. Sivalingam"
+      ],
+      "authorsTotal": 2,
+      "abstract": "A frontier AI model is trained in an AI data center, on tens of thousands of accelerators joined by a dedicated network, and every training step ends with all of them exchanging data at once. Between racks, that network is optical, and each of its four layers, from lasers to switches, runs a fixed or after-the-fact policy. Lasers sharing an enclosure, cooling, and power can fail together. At a fixed spare ratio, correlated failure provably caps a pool's availability however large it grows. In this paper, we present a comprehensive predictive control plane framework, called Halley, that reads each resource's next state and acts before the failure occurs. It has four components, each carrying a formal guarantee: LightReserve that sizes the laser pool to provide a coverage bound, FoldFit that schedules the switch within 11/9 of the optimal, ThermaLead that holds a microring with one-step-ahead control, and TriageGuard that protects the highest-risk modules first. Halley gives each layer a predictive controller that defers to the deployed policy when unsure. Composed from simulations at that point, effective goodput, the share of ideal throughput kept, rises from 65.2\\% to 76.5\\% if a window that exhausts its spares is lost. If only the dark channels' bandwidth is lost, it reaches 67.4\\%. Per megawatt, that is up to 1.03--1.17 times the training; for the same training, up to 3.3--14.7\\% less data center capacity. Halley's fallback circuits are formally verified and are shown to achieve close timing on a commercial FPGA, and pass a 130~nm signoff.",
+      "published": "2026-11-03T06:45:50.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.04408",
+        "pdf": "https://arxiv.org/pdf/2611.04408"
+      },
+      "upvotes": 36,
+      "numComments": 2,
+      "titleZh": "Halley:面向光互连 AI 数据中心网络的可预测控制平面",
+      "summaryZh": "光互连 AI 数据中心的激光器、交换机、微环等四层网络均采用固定或事后响应策略，同一机箱内的激光器共享供电与散热会同时失效，在固定备件比例下相关失效会限制资源池可用性的上限。Halley 为每层配备预测控制器，包括给出覆盖界的激光器池容量规划 LightReserve、达到最优解 11/9 近似的交换机调度 FoldFit、对微环做一步前瞻控制的 ThermaLead 与优先保护高风险模块的 TriageGuard，不确定时回退到已部署策略。仿真中若某个窗口耗尽备件而被判失效，有效 goodput 由 65.2% 升至 76.5%，仅损失暗通道带宽时为 67.4%，折合每兆瓦训练量提升 1.03–1.17 倍，同等训练量下可少用 3.3–14.7% 的数据中心容量。回退电路经形式化验证，在商用 FPGA 上接近时序收敛并通过 130nm 签核。",
+      "score": 3,
+      "reason": "光互连数据中心控制平面，偏光子与硬件，仅与训练集群基础设施弱相关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.06483",
+      "title": "What Does Multi-Turn Reinforcement Learning Really Improve in LLM Agents?",
+      "authors": [
+        "Kejian Zhu",
+        "Zhuoran Jin",
+        "Shangqing Tu",
+        "Tianyi Men",
+        "Yupu Hao",
+        "Jiachun Li"
+      ],
+      "authorsTotal": 8,
+      "abstract": "While multi-turn agentic reinforcement learning (RL) excels on long-horizon tasks, its performance gains remain highly sensitive to interaction constraints. Evaluating across sampling breadth K and interaction depth T via Pass@(K,T), we show that trajectory-level RL advantages depend on sufficient turn budgets, diminishing significantly when budgets tighten. Besides, agentic RL does not uniformly elevate single-step decision quality; rather, its strength concentrates in error recovery and long-horizon resilience. To mitigate the deployment risks caused by this budget dependence, we provide a preliminary discussion on the benefits and limitations of process supervision signals and introduce BudgetMix RL as an alternative that varies interaction budgets during training. Experiments demonstrate that BudgetMix RL achieves robust performance across diverse execution settings. Project Page: https://rethinking-agentic-rl.github.io/",
+      "published": "2026-11-04T13:24:54.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06483",
+        "pdf": "https://arxiv.org/pdf/2611.06483"
+      },
+      "upvotes": 35,
+      "githubRepo": "https://github.com/GaryStack/Rethinking-Agent-RL",
+      "githubStars": 17,
+      "projectPage": "https://rethinking-agentic-rl.github.io/",
+      "numComments": 3,
+      "titleZh": "多轮强化学习在LLM Agent中究竟改善了什么?",
+      "summaryZh": "多轮Agentic RL在长程任务上收益明显，却高度依赖交互约束。用Pass@(K,T)在采样广度K与交互深度T两个维度上评估后发现:轨迹级RL优势需要足够的轮次预算才能成立，预算收紧时收益显著衰减;Agentic RL并非全面提升单步决策质量，其增益集中在错误恢复与长程韧性上。为此提出BudgetMix RL，在训练中变化交互预算，并初步讨论了过程监督信号的收益与局限。实验显示该方法在多种执行设定下性能稳健。",
+      "score": 8,
+      "reason": "Agentic RL分析与训练改进，直击Agent后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.37257",
+      "title": "GameVerse: A Minute-Scale Gameplay Dataset for Long-Horizon Interactive World Modeling",
+      "authors": [
+        "Kang He",
+        "Wenshuo Peng",
+        "Chuanhao Li",
+        "Zihui Gao",
+        "Xiaojie Xu",
+        "Zhengyuan Lin"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Recent advances in interactive world models have made it possible to generate controllable, dynamic environments from action inputs. Yet current models struggle to maintain coherence beyond roughly one minute of rollout, a limitation rooted not in model capacity but in the scarcity of long-horizon training data. Existing gameplay video datasets typically consist of clips under ten seconds, with captions that describe whole clips in coarse and undifferentiated text, which is insufficient for controllable long-horizon generation. We address this with GameVerse, a minute-scale gameplay video dataset purpose-built for long-horizon interactive world modeling. GameVerse contains 69.7K clips spanning 1,655 hours and 349.6 million frames across diverse first- and third-person gameplay, including 1,358 hours of continuous two-minute sequences, an order of magnitude longer than prior datasets. Clips pass through a unified pipeline of scene-consistent segmentation, quality filtering, camera pose estimation, and event-based caption annotation. Each clip is paired with a temporally stable camera trajectory that remains coherent across minutes, together with captions that separate static scene context from dynamic foreground events and align to event boundaries rather than fixed time windows. Comprehensive analysis shows that GameVerse surpasses existing public datasets in scale, diversity, and annotation quality. Experiments further demonstrate that training on GameVerse substantially extends the temporal horizon of interactive world models.",
+      "published": "2026-10-31T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.37257",
+        "pdf": "https://arxiv.org/pdf/2610.37257"
+      },
+      "upvotes": 35,
+      "githubRepo": "https://github.com/kangverse/GameVerse",
+      "githubStars": 12,
+      "projectPage": "https://kangverse.github.io/GameVerse/",
+      "numComments": 2,
+      "titleZh": "GameVerse:面向长时程交互式世界建模的分钟级游戏视频数据集",
+      "summaryZh": "交互式世界模型在动作输入下可生成可控动态环境，但 rollout 超过约一分钟后难以保持一致性，瓶颈在于长时程训练数据稀缺:现有游戏视频数据集多为十秒以内片段，且字幕为整段粗粒度描述。GameVerse 构建了 69.7K 片段、1,655 小时、3.496 亿帧的数据集，其中 1,358 小时为连续两分钟序列，规模比此前数据集高一个数量级;数据经场景一致分割、质量过滤、相机位姿估计与事件级字幕标注的统一流水线处理，每条片段配有跨分钟稳定的相机轨迹，字幕将静态场景上下文与动态前景事件分离并按事件边界对齐。分析显示其在规模、多样性与标注质量上优于现有公开数据集，实验表明在此数据上训练可显著延长交互式世界模型的时间跨度。",
+      "score": 2,
+      "reason": "游戏视频生成与世界模型数据集，落在视频生成低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.05320",
+      "title": "PyRUA-DataFarm: LLM Agent as a Cost-Efficient Teleoperator for Real-Ready Robot Data",
+      "authors": [
+        "Kewei Zhang",
+        "Juncheng Ma",
+        "Guodong Lv",
+        "Duomin Wang",
+        "Feixiang Ruan",
+        "Ruiyang Si"
+      ],
+      "authorsTotal": 14,
+      "abstract": "Teleoperation remains the default way to collect robot demonstrations, but every episode costs robot and operator time, and every new task starts from scratch. We ask whether a coding agent can take over the teleoperator's job. In our DataFarm, the agent receives a data request and one calibration episode of the robot in the target scene and rebuilds the task in simulation: it writes the scene, an expert controller, and a success judge. The simulator supplies exact actions, and a video model conditioned on real images renders each rollout as photographic video, generating all camera views together consistently. The output is real-ready data: synchronized camera views labelled with the robot's actions, on which a policy can be trained directly and deployed on the real robot. Independent judges certify the expert and every rendered episode before admission. On five real-robot tasks, policies trained only on farm data match policies trained on as many teleoperated episodes (93 vs. 84 successes in 100 trials), and under an unseen tablecloth and coloured light they keep 87 successes where the teleoperation-trained policies fall to 46. Adapting a task is fully automatic and costs \\21 of API usage on average, paid once per task, plus 5 for a render contract; every further episode costs \\0.80 on average for simulation, rendering, and review, with no robot or operator. One hour of three-view data for a task costs 107 on average, these costs included, slightly below a quote of \\117 for teleoperation in China and below 290 in labour alone in North America.",
+      "published": "2026-11-03T18:25:14.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.05320",
+        "pdf": "https://arxiv.org/pdf/2611.05320"
+      },
+      "upvotes": 24,
+      "projectPage": "https://dagroup-pku.github.io/PyRUA-Lean/DataFarm/",
+      "numComments": 3,
+      "titleZh": "PyRUA-DataFarm:让LLM Agent 充当低成本的遥操作员，产出可直接用于真机的机器人数据",
+      "summaryZh": "解决真机示教数据采集成本高、每个新任务都要从头遥操作的问题:编码 Agent 拿到数据请求和一段标定 episode 后，在仿真中重建任务，编写场景、专家控制器与成功判定;仿真器给出精确动作，再用以真实图像为条件的视频模型渲染出多视角一致的逼真视频，产出带动作标签的同步多视角数据，可直接训练策略并部署到真机。在五个真机任务上，仅用 farm 数据训练的策略与等量遥操作数据训练的策略表现相当(100 次试验中 93 次对 84 次成功);在未见过的桌布与彩色光照下，前者保持 87 次成功，遥操作策略降至 46 次。任务适配全自动，平均 21 美元 API 成本一次性支付，后续每条 episode 约 0.80 美元，一小时三视角数据平均 107 美元。",
+      "score": 2,
+      "reason": "面向机器人真机数据采集，归入具身智能低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.06518",
+      "title": "EmoReward: Self-Evolving Reward Calibration for Emotional Video Generation RL",
+      "authors": [
+        "Mingzhe Zheng",
+        "Yue Wu",
+        "Jing Tan",
+        "Chang Zou",
+        "Dengyang Jiang",
+        "Zeyue Tian"
+      ],
+      "authorsTotal": 22,
+      "abstract": "Group Relative Policy Optimization (GRPO) has advanced generative model post-training in verifiable domains such as code and mathematics, but evaluating video quality, especially emotional expression, often depends on subjective aesthetics and has no uniquely correct target. Existing approaches typically rely on fixed rewards for visual quality, motion quality, and text alignment that poorly capture emotional intent and can invite reward hacking, while RLHF is difficult to scale and subject to individual aesthetic differences that complicate the calibration of facial, body motion, and chromatic cues across narrative contexts. We introduce EmoReward, a new self-evolving training mechanism that distills evidence reliability from reward traces collected during an actual training run to adaptively guide multi-reward weight allocation in subsequent training by determining which emotional evidence to trust and how much to weight it. EmoReward first plans specific grounding cues from the emotional prompt to guide evaluation, then uses heterogeneous signal primitives to score the generated video during the act stage. Reflective Reward Gating calibrates their contributions through instance-level gates for phase, face confidence, conflict, and subtlety, then renormalizes weights over the active set to produce the sample's fused reward. RewardMemory then estimates each primitive's reliability from rollout scores and outcomes within each emotional regime in the finished training run, then fixes bounded multipliers that calibrate fusion weights in the next training run without updating reward models. Experiments on HunyuanVideo 1.5 show improvements across multiple RL algorithms and compare EmoReward with other agentic reward methods under SAGE-GRPO. Ablations and transfer experiments on SD 3.5 and FLUX further support adaptive reward calibration for visual generation.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06518",
+        "pdf": "https://arxiv.org/pdf/2611.06518"
+      },
+      "upvotes": 23,
+      "githubRepo": "https://github.com/Tencent-Hunyuan/EmoReward",
+      "githubStars": 32,
+      "projectPage": "https://emoreward-project.github.io/",
+      "numComments": 1,
+      "titleZh": "EmoReward:面向情感视频生成 RL 的自进化奖励校准",
+      "summaryZh": "情感表达的视频质量评价依赖主观美学、缺乏唯一正确目标，固定奖励易被 reward hacking,RLHF 又难以扩展。EmoReward 先从情感提示中规划具体的 grounding 线索以引导评测，再用异构信号基元给生成视频打分，并由 Reflective Reward Gating 按阶段、人脸置信度、冲突与微妙度做实例级门控，在活跃基元集合上重新归一化得到融合奖励;RewardMemory 则在一次训练结束后按情感类型估计各基元的可靠性，固化为有界乘子用于下一轮训练，无需更新奖励模型。在 HunyuanVideo 1.5 上多种 RL 算法均获提升，并与 SAGE-GRPO 下其他 agentic reward 方法对比，SD 3.5 与 FLUX 上的消融与迁移实验进一步支持自适应奖励校准。",
+      "score": 4,
+      "reason": "视频生成与扩散属低分方向，仅奖励校准机制可借鉴",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.05609",
+      "title": "On the Generalization Limitation of On-Policy Distillation for Post-RL Consolidation",
+      "authors": [
+        "Yichen Wang",
+        "Yufa Zhou",
+        "Siqi Zhu",
+        "Haozheng Luo",
+        "Jingzhi Bao",
+        "Zhichao Liu"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Multi-teacher on-policy distillation (MOPD) extends on-policy distillation (OPD) to consolidate capabilities from multiple teachers. Although prior work reports near-perfect in-distribution (IND) distillation performance, we find that this can mask incomplete capability consolidation beyond the supervised distribution. A preliminary study on synthetic reasoning shows that OPD does not fully transfer teachers' generalization capabilities. We then extend this investigation to real-world tasks, evaluating extrapolative and compositional generalization across mathematical reasoning, coding, agent, and long-context capabilities using Qwen3 models. Across extrapolative settings, OPD and MOPD reach 96.04-102.73% of their teachers' IND scores. Yet their out-of-distribution (OOD) scores remain 2.45-16.25% below the base model's. Across three compositional settings, MOPD improves IND performance over the base model, but its performance on composed tasks as OOD remains 18.19-24.34% below that of the best teachers. To understand these gaps, we examine teacher capability and data coverage as two potential bottlenecks. Jointly alleviating these bottlenecks eliminates OOD forgetting in our experiments and suggests the potential for generalization beyond the teacher. (M)OPD also reduces OOD forgetting on average relative to its reinforcement learning (RL) baselines. Analysis of the associated update geometry reveals smaller and more spectrally concentrated updates on average than those of the RL baselines, along with greater shared update structure under MOPD. Motivated by these findings, we propose geometry-based patching and base-preserving replay to improve OOD performance while largely preserving IND performance. Our findings identify a blind spot in capability consolidation via (M)OPD, highlighting the need for algorithms that explicitly support OOD retention and generalization.",
+      "published": "2026-11-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.05609",
+        "pdf": "https://arxiv.org/pdf/2611.05609"
+      },
+      "upvotes": 19,
+      "projectPage": "https://yichenzw.com/opd-generalization.github.io/",
+      "numComments": 2,
+      "titleZh": "论On-Policy Distillation在后RL能力整合中的泛化局限",
+      "summaryZh": "多教师on-policy distillation（MOPD）在分布内几乎能完美复现教师能力，但这种表现可能掩盖了监督分布之外能力整合并不完整的问题。作者先在合成推理任务上验证OPD未充分迁移教师的泛化能力，再用Qwen3在数学推理、代码、Agent与长上下文任务上评测外推与组合泛化：外推设置下OPD/MOPD达到教师IND分数的96.04–102.73%，OOD分数却比base model低2.45–16.25%；三种组合设置下组合任务OOD落后最佳教师18.19–24.34%。将教师能力与数据覆盖两个瓶颈同时缓解可消除实验中的OOD遗忘，更新几何分析显示(M)OPD更新更小、谱更集中，据此提出的geometry-based patching与base-preserving replay在基本保持IND的同时改善OOD。",
+      "score": 9,
+      "reason": "on-policy蒸馏的OOD泛化实证分析，直击后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.41104",
+      "title": "MUON-RT Reusing the Teacher's Trajectory for Momentum-Free Muon for LLM Self-Distillation",
+      "authors": [
+        "Aryan Das",
+        "Vinay Kumar Verma",
+        "Aakansha Mishra"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Self-distillation methods for large language models with an exponential moving average (EMA) teacher already retain a history of student updates. Muon nevertheless stores a separate momentum buffer, increasing persistent training memory. We propose Muon with Reused Teacher (Muon-RT), which reuses the teacher-student displacement to eliminate momentum buffers for hidden weight matrices. We show that this displacement encodes an exponentially weighted history of applied updates and smooths temporally uncorrelated noise under a local model. Muon-RT removes its radial component, normalizes it spectrally, and mixes it with the current gradient after Newton-Schulz (NS) orthogonalization. Under explicit regularity and alignment assumptions, we establish linear contraction of an expected objective-gap bound toward a residual error level. With Self-Distillation Fine-Tuning (SDFT) on Qwen2.5-7B-Instruct, Muon-RT improves average accuracy over AdamW by 2.6 points with 42% less persistent memory, and over momentum Muon by 5.4 points with 27% less persistent memory. With Self-Distillation Policy Optimization (SDPO) on Olmo-3-7B-Instruct, it improves average accuracy over AdamW by 2.0 points.",
+      "published": "2026-10-30T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.41104",
+        "pdf": "https://arxiv.org/pdf/2610.41104"
+      },
+      "upvotes": 19,
+      "numComments": 2,
+      "titleZh": "MUON-RT:复用教师轨迹为LLM自蒸馏打造无动量Muon",
+      "summaryZh": "自蒸馏中EMA教师已保留学生更新历史，Muon却仍单独维护动量缓冲区，推高常驻训练显存。Muon-RT复用教师-学生位移替代隐藏权重矩阵的动量，论证该位移编码了更新的指数加权历史并能平滑时间上不相关的噪声;做法是去除其径向分量、谱归一化，再在Newton-Schulz正交化后与当前梯度混合，并给出目标间隙线性收缩的界。Qwen2.5-7B-Instruct上用SDFT，平均准确率较AdamW提升2.6分、常驻显存减少42%，较带动量的Muon提升5.4分、显存减少27%;Olmo-3-7B-Instruct上用SDPO，较AdamW提升2.0分。",
+      "score": 8,
+      "reason": "自蒸馏下的无动量Muon优化器，带理论界与7B实测，命中后训练与效率方向",
+      "deepDive": true
+    },
+    {
+      "id": "2610.40131",
+      "title": "VideoMemBench: How Well Do MLLMs Remember in Video Conversations?",
+      "authors": [
+        "Zhengdong Hu",
+        "Chao Wang",
+        "Kaituo Feng",
+        "Huanjin Yao",
+        "Mingfei Lu",
+        "Hehe Fan"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Multimodal large language models (MLLMs) can now process hour-long videos, making extended multi-turn dialogue over a single video a natural mode of use. Sustaining such a dialogue requires more than answering each question in isolation: the model must retrieve and reuse information established earlier in the conversation, both what it has seen and what it has said, an ability we term in-context video memory. Existing video QA benchmarks leave this ability unmeasured: their questions are mutually independent, never reference one another, and each is answerable from the video alone, so nothing ever requires carrying information across turns. We introduce VideoMemBench, in which each sample pairs a single video with a long multi-turn dialogue, whose turns are connected by typed cross-turn dependencies: an Episodic Dependency refers back to a visual episode described in an earlier turn, probing memory of what the model has seen, while an Answer Dependency builds on the model's own earlier answer, probing memory of what the model has said. Every dependency is verified considering two properties: 1) necessity, meaning the question cannot be answered without its earlier turns, and 2) non-leakage, meaning the question does not restate the information from its earlier turns. To enforce these properties, we design a construction pipeline with three LLM roles: a planner, a generator, and a judger, with each dialogue reviewed by human experts. VideoMemBench comprises 326 videos with 2,476 turns, of which 1,387 depend on earlier turns, including multi-parent dependencies and long-range call-back. Among over 20 evaluated open- and closed-source MLLMs, Claude Opus 5 performs the best with an overall score of only 45.7%, highlighting the challenge of in-context video memory. Our dataset and evaluation are released.",
+      "published": "2026-11-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.40131",
+        "pdf": "https://arxiv.org/pdf/2610.40131"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/Oliiveralien/VideoMemBench",
+      "githubStars": 3,
+      "projectPage": "https://videomembench.github.io/",
+      "numComments": 2,
+      "titleZh": "VideoMemBench：MLLM 在视频对话中能记住多少？",
+      "summaryZh": "现有视频问答 benchmark 的提问彼此独立、单靠视频即可作答，无法衡量模型在多轮对话中跨轮复用「看过的画面」与「自己说过的话」的上下文视频记忆能力。VideoMemBench 为每段视频配一段长多轮对话，轮次之间由「情节依赖」（回指前文描述过的视觉片段）与「答案依赖」（基于模型此前的回答继续追问）两类跨轮依赖连接，并用必要性、非泄漏性两条标准校验，构建流程由 planner、generator、judger 三个 LLM 角色加人工复核完成。数据集含 326 段视频、2,476 轮对话，其中 1,387 轮依赖前文，包含多父依赖与长距离回指；在 20 多个开源与闭源 MLLM 上评测，表现最好的 Claude Opus 5 总分仅 45.7%，说明上下文视频记忆仍是明显短板。",
+      "score": 7,
+      "reason": "MLLM 视频多轮记忆 benchmark，命中多模态理解与评测方向",
+      "deepDive": false
+    },
+    {
+      "id": "2611.01120",
+      "title": "StreamDuo: A Live Commentator and a Research Agent for Unseen Games",
+      "authors": [
+        "Zixian Gao",
+        "Penghao Luo",
+        "Xiangcheng Cao",
+        "Lixin Xiu",
+        "Ziqi Cai",
+        "Zhen Li"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Streaming video LLMs can now commentate live gameplay, but they are trained and tested on the same games. We study cross-game streaming commentary, in which a model trained on one game commentates games it has never seen, and find that current commentators transfer their timing but not their knowledge of the game world. We propose StreamDuo, which pairs a trainable commentator with a frozen research agent that reads the wiki of the game being played. When the commentator sees something it cannot name, it sends the current frames, and the research agent returns a few wiki entries two seconds later while the stream continues. We train only the commentator, on a single game, in two stages. Information-gain labels teach it to ask only where an answer would help it say what the human caster said, and on-policy self-distillation from a copy of itself that sees the ideal answer teaches it to use noisy answers. Trained on Baldur's Gate 3 and tested on ten unseen games, StreamDuo raises entity recall from 0.082 to 0.116 over Proact-VL trained on the same data, cuts source-game leakage from 9.9% to 1.0%, and achieves the best timing and the highest judged liveliness and overall quality among streaming models.",
+      "published": "2026-10-31T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.01120",
+        "pdf": "https://arxiv.org/pdf/2611.01120"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/ZixianGao/StreamDuo-code",
+      "githubStars": 11,
+      "projectPage": "https://zixiangao.github.io/StreamDuo/",
+      "numComments": 3,
+      "titleZh": "StreamDuo:面向未见游戏的直播解说员与研究智能体",
+      "summaryZh": "研究跨游戏直播解说:在一个游戏上训练的模型要解说从未见过的游戏，现有模型只能迁移解说时机，无法迁移游戏世界知识。StreamDuo 把可训练解说员与冻结的研究智能体配对，解说员遇到叫不出名字的内容时送出当前帧，智能体约两秒后返回数条 wiki 词条。解说员只在单个游戏上分两阶段训练:信息增益标签让它仅在答案有助于复现人类解说词时提问，on-policy 自蒸馏教它利用带噪答案。在《博德之门3》上训练、十个未见游戏上测试，实体召回由 0.082 升至 0.116，源游戏泄漏从 9.9% 降至 1.0%，时序与整体质量评测最优。",
+      "score": 7,
+      "reason": "流式视频LLM配检索智能体，跨分布泛化与两阶段训练有参考价值",
+      "deepDive": false
+    },
+    {
+      "id": "2611.02857",
+      "title": "Solv3R: 3D Looped Transformer as a Multi-view Solver",
+      "authors": [
+        "Jeong-gi Kwak",
+        "Andrea Tagliasacchi",
+        "Sho Kagami",
+        "Yuki Ono",
+        "Kwang Moo Yi"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Classical structure-from-motion reconstruction proceeds iteratively, refining camera poses and scene geometry from a current estimate. This allows maps to easily expand without recomputing already computed views, or geometry estimates to improve as more observations are provided. Most geometric foundation models, however, predict entire geometry in a single forward pass or update a recurrent state as frames arrive sequentially, making this expansion and refinement non-trivial. We introduce Solv3R, a looped transformer that learns to continue solving multi-view geometry from its current state. Importantly, its update operator is independent of the iteration count, allowing previously refined and newly introduced views to be jointly updated regardless of how ``solved'' they are. We train the operator to preserve accurate reconstructions under continued iteration and correct inaccurate states, enabling refinement of fixed image collections and integration of new observations. Representations of solved views can also be cached once and reused as geometric context across iterations, enabling compact and efficient key-value caching. We analyze the solver dynamics and compare it with the state-of-the-art, demonstrating that a single learned solver supports offline reconstruction, incremental reconstruction, relocalization, and streaming without task-specific training or modules. The code and models will be made publicly available at https://ubc-vision.github.io/solv3r/.",
+      "published": "2026-11-02T09:59:45.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02857",
+        "pdf": "https://arxiv.org/pdf/2611.02857"
+      },
+      "upvotes": 16,
+      "githubRepo": "https://github.com/ubc-vision/solv3r",
+      "githubStars": 118,
+      "projectPage": "https://ubc-vision.github.io/solv3r/",
+      "numComments": 3,
+      "titleZh": "Solv3R：作为多视图求解器的三维循环 Transformer",
+      "summaryZh": "经典 structure-from-motion 通过迭代优化相机位姿与场景几何，使地图可以增量扩展而无需重算已解视图；但多数几何基础模型要么单次前向预测全部几何，要么随帧到达更新循环状态，扩展与精化都很困难。Solv3R 用循环 Transformer 学习从当前状态继续求解多视图几何，其更新算子与迭代次数无关，已精化视图与新引入视图可不论\"解的程度\"联合更新；算子经训练在持续迭代下保持准确重建并纠正错误状态，已解视图表示可缓存为几何上下文，实现紧凑的 key-value 缓存。单个学习到的求解器无需任务特定训练或模块即支持离线重建、增量重建、重定位与流式处理，作者还分析了求解器动力学并与当前最优方法做了对比。",
+      "score": 2,
+      "reason": "三维重建／SfM 几何求解，落在视觉重建低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.01926",
+      "title": "TAC-CoT: Tool-Empowered Implicit Chain-of-Thought via Interleaving Explicit Tokens",
+      "authors": [
+        "Juseon Do",
+        "Sangmin Bae",
+        "Jeesu Jung",
+        "Hwanjun Song"
+      ],
+      "authorsTotal": 4,
+      "abstract": "LLM-based agentic systems are increasingly combined with CoT reasoning to solve tasks that require accurate reasoning, external knowledge, and multi-step deliberation. Yet, explicit CoT incurs substantial generation overhead, while implicit CoT, which replaces textual rationales with compact continuous tokens, does not naturally support the explicit communication interface required for agentic tool-use. We propose TAC-CoT, a tool-empowered adaptive implicit CoT framework that replaces explicit reasoning traces with compact latent reasoning segments while retaining textual tokens only for tool calls, observations, and final answers. This interleaved design enables agentic tool-use without verbalizing every intermediate reasoning step. Experiments on agentic math and QA benchmarks show that TAC-CoT improves accuracy by up to 8.8 points while reducing model forward passes by up to 6.8x. Furthermore, analyses show that TAC-CoT improves tool-use quality in both single- and multi-tool settings.",
+      "published": "2026-11-01T14:05:15.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.01926",
+        "pdf": "https://arxiv.org/pdf/2611.01926"
+      },
+      "upvotes": 14,
+      "projectPage": "https://aclanthology.org/2026.emnlp-main.1436/",
+      "numComments": 2,
+      "titleZh": "TAC-CoT:通过交错显式 token 实现工具赋能的隐式思维链",
+      "summaryZh": "显式 CoT 逐字生成推理链带来大量生成开销，而隐式 CoT 用紧凑连续 token 替代文本推理后，又难以支撑 agent 工具调用所需的显式通信接口。TAC-CoT 把中间推理压缩为潜在推理片段，仅在工具调用、观测与最终答案处保留文本 token，使潜在推理与显式工具交互交错进行。在 agentic 数学与问答基准上，准确率最高提升 8.8 分，模型前向次数最多减少 6.8 倍，单工具与多工具场景下的工具使用质量均有改善。",
+      "score": 8,
+      "reason": "隐式 CoT 与 Agent 工具调用结合，方法新颖且加速显著",
+      "deepDive": true
+    },
+    {
+      "id": "2610.41432",
+      "title": "Hybrid Computer Use: A Unified Programmatic, Semantic, and Visual Interface for General Agents",
+      "authors": [
+        "Haoqing Wang",
+        "Xiaoyi Zhang",
+        "Sicheng Fan",
+        "Zhexin Zhang",
+        "Xinjie Zhang",
+        "Jiahao Li"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Computer-use agents increasingly tackle tasks ranging from everyday desktop activities to long-horizon professional workflows. Yet interfaces centered on screenshots and mouse-and-keyboard actions can impose a human-interaction prior, requiring repeated screen interpretation while leaving the computer's semantic and programmatic capabilities underexposed. We argue for exposing these capabilities and letting models choose and combine them. We introduce Hybrid Computer Use (HCU), a unified interface for general agents that combines three complementary channels: programmatic interaction through code and command-line tools, semantic interaction through accessibility (AX), and visual interaction through graphical user interfaces (GUI). Our HCU supports efficient AX interaction and guards against stale-state actions during channel switching. A supplementary HCU skill guides agents in selecting and coordinating channels to use the unified interface effectively. Our designed AX tools return compact observations, execute actions in batches, and report their effects as AX diffs, so the model needs fewer round trips. On OSWorld 2.0, HCU achieves the highest Partial and Binary scores among the compared systems. Analyzing agent trajectories, we find that all evaluated models improve with HCU yet allocate work across the channels differently and consistently outperform compared baselines in terms of both efficiency and task success, highlighting the value of unified computer-use interfaces that allow flexible channel selection and combination.",
+      "published": "2026-10-30T08:38:29.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.41432",
+        "pdf": "https://arxiv.org/pdf/2610.41432"
+      },
+      "upvotes": 14,
+      "githubRepo": "https://github.com/microsoft/Hybrid-Computer-Use",
+      "githubStars": 33,
+      "projectPage": "https://microsoft.github.io/Hybrid-Computer-Use/",
+      "numComments": 2,
+      "titleZh": "Hybrid Computer Use:面向通用 Agent 的程序化、语义与视觉统一接口",
+      "summaryZh": "针对截图加鼠标键盘的计算机使用 Agent 界面强加人类交互先验、需反复解读屏幕而浪费机器语义与程序化能力的问题，提出 HCU 统一接口，同时暴露三条互补通道:代码与命令行工具的程序化交互、基于可访问性树(AX)的语义交互、以及 GUI 视觉交互，并设计 AX 工具返回紧凑观测、批量执行动作、以 AX diff 汇报效果，减少往返轮次，同时防护通道切换时的陈旧状态误操作;配套 HCU skill 指导模型选择与组合通道。在 OSWorld 2.0 上 HCU 取得对比系统中最高的 Partial 与 Binary 分数，轨迹分析显示各模型均受益但通道分配策略不同，效率与成功率全面优于基线。",
+      "score": 8,
+      "reason": "Agent 计算机使用接口与 harness 设计，OSWorld 实测，命中 Agent 方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.02846",
+      "title": "SpecOPD: Branch-Parallel On-Policy Distillation for Speculative Decoding",
+      "authors": [
+        "Tianyu Liu",
+        "Jun Zhang",
+        "Wenjie Huang",
+        "Yuhao Shen",
+        "Tianqi Xu",
+        "Xinyue Hao"
+      ],
+      "authorsTotal": 15,
+      "abstract": "Speculative decoding (SD) accelerates large language model inference by reducing the sequential cost of token-by-token generation. Advanced SD methods reduce proposal cost with parallel drafters that predict entire blocks in one forward pass, but overall speedup still depends on acceptance length. On-policy distillation (OPD) can push well-trained drafters beyond acceptance-length plateaus, yet conventional pipelines collect supervision through sequential draft-and-verify rollouts. Our key insight is that on-policy supervision need not inherit these dependencies: a draft block can be supervised using only its reference prefix and draft-sampled history. We propose SpecOPD, a branch-parallel OPD framework that parallelizes draft sampling and target supervision across independent branches drawn from the evolving drafter policy at reference anchors. We pack these branches into proposal trees to share target-prefix computation, using tree masks for full attention, branch-consistent indexer groups for sparse attention, and indexed state replay for linear attention to preserve each branch's history. We train the drafter with an E2E-TV surrogate that directly targets acceptance length. Our study spans 8B full-attention (GQA), 27B full-linear (GQA--GDN), and 125B sparse-linear (QSA--GDN) targets, three parallel draft architectures (DFlash, DSpark, and DFlash V2), and four task domains (dialogue, coding, mathematics, and agentic). SpecOPD achieves up to 41.45% higher mean acceptance length, 16.09times supervised-token throughput over sequential-rollout OPD under native configurations, and up to 3.56times generation speedup over autoregressive decoding.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02846",
+        "pdf": "https://arxiv.org/pdf/2611.02846"
+      },
+      "upvotes": 13,
+      "githubRepo": "https://github.com/QwenApp/SpecOPD",
+      "githubStars": 25,
+      "projectPage": "https://qwenapp.github.io/SpecOPD/en.html",
+      "numComments": 2,
+      "titleZh": "SpecOPD：面向投机解码的分支并行同策略蒸馏",
+      "summaryZh": "投机解码的并行 drafter 一次前向即可预测整块 token，但整体加速仍受接受长度制约；同策略蒸馏能抬高这一上限，却依赖串行的草稿—验证 rollout。SpecOPD 把草稿采样与目标监督拆成从参考锚点出发的独立分支并行执行，将分支打包为 proposal tree 共享目标前缀计算，并以树掩码、分支一致 indexer 组、索引化状态重放分别适配全注意力、稀疏注意力与线性注意力，再用直接优化接受长度的 E2E-TV 代理目标训练 drafter。在 8B/27B/125B 目标、三种并行草稿架构与对话、代码、数学、Agentic 四个领域上，平均接受长度最高提升 41.45%，监督 token 吞吐为串行 OPD 的 16.09 倍，相对自回归解码最高 3.56 倍加速。",
+      "score": 9,
+      "reason": "投机解码、同策略蒸馏与稀疏/线性注意力适配，直接命中推理加速方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.04391",
+      "title": "Human-to-Robot Transfer via Bridging Representation and Action Space in VLAs",
+      "authors": [
+        "Junhyeong Park",
+        "Wook Jung",
+        "Taeyoung Kim",
+        "Huiwon Jang",
+        "Jinwoo Shin"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Pretrained Vision-Language-Action (VLA) policies provide a strong starting point for deployment, but adapting them to a target robot and environment still requires costly embodiment-specific demonstrations. Human demonstrations are far easier to collect, yet directly leveraging them is challenging due to the substantial human-robot embodiment gap, particularly when the underlying VLA has been pretrained primarily on robot data. We introduce H2RB (Human-To-Robot Bridge), a human-robot co-training framework for adapting pretrained VLA policies from unpaired human and robot demonstrations. H2RB bridges the embodiment gap at both interfaces: geometry-anchored alignment grounds human and robot observations in a compatible representation, while a decoupled-decoder tokenizer shares action latents without forcing both domains through a single action mapping. This design allows human demonstrations to provide useful behavioral supervision while retaining the rich visual, semantic, and control priors of the pretrained VLA. Across real-world tasks, H2RB substantially improves object transfer performance from 8.0 to 51.8 and enables skill transfer to score 62.7, in settings where co-train baselines totally fail to transfer human-demonstrated skills. The benefit also persists under object-placement shifts, improving out-of-distribution transfer from 6.0 to 45.3. H2RB suggests a way for human demonstrations to serve as a scalable supervision source for adapting pretrained robotic policies, reducing the dependence on costly target-robot data collection.",
+      "published": "2026-11-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.04391",
+        "pdf": "https://arxiv.org/pdf/2611.04391"
+      },
+      "upvotes": 13,
+      "githubRepo": "https://github.com/jun-brro/h2rb-code",
+      "githubStars": 2,
+      "projectPage": "https://junhyeong-park.me/h2rb/",
+      "numComments": 2,
+      "titleZh": "通过桥接 VLA 中的表征与动作空间实现人到机器人迁移",
+      "summaryZh": "预训练 VLA 策略适配到新机器人本体时仍依赖昂贵的目标本体演示，而人类演示虽易采集却受本体的差异限制。H2RB 提出人—机器人联合训练框架，在观测侧用几何锚定对齐将人类与机器人观测映射到兼容表征，在动作侧用解耦解码器 tokenizer 共享动作潜变量而不强制统一动作映射，从而利用无配对的人类与机器人演示。真实任务中目标迁移从 8.0 提升至 51.8，技能迁移达 62.7，物体位置偏移下的分布外迁移从 6.0 升至 45.3，基线则完全无法迁移人类演示技能。",
+      "score": 1,
+      "reason": "VLA 机器人本体迁移，属具身智能低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.06425",
+      "title": "D3D: Decoupled Diffusion Drafting for Asynchronous Speculative Decoding",
+      "authors": [
+        "Baoyou Chen",
+        "Ruiqiao Mei",
+        "Guancong Lin",
+        "Tao Song",
+        "Weihao Yuan",
+        "Qun Liu"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Target-conditioned diffusion drafters predict candidate tokens in parallel, yet each new block must wait for updated target-model hidden states. This forces drafting and verification to run sequentially, limiting speedup even though each block is generated in one pass. We introduce D3D, a standalone diffusion drafter that removes this inter-round dependency. D3D combines blockwise denoising with auxiliary autoregressive supervision to achieve long accepted prefixes without target hidden states. This independence lets D3D draft successor blocks during verification in one packed pass, enabling asynchronous speculative decoding. We progressively prune layers according to their effect on acceptance length to reduce the cost of packed drafting. Removing five of 36 layers retains over 99\\% of mean acceptance length across three benchmarks with Qwen3-8B as the target. Across seven benchmarks, D3D averages 5.00times and 5.71times decoding speedup with Qwen3-8B and Qwen3-32B targets, compared with 4.03times and 3.67times for DFlash. On GSM8K with Qwen3-32B, speedup reaches 7.48times. Code is publicly available at https://github.com/fudan-generative-vision/D3D.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06425",
+        "pdf": "https://arxiv.org/pdf/2611.06425"
+      },
+      "upvotes": 12,
+      "githubRepo": "https://github.com/fudan-generative-vision/D3D",
+      "githubStars": 9,
+      "numComments": 1,
+      "titleZh": "D3D:面向异步投机解码的解耦扩散起草",
+      "summaryZh": "target-conditioned 扩散 drafter 能并行预测候选 token，但每个新块都必须等待 target 模型更新后的 hidden state，使起草与验证只能串行，单轮并行带来的加速被抵消。D3D 去掉这一轮间依赖，以分块去噪结合辅助自回归监督，在不依赖 target hidden state 的情况下产出长接受前缀;这种独立性使 D3D 能在验证期间以一次打包前向起草后续块，实现异步投机解码，并按各层对接受长度的影响逐步剪枝以降低打包起草开销。剪掉36层中的5层后，以 Qwen3-8B 为目标时，在三个基准上仍保留超过99%的平均接受长度;在七个基准上，D3D 相对 Qwen3-8B 与 Qwen3-32B 目标分别平均加速5.00倍和5.71倍(DFlash 为4.03倍和3.67倍),GSM8K 上 Qwen3-32B 加速达7.48倍。",
+      "score": 8,
+      "reason": "扩散 drafter 解耦投机解码轮间依赖，推理加速显著，属系统效率扎实工作",
+      "deepDive": true
+    },
+    {
+      "id": "2611.06796",
+      "title": "VA-TDM: A Unified View for Improving Few-Step Diffusion Models by Velocity Adversarial Distillation",
+      "authors": [
+        "Yihong Luo",
+        "Tianyu Pang",
+        "Tianyang Hu"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Few-step distillation offers efficient generation with diffusion and flow models, but preserving quality with only a few sampling steps remains challenging. Distribution-matching methods via score distillation provide a strong foundation, yet they rely on accurately tracking the student's changing distribution. At intermediate generation steps in few-step sampling, student-score estimation can be difficult, and commonly used estimators may describe a different distribution from the one used to update the student. Flow matching allows a more flexible approach to supervision through velocity fields constructed from the student's sampling process. Building on this perspective, we introduce Velocity Adversarial Distillation (VAD), which uses a learned critic to compare student and teacher fields and turn their disagreement into feedback for learning. VAD unifies score distillation, Fisher-based matching, and moment matching, also explaining existing heuristic MMD updates and delivering new training objectives. We further develop VA-TDM, which follows trajectory distribution matching: providing supervision for partial denoising along the student trajectory. Beyond this, VA-TDM combines transition-aware online velocity learning and dual-form VAD supervision across intermediate student transitions. Extensive results show that VA-TDM is powerful for learning few-step generators, achieving state-of-the-art four-step performance in both text-to-image and text-to-video generation across various backbones and scaling effectively to 33B MiniMax-H3. In particular, our VA-TDM-H3 notably outperforms the few-step Fast-H3 and is closer to the original many-step H3 according to human preference.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06796",
+        "pdf": "https://arxiv.org/pdf/2611.06796"
+      },
+      "upvotes": 12,
+      "githubRepo": "https://github.com/Luo-Yihong/VA-TDM",
+      "githubStars": 13,
+      "projectPage": "https://luo-yihong.github.io/VA-TDM/",
+      "numComments": 1,
+      "titleZh": "VA-TDM:用速度对抗蒸馏改进少步扩散模型的统一视角",
+      "summaryZh": "少步扩散蒸馏能在极少采样步数下高效生成，但保持质量仍困难;基于分数蒸馏的分布匹配依赖对学生在中间步的分数估计，估计器常与更新所用的分布不一致。VA-TDM 从 flow matching 的速度场入手，用可学习 critic 比较学生与教师的速度场并把分歧转成学习信号(速度对抗蒸馏 VAD)，在理论上统一了分数蒸馏、Fisher 匹配与矩匹配。方法按轨迹分布匹配对学生轨迹上的部分去噪步提供监督，结合过渡感知的在线速度学习与双形式 VAD 监督。在多种骨干的文生图与文生视频上取得四步生成的 SOTA，并可扩展到 33B MiniMax-H3，人类偏好优于 Fast-H3。",
+      "score": 2,
+      "reason": "扩散/视频生成蒸馏，属明确低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.06768",
+      "title": "PyRUA-REAL: Robot Exploration and Adaptive Learning through RSI in the Real World",
+      "authors": [
+        "Qiang Wang",
+        "Jianxin Bi",
+        "Shulong Jiang",
+        "Ruiyang Si",
+        "Wenbo Huang",
+        "Kaiqi Chen"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Coding agents powered by models such as GPT-6-Astra connect spatial reasoning with executable robot behavior, raising the question of how such agents can produce lasting improvements in robot capabilities from physical interaction. In this work, we study embodied recursive self-improvement (RSI) through real-world exploration, code refinement, and deployment using PyRUA-REAL, a framework in which coding agents retain interaction experience as persistent memory and reusable executable skills that inform subsequent exploration and improvement. Our empirical study places physical manipulation at the center of the improvement process, examining how agents collaborate, what kinds of execution feedback support effective code refinement, and how task specifications and previously acquired skills influence robustness and task transfer. We further investigate the efficiency and capability of the resulting programs when deployed without involving an online agent for decision-making. Across eight real-world tasks, PyRUA-REAL achieves an average success rate of 91.1%. In complementary evaluation on 42 tasks from the RoboDojo benchmark, it achieves an average success rate of 84.4%. This study provides empirical guidance for turning physical exploration into reusable robot skills that support continued improvement and robust, efficient deployment.",
+      "published": "2026-11-04T16:46:03.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06768",
+        "pdf": "https://arxiv.org/pdf/2611.06768"
+      },
+      "upvotes": 10,
+      "projectPage": "https://dagroup-pku.github.io/PyRUA-Lean/real/",
+      "numComments": 1,
+      "titleZh": "PyRUA-REAL:通过 RSI 在真实世界中进行机器人探索与自适应学习",
+      "summaryZh": "针对编码智能体能否通过真实物理交互持续提升机器人能力这一问题，构建 PyRUA-REAL 框架:智能体把交互经验保存为持久记忆与可复用可执行技能，并据此进行代码精修与再部署，从而形成具身递归自我改进(RSI)的闭环;工作重点考察智能体协作方式、何种执行反馈有助于代码改进，以及任务规格与既有技能对鲁棒性和任务迁移的影响，同时评估部署阶段脱离在线智能体决策后程序自身的效率与能力。在八个真实世界任务上平均成功率达 91.1%，在 RoboDojo 基准的 42 个任务上平均成功率为 84.4%。",
+      "score": 1,
+      "reason": "机器人与具身智能方向，按画像规则归低分",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.03228",
+      "title": "AnchorComplete: Recovering Complete Scene Meshes from Partial Point Clouds",
+      "authors": [
+        "Weirong Chen",
+        "Ismail El-Yamany",
+        "Ganlin Zhang",
+        "Chuanxia Zheng",
+        "Andrea Vedaldi",
+        "Daniel Cremers"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Most image-based 3D reconstructors primarily recover visible surfaces, producing partial point clouds with large holes and leaving unobserved geometry unresolved. To address this limitation, we introduce AnchorComplete, a framework that reconstructs complete scene meshes from partial point clouds while preserving observed geometry and supporting scenes of varying scales. Building on TRELLIS.2, our method combines partial-point conditioning, which integrates global scene tokens with local spatial evidence to anchor generation to the input, and metric-scale coarse-to-fine generation, which progressively refines scene geometry within fixed-size windows while maintaining global structural consistency. Experiments on Replica and SCRREAM demonstrate that AnchorComplete consistently outperforms strong baselines in complete-scene reconstruction, particularly under sparse-view settings.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03228",
+        "pdf": "https://arxiv.org/pdf/2611.03228"
+      },
+      "upvotes": 9,
+      "projectPage": "https://wrchen530.github.io/anchor-complete/",
+      "numComments": 2,
+      "titleZh": "AnchorComplete：从部分点云恢复完整场景网格",
+      "summaryZh": "图像级三维重建器通常只能恢复可见表面，留下大片空洞与未观测几何。AnchorComplete 在 TRELLIS.2 基础上引入部分点云条件化（将全局场景 token 与局部空间证据结合，把生成锚定到输入）与米制尺度由粗到细生成（在固定窗口内逐步细化并保持全局结构一致），从而在保留已观测几何的同时补全完整场景网格。在 Replica 与 SCRREAM 上，该方法在完整场景重建上稳定优于强基线，稀疏视角设置下优势尤为明显。",
+      "score": 1,
+      "reason": "三维场景网格补全，属视觉重建方向，与 LLM 关注点无关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.03404",
+      "title": "VidDub: Replacement-Aware Distillation for Two-Step Video Dubbing",
+      "authors": [
+        "Yexin Liu",
+        "Yunlong Lin",
+        "Zehan Wang",
+        "Guangxin He",
+        "Xinli Xu",
+        "Jiajun Zha"
+      ],
+      "authorsTotal": 14,
+      "abstract": "Video dubbing aims to synthesize lip movements that match target speech while preserving the speaker identity, head pose, and background of a source video. Existing editors are predominantly trained via self-reconstruction under original paired audio, even though the source mouth becomes a conflicting target when driving speech is replaced. We introduce replacement-aware cross-audio supervision: paired-audio samples use full-frame reconstruction, whereas unpaired replacement-audio samples mask out source-mouth reconstruction losses and supervise the mouth solely through audio-visual synchronization while preserving unmasked facial regions and background. Because offline dubbing provides the complete source video and target speech beforehand, we present VidDub, a full-context diffusion editor distilled into two denoising steps (2 NFE). Our replacement-aware teacher first learns accurate lip synchronization without regressing toward conflicting source mouth movements. Matched trajectory regression then transfers the teacher's CFG-guided trajectories to a two-step student, and distribution matching distillation recovers visual quality after step compression. We will release the curated training dataset, VidDub-Bench, fixed paired- and cross-audio evaluation manifests, preprocessing outputs, and unified evaluation code. Across three training seeds, masking out conflicting source-mouth reconstruction improves cross-audio Sync-C by 0.833; the final two-step model combines strong lip synchronization with superior visual quality, identity preservation, and visual speech recognition across four benchmarks.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03404",
+        "pdf": "https://arxiv.org/pdf/2611.03404"
+      },
+      "upvotes": 8,
+      "githubRepo": "https://github.com/LAW1223/VidDub",
+      "githubStars": 16,
+      "projectPage": "https://law1223.github.io/viddub-project-page/",
+      "numComments": 3,
+      "titleZh": "VidDub:面向替换感知蒸馏的两步视频配音",
+      "summaryZh": "视频配音要在合成与目标语音匹配的口型的同时，保留说话人身份、头姿与背景;现有编辑模型多在原始配对音频下做自重建训练，而当驱动语音被替换时，源口型反而成了冲突的重建目标。为此引入替换感知的跨音频监督:配对音频样本做全帧重建，非配对替换音频样本则屏蔽源口型重建损失，仅以音视频同步监督口型，并保留未遮挡的面部区域与背景。方法将全上下文扩散编辑器蒸馏到两步去噪(2 NFE):先训练替换感知教师模型，再做匹配轨迹回归与分布匹配蒸馏。屏蔽冲突源口型重建使跨音频 Sync-C 提升 0.833，最终两步模型在四个基准上兼顾口型同步、视觉质量、身份保持与视觉语音识别。",
+      "score": 2,
+      "reason": "视频配音的扩散编辑与蒸馏，落在视觉生成方向，关注度低",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.05304",
+      "title": "LoopVQ: Sub 1-bit KV Cache Quantization for Looped Transformers",
+      "authors": [
+        "Minsoo Cheong",
+        "Sungjoo Yoo"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Looped transformers are a parameter-efficient alternative to standard transformers for language modeling. By reapplying the same layers across multiple loop steps, recent looped language models match the performance of non-looped models several times their size. While this architecture effectively reduces parameter memory, each loop step still stores its own keys and values, so the key-value (KV) cache grows linearly with the number of loop steps and becomes the main memory bottleneck. We observe that the KV cache of looped models is highly redundant along the loop axis and that the loop steps differ substantially in their sensitivity to quantization. Based on these observations, we propose LoopVQ, a KV cache vector quantization method for looped transformers that codes channels of multiple loop steps jointly, and fine-tunes the codebooks to match the output of the full-precision model. At 0.5 bits per element, LoopVQ outperforms existing KV cache vector quantization methods for standard LLMs on general, long chain-of-thought reasoning, and long-context retrieval tasks with Ouro and Huginn models. Its design is orthogonal to these methods, and combined with TaSQ, it retains much of the BF16 accuracy even at 0.25 bits per element. We also implement LoopVQ in SGLang, where it nearly halves the decode latency at a 32K-token context and raises the peak serving throughput by up to 4.3times and 6.1times on the 1.4B and 2.6B Ouro models compared to the BF16 baseline.",
+      "published": "2026-11-03T18:16:29.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.05304",
+        "pdf": "https://arxiv.org/pdf/2611.05304"
+      },
+      "upvotes": 8,
+      "githubRepo": "https://github.com/mscheong01/LoopVQ",
+      "githubStars": 3,
+      "projectPage": "https://mscheong01.github.io/loopvq/",
+      "numComments": 2,
+      "titleZh": "LoopVQ:面向循环 Transformer 的亚 1-bit KV Cache 量化",
+      "summaryZh": "循环 Transformer 通过重复施加相同层来减少参数内存，但每个循环步各存一份 KV，使 KV cache 随循环步数线性增长并成为主要内存瓶颈。LoopVQ 观察到循环轴上的 KV 高度冗余、各循环步对量化的敏感度差异显著，因此将多个循环步的通道联合编码做向量量化，并微调码本以对齐全精度模型输出。在 Ouro 与 Huginn 上，0.5 bit/元素即优于标准 LLM 的既有 KV 向量量化方法，与 TaSQ 结合后在 0.25 bit/元素仍保留大部分 BF16 精度。该方法已落地 SGLang:32K 上下文下解码延迟近乎减半，1.4B 与 2.6B Ouro 的峰值服务吞吐相比 BF16 基线分别最高提升 4.3 倍与 6.1 倍。",
+      "score": 8,
+      "reason": "循环 Transformer 的 KV cache 量化，属高效推理方向且含系统落地",
+      "deepDive": true
+    },
+    {
+      "id": "2611.03330",
+      "title": "The SIMPLE Law for Energy Cost of LLM Inference",
+      "authors": [
+        "Hiari Pizzini Cavagna",
+        "Andrea Proia",
+        "Daniele Cesarini",
+        "Zeynep Kiziltan",
+        "Andrea Bartolini"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Generative AI is billed per token, yet tokens are not equally expensive. Each token enters the KV-cache and raises the cost of those that follow, so energy grows non-linearly along a sequence whose tokens look identical. No analytical model states what a token costs, and the most accurate SOTA model is a fit, not a law: it absorbs architecture into fitted coefficients, requiring per-LLM fitting. We derive closed-form expressions of the computational and memory-access complexity of LLM inference in terms of architectural hyperparameters, covering MHA and GQA, and compare a family of analytical models of increasing granularity. From these, we obtain the SIMPLE Inference Model to Predict LLMs Energy (SIMPLE), a four-parameter law that separates prefill from decode, and decode into KV-cache cost and next-token computation. Over traces of 13 dense LLMs from six families on NVIDIA H100 GPUs, it attains R2 = 0.969 and 11.97% MAPE, 3.1-3.5x below the SOTA, without per-LLM calibration. The SIMPLE law explains as well as predicts: prefill energy grows quadratically with the hidden dimension, so larger LLMs suffer most from long inputs; and more aggressive GQA KV grouping reduces the per-token energy by up to 3x relative to standard MHA. Increasing the reasoning token budget pushes output length beyond the analytically derived energy minimum, driving super-linear energy growth; although accuracy grows with the budget, energy grows faster, so Intelligence per Joule peaks at an intermediate budget and falls by up to 3.14x across a 4.0x reasoning-budget range. Agentic serving raises energy per request by 13.0x relative to non-agentic ones, driven by the growth of both the prefill and the KV-cache terms with input length; while prefix caching removes most of the prefill cost (-93%), the KV-cache term is unaffected, so even a cached agentic request costs 4.8x more.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03330",
+        "pdf": "https://arxiv.org/pdf/2611.03330"
+      },
+      "upvotes": 7,
+      "projectPage": "https://huggingface.co/spaces/ecs-lab/SIMPLE",
+      "numComments": 2,
+      "titleZh": "LLM 推理能耗的 SIMPLE 定律",
+      "summaryZh": "LLM 推理按 token 计费，但不同 token 的能耗并不相同:KV-cache 使后续 token 更贵，能耗沿序列非线性增长，而 SOTA 能耗模型依赖逐模型拟合，并非可解释定律。工作从 MHA/GQA 的计算与访存复杂度推出闭式表达，得到四参数 SIMPLE 定律，分离 prefill 与 decode 并拆出 KV-cache 项。在 H100 上 13 个稠密 LLM 上达 R²=0.969、MAPE 11.97%，无需逐模型校准即比 SOTA 低 3.1–3.5 倍;并说明 prefill 能耗随 hidden dim 平方增长、GQA 最多降每 token 能耗 3 倍、agentic 请求能耗高 13 倍。",
+      "score": 8,
+      "reason": "推理能耗解析建模，无需校准且显著优于 SOTA，契合系统效率方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.05648",
+      "title": "NitroFusion2: Bringing Adversarial Loss to the Text Stream of Multimodal Diffusion Transformers",
+      "authors": [
+        "Dar-Yen Chen",
+        "Yi-Zhe Song"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Adversarial diffusion distillation has conventionally relied on image features for discrimination. We revisit this choice for multimodal diffusion transformers (MMDiTs), whose text stream becomes image-dependent through joint attention. We introduce Text-Stream Adversarial Distillation (TSAD), which exploits intermediate text-token states as a new adversarial representation. Because the text stream has already read the image while remaining tied to the text condition, changing that condition changes what information it extracts from the image. Building on this property, we introduce Aspect-Cued Discrimination (ACD), which conditions the discriminator on different aspects of the sample, such as typography, objects, or style, to steer which properties are emphasized during adversarial training. Building on the expert-discriminator design of NitroFusion, we integrate TSAD and ACD in NitroFusion2. NitroFusion2 brings few-step distillation from the conventional 4-8-step regime down to just 1-2 steps at comparable quality. At one step, it produces sharp rendered text and rich fine-grained details, making one-step generation practical rather than merely a stress test for distillation. At two steps, it remains competitive across the evaluated benchmarks. These results establish the MMDiT text stream as a powerful and steerable representation for adversarial diffusion distillation.",
+      "published": "2026-11-03T21:33:28.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.05648",
+        "pdf": "https://arxiv.org/pdf/2611.05648"
+      },
+      "upvotes": 7,
+      "githubRepo": "https://github.com/ChenDarYen/NitroFusion2",
+      "githubStars": 15,
+      "projectPage": "https://chendaryen.github.io/NitroFusion2.github.io/",
+      "numComments": 1,
+      "titleZh": "NitroFusion2：将对抗损失引入多模态扩散 Transformer 的文本流",
+      "summaryZh": "面向多模态扩散 Transformer（MMDiT）的少步蒸馏，现有对抗扩散蒸馏一律用图像特征做判别。工作提出文本流对抗蒸馏（TSAD），改用中间文本 token 状态作为新的对抗表示；并利用文本流“已读取图像但仍受文本条件约束”的性质，引入 Aspect-Cued Discrimination（ACD），以字体、物体、风格等不同侧面作为判别器条件，从而控制对抗训练所强调的属性，并集成进 NitroFusion2。结果将蒸馏从常规 4–8 步压缩到 1–2 步且质量相当：单步即可生成清晰文字与丰富细节，两步在评测基准上保持竞争力。",
+      "score": 2,
+      "reason": "扩散图像生成与少步蒸馏，属低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.40516",
+      "title": "How I Aligned Your Model: Scaling Up Multilingual Safety Training with Templates",
+      "authors": [
+        "Max Neuwinger",
+        "Hanna Yukhymenko",
+        "Imanol Schlag"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Safety alignment for Large Language Models is heavily focused on English with limited multilingual representation, particularly damaging low-resource language performance. Related open training datasets are often limited in size or do not follow region-localized harmful topics to broaden the scope of alignment beyond cultures. We propose a scalable template-based augmentation pipeline to produce massive multilingual refusal and benign corpora, extracting safe templates from harmful prompts, translating them and then filling in the slots with culturally authentic entities, both harmful and benign. As a result, we release MSafeTemp, a validated corpus spanning 60 languages useful for multilingual safety alignment and evaluation. Using the dataset, we show that English-only evaluation misjudges multilingual safety: for several models, attacks that fail in English succeed once translated, while culturally localized variants expose further failures that translation alone misses. We also confirm that augmenting safety training data through templates allows for higher diversity and quality of alignment, resulting in improved safety performance beyond English. MSafeTemp and the respective pipeline are aimed at facilitating research and development of safer and more responsible models for less-represented cultures.",
+      "published": "2026-10-29T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.40516",
+        "pdf": "https://arxiv.org/pdf/2610.40516"
+      },
+      "upvotes": 7,
+      "githubRepo": "https://github.com/swiss-ai/msafetemp",
+      "githubStars": 1,
+      "projectPage": "https://swiss-ai.github.io/msafetemp",
+      "numComments": 2,
+      "titleZh": "如何对齐你的模型：用模板扩展多语言安全训练",
+      "summaryZh": "针对LLM安全对齐严重偏向英语、低资源语言表现受损的问题，提出基于模板的可扩展增强流水线：从有害提示中抽取安全模板，翻译后填入文化上真实的有害与良性实体，构建覆盖60种语言并经验证的大规模多语言拒答与良性语料MSafeTemp。实验显示，仅用英语评测会误判多语言安全性：若攻击在英语下失败，翻译后却能成功，文化本地化变体还能暴露翻译无法发现的漏洞；用模板增强安全训练数据可提升多样性与质量，并改善英语之外的安全表现。该工作为文化代表性不足的语言提供了安全对齐与评测资源。",
+      "score": 6,
+      "reason": "多语言安全对齐语料与评测，属对齐方向但偏数据构建增量",
+      "deepDive": false
+    },
+    {
+      "id": "2611.06083",
+      "title": "SleuthVLM: Do We Really Need Audio-in-Video for Omni Video Understanding?",
+      "authors": [
+        "Peiran Wu",
+        "Fangfei Gou",
+        "Zhaoxi Mu",
+        "Changhao Zhang",
+        "Jian Liu",
+        "Weiqiang Wang"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Omni models answer questions about videos by jointly processing sampled frames and audio in one turn, with progress driven largely by scaling model size and omni training data. We ask whether a model needs to hear the audio directly at all, and present SleuthVLM, an agent harness built on a VLM that never hears the audio directly: speech will be transcribed into text, and the VLM will sleuth the video on its own without any predefined workflow. On four omni benchmarks with videos up to 90 minutes, SleuthVLM achieves the best average accuracy: 75.0%, 2.6 points above Gemini 3.8 Flash, and it also tops the Video-MME-v2 leaderboard with 77.8%; with an open-source 27B VLM, it beats all open-source omni models. We draw three findings: SleuthVLM beats a model that glances; hearing is not the bottleneck, agentic ability is; omni understanding needs better agentic ability, not just more omni data for modality alignment. So we provide a simple but effective starting point for doing omni video understanding. Omni understanding needs better agents, not just bigger models that hear.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06083",
+        "pdf": "https://arxiv.org/pdf/2611.06083"
+      },
+      "upvotes": 6,
+      "githubRepo": "https://github.com/WPR001/OpenOmniHarness",
+      "githubStars": 1,
+      "projectPage": "https://wpr001.github.io/sleuthVLM/",
+      "numComments": 1,
+      "titleZh": "SleuthVLM：全能视频理解真的需要视频中的音频吗？",
+      "summaryZh": "质疑全能视频理解是否必须直接处理音频：将语音转写为文本后，用基于 VLM 的 agent harness 自主检索视频，不预设工作流。在四个视频长达 90 分钟的全能基准上平均准确率 75.0%，超过 Gemini 3.8 Flash 2.6 个百分点，并以 77.8% 登顶 Video-MME-v2；27B 开源 VLM 版本超过所有开源全能模型。结论指向瓶颈在 agentic 能力而非听觉，为视频全能理解提供了一条简单有效的替代路径。",
+      "score": 8,
+      "reason": "VLM 视频理解 + agent harness 新范式，直接命中多模态与 Agent 方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.04634",
+      "title": "VeriSpoof: Beyond Real or Fake with One Audio LLM",
+      "authors": [
+        "Yang Xiao",
+        "Ting Dang"
+      ],
+      "authorsTotal": 2,
+      "abstract": "A speech deepfake detector estimates whether a recording is synthetic, but a forensic analyst also asks which system produced it, whether recordings share a source, and what evidence supports each conclusion. We present VeriSpoof, an audio language model that unifies five tasks with shared weights: deepfake detection, generator attribution (generator, acoustic model and vocoder), recording-condition analysis, synthesized-span localisation, and source verification. Each decision is supported by grounded rationales whose statements can be independently verified. Answers are scored by sentence likelihood, allowing detection and source verification to be thresholded without separate heads. Rationale statements can be checked against waveform measurements, span labels, or generator metadata. Counterfactual examples train decisions to follow the stated evidence. Across the 14 Speech-DF-Arena test sets, VeriSpoof-Plus achieves 2.14% pooled EER, ranking third of 28 systems and first among open-weight systems. VeriSpoof-Base, trained only on official training splits of eight corpora, achieves 4.43% EER, less than half that of the next open-weight detector. With the same weights, VeriSpoof-Plus verifies whether recordings from generators unseen in training share a source at 6.2% EER. Controlled studies show that the audio representation governs detection, the LLM governs recording comparison, and source supervision is necessary for neural-codec fakes. Statement-checkable rationales catch partial fakes missed by one-step answers (99.6% vs. 78.4% on PartialEdit) and determine decisions under edits unseen in training (99.5%). Training updates only 29.7M of 2.85B parameters, fitting a single 24 GB GPU with gradient checkpointing. We release both models, inference code, a demo, and VeriSpoof-Bench, the evaluation suite covering these questions.",
+      "published": "2026-11-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.04634",
+        "pdf": "https://arxiv.org/pdf/2611.04634"
+      },
+      "upvotes": 5,
+      "githubRepo": "https://github.com/swagshaw/verispoof",
+      "githubStars": 6,
+      "projectPage": "https://swagshaw.github.io/verispoof/",
+      "numComments": 2,
+      "titleZh": "VeriSpoof：用一个音频 LLM 超越真伪二分",
+      "summaryZh": "把语音深伪检测、生成器归因（生成模型、声学模型与声码器）、录音条件分析、合成片段定位与同源验证这五个任务，统一进一个共享权重的音频 LLM。每个判断都附带可逐句核验的理据，并用句子似然打分来替代额外的分类头，使检测与同源验证可以直接设定阈值。在 14 个 Speech-DF-Arena 测试集上，VeriSpoof-Plus 取得 2.14% pooled EER，在 28 个系统中排第三、开源权重第一；仅用八个语料官方训练集训练的 VeriSpoof-Base 为 4.43% EER。训练时只更新 2.85B 参数中的 29.7M，单张 24GB GPU 即可运行，并开源模型与 VeriSpoof-Bench 评测套件。",
+      "score": 3,
+      "reason": "语音取证属低分垂直方向，仅训练方式略沾 LLM 边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.03768",
+      "title": "Multi-layer Indexer: Overlapping Selection and Attention in DeepSeek Sparse Attention",
+      "authors": [
+        "Serdarcan Dilbaz",
+        "Arjun Krishna",
+        "Kiran Kamble",
+        "Daniel M. Bikel"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Sparse attention cuts the cost of long-context inference by making the attention matrix sparse: each query attends only a subset of the sequence, chosen by a fixed pattern or, in recent production LLMs, learned per query. In DeepSeek Sparse Attention (DSA), the attention of DeepSeek-V3.2 and the GLM-5 family, every layer is preceded by a lightning indexer that scores the whole cache and keeps the k=2048 highest-scoring tokens for the layer to attend. At long context this indexer scan, not the sparse attention it feeds, is where the decode time goes. But adjacent layers select nearly the same tokens, so a layer can attend the selection of the previous indexer layer instead of its own. This removes the dependency: each indexer then runs concurrently with the attention of its layer. The resulting Multi-layer Indexer (MLI) needs no retraining and no new weights. Its default realization changes no kernel, running inside SGLang's production decode graph; an optional fused decode kernel accelerates it further on DeepSeek-V3.2. MLI composes with IndexCache (the cross-layer reuse GLM-5.2 ships as IndexShare): IndexCache drops the indexer from some layers, and MLI hides the scan on the rest. We serve DeepSeek-V3.2 and GLM-5 under IndexCache's protocol at retentions 1/2 to 1/32 (the fraction of layers that keep an indexer) and contexts 10K to 195K. At equal retention the composition decodes faster than IndexCache: up to 14.5% faster on DeepSeek-V3.2 and 9.8% on GLM-5 at 1/2, and 7.9% and 5.1% at 1/4, largest where IndexCache keeps the most indexers and growing with context. At retention 1/r it is faster still than IndexCache at 1/(2r) while keeping twice the fresh selections: at 128K it reaches 1.32x the unmodified model's decode throughput at 1/4, above IndexCache's 1.28x at 1/8. Its LongBench, RULER and LongBench v2 accuracy stays within a few percentage points of IndexCache's.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03768",
+        "pdf": "https://arxiv.org/pdf/2611.03768"
+      },
+      "upvotes": 3,
+      "githubRepo": "https://github.com/ArjunKrishnak/dsa-multi-layer-indexer",
+      "githubStars": 1,
+      "numComments": 2,
+      "titleZh": "多层索引器：DeepSeek稀疏注意力中的重叠选择与注意力",
+      "summaryZh": "DSA中每层前置的lightning indexer需扫描完整KV cache，长上下文解码的耗时主要来自这一扫描，而不是它服务的稀疏注意力本身；相邻层选中的token高度重合，因此可以让某层直接沿用上一层indexer的选择结果，从而解除indexer与本层attention之间的依赖，使两者并发执行。该方法无需重训练、不新增权重，默认实现不改kernel，直接运行在SGLang生产decode图中，也可选用融合decode kernel进一步加速。与IndexCache组合后，在DeepSeek-V3.2与GLM-5、10K至195K上下文下解码快于IndexCache：1/2保留率时分别最高提升14.5%与9.8%，1/4时提升7.9%与5.1%；128K上下文、1/4保留率下达到原模型1.32倍吞吐，LongBench、RULER与LongBench v2精度仅相差几个百分点。",
+      "score": 8,
+      "reason": "稀疏注意力长上下文解码的系统级加速，无需重训且已落地生产，命中效率方向"
+    },
+    {
+      "id": "2611.05988",
+      "title": "LiveFoley: Dynamic Real-Time Video-to-Audio Generation for Immersive Interactive Worlds",
+      "authors": [
+        "Yusheng Dai",
+        "Vladimir Iashin",
+        "Kangdi Wang",
+        "Yuxuan Jiang",
+        "Ilpo Viertola",
+        "Weiqiang Wang"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Streaming video-to-audio (V2A) generation is essential for immersive interactive applications. However, real-time constraints leave existing streaming V2A methods far behind offline models: (1) visual frontends shrink their receptive fields to cut look-ahead latency, severely degrading audio-visual alignment; (2) causal autoregressive diffusion backends denoise each audio patch in isolation, impairing audio quality. To this end, we present LiveFoley, a streaming causal autoregressive diffusion architecture that addresses both bottlenecks with imperceptible latency. For the visual frontend, we introduce a Trailing Sliding Window that converts non-causal segment-level encoders into streaming modules without retraining. By simply realigning the window, it preserves precise audio-visual alignment, while a configurable hop size reduces the frontend look-ahead well below the human perceptual threshold. Building on this tunable hop size, we propose the Unified Varhop Framework to accommodate scenarios with diverse latency and computation budgets. For the audio backend, we explore widening the denoising window of the local diffusion transformer (LocDiT) head in two temporal directions. History LocDiT adds past context to improve quality at no latency cost and serves as our default. Alternatively, Future-Warmup LocDiT breaks the autoregressive deadlock with an approximate future condition, further improving generation quality at the cost of an acceptable backend look-ahead. Extensive experiments demonstrate that LiveFoley matches offline models in temporal alignment and leads streaming systems in generation quality. Project page: https://dalision.github.io/livefoley-page/",
+      "published": "2026-11-04T05:35:42.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.05988",
+        "pdf": "https://arxiv.org/pdf/2611.05988"
+      },
+      "upvotes": 3,
+      "githubRepo": "https://github.com/dalision/livefoley",
+      "githubStars": 3,
+      "projectPage": "https://github.com/dalision/livefoley",
+      "numComments": 1,
+      "titleZh": "LiveFoley：面向沉浸式交互世界的动态实时视频到音频生成",
+      "summaryZh": "实时流式视频到音频（V2A）生成受延迟硬约束，现有方法靠缩小视觉前端感受野、逐 patch 独立去噪换速度，音画对齐与音质双双下降。LiveFoley 构建流式因果自回归扩散架构：视觉前端用 Trailing Sliding Window 把非因果分段编码器改造成流式模块且无需重训练，借可配置 hop size 把前瞻压到人类感知阈值以下，并由 Unified Varhop 框架适配不同延迟与算力预算；音频后端对 LocDiT 去噪窗口做时间维扩展，History LocDiT 加入历史上下文以零延迟提升质量，Future-Warmup LocDiT 用近似未来条件打破自回归死锁。实验表明其时间对齐追平离线模型，生成质量领先现有流式系统。",
+      "score": 2,
+      "reason": "视频到音频生成，落在音频生成低分方向，仅实时性设计略可借鉴",
+      "deepDive": false,
+      "relevant": false
+    }
+  ],
+  "arxiv": [],
+  "arxivStatus": "pending",
+  "generatedAt": "2026-11-06T09:24:35.362432+00:00"
+}
