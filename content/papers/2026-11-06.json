@@ -1,0 +1,822 @@
+{
+  "date": "2026-11-06",
+  "categories": [
+    "cs.CL",
+    "cs.LG",
+    "cs.AI"
+  ],
+  "hf": [
+    {
+      "id": "2611.08373",
+      "title": "SLA: Scaling Spatial-Language-Action Model via Continual Pre-training",
+      "authors": [
+        "Fuhao Li",
+        "Wenxuan Song",
+        "Qizhou Huang",
+        "Ziyang Zhou",
+        "Jingbo Wang",
+        "Junwu E"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Reliable robotic manipulation requires both semantic understanding and precise control in three-dimensional space. However, vision-language-action (VLA) foundations largely inherit visual representations from 2D vision-language pre-training, while spatial supervision is often introduced only during task-specific adaptation. Developing spatial understanding as a transferable foundation-model capability therefore calls for learning from broader robot experience. We present SLA, a Spatial-Language-Action Model that scales implicit spatial alignment to continual pre-training and maintains it during downstream post-training. Initialized from a pretrained pi05 policy, SLA jointly optimizes action prediction and alignment between intermediate visual embeddings and spatial representations from a frozen 3D perception model. We curate and unify heterogeneous robot datasets to support spatial learning across diverse embodiments, tasks, and scenes. To accommodate this diversity, we introduce feature-dependent gates that adaptively aggregate visual embeddings from multiple VLA layers for spatial supervision. The teacher further exploits partially available depth and camera calibration alongside RGB observations, enabling effective use of heterogeneous geometric annotations. Probabilistic state dropout encourages reliance on visual cues and mitigates overfitting to demonstration trajectories. All auxiliary components are used only during training, allowing direct reuse of pretrained VLA weights and preserving the original inference architecture.",
+      "published": "2026-11-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.08373",
+        "pdf": "https://arxiv.org/pdf/2611.08373"
+      },
+      "upvotes": 150,
+      "projectPage": "https://embodiedsla.github.io/",
+      "numComments": 2,
+      "titleZh": "SLA:通过持续预训练扩展空间-语言-动作模型",
+      "summaryZh": "针对 VLA 基础模型主要继承 2D 视觉-语言预训练表征、空间监督往往只在任务适配阶段引入的问题，构建了 SLA 空间-语言-动作模型:以预训练 pi05 策略为初始化，联合优化动作预测与中间视觉嵌入对冻结 3D 感知模型空间表征的对齐，并引入依赖特征的门控在多个 VLA 层间自适应聚合视觉嵌入，配合概率状态丢弃与部分可用的深度、相机标定监督。方法统一了异构机器人数据集以覆盖多本体、多任务与多场景，所有辅助组件仅在训练期使用，推理架构与原 VLA 保持一致。",
+      "score": 1,
+      "reason": "机器人与具身智能方向，按画像一刀切归低分",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.08449",
+      "title": "VFlash: Fast, Accurate Visual Planning via Flash Primitive Decoding",
+      "authors": [
+        "Yu-Cheng Chou",
+        "Shihao Wang",
+        "Jin Huang",
+        "Chi-Pin Huang",
+        "Chiao-An Yang",
+        "Xianzhe Fan"
+      ],
+      "authorsTotal": 19,
+      "abstract": "Models for physical AI tasks, such as robotics and autonomous driving, need not reason solely in language. They can use visual plans--points, bounding boxes, and trajectories--to represent spatial goals and anticipate motion. However, autoregressive vision-language models generate these plans one coordinate token at a time, making richer predictions increasingly costly. We introduce VFlash, a method for fast, accurate visual planning through Flash Primitive Decoding. VFlash exploits the known structure of visual primitives to predict their coordinates jointly, using a lightweight drafter that generates an entire primitive in one forward pass. The layout adapts to the primitive's type, dimensionality, and length, supporting compact boxes and long, variable-length trajectories. Crucially, spatial accuracy need not require reproducing an autoregressive model's exact token sequence. VFlash therefore trains on annotated primitives and directly accepts structurally valid predictions without target-token agreement. Across the evaluated 2D and 3D robot trajectory tasks, VFlash consistently reduces prediction errors relative to autoregressive decoding. Preliminary single-rollout measurements indicate approximately 25x faster generation for 3D point motion forecasting. A world action model conditioned on VFlash plans achieves 70.2% average success across four MolmoSpaces task suites, compared with 62.6% for the baseline.",
+      "published": "2026-11-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.08449",
+        "pdf": "https://arxiv.org/pdf/2611.08449"
+      },
+      "upvotes": 96,
+      "projectPage": "https://research.nvidia.com/labs/lpr/vflash/",
+      "numComments": 1,
+      "titleZh": "VFlash：通过 Flash Primitive Decoding 实现快速、准确的视觉规划",
+      "summaryZh": "针对自回归视觉语言模型逐个坐标 token 生成点、框、轨迹等视觉规划代价高的问题，提出 VFlash：利用视觉基元的结构先验，用轻量 drafter 一次前向生成整个基元，布局按基元类型、维度与长度自适应，并直接以结构合法性而非目标 token 一致来训练和接受预测。在 2D 与 3D 机器人轨迹任务上误差一致低于自回归解码，3D 点运动预测单次 rollout 约快 25 倍；以 VFlash 规划为条件的 world action model 在 MolmoSpaces 四个任务套件上平均成功率 70.2%，基线为 62.6%。",
+      "score": 6,
+      "reason": "视觉规划解码加速，属多模态与效率擦边，但机器人任务为主",
+      "deepDive": false
+    },
+    {
+      "id": "2611.04277",
+      "title": "Harness-S: Learning from Sibling Harnesses for Generalizable Agent Training",
+      "authors": [
+        "Kangning Zhang",
+        "Wenxiang Jiao",
+        "Bowen Fang",
+        "Shuai Shao",
+        "Jiachen Zhu",
+        "Rong Shan"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Harness evolution from a common base exhibits Locality, Complementarity, and Nonstationarity: variants repair different failures, and their utility changes as the policy learns. Rather than seeking a universally superior harness, we introduce Harness-S to selectively rescue failures of a base execution system through sibling harnesses and transfer the resulting capabilities into a single policy that remains effective under the original harness. Directional Harness Evolution develops specialized sibling harnesses along distinct repair directions, forming a reusable Sibling Harness Pool that remains fixed during policy training. Complementary Harness Rescue Training invokes this pool only when all initial attempts under the base harness fail. The same policy generates fresh rollouts under selected auxiliary harnesses, and these trajectories replace the failed group for reinforcement learning. An Adaptive Harness Router selects the Top-k variants using Harness Behavior Profiles and voting across multiple LLMs. Policy-aware profile re-anchoring refreshes this evidence as the policy learns. Across AppWorld, SWE-Gym, and DBBench, the trained policy substantially outperforms policy-only training when returned to the original base harness. Behavioral analyses and held-out cases support the transfer of harness-elicited behaviors into the policy itself. Reusing the router for Rank-1 inference provides additional gains at the same executor rollout count.",
+      "published": "2026-11-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.04277",
+        "pdf": "https://arxiv.org/pdf/2611.04277"
+      },
+      "upvotes": 57,
+      "githubRepo": "https://github.com/DeepExperience/Harness-S",
+      "githubStars": 55,
+      "numComments": 4,
+      "titleZh": "Harness-S:从同源执行框架中学习可泛化的 Agent 训练",
+      "summaryZh": "针对执行框架(harness)演化中的局部性、互补性与非平稳性问题，提出 Harness-S:沿不同修复方向演化出专门的兄弟 harness 并构建可复用的 Sibling Harness Pool，仅在基础 harness 全部失败时触发 Complementary Harness Rescue Training，用同一策略在辅助 harness 下重采样轨迹替换失败组用于强化学习，并以基于 Harness Behavior Profiles 与多 LLM 投票的自适应路由器选 Top-k 变体、随策略学习重新锚定画像。在 AppWorld、SWE-Gym 与 DBBench 上，训练后的策略回到原始基础 harness 时显著优于纯策略训练，行为分析与留出用例支持 harness  elicited 行为迁移进策略本身;复用路由器做 Rank-1 推理可在同等执行器 rollout 数下获得额外收益。",
+      "score": 9,
+      "reason": "Agent harness 与 Agentic RL 结合，方法系统且多基准验证",
+      "deepDive": true
+    },
+    {
+      "id": "2611.00883",
+      "title": "Random Is Almost Enough? Stable and Low-Cost Benchmark Compression via BestRand",
+      "authors": [
+        "George Ling",
+        "Shanshan Zhong",
+        "Lijin Yang",
+        "Hao Yang",
+        "Nanxiang Li",
+        "Zhongzhan Huang"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Benchmark compression reduces the often prohibitive time and cost of model evaluation by evaluating models on a small benchmark subset that closely matches full-benchmark results. To quantify estimation error, we derive an accurate analytical approximation to the error distribution when estimating full-benchmark scores from a subset, showing that most subsets yield small errors, while a few produce much larger errors, resulting in a long-tailed distribution. This means random sampling alone can achieve surprisingly strong performance with high probability, but remains unstable due to rare large errors. We further show that this instability is inherent to modern foundation models and persists even as more models are evaluated. Based on these findings, we introduce BestRand, a stable and low-cost benchmark compression method that preserves the efficiency of random sampling while substantially reducing its high-error tail. We validate BestRand on 70+ text, multimodal, and agent benchmarks, and further extend it to VLA evaluation. Compared with competitive methods, BestRand reduces high-error risk by 50.2% and estimation error by 16.4% on average, while requiring only 51.3% of the construction cost. It further reduces OOD estimation error by 21.8% on average across score-range, model-family, and temporal shifts. Together, our theory provides practical guidance for understanding and predicting the accuracy and reliability of benchmark compression, while BestRand enables stable and accurate compression at low cost. The code and data are publicly available onhttps://github.com/George-Ling3/BestRand.",
+      "published": "2026-10-31T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.00883",
+        "pdf": "https://arxiv.org/pdf/2611.00883"
+      },
+      "upvotes": 50,
+      "githubRepo": "https://github.com/George-Ling3/BestRand",
+      "githubStars": 7,
+      "numComments": 3,
+      "titleZh": "随机几乎就够了吗？用BestRand实现稳定且低成本的基准压缩",
+      "summaryZh": "针对全量基准评测成本过高的问题，通过小子集估计全量分数时，推导出误差分布的解析近似，发现误差呈长尾分布:大多数子集误差很小，少数子集误差极大，因此随机采样高概率下表现意外地好，但因稀有的大误差而不稳定，且这种不稳定性是现代基础模型的固有性质，增加评测模型数量也无法消除。BestRand在保留随机采样效率的同时压缩高误差尾部，在70+文本、多模态与Agent基准(并扩展至VLA评测)上验证:高误差风险降低50.2%，估计误差平均降低16.4%，构建成本仅为对比方法的51.3%;在分数区间、模型家族与时间偏移三类OOD设定下误差平均再降21.8%。为理解与预测基准压缩的准确性与可靠性提供理论指导，并给出可落地的低成本评测方案。",
+      "score": 7,
+      "reason": "基准评测压缩的方法学工作，理论与实验扎实，命中评测方向",
+      "deepDive": false
+    },
+    {
+      "id": "2611.07392",
+      "title": "WeLM-Image: A Unified Image Generation Model towards Visual Intelligence",
+      "authors": [
+        "Canmiao Fu",
+        "Chen Li",
+        "Guohui Zhang",
+        "Hao Lu",
+        "Hongyang Wei",
+        "Huadong Wu"
+      ],
+      "authorsTotal": 16,
+      "abstract": "We present WeLM-Image, a unified image foundation model that integrates multimodal understanding into text-to-image generation, instruction-guided editing, and multi-reference synthesis. Designed for single-GPU deployment in WeChat's large-scale consumer applications, the model processes text, reference images, and target latents as one interleaved sequence. A Mixture-of-Transformers (MoT) backbone combines shared attention with independent understanding and generation parameters to limit optimization interference. Equipping each path with Mixture-of-Experts (MoE) modules provides sparse capacity, with 31.7B stored parameters and approximately 5.4B generation parameters activated per target latent token. A generation-oriented data engine combines a knowledge-grounded visual vocabulary with large-scale visual clustering to balance semantic coverage and editing tasks, while training-time evaluation guides iterative data refinement. Bilingual annotations and verified editing supervision support progressive training up to native 1.5K resolution. We optimize generation and editing separately with rubric- and checklist-based rewards, then consolidate the specialized policies through noise-aware on-policy distillation. In the reported overall comparisons, the 1536-resolution model ranks first among the evaluated open-source models on PRISM-Bench, Qwen-Image-Bench, and UnicBench. MeanFlow-based few-step distillation yields WeLM-Image-Turbo, which generates a 1024times1024 image in 4.98\\,s on a single NVIDIA H20 GPU using eight guidance-free steps.",
+      "published": "2026-11-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.07392",
+        "pdf": "https://arxiv.org/pdf/2611.07392"
+      },
+      "upvotes": 39,
+      "numComments": 1,
+      "titleZh": "WeLM-Image：面向视觉智能的统一图像生成模型",
+      "summaryZh": "统一图像基础模型，把多模态理解并入文生图、指令编辑与多参考合成，面向微信消费级应用的单卡部署。文本、参考图与目标 latent 拼成交错序列，Mixture-of-Transformers 骨干以共享注意力加理解/生成独立参数抑制干扰，两路各挂 MoE 提供稀疏容量，总参数 31.7B、每 token 激活约 5.4B。数据引擎用知识化视觉词表与大规模视觉聚类平衡语义覆盖与编辑任务，生成和编辑分别以 rubric/checklist 奖励优化，再用噪声感知 on-policy 蒸馏合并。1536 分辨率版在 PRISM-Bench、Qwen-Image-Bench、UnicBench 上居所评开源模型首位，Turbo 版单张 H20 八步生成 1024×1024 图像耗时 4.98 秒。",
+      "score": 2,
+      "reason": "统一视觉生成模型，属画像低分方向，仅 MoE 与蒸馏略沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.06741",
+      "title": "TailSteer: Trajectory-Tail Steering for Drift-Resistant Multi-turn Image Editing",
+      "authors": [
+        "Ruikang Li",
+        "Zixuan Chen",
+        "Jiarui Wu",
+        "Mingde Yao",
+        "Yiyuan Zhang",
+        "Yujin Wang"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Strong single-turn editing performance does not guarantee reliable multi-turn interaction: as edited outputs are repeatedly reused, small unintended changes can accumulate into severe visual drift. This long-term drift is often mitigated through training on multi-turn data or cross-turn rollouts, potentially altering pretrained priors, or through specialized inference-time mechanisms that are difficult to scale to foundation models. We introduce TailSteer, a final-stage training framework that improves multi-turn robustness while retaining the generative and editing capabilities acquired through earlier training. TailSteer follows a simple principle: keep early denoising dynamics close to those of the base model and concentrate preservation corrections near the trajectory tail, where fine-grained deviations can be suppressed. These corrections are learned from the editor's own on-policy denoising rollouts, using unchanged source content as a preservation reference without requiring curated ground-truth editing pairs. Experiments across the FLUX, SenseNova, and Qwen families show that TailSteer substantially reduces cumulative drift over 15-20 editing turns while largely preserving base-model performance on extensive text-to-image and single-image editing benchmarks. These results demonstrate that long-horizon editing robustness can be unlocked in foundation models after TailSteer, rather than by relearning their existing capabilities.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06741",
+        "pdf": "https://arxiv.org/pdf/2611.06741"
+      },
+      "upvotes": 37,
+      "githubRepo": "https://github.com/Lyricccco/tailsteer",
+      "githubStars": 42,
+      "projectPage": "https://lyricccco.github.io/tailsteer/",
+      "numComments": 3,
+      "titleZh": "TailSteer：面向抗漂移多轮图像编辑的轨迹尾部引导",
+      "summaryZh": "多轮图像编辑里，编辑输出被反复复用，微小无意改动会累积成严重视觉漂移；现有缓解手段要么用多轮数据或跨轮 rollout 训练、易改动预训练先验，要么依赖难以扩展到基座模型的推理期专用机制。TailSteer 在最终训练阶段只于去噪轨迹尾部施加保留性修正，让早期去噪动态贴近基座模型，并利用编辑器自身的 on-policy 去噪 rollout、以未改动的源内容作保留参考来学习修正，无需人工标注的编辑配对。在 FLUX、SenseNova、Qwen 系列上，15–20 轮编辑的累积漂移显著降低，同时文生图与单图编辑基准性能基本保持。",
+      "score": 2,
+      "reason": "多轮图像编辑与扩散去噪，属视觉生成低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.03743",
+      "title": "EvoMemState: Evolving Memory State for Personal Agents",
+      "authors": [
+        "Zhishang Xiang",
+        "Yunbo Tang",
+        "Zhongqiao Liu",
+        "Junkai Chen",
+        "Zerui Chen",
+        "Qingguo Hu"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Long-term memory enables large language model (LLM) agents to provide continuous personalized assistance by retaining user information across interactions. Existing systems support this process through fact extraction, organization, updating, and retrieval, but largely maintain memories as independent facts. This fact-centric paradigm may overlook how new facts update, constrain, or conflict with earlier ones, while leaving their applicability, role, and priority for the current request implicit. In this paper, we introduce EvoMemState, a state-centric framework that augments persistent facts with two complementary states: Relational States that capture how facts remain valid and relate to one another as memory evolves, and a Reasoning State that determines how these facts should be applied to the current request. Specifically, EvoMemState consists of three key components: (i) Ontology-Guided Memory State Induction extracts Persistent Facts and constructs Relational States that maintain their validity, scope, and evolving relations. (ii) RL-Based State Evolution internalizes memory-use experience into a policy through reinforcement learning to generate a request-specific Reasoning State. (iii) State-Aware Reasoning then combines the relevant facts with their Relational States and the generated Reasoning State to guide the personal agent. Extensive experiments on long-term dialogue and memory-use benchmarks demonstrate consistent improvements over existing memory systems in retrieval completeness and memory-grounded response accuracy. Our code and implementation details are available at https://github.com/XMUDeepLIT/EvoMemState.git.",
+      "published": "2026-11-02T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.03743",
+        "pdf": "https://arxiv.org/pdf/2611.03743"
+      },
+      "upvotes": 21,
+      "githubRepo": "https://github.com/XMUDeepLIT/EvoMemState",
+      "githubStars": 21,
+      "numComments": 4,
+      "titleZh": "EvoMemState：面向个人 Agent 的演化记忆状态",
+      "summaryZh": "现有 LLM Agent 长期记忆多以独立事实为单位存储，忽视新事实对旧事实的更新、约束与冲突，也未显式刻画事实在当前请求中的适用范围与优先级。EvoMemState 提出以状态为中心的框架，在持久事实之外补充关系状态（记录事实的有效性、范围与演化关系）与推理状态（决定事实如何应用于当前请求），由本体引导的记忆状态归纳、基于 RL 的状态演化、状态感知推理三部分组成。在长期对话与记忆使用基准上，其检索完整性与记忆支撑的回答准确率均稳定优于现有记忆系统。该工作为个人化 Agent 的记忆组织与使用提供了新范式，代码已开源。",
+      "score": 8,
+      "reason": "Agent 长期记忆与 RL 状态演化，命中 Agent 与后训练方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.07854",
+      "title": "Towards Foundation Decision Models: Drex",
+      "authors": [
+        "Nischay Dhankhar",
+        "Alisher Amantay",
+        "Zhanibek Datbayev",
+        "Darkhan Akhmetov",
+        "Yash Shah",
+        "Nurmukhamed Ubaidullayev"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Autoregressive approaches with large language models, such as long chain-of-thought reasoning, have become the default for new AI applications because they reach higher accuracy on a wide range of tasks. In production, however, they give inconsistent answers, require parsing of outputs, and add cost and latency. Decision models address this: given a question and a set of options supplied by the user, they return a probability distribution over the options without autoregressive decoding. We present Drex, a family of four open decision models with 8B (DLM), 9B (v1.5), 35B with 3B active (v2.0), and 27B (Max) parameters. Each request consists of a state (a document, record, or agent context, optionally with images) and questions about it, each asking for a choice among options, a yes/no judgment, or a score on an ordered scale. Training combines supervised fine-tuning with reinforcement learning from adjusted feedback (RLAF), plus vision tuning for Max. Ablations show that RLAF improves accuracy and that consistency losses improve robustness to option order. On Decision Index 0.4.1, Max sets a new state of the art among the decision models we compare (67.52 on the public suite vs. 60.70 for Jev 1.14.0). On Decision Bench v4, it is statistically tied with d3-turbo and GPT-6 Sol and trails Claude Opus 5.5 by 1.6 points, and it has the highest accuracy among decision models on DecideBench. Max answers a typical request in 183 ms, against about 2.0 s for GPT-6 Sol and 3.5 s for Claude Opus 5.5, and its outputs are stable under option reordering. All four models are open source: https://github.com/nace-ai/drex-decision-models",
+      "published": "2026-11-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.07854",
+        "pdf": "https://arxiv.org/pdf/2611.07854"
+      },
+      "upvotes": 19,
+      "githubRepo": "https://github.com/nace-ai/drex-decision-models",
+      "githubStars": 111,
+      "projectPage": "https://huggingface.co/nace-ai",
+      "numComments": 3,
+      "titleZh": "迈向基础决策模型：Drex",
+      "summaryZh": "自回归 LLM 在生产环境中答案不一致、需要解析输出，且延迟与成本偏高。Drex 是四个开放决策模型（8B DLM、9B v1.5、35B-A3B v2.0、27B Max）：输入是状态（文档、记录或 agent 上下文，可含图像）和一组选项题，模型直接输出各选项上的概率分布，无需自回归解码；训练采用 SFT 加 RLAF，Max 另加视觉微调，并用一致性损失提升选项顺序鲁棒性。在 Decision Index 0.4.1 上，Max 取得 67.52，高于 Jev 1.14.0 的 60.70；Decision Bench v4 上与 d3-turbo、GPT-6 Sol 统计持平，典型请求 183 ms，远低于对比模型的 2–3.5 s。适合作为生产环境中低延迟、输出稳定的决策接口。",
+      "score": 8,
+      "reason": "决策模型新范式，开源模型族含 MoE 与 RL 训练，数据扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2611.04894",
+      "title": "VisSearch-Bench: Evaluating Long Horizon Visual Search in Multimodal Agents",
+      "authors": [
+        "ZhengXian Wu",
+        "Qianhao Nie",
+        "Zhuohong Chen",
+        "Junjie Gao",
+        "Yuyao Zhang",
+        "Yunyao Yu"
+      ],
+      "authorsTotal": 13,
+      "abstract": "Multimodal agents use web and image tools to answer questions beyond their internal knowledge. Some search tasks use images mainly to identify an initial entity, then rely on text retrieval. These tasks offer limited insight into how agents connect information across images, objects, and search steps. We therefore focus on visual context management. This involves organizing and using visual information and linking it to other findings during search. Visually intensive tasks require agents to combine object appearance, local details, or spatial relations with external information. We introduce VisSearch-Bench, with 204 human-written tasks across 7 main domains and 25 subdomains. It covers Set-wise Visual Search, Sequential Visual Search, Hybrid Wide-Deep Search, Competitive Visual Disambiguation, and Visual-Structure-Guided Search. Each task provides a reference answer, traceable evidence, and scoring rules. Accuracy measures complete task success, while Process Score measures the correctness and completeness of individual results and subquestion answers. Across 16 multimodal models, the best system fully solves only 26.47% of tasks, even with search tools. These results highlight the challenge of linking visual evidence with search results to produce complete answers.",
+      "published": "2026-11-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.04894",
+        "pdf": "https://arxiv.org/pdf/2611.04894"
+      },
+      "upvotes": 17,
+      "githubRepo": "https://github.com/antins-labs/VisSearch-Bench-v1",
+      "githubStars": 58,
+      "projectPage": "https://dingwu1021.github.io/VisSearch-Bench/",
+      "numComments": 3,
+      "titleZh": "VisSearch-Bench：评估多模态 Agent 中的长程视觉搜索",
+      "summaryZh": "现有多模态搜索评测中，图像往往只用于定位初始实体，后续依赖文本检索，难以反映 Agent 如何跨图像、对象与搜索步骤连接信息。为此构建 VisSearch-Bench，聚焦视觉上下文管理，包含 204 条人工编写任务，覆盖 7 个主领域与 25 个子领域，分为集合式视觉搜索、序列式视觉搜索、混合宽深搜索、竞争性视觉消歧与视觉结构引导搜索五类，每题给出参考答案、可追溯证据与评分规则，并以 Accuracy 衡量整体成功率、Process Score 衡量中间结果与子问题答案的正确性与完整性。在 16 个多模态模型上，即使配备搜索工具，最佳系统也仅完全解决 26.47% 的任务，说明将视觉证据与检索结果串联成完整答案仍是主要瓶颈。",
+      "score": 8,
+      "reason": "多模态 Agent 长程视觉搜索 benchmark，直接命中评测与 Agent 方向",
+      "deepDive": false
+    },
+    {
+      "id": "2611.06817",
+      "title": "Open-HumanScale: An Open Recipe for Scaling Human and Robot Experience for Embodied Foundation Models",
+      "authors": [
+        "Juncheng Ma",
+        "Jiaxin Li",
+        "Jiankai Tu",
+        "Bo Liang",
+        "Guodong Lv",
+        "Yufan Deng"
+      ],
+      "authorsTotal": 31,
+      "abstract": "Egocentric human video offers a scalable source of manipulation priors for robot learning, yet translating raw data scale into generalizable robot policies demands rigorous data curation and training recipes. We introduce Open-HumanScale, the first fully open recipe for scaling egocentric pretraining to 50,000 hours, anchored by Open-HumanScale-50K---a curated egocentric video corpus densely annotated with hand motion and natural language. Leveraging this corpus, we systematically investigate pure human pretraining via closed-loop simulation evaluations and uncover an empirical log-linear scaling law linking pretraining data hours to downstream robot success rates. Grounded in these findings, we develop HumanWAM-Vanilla, a world--action model pretrained exclusively on 50k hours of egocentric human video. Upon robot post-training, HumanWAM-Vanilla reaches 92.08% success on RoboTwin 2.0 Clean2Clean and 68.88% on Clean2Random, alongside a 14.17% mean success rate and a 19.00 mean progress score on RoboDojo. To push the capability frontier further, we explore joint human--robot pretraining with HumanWAM-Goal, a visual-goal-conditioned world--action model. Hybrid data scaling unlocks broad zero-shot generalization across both simulation and physical benchmarks, propelling post-trained RoboTwin 2.0 performance to new state-of-the-art levels: 92.70% on Clean2Clean and a substantial leap to 84.60% on Clean2Random. On physical robots, HumanWAM-Goal further exhibits emergent embodied in-context learning, dynamically adapting its manipulation behavior to unseen visual goals without parameter updates. To support reproducible scaling research in embodied AI, we open-source the Open-HumanScale-50K corpus, data curation and pretraining pipelines, alongside the pretrained and post-trained HumanWAM checkpoints, inference code, and simulation evaluation suites.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06817",
+        "pdf": "https://arxiv.org/pdf/2611.06817"
+      },
+      "upvotes": 15,
+      "projectPage": "https://dagroup-pku.github.io/open-humanwam/",
+      "numComments": 2,
+      "titleZh": "Open-HumanScale:面向具身基础模型的规模化人类与机器人经验开放配方",
+      "summaryZh": "第一人称人类视频是机器人操作先验的可扩展来源，但从原始数据规模到可泛化策略仍缺严格的数据清洗与训练配方。工作构建 Open-HumanScale-50K:5 万小时第一人称视频语料，密集标注手部运动与自然语言，并给出闭环仿真评测流程，拟合出预训练数据小时数与下游成功率之间的经验对数线性 scaling law。仅用人类视频预训练的 world-action 模型 HumanWAM-Vanilla，经机器人后训练在 RoboTwin 2.0 取得 Clean2Clean 92.08%、Clean2Random 68.88%,RoboDojo 平均成功率 14.17%、平均进度分 19.00。进一步的视觉目标条件模型 HumanWAM-Goal 采用人机联合预训练，Clean2Random 跃升至 84.60%，并在真机上呈现无需参数更新的具身 in-context 学习;语料、管线与 checkpoint 全部开源。",
+      "score": 2,
+      "reason": "机器人/具身基础模型，落在画像低分方向，仅数据配方与 scaling law 略沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.06976",
+      "title": "On the Opportunities and Challenges of Prefill-to-Autoregressive Cross-Model Transfer",
+      "authors": [
+        "Zhenyi Shen",
+        "Junru Lu",
+        "Wei Liu",
+        "Jiangnan Ye",
+        "Jiazheng Li",
+        "Di Yin"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Prefill-to-Autoregressive Cross-model Transfer (PACT), a form of latent communication between language models, combines a larger model's prompt representations with a smaller model's efficient generation, offering a promising way to balance capability and inference cost. However, existing systems provide limited support for independently evaluating large-small model collaboration, and improved task performance alone does not establish whether the receiver benefits from the sender's information. We introduce PLatour, an open-source PACT framework that connects frozen models through lightweight, zero-initialized linear bridges trained directly with task rewards and supports hybrid-attention architectures. PLatour significantly outperforms open-source baselines on generation tasks and surpasses Mostik's reported results on shared mathematics and coding benchmarks using a substantially smaller sender. However, controlled experiments show that the gains on some tasks can be reproduced by uninformative sender signals, self-communication, or receiver-only training. We find that trainable bridges can act as parameter-efficient adaptation mechanisms without exploiting useful sender information. We therefore propose PACT-Check to quantify how much of a trained PACT system's gain genuinely comes from communication. Finally, we discuss the opportunities and challenges of PACT systems. Code is available at https://github.com/zhenyi4/platour.",
+      "published": "2026-11-04T13:33:47.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06976",
+        "pdf": "https://arxiv.org/pdf/2611.06976"
+      },
+      "upvotes": 12,
+      "githubRepo": "https://github.com/zhenyi4/platour",
+      "githubStars": 9,
+      "numComments": 2,
+      "titleZh": "论 Prefill-to-Autoregressive 跨模型迁移的机遇与挑战",
+      "summaryZh": "面向大小模型协作的 PACT（Prefill-to-Autoregressive Cross-model Transfer）范式，用大模型的 prompt 表征配合小模型的高效生成，以平衡能力与推理成本。开源框架 PLatour 通过零初始化线性桥接冻结模型、直接用任务奖励训练，并支持混合注意力架构；在生成任务上显著超过开源基线，且在数学与代码基准上以更小的发送方模型超过 Mostik 报告结果。但受控实验显示，部分任务的增益可由无信息发送方信号、自通信或仅训练接收方复现，说明可训练桥接可能只是参数高效适配而非利用发送方信息；为此提出 PACT-Check 量化真实通信贡献，并讨论该范式的机遇与挑战。",
+      "score": 7,
+      "reason": "大小模型潜在通信与高效推理，属系统效率与后训练交叉，且有可信评测反思",
+      "deepDive": false
+    },
+    {
+      "id": "2611.07909",
+      "title": "EDGAR: Efficient Diffusion-Driven Gaussian Avatar Refinement via Synthetic Failure",
+      "authors": [
+        "Kwan Yun",
+        "Minhyeok Bang",
+        "Colette Suhjung Koo",
+        "Junyong Noh"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Recent advances in Gaussian splatting have enabled efficient and photorealistic head avatar reconstruction, yet monocular video-based or image-based methods still suffer from under-constrained geometry and texture, leading to artifacts such as blurring, stretching, and temporal instability. We present EDGAR (Efficient Diffusion-Driven Gaussian Avatar Refinement), a conditional diffusion framework designed to enhance the quality of Gaussian avatars by correcting artifacts while preserving identity fidelity. To train EDGAR, we construct EDGAR-SET, a hybrid triplet dataset composed of real-captured and synthetic-rendered samples, which simulates realistic Gaussian avatar failure cases by pairing degraded renderings with ground-truth and reference images. EDGAR refines degraded frames through a fusion block that injects identity features extracted by the self-supervised Sapiens model into a one-step diffusion backbone, enabling effective artifact removal without sacrificing efficiency. Our EDGAR model incorporates a Mixture-of-Experts (MoE) architecture to address diverse degradation types and severity levels. The refined multi-view renderings are subsequently used as pseudo-targets to optimize a single underlying Gaussian avatar, so that the final avatar can be rendered without applying EDGAR to every output frame. Experiments on three different Gaussian avatar reconstruction methods, each evaluated under three different settings, show improvements in both perceptual and reconstruction measures over the raw outputs and an SDEdit-style refinement baseline. In addition, cross-view evaluation demonstrates improved calibrated consistency, while tests under large yaw and open-mouth expressions verify robustness under extreme settings. These results collectively indicate a useful operating regime for recoverable appearance artifacts. The code is available at https://kwanyun.github.io/edgar/",
+      "published": "2026-11-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.07909",
+        "pdf": "https://arxiv.org/pdf/2611.07909"
+      },
+      "upvotes": 11,
+      "githubRepo": "https://github.com/kwanyun/edgar-code",
+      "githubStars": 3,
+      "projectPage": "https://kwanyun.github.io/edgar/",
+      "numComments": 2,
+      "titleZh": "EDGAR:藉由合成失败样本实现的高效扩散驱动高斯化身精修",
+      "summaryZh": "单目视频或图像驱动的高斯化身重建受几何与纹理约束不足所限，易出现模糊、拉伸与时序抖动。EDGAR 构建混合真实采集与合成渲染的三元组数据集 EDGAR-SET，用退化渲染配真值与参考图模拟失败样本;在单步扩散骨干中注入 Sapiens 自监督身份特征，并以 MoE 应对不同退化类型与程度。精修后的多视图渲染作为伪目标优化单一高斯化身，推理时无需逐帧调用。在三种重建方法与三种设置下，感知与重建指标均优于原始输出及 SDEdit 式精修基线，跨视角一致性与大偏航、张口等极端条件亦更稳健。",
+      "score": 2,
+      "reason": "高斯化身与扩散式图像精修，属视觉重建与生成的低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.04527",
+      "title": "Future Representation Distillation for Imagination-free World Action Models",
+      "authors": [
+        "Jaehyeong Jo",
+        "Sangwon Jang",
+        "Sihyun Yu",
+        "Seonghyeon Ye",
+        "Yekyung Nah",
+        "Hojung Jung"
+      ],
+      "authorsTotal": 8,
+      "abstract": "World Action Models (WAMs) use the predictive knowledge of pretrained video diffusion models for robot control through future video prediction. However, iterative video denoising is costly, and inaccurate visual predictions can compromise action prediction. Our key idea is to make this predictive knowledge available through visual representations computed from the current observation, enabling action prediction without generating future videos. We introduce DreamFree, a WAM that repurposes a pretrained video diffusion model as a predictive visual encoder through representation distillation. The visual encoder learns to predict a frozen video diffusion model's representation using only the current observation. An action module is then trained to predict actions by extracting action-relevant information from the visual encoder. Across real-world and simulated tasks, DreamFree achieves higher success rates than state-of-the-art VLAs and WAMs, while performing real-time closed-loop control at 11Hz with a 14B video diffusion backbone. Experiments show that DreamFree can translate stronger video priors and additional video data into better robot control and enable learning new robot tasks from video demonstrations, including videos from a different embodiment, without action annotation for the new tasks.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.04527",
+        "pdf": "https://arxiv.org/pdf/2611.04527"
+      },
+      "upvotes": 8,
+      "projectPage": "https://harryjo97.github.io/dreamfree/",
+      "numComments": 2,
+      "titleZh": "面向免想象世界动作模型的未来表征蒸馏",
+      "summaryZh": "世界动作模型借助预训练视频扩散模型的预测能力，先想象未来视频再据此推断机器人动作，但迭代去噪开销大，视觉预测不准还会拖累动作质量。DreamFree 把冻结的视频扩散模型当作教师，让视觉编码器仅凭当前观测蒸馏出其未来表征，再由动作模块从这些表征中提取动作相关信息，从而完全跳过未来视频的生成。在真实与仿真任务上，该方法成功率超过当前最优的 VLA 与世界动作模型，并在 14B 视频扩散骨干下实现 11Hz 实时闭环控制;它还能把更强的视频先验与额外视频数据转化为更好的控制效果，并在无动作标注下从跨本体视频演示中学习新任务。",
+      "score": 2,
+      "reason": "机器人操作策略与具身智能，属画像低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.08237",
+      "title": "Terminal-style Mathematical Modeling Bench: The First Agentic and Verifiable Benchmark for Mathematical Modeling",
+      "authors": [
+        "Xiaojun Wu",
+        "Cehao Yang",
+        "Xuhui Jiang",
+        "Chengjin Xu",
+        "Jia Li",
+        "Jian Guo"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Mathematical modeling turns an open-ended real-world problem into assumptions, a model, a solution, and a defended recommendation, and its answers matter only if they are both close to a credible reference and physically feasible; existing benchmarks either score solver fragments or grade reports with an LLM judge, leaving those numbers unchecked. We introduce TB-MathModel (the Terminal-style Mathematical Modeling Bench), the first benchmark to make complete contest-style modeling problems agentic, verifiable, and terminal at once, over 18 real CUMCM and MCM problems (2023--2025). Each task ships the verbatim statement, official attachments, and figures in a containerized terminal; the agent returns one JSON artifact, scored on the numeric core of the final question against a reproduction of the Outstanding-award paper. Two design choices distinguish it: direction-aware, one-sided scoring, which never penalises beating the anchor, and two-layer feasibility verification---a programmatic gate over six decidable invariant forms plus 624 Lean~4 obligations---with a hard gate that zeroes infeasible answers. Each task is scored against a panel of human outstanding papers rather than one, so a model must be close to many accepted answers; across seven multimodal entries (three seeds each) the strongest reach a multi-reference O-Eval of 64.58\\%, while the \\2.54 open model holds 59.81% at 1/100$ the cost. TB-MathModel turns the numeric core of modeling into a reproducible, machine-checkable signal for measuring long-horizon modeling competence and for collecting agent trajectories. The source code is available at https://github.com/wxj630/terminal-bench-math-modeling.",
+      "published": "2026-11-05T16:18:35.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.08237",
+        "pdf": "https://arxiv.org/pdf/2611.08237"
+      },
+      "upvotes": 7,
+      "githubRepo": "https://github.com/wxj630/terminal-bench-math-modeling",
+      "githubStars": 5,
+      "projectPage": "https://wxj630.github.io/terminal-bench-math-modeling/",
+      "numComments": 3,
+      "titleZh": "终端式数学建模基准：首个面向数学建模的 Agentic 与可验证基准",
+      "summaryZh": "现有数学建模基准要么只评求解器片段，要么用 LLM judge 给报告打分，答案的数值正确性与物理可行性都没被核验。TB-MathModel 把 18 道 2023–2025 年 CUMCM/MCM 真题（原始题面、官方附件与图片）装进容器化终端，agent 交付单个 JSON 产物，按最终问题的数值核心对照国奖论文复现结果打分。关键设计是方向感知的单边评分（超过锚点不扣分）与两层可行性验证：六类可判定不变式的程序门加 624 条 Lean 4 义务，不可行答案硬性清零；且每题对多篇国奖论文的多参考评分。七个多模态模型三次种子下最强多参考 O-Eval 为 64.58%，开源模型以 1/100 成本达 59.81%；可用于度量长程建模能力并采集 agent 轨迹。",
+      "score": 8,
+      "reason": "Agent 化可验证评测，Lean 4 校验可行性，命中 Agent 与 benchmark 方向",
+      "deepDive": false
+    },
+    {
+      "id": "2611.02660",
+      "title": "HeLM: Hierarchical Explicit Language Memory for Non-Markovian Manipulation",
+      "authors": [
+        "Gyeonghun Kim",
+        "Donghoon Kim",
+        "Minsoo Choi",
+        "Suyun Lee"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Recent advances in Vision-Language-Action (VLA) models have enabled fine manipulation capabilities, yet performing tasks that require working memory remains a key challenge. Most existing VLA architectures operate under a Markovian assumption, mapping only the current observation to an action, which leads to failure in non-Markovian environments. Inspired by the human 'inner monologue', we propose Hierarchical Explicit Language Memory (HeLM), a hierarchical VLA framework that maintains task-relevant history in explicit language through factorized event detection and event-triggered memory updates. We evaluate HeLM across 10 non-Markovian real-world tasks with 56 variants, including five newly formulated inter-episode tasks that require persistent context across task boundaries. HeLM improves intra-episode success by 12.8 percentage points over the strongest baseline and achieves 78% subtask success on compositional generalization tasks, while using up to 4.5x less memory and running 2.5x faster than the keyframe baseline at long horizons.",
+      "published": "2026-11-02T07:20:12.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02660",
+        "pdf": "https://arxiv.org/pdf/2611.02660"
+      },
+      "upvotes": 7,
+      "githubRepo": "https://github.com/kimspacehuni/HeLM",
+      "githubStars": 0,
+      "projectPage": "https://kimspacehuni.github.io/HeLM/",
+      "numComments": 2,
+      "titleZh": "HeLM：用于非马尔可夫操作的分层显式语言记忆",
+      "summaryZh": "现有 VLA 模型多数遵循马尔可夫假设，只把当前观测映射为动作，因此在需要工作记忆的非马尔可夫环境中会失效。HeLM 借鉴人类的「内心独白」，通过事件分解与事件触发式记忆更新，把与任务相关的历史保存为显式语言，从而构建分层 VLA 框架。在 10 个真实非马尔可夫任务、56 个变体（含 5 个需要跨任务边界保持上下文的跨 episode 任务）上，同 episode 成功率比最强基线高 12.8 个百分点，组合泛化子任务成功率达 78%；长时程下内存占用最多降低 4.5 倍，速度提升 2.5 倍。该工作面向机器人操作的长时记忆，属于具身智能范畴。",
+      "score": 1,
+      "reason": "VLA 机器人操作，属具身智能低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.08376",
+      "title": "Muir: Linear Attention with Sensitivity-Allocated Gating and Matched-Filter Readout",
+      "authors": [
+        "Tushaar Gangavarapu",
+        "Gil Tabak",
+        "Clemens JS Schaefer"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Linear attention compresses context into a fixed-size key-value state for linear-time training and constant-memory inference. Gated delta-rule models decay this state and erase its prediction for an incoming key before writing a new value; Gated DeltaNet-2 (GDN-2) generalizes this with channel-wise decay and decoupled, full-rank erase and write gates. However, we show that state updates are far less sensitive to erasure than to writes: key activation and unit normalization concentrate key energy onto a sparse subset of channels, whereas value writes scale all channels, so the erase gate can be parameterized at lower rank. Furthermore, slow-decaying state rows accumulate much larger norms than fast rows, dominating unweighted readout and forcing stronger write-time erasure to suppress interference. Guided by this analysis, we introduce Muir, which fuses all gates into a sensitivity-allocated low-rank projection, re-weights state rows with a matched-filter readout gate, and reinvests the saved parameters in a wider feed-forward network. Because standard chunkwise algorithms become numerically unstable at the large chunk sizes needed to saturate wide matrix units, we design a parallel update for stable, efficient training. Across 166M-1.34B parameters, Muir lowers perplexity by 1.8-2.0% over GDN-2 and 2.5-3.6% over Transformer, raises commonsense accuracy by up to 1.9 points, and improves extractive recall over GDN-2. At 1.34B, Muir outperforms both baselines on multi-hop and multi-needle recall, extrapolates 2,560x from its 4K training length to 10M-token streams without perplexity drift, and maintains near-100% passkey retrieval to 1M tokens with static readout. Muir achieves these gains while matching GDN-2 throughput, reaching its 100B-token validation loss 1.2x faster, and training 2.7x faster than Transformer at 32K.",
+      "published": "2026-11-05T17:53:49.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.08376",
+        "pdf": "https://arxiv.org/pdf/2611.08376"
+      },
+      "upvotes": 5,
+      "numComments": 2,
+      "titleZh": "Muir：融合敏感度分配门控与匹配滤波读出的线性注意力",
+      "summaryZh": "在门控 delta 规则的线性注意力中，擦除门与写入门的敏感度并不对称：由于归一化，键能量会集中在少数通道上；慢衰减状态行的范数又远大于快衰减状态行，并在未加权读出中占据主导。Muir 把全部门融合为一个按敏感度分配的低秩投影，用匹配滤波读出对状态行重新加权，并把省下的参数投入更宽的前馈网络；同时针对大 chunk 下分块算法数值不稳定的问题，设计了稳定的并行更新。在 166M–1.34B 规模上，Muir 的困惑度比 GDN-2 降低 1.8–2.0%，比 Transformer 降低 2.5–3.6%；1.34B 模型从 4K 训练长度外推到 10M token，困惑度无明显漂移；其吞吐与 GDN-2 持平，在 32K 长度下训练速度比 Transformer 快 2.7 倍。",
+      "score": 9,
+      "reason": "线性注意力新架构，机制分析深入、多尺度验证充分",
+      "deepDive": true
+    },
+    {
+      "id": "2611.08089",
+      "title": "SAE Interprets MoE: Sparse AutoEncoders Reveal That MoE Experts Exhibit Human-Interpretable Fine-Grained Specialization",
+      "authors": [
+        "Anyuan Zhuo",
+        "Shaohua Zhang",
+        "Yuan Lin",
+        "Pinyan Lu"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Mixture-of-Experts (MoE) models route each token to a few of many experts, yet what an individual expert is responsible for remains unsettled. Existing analyses count how often an expert is selected on domain-labeled corpora, an instrument that fixes the taxonomy in advance, stays coarse, and records selection rather than contribution. We instead study specialization in feature space by training a sparse autoencoder (SAE) on the output of an MoE layer. Since this output is a router-weighted sum of expert outputs and the SAE encoder is affine, the pre-activation of every latent decomposes exactly over the experts. Aggregated over a corpus, this gives each expert a dominant set of latents whose activation it principally drives. On layers 4, 30 and 46 of Qwen3-30B-A3B, contribution is far more concentrated than gating, most latents have only one or two dominators, and the overlap between dominant sets concentrates on a few expert pairs. Auto-interpreting these sets reveals a division of labor below coarse domains, with distinct experts for Java and front-end web code, or for geometry and for arithmetic and polynomials, while the coarse domains themselves take very unequal numbers of experts. Our SAEs and code are available at https://github.com/Bytedance-Seed/SAE-Interprets-MoE.",
+      "published": "2026-11-05T14:35:08.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.08089",
+        "pdf": "https://arxiv.org/pdf/2611.08089"
+      },
+      "upvotes": 5,
+      "githubRepo": "https://github.com/ByteDance-Seed/SAE-interprets-MoE",
+      "githubStars": 2,
+      "projectPage": "https://bytedance-seed.github.io/SAE-interprets-MoE/",
+      "numComments": 2,
+      "titleZh": "SAE 解读 MoE:稀疏自编码器揭示 MoE 专家呈现人类可解读的细粒度专门化",
+      "summaryZh": "现有 MoE 专家分析依赖在领域标注语料上统计路由频次，分类体系预设、粒度粗，且只反映被选中而非实际贡献。该工作在 MoE 层输出上训练稀疏自编码器，利用路由加权求和与编码器的仿射性，使每个 latent 的预激活可精确分解到各专家上，从而为每个专家聚合出其主导驱动的 latent 集合。在 Qwen3-30B-A3B 的第 4、30、46 层上，贡献集中度远高于门控分布，多数 latent 仅有一两个主导专家，主导集合的重叠集中于少数专家对;自动解释显示专家分工细于粗粒度领域，如 Java 与前端 Web 代码、几何与算术多项式分别由不同专家承担，而各粗领域占用的专家数极不均衡。该分解机制为 MoE 路由与专家功能分析提供了可验证的细粒度工具，代码与 SAE 已开源。",
+      "score": 8,
+      "reason": "MoE 可解释性，SAE 精确分解专家贡献，方法新颖扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2611.05376",
+      "title": "From Autonomous Agents to Cognitive Symbionts: Toward AI-Augmented Human Intelligence",
+      "authors": [
+        "Hao Fei"
+      ],
+      "authorsTotal": 1,
+      "abstract": "For a decade, progress in artificial intelligence has been measured by how much a machine can do on its own. Large foundation models now write code and run multistep tasks, and personal agents act on a person's behalf. Yet people still forget what they once knew, miss what they are not looking at, fail to find the right words, and face hard choices without the benefit of their own history, because the machine that could help stands outside the situation. As AI moves into the physical world, attention has settled on one kind of intelligent individual, the embodied robot; we argue that the era of Physical AI holds a second kind of equal importance, the person augmented by AI. Alongside artificial general intelligence, which asks how intelligent a machine can be, stands AI-augmented human intelligence (AHI), which asks how much intelligence a machine can enable in a particular person. Realizing it calls for a new kind of system, a cognitive symbiont: a lifelong, embedded, real-time, private, low-friction, and proactive companion that senses what the person senses through external devices, keeps their context across years, models their situation and their mind, takes part in their thinking at the right moment, carries out everyday tasks with their context, and keeps learning the person as both change. We give the paradigm a conceptual core, the cognitive gap between what a person could bring to a situation and what they can hold in working memory, and organize its design space as a symbiosis loop of sensing, keeping, understanding, living alongside, acting for and thinking with the person, and growing, enclosed by a personal runtime and by trust. Because a symbiont changes what a person can do in front of others, it also raises risks of a new kind, from covert assistance in examinations to pressure on everyone to adopt it, and we treat their governance as part of the paradigm.",
+      "published": "2026-11-03T18:59:52.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.05376",
+        "pdf": "https://arxiv.org/pdf/2611.05376"
+      },
+      "upvotes": 5,
+      "projectPage": "https://cognitive-symbiont.github.io/",
+      "numComments": 2,
+      "titleZh": "从自主智能体到认知共生体：迈向AI增强的人类智能",
+      "summaryZh": "针对个人在记忆、注意、表达与决策上受工作记忆限制、而机器始终置身情境之外的问题，提出「认知共生体」范式：一种终身、嵌入、实时、私密、低摩擦且主动的伴随系统，借助外部设备感知用户所感，长期保留上下文并建模其处境与心智，在恰当时机参与思考、代为执行日常任务。以「人能带入情境的能力与其工作记忆可容纳量之间的认知鸿沟」为核心概念，将设计空间组织为感知、留存、理解、共处、代为行动、协同思考与成长的共生循环，由个人运行时与信任边界包裹。并讨论隐蔽辅助、被迫采用等新型风险及其治理。",
+      "score": 6,
+      "reason": "Agent与长期记忆方向的前瞻范式论文，概念性强但无实验验证",
+      "deepDive": false
+    },
+    {
+      "id": "2611.06982",
+      "title": "Decode Before You Hear: Speculative Listening for Chunk-Interleaved Full-Duplex Speech Language Models",
+      "authors": [
+        "Yutong Bian",
+        "Yanglin Zhang",
+        "Yuxiang Wang",
+        "Luoyuan Zhang",
+        "Rongshen He",
+        "Zihao Wang"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Chunk-interleaved full-duplex speech language models listen and speak in fixed time chunks, and each chunk must be processed before the next one arrives. Their workload is asymmetric across chunks: listen chunks leave compute idle while awaiting audio, and speak and tool-call chunks require serial generation, which delays responses and tool calls. Using the idle compute for the next chunk requires decoding it before its audio arrives, under an assumed input. Taking silence as the assumed input and comparing the output with the output under real audio on four models, we observe two properties. First, the next audio chunk does not change the output in 95.3% of chunks. Second, 88% of changes begin at the first output token. Building on these properties, we propose Speculative Listening, a training-free, lossless framework for input-time self-speculative decoding. During idle time, the model drafts the next chunk under silence and, for changes at the first token, a second branch from the runner-up first token. It keeps all drafts in a cross-chunk hypothesis pool and verifies them when the audio arrives. On our eight-task benchmark TickTock-Bench, Speculative Listening speeds up speak chunks by 2.6-2.8x and tool-call chunks by up to 23.4x. On average, it reduces the decoding delay before a response starts by 73%, to 74-241 ms, close to the 200 ms gap between human turns, and the maximum lag behind real time by 94.4%.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06982",
+        "pdf": "https://arxiv.org/pdf/2611.06982"
+      },
+      "upvotes": 5,
+      "numComments": 2,
+      "titleZh": "先解码再听:面向块交错全双工语音语言模型的投机式聆听",
+      "summaryZh": "针对按固定时间块交替听说的全双工语音语言模型，其负载在块间不均衡:听块等待音频时算力闲置，说块与工具调用块需串行生成，推高响应延迟。观察到下一音频块在95.3%的情况下不改变输出、88%的变化始于首个输出 token 后，提出 Speculative Listening:空闲时以静音为假想输入起草下一块，并对首 token 变化从次优首 token 另起一支，草稿统一存入跨块假设池，音频到达后验证，训练无关且无损。在 TickTock-Bench 八个任务上说块加速2.6–2.8倍，工具调用块最高23.4倍，响应起始延迟降低73%至74–241 ms，接近人类轮次约200 ms 的间隔，实时最大滞后减少94.4%。",
+      "score": 7,
+      "reason": "投机解码机制清晰，可用于全双工语音语言模型推理加速",
+      "deepDive": false
+    },
+    {
+      "id": "2611.04386",
+      "title": "StepX-OPD: Rethinking Multi-Teacher On-Policy Distillation in Diffusion Models",
+      "authors": [
+        "Chenru Wang",
+        "Xuanyang Zhang",
+        "Yucheng Han",
+        "Wenbo Nie",
+        "Wei Cheng",
+        "Xianfang Zeng"
+      ],
+      "authorsTotal": 8,
+      "abstract": "A deployable text-to-image diffusion model must hold several capabilities at once, such as instruction following, text rendering and human preference, and must sample in a few steps. Capabilities and few-step sampling are built in separate stages: a full-step model first consolidates capabilities through multi-teacher on-policy distillation, then serves as a fixed teacher for step distillation. Every full-step model we evaluate scores lower once compressed, and the second stage cannot begin until the first finishes. We introduce StepX-OPD, which merges the two stages: one student acquires every capability while learning to sample in a few steps, so frozen specialists supervise it on the states its own rollout visits rather than on a longer trajectory it never runs. Because a decomposition of the rollout's KL weights velocity mismatch most heavily near the clean end, we also regress the student's velocity on the low-noise part of the rollout. Separately, we find that capability integration makes models write prompt words into images on prompts that never asked for text, and we give a variant that lowers it. We evaluate on SD3.5-Medium and FLUX.1-dev across instruction following, text rendering, image quality and human preference. On both architectures, StepX-OPD attains the highest normalized average score among the four-step methods compared and exceeds the forty-step Flow-OPD model, and on SD3.5-Medium it trains with about 37% fewer GPU-hours than sequential DiffusionOPD followed by step distillation.",
+      "published": "2026-11-03T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.04386",
+        "pdf": "https://arxiv.org/pdf/2611.04386"
+      },
+      "upvotes": 3,
+      "githubRepo": "https://github.com/WinterCCC/StepX-OPD",
+      "githubStars": 4,
+      "projectPage": "https://winterccc.github.io/Step-OPD/",
+      "numComments": 1,
+      "titleZh": "StepX-OPD：重新审视扩散模型中的多教师在线策略蒸馏",
+      "summaryZh": "可部署的文生图扩散模型需同时具备指令跟随、文字渲染、人类偏好与少步采样能力，现有流程先用多教师在线策略蒸馏整合能力，再以固定教师做步数蒸馏，两阶段串行且压缩后评分普遍下降。StepX-OPD 将两者合并：单个学生模型学习少步采样时接受冻结专家在其自身 rollout 状态上的监督，并据 KL 分解对 rollout 低噪声段额外回归速度；另给出抑制把提示词写进图像的变体。在 SD3.5-Medium 与 FLUX.1-dev 上，其四步方法归一化平均分最高、超过四十步 Flow-OPD，SD3.5-Medium 训练 GPU 时数少约 37%。",
+      "score": 1,
+      "reason": "扩散文生图蒸馏，属明确低分方向",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.08483",
+      "title": "SwarmEvolve: Latent Agent Swarms for Evolutionary Discovery and Optimization",
+      "authors": [
+        "Qile Jiang",
+        "George Em Karniadakis"
+      ],
+      "authorsTotal": 2,
+      "abstract": "LLM-guided evolutionary search uses AI agents to improve programs for mathematical and computational problems by iteratively refining solutions and combining high-scoring methods. However, the process is often slow because the LLM generates a long textual chain of thought for each round and must repeat this generation many times to maintain population diversity. We present SwarmEvolve, a framework in which hundreds of low-cost agents per round work in swarms, reason in latent space without decoding to text, and share information by passing KV caches. Each swarm studies the problem from a different angle. A novelty filter keeps the most distinct agent ideas by directly measuring the distances between the agents' hidden state vectors. Crossover of ideas happens naturally in latent space, as a summarizer agent receives the combined KV caches of all swarm members. On 21 problems in mathematical discovery and scientific computing, SwarmEvolve gets the highest average score and needs a median of only 3 to 8 minutes to reach the best scores that other state-of-the-art frameworks reach in 60 minutes. On several problems, SwarmEvolve with Qwen3 8B improves on the solutions that AlphaEvolve first found with frontier LLMs. Our work shows that agent swarms that communicate in latent space offer a fast, low-cost approach to program search for scientific problems.",
+      "published": "2026-11-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.08483",
+        "pdf": "https://arxiv.org/pdf/2611.08483"
+      },
+      "upvotes": 3,
+      "githubRepo": "https://github.com/Qile-J/SwarmEvolve",
+      "githubStars": 2,
+      "numComments": 2,
+      "titleZh": "SwarmEvolve：面向进化发现与优化的潜空间智能体群体",
+      "summaryZh": "LLM引导的进化式程序搜索需每轮生成冗长文本思维链，速度慢且难以维持种群多样性。SwarmEvolve让每轮数百个低成本智能体组成群体在潜空间推理、无需解码成文本，并以传递KV cache共享信息：各群体从不同角度研究问题，新颖性过滤器直接在隐藏状态向量之间测距以保留最独特的想法，汇总智能体接收全体成员合并后的KV cache，使想法交叉在潜空间中自然发生。在21个数学发现与科学计算问题上平均分最高，中位数仅3–8分钟即达到其他SOTA框架60分钟的最佳成绩，部分问题上Qwen3 8B的求解优于AlphaEvolve用前沿LLM找到的结果。",
+      "score": 9,
+      "reason": "潜空间智能体群体与AI for Research结合，范式新颖、实验扎实",
+      "deepDive": true
+    },
+    {
+      "id": "2611.07298",
+      "title": "Reducing Representational Interference in Retrieval Embeddings with Trainable Prefix Tokens",
+      "authors": [
+        "Seongtae Hong",
+        "Youngjoon Jang",
+        "Jungseob Lee",
+        "Chanjun Park",
+        "Heuiseok Lim"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Embedding models compress variable-length text into fixed-size vector representations, but this compression can entangle semantic content with residual token-level information, such as artifacts arising from attention sink behavior. We propose a simple method that prepends trainable [DUMP] tokens to the input during embedding model training. The method keeps the model architecture, pooling strategy, and training loss unchanged, while optimizing the added tokens through the standard contrastive retrieval objective. By introducing trainable prefix positions that interact with regular tokens during encoding, [DUMP] tokens help reduce the influence of residual or uninformative token-level signals on the final retrieval representation. Experiments on standard retrieval and long-context benchmarks show that our method consistently improves over finetuned baselines across encoder and decoder embedding models. Further analysis shows that [DUMP] tokens alter token-level activation and attention patterns associated with low-information tokens. These results suggest that trainable prefix tokens provide a lightweight way to improve retrieval representations.",
+      "published": "2026-11-05T01:30:28.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.07298",
+        "pdf": "https://arxiv.org/pdf/2611.07298"
+      },
+      "upvotes": 3,
+      "numComments": 1,
+      "titleZh": "用可训练前缀 token 减少检索嵌入中的表征干扰",
+      "summaryZh": "嵌入模型把变长文本压缩为定长向量时，语义内容会与注意力汇等残留 token 级信息纠缠。方法是在训练时于输入前拼接若干可训练的[DUMP]token，不改动模型架构、池化策略与对比检索损失，仅通过标准对比目标优化这些前缀位置，以吸收低信息 token 的干扰。在标准检索与长上下文基准上，该方法在编码器与解码器嵌入模型上均稳定优于微调基线，分析显示[DUMP]token改变了低信息 token 相关的激活与注意力模式。这是一种轻量提升检索表征质量的训练技巧，可低成本用于现有嵌入模型。",
+      "score": 6,
+      "reason": "检索嵌入训练技巧，属效率与表征改进，分量有限",
+      "deepDive": false
+    },
+    {
+      "id": "2611.07613",
+      "title": "Towards Real-Time Full-Waveform LiDAR Transformers via Intensity-Guided Token Reduction and Physics-Aware Augmentation",
+      "authors": [
+        "Kotaro Oishi",
+        "Kazuma Ikeda",
+        "Ryosei Hara",
+        "Ryo Yoshida",
+        "Mariko Isogawa",
+        "Kentaro Yoshioka"
+      ],
+      "authorsTotal": 6,
+      "abstract": "LiDAR is a critical sensor for autonomous driving and robotics, yet it remains vulnerable to adverse conditions such as fog, rain, transparent objects, and low-reflectance surfaces. Full-waveform LiDAR (FWL) addresses these limitations by capturing the complete return waveform as a histogram, preserving rich reflection characteristics including multi-path echoes and weak signals. While recent Transformer-based approaches have demonstrated promise on FWL data, two fundamental bottlenecks remain: high computational cost from redundant tokens in low-intensity background regions, and limited generalization due to scarce annotated training data. We address both bottlenecks by exploiting the physical structure inherent to FWL data. First, we propose FWL-ToPM, a token pruning and merging mechanism that leverages intensity distributions to selectively reduce tokens while retaining critical waveform content. Second, we introduce FWLAug, a data augmentation framework designed as a regularization method that preserves waveform structure, retaining the Time-of-Flight waveform of each ray and the frustum geometry, to improve generalization to unseen scenes. Evaluated on the Ghost-FWL benchmark, FWL-ToPM achieves over 8 times speedup at real-time throughput alongside a nearly 9-point F1 gain over the prior state of the art, establishing the first real-time FWL Transformer that simultaneously improves accuracy. FWLAug further improves performance on both the standard benchmark and an out-of-distribution test set of unseen scenes. Together, these methods push FWL-based perception toward practical deployment. The code and the OOD dataset are publicly available and can be accessed via the project page: https://keio-csg.github.io/FWL-ToPM",
+      "published": "2026-11-05T07:56:01.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.07613",
+        "pdf": "https://arxiv.org/pdf/2611.07613"
+      },
+      "upvotes": 3,
+      "githubRepo": "https://github.com/Keio-CSG/FWL-ToPM",
+      "githubStars": 4,
+      "projectPage": "https://keio-csg.github.io/FWL-ToPM/",
+      "numComments": 2,
+      "titleZh": "面向实时全波形 LiDAR Transformer 的强度引导 token 削减与物理感知数据增强",
+      "summaryZh": "全波形 LiDAR（FWL）能保留多路径回波与弱信号，但 Transformer 处理时存在低强度背景 token 冗余、标注数据稀缺两大瓶颈。FWL-ToPM 依据强度分布选择性地剪枝与合并 token，保留关键波形内容以降低计算量；FWLAug 作为保持波形结构与视锥几何的增强正则化手段，提升对未见场景的泛化。在 Ghost-FWL 基准上取得实时吞吐下 8 倍以上加速，并比此前最优方法提升近 9 个 F1 点，OOD 测试集上亦有增益。",
+      "score": 3,
+      "reason": "LiDAR 感知的 token 剪枝效率工作，与 LLM 主线仅方法层面沾边",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2610.37739",
+      "title": "OpenFrontiers: A Collection of Open Research Problems and a Benchmark for Scientific Rediscovery",
+      "authors": [
+        "Jiarui Yao",
+        "Ruida Wang",
+        "Tong Zhang"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Large language models (LLMs) have shown increasing promise in research-level problem solving, yet a comprehensive collection of such problems is still missing, and evaluating them on research-level problems remains challenging. We introduce OpenFrontiers, a cross-disciplinary resource that combines a structured corpus of open research problems with a retrospective benchmark of recently resolved problems in mathematics. The corpus records problem statements, context, progress, and other information for 12,151 problems. The benchmark contains 200 problems, 110 resolved in 2026 and 90 still open, each with a Lean~4 statement checked by automated probes and two independent reviews; a subset HQ-50 further filters based on quality score, etc. Our evaluation protocol grades formal proofs with two independent checkers in an isolated sandbox under closed-book, frozen-retrieval, and live-web conditions. Evaluating seven LLM agents on the HQ-50 subset under a standardized budget, we find that closed-book rediscovery is rare, at most 7 of 40 resolved problems, whereas live-web success mostly reflects retrieval of published solutions. By linking a broad research-problem corpus to a formally graded evaluation subset with documented solutions, OpenFrontiers provides a foundation for measuring research-level rediscovery and studying progress toward solving currently open scientific problems. The dataset and benchmark could be found in https://huggingface.co/collections/FlippyDora/openfrontiers.",
+      "published": "2026-10-27T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.37739",
+        "pdf": "https://arxiv.org/pdf/2610.37739"
+      },
+      "upvotes": 2,
+      "projectPage": "https://openfrontiers.vercel.app/",
+      "numComments": 3,
+      "titleZh": "OpenFrontiers:开放研究问题合集与科学再发现基准",
+      "summaryZh": "针对研究级问题求解缺少统一评测资源的现状，构建跨学科开放问题语料与数学再发现基准:语料收录 12,151 道开放问题的陈述、背景与进展，基准含 200 道题(110 道于 2026 年解决、90 道仍开放)，每题配 Lean 4 形式化陈述，并经过自动化探针与双人独立复核，HQ-50 子集再按质量分筛选。评测在隔离沙箱中用两个独立检查器核验形式化证明，区分闭卷、冻结检索与实时联网三种条件;7 个 LLM agent 在统一预算下闭卷再发现极为罕见，HQ-50 的 40 道中至多 7 道，联网成功多源于检索已发表解答。该资源为衡量研究级再发现提供了可形式化评分的底座。",
+      "score": 8,
+      "reason": "科研级再发现基准，Lean 形式化验证，命中AI for Research与评测方向",
+      "deepDive": false
+    },
+    {
+      "id": "2609.37820",
+      "title": "Information Games: Strategic Crowding and Firm Repositioning in Language-Model Space",
+      "authors": [
+        "Marcus Gawronsky",
+        "Chun-Sung Huang"
+      ],
+      "authorsTotal": 2,
+      "abstract": "When firms respond to new market opportunities, their capacity choices alter the future discounted free cash flows available to both competitors and investors. In competitive markets, these investment decisions publicized in news articles and analyst reports, measuring the changes in capital structure, product mix, firm leadership, risk exposure and operating procedure made by the firm. Modern search engines rely on Large Language Models to measure the relevancy of source documents to given search query. These measurements let researchers represent these news articles as clouds of dense vectors whose information geometry reflects the dissimilarity of firms over time. Building on Xu et al. (2022), we develop a model of costly competitive adjustment in which firms allocate capacity in which firms make firm capacity adjustment towards free cash flow shocks. Using a novel sandwich estimator, we analyse the sign and magnitude of this predicted adjustment using multi-agent simulation, and validate our findings on a sample of news and analyst reports from Nasdaq-listed companies between 2018-2022.",
+      "published": "2026-11-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2609.37820",
+        "pdf": "https://arxiv.org/pdf/2609.37820"
+      },
+      "upvotes": 2,
+      "projectPage": "https://marcusinthesky.github.io/PricingPerspective/",
+      "numComments": 2,
+      "titleZh": "信息博弈:语言模型空间中的策略性拥挤与企业重新定位",
+      "summaryZh": "研究企业产能调整如何改变自身与竞争者的未来折现自由现金流，以及策略性拥挤下企业如何重新定位。方法上用LLM搜索引擎评估新闻与分析报告相对查询的相关性，把文本映射为稠密向量云，以其信息几何刻画企业间随时间的差异;在Xu等(2022)基础上建立有成本的竞争性调整模型，并用新提出的sandwich估计量配合多智能体模拟检验调整的方向与幅度，最后在2018—2022年纳斯达克上市公司的新闻与分析报告样本上验证。该工作把LLM文本度量接入产业组织与公司金融的实证框架。",
+      "score": 3,
+      "reason": "以LLM嵌入作企业定位度量，属金融垂直应用，与方法学主线弱相关",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.02075",
+      "title": "Decoupled Predictive Decision Making: A Shared Conditional Predictor for Agents",
+      "authors": [
+        "Lang Mo",
+        "Xingxuan Zhang",
+        "Qi Wang",
+        "Mingchao Hao",
+        "Hao Yuan",
+        "Chunjing Gan"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Agent decisions depend on empirical relationships that deployment observations reveal and task descriptions alone may leave unresolved. We introduce Decoupled Predictive Decision Making (DPDM), an architecture that formulates heterogeneous agent decisions as conditional prediction with a shared pretrained learner. Language models provide semantic representations of current and historical records, while a general-purpose conditional predictor predicts task-defined targets from the represented evidence. Pretraining supplies reusable inference capability; deployment evidence instantiates problem-specific predictions without updating either model's neural parameters. Tool judgments, candidate preferences, and reasoning assessments share an evidence-and-query interface, with predictions mapped to choices by a decision rule. This architecture establishes complementary sources of agent capability: semantic knowledge acquired through language pretraining and empirical inference acquired through structured-data pretraining. A single frozen LimiX-2 predictor serves all five task categories. With Qwen3.5-27B as the semantic encoder, DPDM raises mean accuracy across 50 benchmarks from 78.80% with few-shot prompting to 84.92% under their respective evaluated history budgets, and reaches 82.33% with identical histories and queries. On ToolPRMBench's BFCL and ToolSandbox tasks, absolute accuracy gains are 34.26% and 28.87%, respectively, at the methods' respective evaluated history budgets. Accuracy improves as history grows. With identical imbalanced histories, mean balanced accuracy improves by an absolute 14.51% across five reasoning-step assessment tasks and four encoders. DPDM makes learning from experience an independently improvable foundation-model capability, creating a shared route for advances in conditional prediction to improve decisions across agent tasks.",
+      "published": "2026-11-01T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.02075",
+        "pdf": "https://arxiv.org/pdf/2611.02075"
+      },
+      "upvotes": 2,
+      "numComments": 1,
+      "titleZh": "解耦的预测式决策：面向智能体的共享条件预测器",
+      "summaryZh": "将异构的智能体决策统一表述为基于共享预训练预测器的条件预测：语言模型只负责把当前与历史记录编码为语义表示，通用条件预测器据此预测任务定义的目标，两侧神经参数均不更新，预测结果再经决策规则映射为选择。一个冻结的LimiX-2预测器同时服务五类任务，以Qwen3.5-27B作语义编码器时，50个benchmark的平均准确率由few-shot提示的78.80%升至84.92%，历史与查询完全一致时达82.33%；BFCL与ToolSandbox分别取得34.26%与28.87%的绝对提升，且准确率随历史增长而提升。该架构把从经验中学习拆成可独立改进的基础模型能力，为工具判断、候选偏好与推理评估提供共享接口。",
+      "score": 8,
+      "reason": "Agent经验学习的新架构，50个benchmark验证扎实，直接命中Agent方向",
+      "deepDive": true
+    },
+    {
+      "id": "2611.08369",
+      "title": "NPCBench: A Clinical Apprenticeship Benchmark for Multimodal Care-Pathway Reasoning in Nasopharyngeal Carcinoma",
+      "authors": [
+        "Pengkai Wang",
+        "Wei-Wei Zhang",
+        "Yan Li",
+        "Min Tang",
+        "Zhitian Hou",
+        "Zeyu Liu"
+      ],
+      "authorsTotal": 16,
+      "abstract": "Current medical benchmarks typically break down clinical competence into isolated factual questions, single-image tasks, or static case vignettes. These tests score individual answers, but reveal less about whether a model can integrate subspecialty knowledge with multimodal evidence and track a patient's condition throughout a course of care. To close this gap, we introduce NPCBench, a clinical apprenticeship benchmark for nasopharyngeal carcinoma (NPC). NPCBench mirrors specialist training, from guideline and foundational knowledge to case planning, longitudinal review, CarePath integration, and open-ended consultation. It contains 4,777 component and consultation items and a 100-patient CarePath cohort with 417 scored diagnostic and care tasks. The episode-level evaluation tests whether diagnostic and care answers are jointly correct within a care pathway. By linking stepwise tasks to patient-level care trajectories, NPCBench evaluates whether models ground decisions in visual evidence, interpret changes in patient state, and meet clinical requirements in consultation. Across 30 evaluated models, we observe a composition gap: strong performance on individual tasks does not ensure jointly correct diagnostic and care answers for the same patient. Among 21 multimodal models, strict CarePath success reaches at most 23%. Paired controls and physician calibration further examine evidence grounding, longitudinal revision, and consultation judging. Overall, NPCBench broadens the evaluation of medical artificial intelligence beyond static question-answering paradigms to an apprenticeship-oriented assessment of clinical workflows, thereby offering a testbed for evidence-based and temporally coherent reasoning in oncology care.",
+      "published": "2026-11-05T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.08369",
+        "pdf": "https://arxiv.org/pdf/2611.08369"
+      },
+      "upvotes": 2,
+      "numComments": 3,
+      "titleZh": "NPCBench：面向鼻咽癌多模态诊疗路径推理的临床学徒制基准",
+      "summaryZh": "现有医学基准把临床能力拆成孤立的事实题、单图任务或静态病例，只能评分单点答案，难以反映模型能否将专科知识与多模态证据整合起来，并在整个疗程中跟踪病情。NPCBench 面向鼻咽癌，按专科培训的递进层次构建：从指南与基础知识，到病例规划、纵向复核、CarePath 整合与开放式问诊，包含 4,777 道组件题与问诊题，以及 100 例患者的 CarePath 队列和 417 个计分诊疗任务，并在 episode 级别检验同一患者路径内的诊断与处置答案是否同时正确。在 30 个受评模型中，21 个多模态模型的严格 CarePath 成功率最高仅 23%，显示出“组成鸿沟”：单项任务表现强，并不保证同一患者的诊断与处置同时正确。该工作将医学 AI 评测从静态问答推向贴近临床工作流的学徒制评估。",
+      "score": 4,
+      "reason": "医学专科基准，含 MLLM 评测方法但落在医疗垂直域",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.06500",
+      "title": "Tools Need Not Speak in Text: Latent Context Compression for Agents",
+      "authors": [
+        "Yuetong Liu",
+        "Zhehao Zhou",
+        "Yitong Zhang",
+        "Haorui Chen",
+        "Jia Li"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Large language model (LLM) agents typically append raw tool outputs to their context. Over multi-step interactions, long and noisy observations incur substantial context overhead and dilute the agent's attention to task-relevant information. Existing token pruning and summarization methods remain constrained by discrete text representations, limiting the achievable compression ratios. In this work, we challenge the prevailing assumption that agents must consume tool observations as explicit text tokens. To this end, we propose Coca-Cola, a continuous latent context compression model for LLM agents. Coca-Cola compresses tool observations into latent tokens and embeds them into the input embedding space of the agent. We further introduce Action-Preserving Training, which aligns the agent's next-action distributions under full and compressed observations. This trains the compression model to learn action-sufficient latent tokens that retain decision-critical information. Experiments with web-search agents on four QA benchmarks and two model families show that Coca-Cola reduces the agent's token consumption by 70.01%-89.24% and end-to-end runtime by 24.45%-55.97%, while consistently improving task performance. These results suggest that Coca-Cola offers a promising approach for context compression in agents. Our code is available at https://github.com/THU-Agent/Coca-cola.",
+      "published": "2026-11-04T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06500",
+        "pdf": "https://arxiv.org/pdf/2611.06500"
+      },
+      "upvotes": 1,
+      "githubRepo": "https://github.com/THU-Agent/Coca-cola",
+      "githubStars": 3,
+      "numComments": 1,
+      "titleZh": "工具不必以文本发声：面向Agent的潜在上下文压缩",
+      "summaryZh": "LLM Agent通常把工具返回的原始观测直接拼接进上下文，经过多步交互后，冗长且嘈杂的观测会占用大量token，并分散模型对任务相关信息的注意力；已有的token剪枝与摘要方法受限于离散文本表示，压缩率难以提高。Coca-Cola把工具观测压缩成潜在token，并直接注入Agent的输入嵌入空间；同时引入Action-Preserving Training，对齐完整观测与压缩观测下Agent下一步动作的分布，使潜在token保留决策关键信息。在四个QA benchmark、两个模型族上进行的web-search agent实验显示，token消耗降低70.01%–89.24%，端到端运行时降低24.45%–55.97%，任务表现还稳定提升。",
+      "score": 8,
+      "reason": "Agent工具观测的潜在压缩，方法新颖、实测收益明显",
+      "deepDive": true
+    },
+    {
+      "id": "2611.06498",
+      "title": "Signed but Steerable: Measuring and Closing the Text-Vector Integrity Gap in Offline Retrieval-Augmented Generation",
+      "authors": [
+        "Georgios Feretzakis",
+        "Alexandros Papaspyridis"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Offline retrieval-augmented generation (RAG) on edge devices is updated through signed knowledge packs that carry text and precomputed embedding vectors. A signature proves who published a pack, not that its vectors encode its text. We study this text-vector integrity gap. A verifier that recomputes vectors and accepts them within a cosine tolerance concedes a predictable share of queries to an attacker who controls the vectors: the hijack rate equals the distribution of angular retrieval margins at the tolerance (the margin law). Margins are small in five corpora and two embedding models, so an idealised tolerance at the level of floating-point noise leaves up to 5.5% of queries exposed (at most 1.2% in any corpus once exact duplicate documents are excluded), and a threshold calibrated from our CPU INT8-FP32 comparison of a small embedding model (at the empirical 0.1% quantile of honest cosines) leaves 98-100% exposed; on a Raspberry Pi 5 running a local language model, such an attack lowers correct answers from 0.75 to 0.39. Integrity audits of compressed vector stores fare no better: on a FAISS product-quantisation index over 57,638 documents, tampered vectors that all pass the audit put the attacker's document first for 25% of targets. Verifying quantisation codes instead, with ambiguity decided by the verifier, a calibrated guard band and canonicalisation, accepted every honest vector in our samples on three platforms and left the publisher no choice. We also show that common floating-point and dynamic-INT8 inference pipelines are not bit-reproducible across batch sizes or architectures, and report pre-registered negative results on abstention, context pruning and semantic screening. We release code and data.",
+      "published": "2026-11-04T13:32:04.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.06498",
+        "pdf": "https://arxiv.org/pdf/2611.06498"
+      },
+      "upvotes": 1,
+      "githubRepo": "https://github.com/securagenai/signed-but-steerable",
+      "githubStars": 0,
+      "projectPage": "https://doi.org/10.5281/zenodo.23948839",
+      "numComments": 2,
+      "titleZh": "已签名但可被操纵：度量并弥合离线RAG中的文本—向量完整性缺口",
+      "summaryZh": "指出签名只能证明知识包发布者，不能保证嵌入向量忠实编码文本；攻击者控制向量时，可按检索角度边际的分布，在余弦容差内劫持查询（边际定律）。在五个语料、两个嵌入模型上测量该缺口，并提出校验量化码、由验证方裁定歧义、校准保护带与规范化的防御。理想化浮点噪声级容差仍使至多5.5%查询暴露，按实测阈值则暴露98%至100%；树莓派5本地模型正确率由0.75降至0.39，FAISS PQ索引中25%目标被攻击文档置顶，而新方案在三平台接受全部诚实向量。还报告浮点与动态INT8推理不可位级复现，以及弃答、上下文剪枝等预注册负结果，适用于离线RAG知识包与压缩向量库的完整性防护。",
+      "score": 5,
+      "reason": "RAG向量库完整性与量化审计，属系统安全擦边",
+      "deepDive": false
+    },
+    {
+      "id": "2610.41789",
+      "title": "Hard Sample-Conditioned Decorrelated Attention for Robust Face Recognition",
+      "authors": [
+        "Tahar Chettaoui",
+        "Guray Ozgur",
+        "Eduarda Caldeira",
+        "Naser Damer",
+        "Fadi Boutros"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Multi-head attention in Vision Transformers (ViTs) allows independent attention patterns across heads, but without explicit regularization, heads may learn redundant patterns rather than complementary roles. Correlation-based penalties encourage head disentanglement, yet apply uniform regularization across all training samples. In face recognition (FR), hard samples whose embeddings lie close to competing identities are critical for optimization and generalization. Motivated by this, we propose ViT-HarDis, which conditions attention head disentanglement on sample difficulty: samples with high cosine similarity to negative class centers receive stronger head decorrelation, enforcing specialization where identity ambiguity is highest. Experiments show improvements over both the baseline and uniform disentanglement on most benchmarks. Our analysis shows that ViT-HarDis reduces the similarity of hard samples to competing class centers while decreasing inter-head attention similarity, and that applying disentanglement only to the final transformer layers outperforms regularizing the entire network. Trained on WebFace4M, ViT-HarDis achieves SOTA results among ViT-based methods on IJB-B, IJB-C, and TinyFace Rank-1, while achieving the best IJB-B and TinyFace results when trained on MS1MV3, improving FR without architectural modifications or additional inference cost. Code: https://github.com/TaharChettaoui/Hard-Sample-Conditioned-Attention-for-FR.",
+      "published": "2026-10-30T14:21:43.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2610.41789",
+        "pdf": "https://arxiv.org/pdf/2610.41789"
+      },
+      "upvotes": 1,
+      "numComments": 3,
+      "titleZh": "硬样本条件化去相关注意力用于鲁棒人脸识别",
+      "summaryZh": "针对 ViT 多头注意力中各头易学出冗余模式的问题，现有相关性惩罚对所有样本施加均匀正则，未区分难易。ViT-HarDis 将头部去相关强度与样本难度挂钩：对与负类中心余弦相似度高的硬样本施加更强的头解耦约束，迫使注意力头在身份最易混淆处形成专门分工。分析显示，该方法降低硬样本与竞争类中心的相似度，并减少头间注意力相似性；仅在最后几层施加解耦优于全网正则。在 WebFace4M 上训练后，于 IJB-B、IJB-C、TinyFace Rank-1 取得 ViT 类方法 SOTA，在 MS1MV3 上取得最佳 IJB-B 与 TinyFace 结果，且不改变架构、不增加推理开销。",
+      "score": 2,
+      "reason": "人脸识别的 ViT 注意力正则，与 LLM 后训练/Agent 方向无交集",
+      "deepDive": false,
+      "relevant": false
+    }
+  ],
+  "arxiv": [],
+  "arxivStatus": "pending",
+  "generatedAt": "2026-11-07T08:47:10.332056+00:00"
+}
