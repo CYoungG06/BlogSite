@@ -11,6 +11,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "public/**",
     "next-env.d.ts",
+    // 非本项目源码:Python 虚拟环境里的第三方 JS、wrangler 本地状态
+    ".venv/**",
+    "**/.wrangler/**",
   ]),
 ]);
 
