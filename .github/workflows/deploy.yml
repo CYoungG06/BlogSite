@@ -5,10 +5,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# 部署 Pages 需要的权限
+# 部署 Pages 需要的权限;issues 用于部署失败时提醒
 permissions:
+  contents: read
   pages: write
   id-token: write
+  issues: write
 
 # 同一时刻只允许一次部署,新的 push 取消进行中的运行
 concurrency:
@@ -33,13 +35,13 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -55,11 +57,53 @@ jobs:
       - name: Add .nojekyll
         run: touch out/.nojekyll
 
+      # v4 起默认不打包点文件;显式打开,否则上一步的 .nojekyll 进不了产物
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: out
+          include-hidden-files: true
 
+      # deploy-pages 偶发 "Timeout reached, aborting!"(Pages 侧抖动,产物本身没问题):
+      # 首次失败不立刻判死,用同一份产物重试一次
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      - name: Retry deploy
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v5
+
+      # 部署失败此前没有任何提醒(论文速递会静默停在旧版本)。
+      # 与 Daily Papers 同一套做法:只保留一个未关闭的失败 Issue,成功后自动关闭。
+      - name: Report failure in issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          BODY="Deploy to GitHub Pages 运行失败,线上仍是上一个版本,请查看日志:$RUN_URL"$'\n\n'"时间(UTC):$(date -u +'%F %T')"
+          OPEN=$(gh issue list --state open --limit 200 --json number,title \
+            --jq '[.[] | select(.title | startswith("Deploy 失败"))][0].number // empty')
+          if [ -n "$OPEN" ]; then
+            gh issue comment "$OPEN" --body "$BODY"
+          else
+            gh issue create --title "Deploy 失败:$(date -u +%F)" --body "$BODY" --assignee "$OWNER"
+          fi
+
+      - name: Close resolved failure issues
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue list --state open --limit 200 --json number,title \
+            --jq '.[] | select(.title | startswith("Deploy 失败")) | .number' |
+          while IFS= read -r NUMBER; do
+            gh issue close "$NUMBER" --comment "已恢复:$RUN_URL 部署成功,自动关闭。"
+          done

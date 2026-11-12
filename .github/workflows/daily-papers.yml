@@ -5,7 +5,8 @@ name: Daily Papers
 # - 下午 08:17 UTC(北京 16:17):补全 arXiv,回查最近 14 天缺失或未完成的速递
 # 周末公告/入库延迟记为待更新;来源异常保留旧数据,可用部分照常发布后报错。
 # 重抓会按 id 保留已有中文导读;有新内容时显式 dispatch Deploy 上线;
-# 任一步骤失败自动开 Issue 提醒。
+# 任一步骤失败用 Issue 提醒(同一时间只保留一个未关闭的失败 Issue,后续失败追加评论);
+# 含 arXiv 的一轮成功后自动关闭。
 on:
   schedule:
     - cron: "17 2 * * *"
@@ -31,10 +32,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -107,14 +108,37 @@ jobs:
         if: steps.fetch.outcome == 'failure'
         run: exit 1
 
-      # 任一步骤失败时开 Issue 提醒(成功信号 = bot 的 content 提交本身)
-      - name: Open issue on failure
+      # 任一步骤失败时提醒(成功信号 = bot 的 content 提交本身)。
+      # 已有未关闭的失败 Issue 就追加评论,没有才新开:连续多天失败也只有一个 Issue。
+      - name: Report failure in issue
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          DIGEST_DATE: ${{ steps.d.outputs.date || 'unknown' }}
+          OWNER: ${{ github.repository_owner }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          gh issue create \
-            --title "Daily Papers 失败:${{ steps.d.outputs.date || 'unknown' }}" \
-            --body "每日论文抓取 workflow 运行失败,请查看日志:$RUN_URL"$'\n\n'"时间(UTC):$(date -u +'%F %T')" \
-            --assignee "${{ github.repository_owner }}"
+          BODY="每日论文抓取 workflow 运行失败($DIGEST_DATE),请查看日志:$RUN_URL"$'\n\n'"时间(UTC):$(date -u +'%F %T')"
+          OPEN=$(gh issue list --state open --limit 200 --json number,title \
+            --jq '[.[] | select(.title | startswith("Daily Papers 失败"))][0].number // empty')
+          if [ -n "$OPEN" ]; then
+            gh issue comment "$OPEN" --body "$BODY"
+          else
+            gh issue create --title "Daily Papers 失败:$DIGEST_DATE" --body "$BODY" --assignee "$OWNER"
+          fi
+
+      # 恢复后自动关闭遗留的失败 Issue。早班只抓 HF,它成功不代表 arXiv 已恢复,
+      # 所以只在含 arXiv 的一轮(午班 / 手动触发)成功后才关。
+      - name: Close resolved failure issues
+        if: success() && github.event.schedule != '17 2 * * *'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue list --state open --limit 200 --json number,title \
+            --jq '.[] | select(.title | startswith("Daily Papers 失败")) | .number' |
+          while IFS= read -r NUMBER; do
+            gh issue close "$NUMBER" --comment "已恢复:$RUN_URL 运行成功,自动关闭。"
+          done

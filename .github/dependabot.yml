@@ -1,0 +1,23 @@
+# 每月一次、每类合并成一个 PR:维护是隔一阵集中做的,不需要每周一堆零散 PR。
+# PR 会跑 .github/workflows/ci.yml(lint / typecheck / 测试 / 构建),绿了再合。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    # 大版本升级(如 TypeScript 7、KaTeX 0.19)需要人工看变更说明,不自动提
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      npm:
+        patterns: ["*"]
