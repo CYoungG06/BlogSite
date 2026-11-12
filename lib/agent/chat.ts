@@ -1,5 +1,4 @@
-import { buildSuggestPrompt, buildSystemPrompt } from "./system";
-import { AGENT_TOOLS, executeTool, type ToolCallRecord } from "./tools";
+import { executeTool, type ToolCallRecord } from "./tools";
 
 /**
  * Agent 对话循环:
@@ -11,6 +10,10 @@ import { AGENT_TOOLS, executeTool, type ToolCallRecord } from "./tools";
  * 深度调研模式(deep):更多工具轮数、更长输出、调研者 prompt;
  * 工具轮数用满后补一轮「无工具」请求强制模型给结论,不烂尾。
  * 最终回答产出后,再发一次轻量请求生成 3 条追问建议。
+ *
+ * system prompt 与 tools schema 都由 Worker 在服务端注入(见 ./system.ts、
+ * ./tool-schemas.ts,Worker 直接 import 同一份源码):客户端只上报
+ * kind/locale/currentPath/deep 这几个受校验的提示字段和对话消息。
  */
 
 const NORMAL_LIMITS = { rounds: 8, history: 10, maxTokens: 4096 };
@@ -28,7 +31,7 @@ interface ApiToolCall {
 }
 
 type ApiMessage =
-  | { role: "system" | "user"; content: string }
+  | { role: "user"; content: string }
   | { role: "assistant"; content: string | null; tool_calls?: ApiToolCall[] }
   | { role: "tool"; tool_call_id: string; content: string };
 
@@ -62,23 +65,37 @@ export type AgentPart =
   | { type: "text"; content: string }
   | { type: "tool"; call: ToolCallRecord };
 
+/** Worker 据此在服务端组装 system prompt 与 tools(字段含义见 worker/agent-proxy/README.md) */
+interface RoundContext {
+  /** chat = 站点助手对话;suggest = 追问建议生成(无工具) */
+  kind: "chat" | "suggest";
+  locale: string;
+  currentPath?: string;
+  deep?: boolean;
+  /** 仅 chat:false = 本轮不给工具,强制模型直接作答 */
+  withTools?: boolean;
+  maxTokens: number;
+}
+
 /** 解析一路 SSE 流,返回累积的 content 与 tool_calls;content delta 通过 onDelta 实时上抛 */
 async function fetchRound(
   apiUrl: string,
   messages: ApiMessage[],
   signal: AbortSignal,
   onDelta: (content: string) => void,
-  options: { maxTokens: number; withTools?: boolean },
+  context: RoundContext,
 ): Promise<{ content: string; toolCalls: ApiToolCall[] }> {
   const res = await fetch(apiUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "deepseek-v4-flash",
+      kind: context.kind,
+      locale: context.locale,
+      currentPath: context.currentPath,
+      deep: context.deep === true,
+      tools: context.withTools !== false,
       messages,
-      tools: options.withTools === false ? undefined : AGENT_TOOLS,
-      stream: true,
-      max_tokens: options.maxTokens,
+      max_tokens: context.maxTokens,
     }),
     signal,
   });
@@ -162,7 +179,6 @@ async function fetchSuggestions(
     const { content } = await fetchRound(
       apiUrl,
       [
-        { role: "system", content: buildSuggestPrompt(locale) },
         {
           role: "user",
           content: `问:${question.slice(0, 500)}\n答:${answer.slice(0, 1500)}`,
@@ -170,7 +186,7 @@ async function fetchSuggestions(
       ],
       signal,
       () => {},
-      { maxTokens: 512, withTools: false },
+      { kind: "suggest", locale, maxTokens: 512 },
     );
     // 优先按 JSON 数组解析,退化到按行解析(模型可能不老实输出纯 JSON)
     const match = content.match(/\[[\s\S]*\]/);
@@ -208,13 +224,7 @@ export async function runAgentTurn(options: {
 }): Promise<AgentTurnResult> {
   const { apiUrl, locale, signal, onParts } = options;
   const limits = options.deep ? DEEP_LIMITS : NORMAL_LIMITS;
-  const messages: ApiMessage[] = [
-    {
-      role: "system",
-      content: buildSystemPrompt(locale, options.currentPath, options.deep),
-    },
-    ...options.history.slice(-limits.history),
-  ];
+  const messages: ApiMessage[] = [...options.history.slice(-limits.history)];
   const records: ToolCallRecord[] = [];
   const parts: AgentPart[] = [];
   const emit = () => onParts([...parts]);
@@ -237,7 +247,14 @@ export async function runAgentTurn(options: {
         }
         emit();
       },
-      { maxTokens: limits.maxTokens, withTools },
+      {
+        kind: "chat",
+        locale,
+        currentPath: options.currentPath,
+        deep: options.deep,
+        withTools,
+        maxTokens: limits.maxTokens,
+      },
     );
     accumulated = joinRounds(accumulated, result.content);
     return result;
