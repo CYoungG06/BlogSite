@@ -42,8 +42,8 @@
 
 | 命令 | 作用 |
 |---|---|
-| `npm run dev` | 先重建搜索索引,再 `next dev --turbopack`(默认 3000 端口) |
-| `npm run build` | 先重建搜索索引,再静态导出到 `out/` |
+| `npm run dev` | 先跑生成脚本(搜索索引 / RSS / 论文 API / 助手 API),再 `next dev --turbopack`(默认 3000 端口) |
+| `npm run build` | 同上并额外生成 Markdown 导出,再静态导出到 `out/` |
 | `npm run lint` / `npm run typecheck` | ESLint / `tsc --noEmit`,提交前必过 |
 | `npm run new-post` | 交互式生成新文章模板(frontmatter 自动填好) |
 | `npm run search:index` | 手动重建搜索索引(一般不用,dev/build 会自动跑) |
@@ -57,8 +57,8 @@
 | `NEXT_PUBLIC_BASE_PATH` | 子路径部署时设为 `/仓库名`;用户主页/自定义域名留空 |
 | `NEXT_PUBLIC_IMAGE_BASE_URL` | 文章图片走 OSS 图床时的 CDN 前缀 |
 | `NEXT_PUBLIC_GISCUS_REPO` / `_REPO_ID` / `_CATEGORY` / `_CATEGORY_ID` | 友链页 Giscus 评论;不配则显示配置引导面板 |
-| `NEXT_PUBLIC_DEPLOY_TARGET` | `vercel`(默认)/ `gh-pages`,控制是否注入 Vercel Analytics |
 | `NEXT_PUBLIC_UMAMI_WEBSITE_ID` / `NEXT_PUBLIC_UMAMI_SCRIPT_URL` | Umami 统计(不配不注入) |
+| `NEXT_PUBLIC_AGENT_API` | AI 助手与访客统计的 Cloudflare Worker 地址(不配则助手与统计都不渲染,见 `worker/agent-proxy/`) |
 
 ## 2. 设计 Token 层(全站唯一事实源)
 
@@ -257,9 +257,14 @@ rehype:    rehype-slug                             # 标题 id(TOC 依赖)
 content/
   blog/{zh,en}/*.md(x)      # frontmatter: title(必)/date(必)/description/tags/draft
   notes/{zh,en}/*.md(x)     # 同上,另有 preview(description 或正文首段 160 字)
+  distilled/{zh,en}/*.md(x) # 转载翻译(「蒸馏」),frontmatter 多一个 source
+  reading/{zh,en}/*.md(x)   # 论文精读
   projects/*.mdx            # 单文件双语(title/description 可为 {zh,en} map),featured 置顶
+  research/                 # 研究条目(research.json + 详情 mdx)
+  papers/YYYY-MM-DD.json    # 每日论文速递,由 GitHub Actions 自动生成并提交
+  insights/<arxivId>.md     # 论文深度解读,通过 arXiv id 关联速递卡片
   about/{zh,en}.mdx
-  friends.json
+  friends.json  music.json
 ```
 
 - `draft: true` 仅 dev 可见;列表按日期倒序;缺 locale 时回退默认语言并显示降级提示。
@@ -267,7 +272,7 @@ content/
 
 ### 6.3 搜索
 
-- 构建脚本扫描 `content/{blog,notes}/{locale}/`,剥 markdown,MiniSearch 建索引
+- 构建脚本扫描 `content/{blog,notes,distilled,reading}/{locale}/`,剥 markdown,MiniSearch 建索引
   (CJK bigram 分词),写 `public/search-index/{zh,en}.json`(gitignore)。
 - `npm run build`/`dev` 前置自动重建;客户端 `loadJSON` + `prefix: true, fuzzy: 0.15, combineWith: 'AND'`,上限 20 条。
 
@@ -280,11 +285,12 @@ content/
 
 ## 7. 部署模型
 
-- 两分支:`main`(Vercel,`localePrefix: as-needed` + middleware)与
-  `gh-pages`(静态导出:`output: 'export'`、`trailingSlash: true`、`images.unoptimized`、`basePath` 由 env 驱动)。
-  约 11 个配置类文件分支独立,**内容/组件/样式改动 cherry-pick 同步,不整支 merge**。
-- CI:push 到 `gh-pages` → `npm ci && npm run build`(自动先建搜索索引)→ `out/` 上传 Pages。
-  环境变量(Giscus、Umami、basePath)放 GitHub Repository Variables。
+- 单分支 `main`,纯静态导出:`output: 'export'`、`trailingSlash: true`、`images.unoptimized`、
+  `basePath` 由 env 驱动,发布到 GitHub Pages。(早期的 Vercel + `gh-pages` 双分支模型已废弃。)
+- CI:push 到 `main` → `npm ci && npm run build`(前置自动跑各生成脚本)→ `out/` 上传 Pages。
+  环境变量(Giscus、Umami、basePath、助手 Worker 地址)放 GitHub Repository Variables。
+- 论文速递由 `daily-papers.yml` 定时抓取、生成中文导读并提交到 `main`,有新内容时触发上面的部署。
+- AI 助手的 DeepSeek 代理与访客统计是独立的 Cloudflare Worker(`worker/agent-proxy/`),手动部署。
 - 日常更新 = 写文章(`npm run new-post`)→ 本地 `npm run build` 验证 → push。
 
 ## 8. 复刻步骤清单

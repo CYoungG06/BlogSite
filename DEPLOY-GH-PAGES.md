@@ -16,16 +16,19 @@
 
 - **Source 选 `GitHub Actions`**(不要选 `Deploy from a branch`)。
 
-选完之后不需要再配任何东西;`actions/deploy-pages@v4` 会负责发布。
+选完之后不需要再配任何东西;workflow 里的 `actions/deploy-pages` 会负责发布。
 
 ## 2. 触发方式
 
-workflow 在两种情况下运行:
+workflow 在三种情况下运行:
 
 - `git push` 到 `main` 分支;
+- **Daily Papers** workflow 提交了新的论文速递之后(它用 `GITHUB_TOKEN` 推送,不会触发 push 事件,所以显式 dispatch);
 - 手动触发:Actions → **Deploy to GitHub Pages** → **Run workflow**(改了 Variables 之后用这招重跑)。
 
-每次运行做四件事:`npm ci` → `npm run build`(前置自动重建搜索索引)→ 给 `out/` 加 `.nojekyll` → 上传并部署。
+每次运行做四件事:`npm ci` → `npm run build`(前置自动跑搜索索引等生成脚本)→ 给 `out/` 加 `.nojekyll` → 上传并部署。
+部署这一步偶尔会因 Pages 侧超时失败,workflow 会用同一份产物自动重试一次;仍失败则开一个
+标题以「Deploy 失败」开头的 Issue(线上保持上一个版本),下次部署成功后自动关闭。
 
 ## 3. Repository Variables 配置
 
@@ -44,6 +47,10 @@ workflow 在两种情况下运行:
 | `NEXT_PUBLIC_GISCUS_CATEGORY_ID` | Giscus 分类 ID | 同上 |
 | `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Umami 站点 ID | 要接 Umami 统计才配 |
 | `NEXT_PUBLIC_UMAMI_SCRIPT_URL` | Umami 脚本地址 | 同上,自托管时填自己的脚本 URL |
+| `NEXT_PUBLIC_AGENT_API` | AI 助手与访客统计的 Worker 地址 | 部署了 `worker/agent-proxy/` 才配;不配则助手和页脚统计都不渲染 |
+
+另有一个 **Secret**(不是 Variable):`DEEPSEEK_API_KEY`,只给 Daily Papers workflow 生成中文导读用,
+与站点构建无关;没配时速递照常发布,只是没有导读。
 
 ## 4. 首次 push 后验证
 

@@ -1,7 +1,7 @@
 # 维护手册
 
 本文档覆盖在新机器上接续维护博客需要的全部步骤,以及日常工作流。
-配合 `REQUIREMENTS.md`(需求与架构)和 `DEPLOY-GH-PAGES.md`(GH Pages 部署)阅读。
+配合 `DESIGN.md`(设计系统与架构)和 `DEPLOY-GH-PAGES.md`(GitHub Pages 部署)阅读。
 
 ---
 
@@ -57,7 +57,7 @@ npm install --registry=https://your-internal-mirror.example.com
 
 ```bash
 npm run dev
-# 打开 http://localhost:3000 (main 分支会自动跳到 /zh)
+# 打开 http://localhost:3000 (根路径按浏览器语言跳到 /zh/ 或 /en/)
 ```
 
 ---
@@ -118,18 +118,26 @@ content/blog/en/my-slug.md     # 英文版(可选)
 ### 2.6 全文搜索
 
 - 索引在 build 时自动生成到 `public/search-index/{locale}.json`(已加 `.gitignore`)
-- 改了文章后,`npm run dev` 会重新生成索引
+- 覆盖 blog / notes / distilled / reading 四个集合;改了文章后,`npm run dev` 会重新生成索引
 - 也可以单独跑:`npm run search:index`
 - 搜索逻辑:中文 bigram + 英文按词,见 `lib/search/tokenize.ts`
 
 ### 2.7 build & 预览生产构建
 
 ```bash
-npm run build           # 自动先跑 search:index,然后 next build
-npm run start           # main 分支:本地起 Node 服务器
-# gh-pages 分支:
-npx serve out -p 3000   # build 输出 ./out,用静态服务器跑
+npm run build           # 先跑一串生成脚本,再 next build 静态导出到 ./out
+npm run preview         # npx serve out -l 3000,本地看生产产物
 ```
+
+`build`(和 `dev`)前置的生成脚本,产物全部在 `public/` 下且**已被 `.gitignore` 忽略,不要提交**:
+
+| 脚本 | 产物 | 用途 |
+|---|---|---|
+| `search:index` | `public/search-index/` | 站内搜索索引 |
+| `feed` | `public/feed.xml` | 论文速递 RSS |
+| `api` | `public/api/papers/` | 论文速递静态 JSON API(含 AI 助手用的 `all.json`) |
+| `agent:api` | `public/api/agent/` | AI 助手读取的站点地图与文章正文 |
+| `export:files`(仅 build) | `public/export/` | 文章与速递的 Markdown 导出 |
 
 ### 2.8 typecheck / lint
 
@@ -138,63 +146,54 @@ npm run typecheck       # tsc --noEmit
 npm run lint            # eslint
 ```
 
-提交前建议都跑一遍。
+提交前建议都跑一遍。PR 会由 `.github/workflows/ci.yml` 自动跑 lint / typecheck / 抓取脚本测试 / build。
+
+### 2.9 论文速递(自动,一般不用管)
+
+`.github/workflows/daily-papers.yml` 每天定时跑两班:早班只抓 Hugging Face 热门,午班补 arXiv
+并回查最近 14 天缺失或未完成的速递。流程是 `scripts/fetch-daily-papers.py` 抓取 →
+`scripts/summarize-digest.py` 调 DeepSeek 生成中文导读与兴趣评分 → bot 提交 `content/papers/` →
+触发部署。所以 **`main` 上每天都有 bot 提交,本地动手前先 `git pull`**。
+
+- 评分依据是 `scripts/interest-profile.md`(兴趣画像),误判的方向直接改这个文件。
+- 需要仓库 Secret `DEEPSEEK_API_KEY`;没配时只是没有中文导读,不影响发布。
+- 失败会开(或追加评论到)一个标题以「Daily Papers 失败」开头的 Issue,恢复后自动关闭。
+- 手动补某一天:Actions → **Daily Papers** → Run workflow,填日期;或本地
+  `python3 scripts/fetch-daily-papers.py --date 2026-07-20 && python3 scripts/summarize-digest.py 2026-07-20`。
+- 抓取脚本的测试:`python3 -B -m unittest discover -s scripts -p 'test_fetch_daily_papers.py'`。
+
+### 2.10 AI 助手与访客统计(Cloudflare Worker)
+
+右下角助手和页脚 PV/UV 走 `worker/agent-proxy/` 这个 Worker,**它不随站点部署,需要单独
+`npx wrangler deploy`**。系统提示词(`lib/agent/system.ts`)和工具定义(`lib/agent/tool-schemas.ts`)
+是打进 Worker 的,改了它们要重新部署 Worker。接口、预算与发布顺序见 `worker/agent-proxy/README.md`。
 
 ---
 
 ## 3. 分支模型
 
-| 分支 | 用途 | 部署目标 |
-|---|---|---|
-| `main` | Vercel-ready,有 middleware,`localePrefix: as-needed` | Vercel |
-| `gh-pages` | 静态导出,无 middleware,`localePrefix: always` | GitHub Pages |
+只有一个长期分支 `main`:纯静态导出(`output: 'export'`、`localePrefix: always`、无 middleware),
+push 即由 GitHub Actions 构建并发布到 GitHub Pages。早期的「`main` 走 Vercel + `gh-pages` 走静态导出」
+双分支模型已经废弃,不存在 `gh-pages` 分支,也不需要任何 cherry-pick 同步。
 
-**两个分支的内容是 99% 重叠的**,只有 11 个文件不同(配置 / 入口 / Analytics / 部署文件)。
-日常写文章/调样式都在 main 做,然后看是否需要 cherry-pick 到 gh-pages。
-
-**同步策略**(把 main 的文章/组件改动带到 gh-pages):
-
-```bash
-git checkout gh-pages
-
-# A. 单文件 cherry-pick(推荐 — 精准)
-git checkout main -- content/blog/zh/new-post.md
-git commit -m "content: 同步 main 的新文章"
-
-# B. 整批 cherry-pick(从 main 的某个 commit)
-git cherry-pick <main-commit-sha>
-# 如果 commit 同时改了配置类文件,可能会有冲突,挑你要的 hunks
-
-# C. 直接 merge(只在你已合并并解决冲突时用)
-# 不推荐 — 容易把 main 的 next.config.ts / i18n/routing.ts 也带过来
-```
+- 人工改动:直接在 `main` 上提交,或开分支走 PR(PR 会跑 CI)。
+- 自动改动:`github-actions[bot]` 每天向 `main` 提交 `content/papers/`(见 §2.9)。
 
 **绝对不要做的事**:
-- ❌ 在 gh-pages 上直接改 `next.config.ts` / `i18n/routing.ts` / `proxy.ts` 等差异文件并 merge 回 main
 - ❌ 修改 `.npmrc` 把 registry 换成内部 mirror 然后提交
-- ❌ 把 `.env.local` 提交(`.gitignore` 已挡住,但 `git add -f` 仍能突破)
+- ❌ 把 `.env` / `.env.local` 提交(`.gitignore` 已挡住,但 `git add -f` 仍能突破)
+- ❌ 提交 `public/` 下的构建产物(search-index / feed.xml / api / export,见 §2.7)
 
 ---
 
 ## 4. 部署
 
-| 部署 | 文档 |
-|---|---|
-| Vercel(main 分支) | 见 4.1 |
-| GitHub Pages(gh-pages 分支) | 见 `DEPLOY-GH-PAGES.md` |
+| 部署对象 | 触发方式 | 文档 |
+|---|---|---|
+| 站点(GitHub Pages) | push 到 `main`、Daily Papers 有新内容时、手动 Run workflow | `DEPLOY-GH-PAGES.md` |
+| AI 助手代理 + 访客统计(Cloudflare Worker) | 手动 `npx wrangler deploy` | `worker/agent-proxy/README.md` |
 
-### 4.1 Vercel(main 分支)
-
-1. 去 [vercel.com/new](https://vercel.com/new) → Import Project → 选这个 repo
-2. Framework Preset 自动识别 Next.js,不用改任何配置
-3. Environment Variables 标签按需填(全部 `NEXT_PUBLIC_*` 都是公开变量):
-   - `NEXT_PUBLIC_SITE_URL` — 部署后再填回完整 URL
-   - `NEXT_PUBLIC_GISCUS_*` (4 个,可选)
-   - `NEXT_PUBLIC_UMAMI_*` (可选)
-4. Deploy → 拿到 `xxx.vercel.app` 临时域名
-
-之后每次 `git push origin main` 都会自动重新部署。
-开 PR 会自动出 Preview 部署。
+站点部署失败会自动重试一次,仍失败则开一个标题以「Deploy 失败」开头的 Issue,下次成功后自动关闭。
 
 ---
 
@@ -258,73 +257,69 @@ git commit --amend --reset-author --no-edit         # 改最近一个 commit 的
 ```
 BlogSite/
 ├── README.md
-├── REQUIREMENTS.md          # 需求与方案文档
 ├── DEVELOPMENT.md           # 本文档 — 维护手册
 ├── DESIGN.md                # 设计规格文档(设计系统 + 复刻指南)
-├── DEPLOY-GH-PAGES.md       # GitHub Pages 部署说明(仅 gh-pages 分支)
+├── DEPLOY-GH-PAGES.md       # GitHub Pages 部署说明
 ├── .npmrc                   # ⚠️ 锁公共 registry
-├── .env.local.example       # 环境变量模板
-├── .github/workflows/       # CI(仅 gh-pages 分支)
+├── .env.example             # 环境变量模板(复制为 .env.local)
+├── .github/
+│   ├── workflows/           # deploy.yml / daily-papers.yml / ci.yml
+│   └── dependabot.yml       # 每月一次的依赖升级 PR
 │
 ├── app/
 │   ├── (root)/              # 根路径重定向(独立最小 root layout)
 │   ├── not-found.tsx        # 全站 404(自带 <html>/<body>)
 │   └── [locale]/            # 多语言路由
-│       ├── layout.tsx
-│       ├── page.tsx         # 首页
-│       ├── blog/            # 文章列表 + [slug] 详情
-│       ├── notes/           # 笔记列表 + [slug] 详情
-│       ├── projects/        # 项目卡片 + [slug] 详情(可选)
-│       ├── about/page.tsx
-│       ├── friends/page.tsx # 友链 + Giscus
-│       └── search/page.tsx
+│       ├── layout.tsx / page.tsx        # 全站壳 / 首页
+│       ├── blog/ notes/ distilled/ reading/   # 列表 + [slug] 详情
+│       ├── papers/          # 速递归档 + [date] 单日 + insights/[id] 深度解读
+│       ├── research/ projects/          # 列表 + [slug] 详情
+│       └── about/ friends/ music/ search/
 │
 ├── components/
 │   ├── layout/              # Header / HeaderBar / NavLinks / MobileNav / Footer / Container / PageHeader
-│   ├── blog/                # PostCard / FallbackNotice
-│   ├── notes/               # NoteCard
-│   ├── projects/            # ProjectCard
-│   ├── mdx/                 # BlogImage / MDXComponents / MDXContent / CodeBlock / TableOfContents
+│   ├── agent/               # AI 助手:悬浮窗、对话渲染、划词提问、每日简报
+│   ├── papers/              # PaperCard / DigestToc
+│   ├── blog/ notes/ projects/           # 各集合的卡片
+│   ├── mdx/                 # BlogImage / MDXComponents / MDXContent / CodeBlock / Lightbox / TableOfContents
 │   ├── search/              # use-search hook / HeaderSearch / SearchClient
-│   ├── Analytics.tsx / Giscus.tsx / MouseSpotlight.tsx
-│   ├── ThemeProvider.tsx / ThemeToggle.tsx
-│   └── LanguageToggle.tsx
+│   └── ArticleDetail / CiteBlock / ExportButtons / SiteStats / PvBeacon / Analytics / Giscus / Theme* ...
 │
 ├── lib/
-│   ├── content-loader.ts    # MDX 文件扫描/解析底层
-│   ├── posts.ts / notes.ts / projects.ts
-│   ├── friends.ts / giscus.ts
-│   ├── mdx.ts               # MDX 编译选项(Shiki/GFM/CJK 强调/KaTeX/锚点)
-│   ├── markdown.ts          # stripMarkdown / firstParagraphPreview / extractHeadings
-│   ├── images.ts            # 图床抽象
-│   ├── format.ts            # 本地化日期
-│   └── search/tokenize.ts   # 中英混合分词器
+│   ├── content-loader.ts / collection.ts   # MDX 扫描解析;locale 回退、草稿过滤
+│   ├── posts.ts / notes.ts / distilled.ts / reading.ts / projects.ts / research.ts
+│   ├── papers.ts / insights.ts          # 论文速递与深度解读数据层
+│   ├── agent/               # chat.ts(对话循环)/ tools.ts(工具执行)/ tool-schemas.ts / system.ts(后两者被 Worker 引用)
+│   ├── analytics/pv.ts      # PV 打点
+│   ├── mdx.ts / markdown.ts / images.ts / format.ts
+│   └── search/              # tokenize.ts(中英混合分词)/ load-index.ts
 │
-├── i18n/
-│   ├── routing.ts           # locale 配置 + assertLocale
-│   ├── request.ts           # next-intl 服务端配置
-│   └── navigation.ts        # 多语言感知 Link/Router
-│
-├── messages/                # i18n 文案 — zh.json / en.json
+├── i18n/                    # routing.ts / request.ts / navigation.ts
+├── messages/                # i18n 文案 — zh.json / en.json(key 严格对齐)
 │
 ├── content/                 # 所有内容
-│   ├── blog/{zh,en}/*.mdx
-│   ├── blog/_template.md.example
-│   ├── notes/{zh,en}/*.mdx
-│   ├── projects/*.mdx
-│   ├── about/{zh,en}.mdx
-│   └── friends.json
+│   ├── blog/ notes/ distilled/ reading/   # {zh,en}/*.md(x)
+│   ├── papers/*.json        # 每日速递(bot 生成)
+│   ├── insights/*.md        # 论文深度解读,文件名 = arXiv id
+│   ├── projects/*.mdx  research/  about/{zh,en}.mdx
+│   └── friends.json  music.json
 │
 ├── scripts/
 │   ├── new-post.mjs         # npm run new-post
-│   ├── build-search-index.mjs
-│   └── migrate-old-blog.mjs # 一次性:旧 Hexo 站文章迁移(search.xml → MDX)
+│   ├── build-search-index.mjs / generate-feed.mjs / generate-papers-api.mjs
+│   ├── generate-agent-api.mjs / generate-export.mjs     # 以上均为 build 前置,见 §2.7
+│   ├── fetch-daily-papers.py / summarize-digest.py / interest-profile.md   # 论文速递管线
+│   ├── test_fetch_daily_papers.py
+│   ├── generate-*-figures.py            # 个别文章的配图脚本(matplotlib,用 .venv)
+│   └── migrate-old-blog.mjs # 一次性:旧 Hexo 站文章迁移
 │
+├── worker/agent-proxy/      # Cloudflare Worker:DeepSeek 代理 + PV/UV(单独部署)
+├── skills/                  # 给 AI agent 用的论文检索 skill 源码
 ├── public/
-│   ├── images/              # 本地图床(含迁移文章的 images/harness/)
-│   └── search-index/        # build 产物,.gitignore 已忽略
+│   ├── images/  research/   # 本地图床与附件
+│   ├── papers-skill/  llms.txt          # 对外公开的 skill 与 llms.txt
+│   └── search-index/ api/ export/ feed.xml   # build 产物,.gitignore 已忽略
 │
-├── proxy.ts                 # next-intl middleware(仅 main 分支)
 └── next.config.ts
 ```
 
@@ -343,9 +338,17 @@ npm update
 npx npm-check-updates -u
 npm install
 
-# 跑测试套件(暂时只有 typecheck + lint + build)
+# 安全漏洞:先看,再修不破坏兼容的那部分
+npm audit
+npm audit fix
+
+# 验证
 npm run typecheck && npm run lint && npm run build
+python3 -B -m unittest discover -s scripts -p 'test_fetch_daily_papers.py'
 ```
+
+Dependabot 每月会各提一个 PR(npm 的非大版本升级、GitHub Actions 版本),CI 绿了即可合;
+大版本升级不会自动提,需要按上面的流程手动做。
 
 特别关注:
 - **next-intl** — 接口偶尔有 break(metadata 内 setRequestLocale 等)
