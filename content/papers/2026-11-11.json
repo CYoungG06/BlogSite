@@ -7,30 +7,6 @@
   ],
   "hf": [
     {
-      "id": "2611.14210",
-      "title": "Tree-Ising: Repairing Language Models with Bit-Level Ising Edits",
-      "authors": [
-        "Hadi Salloum",
-        "Ammar Ali"
-      ],
-      "authorsTotal": 2,
-      "abstract": "Weight-space programming, introduced in recent MIT work by Takehi et al., enables a frontier LLM agent to read a network's weights and write a repair. Their GPT-6 Astra agent corrected the reasoning loops of Qwen3.5-0.8B without gradients, using 158 agent turns, 89.7 million tokens, and 50 forward-pass requests. Our method, Tree-Ising, casts this repair as a sparse discrete optimization problem over the model's own BF16 weights. Forward statistics define an objective that weakens a loop direction, strengthens a concluding direction, and preserves the layer's output on productive tokens. Within a state-tree representation, where lossless BF16 storage acts as a special case, the admissible edits are sign flips and exponent shifts that preserve all shared group exponents and mantissas. We decompose this objective exactly into independent QUBO (Ising) problems, one per output row, which we solve on a GPU using simulated annealing or quantum-inspired simulated bifurcation. On the agent's two layers, Tree-Ising achieves 54.6% on MATH-500, outperforming the agent's edit (51.7%) under the same evaluation protocol, while the base model scores 7.9% as reported. The simulated bifurcation solver yields a statistically indistinguishable repair at 55.1%. Both solvers outperform the agent edit across all five math benchmarks, with statistically significant improvements on MATH-500 and GSM8K after correcting for multiple comparisons. Our approach modifies 13% to 17% fewer weights and reduces BF16 bit flips by a factor of 2.2 to 2.3. It requires only four forward-pass requests and zero LLM tokens, with the annealing recipe costing about $0.90 in GPU time. On Qwen3.5-2B, with layers and dose selected using only the base model, the same recipe increases greedy GSM8K accuracy from 21.6% to 69.4%. As a proof of concept, we execute an eight-variable repair subproblem using QAOA on an IBM Heron processor.",
-      "published": "2026-11-10T00:00:00.000Z",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.14210",
-        "pdf": "https://arxiv.org/pdf/2611.14210"
-      },
-      "upvotes": 84,
-      "githubRepo": "https://github.com/TheQuantumGOAT/Tree-Ising",
-      "githubStars": 5,
-      "numComments": 2,
-      "titleZh": "Tree-Ising:用位级 Ising 编辑修复语言模型",
-      "summaryZh": "无需梯度，直接改写模型权重即可修复推理缺陷:把修复建模为 BF16 权重上的稀疏离散优化，并用前向统计构造目标:削弱循环方向、强化收尾方向，同时保持有效 token 上的层输出不变。方法在 state-tree 表示下只允许符号翻转与指数移位，并把目标精确分解为每输出行独立的 QUBO(Ising)问题，再在 GPU 上用模拟退火或量子启发模拟分岔求解。在 Qwen3.5-0.8B 上 MATH-500 达 54.6%，高于 agent 编辑的 51.7%(原始模型 7.9%)，改动权重少 13%~17%、BF16 位翻转少 2.2~2.3 倍，仅需 4 次前向、零 LLM token;同一配方把 2B 模型 GSM8K 贪心准确率从 21.6% 提到 69.4%。",
-      "score": 7,
-      "reason": "权重空间无梯度修复的新范式，方法扎实但模型规模偏小",
-      "deepDive": false
-    },
-    {
       "id": "2611.14033",
       "title": "Few-Step Streaming Video Generation via Condition Shifting",
       "authors": [
@@ -48,43 +24,13 @@
         "abs": "https://arxiv.org/abs/2611.14033",
         "pdf": "https://arxiv.org/pdf/2611.14033"
       },
-      "upvotes": 84,
+      "upvotes": 85,
       "projectPage": "https://www.vidu.com/vidu-stream/avatar",
       "numComments": 2,
       "titleZh": "通过条件偏移实现少步流式视频生成",
       "summaryZh": "针对少步流式视频生成中分布匹配蒸馏（DMD）依赖独立伪评分网络、带来额外训练显存与算力开销且需持续跟踪生成器演化的问题，将 APEX 扩展到流式视频：用条件偏移在生成器内部估计生成分布的速度场，原始文本条件负责选择生成内容，偏移后的条件用同一套参数负责伪估计，从而去掉独立伪网络，同时保留参考教师、Self-Replay Forcing 与感知正则。在 180 秒视频上以每块三次骨干评估加一步空间 Refiner 评测，配合 70 例人类研究与 320 例 StreamAV-Bench 对比，指令遵循得分 3.856 对 3.831、视觉美观度 0.641898 对 0.632606 均优于 S2-Avatar，人类评分中指令遵循净偏好 +30.0%；匹配训练设置下每 GPU 峰值分配显存降低 4.4%、平均迭代时间缩短 9.2%。",
       "score": 2,
       "reason": "视频生成方向的蒸馏加速，属低分方向",
-      "deepDive": false,
-      "relevant": false
-    },
-    {
-      "id": "2611.12885",
-      "title": "World In-Context Learning for Agentic Robot Manipulation",
-      "authors": [
-        "Heng Fang",
-        "Zehui Guo",
-        "Yuehan Zhang",
-        "Mingyang Du",
-        "Dingkang Liang",
-        "Xiang Bai"
-      ],
-      "authorsTotal": 6,
-      "abstract": "Trained action policies write manipulation skill into network weights, tying what is learned to the distribution it is learned from. In-context learning (ICL) avoids this coupling but has not matched trained policies, because a demonstration recorded in another scene carries no feedback from the world the robot currently faces. We observe that what an agent learns in context is semantic, recording task steps and object roles rather than visual appearance, so experience gathered in one world transfers to another. Based on this insight, we propose World In-Context Learning (WICL), a paradigm in which a frozen model starts from a demonstration, rehearses the task in a world such as a simulator, and writes the feedback into its context rather than its weights. We build RoboScript, a modular infrastructure that implements WICL for agentic manipulation. From a single demonstration, RoboScript learns each task through rehearsal in simulation, freezes the learned knowledge as a Task Memory, and deploys the frozen memory on new scenes with data isolation that ensures every deployment input is available on a real robot. On all 50 tasks of RoboTwin 2.0, RoboScript reaches 83.4% mean success across clean and randomized settings with one demonstration per task and no gradient updates, exceeding the strongest trained action policy by over 20 points. The method generalizes across visual distributions, improves through reflection, scales with the foundation model, and transfers to a physical dual-arm robot through cross-embodiment memory adaptation. With a world in the loop, a robot can learn a manipulation task in its context as well as it learns one in its weights. All code is available at https://github.com/ArcheOne-AI/RoboScript",
-      "published": "2026-11-09T00:00:00.000Z",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.12885",
-        "pdf": "https://arxiv.org/pdf/2611.12885"
-      },
-      "upvotes": 66,
-      "githubRepo": "https://github.com/ArcheOne-AI/RoboScript",
-      "githubStars": 65,
-      "projectPage": "https://archeone-ai.github.io/RoboScript/",
-      "numComments": 3,
-      "titleZh": "世界上下文学习：面向智能体机器人操作",
-      "summaryZh": "针对训练式动作策略把操作技能写进网络权重、导致技能与训练分布强耦合的问题，提出 World In-Context Learning（WICL）范式：冻结模型从单条演示出发，在仿真等世界中反复演练任务，把环境反馈写入上下文而非权重，因为智能体在上下文中习得的是任务步骤与物体角色这类语义信息，而非视觉外观。配套的 RoboScript 基础设施将每个任务学到的知识固化为 Task Memory，并以数据隔离方式部署到新场景。在 RoboTwin 2.0 全部 50 个任务上，每任务仅一条演示且不做梯度更新，清洁与随机化设置平均成功率达 83.4%，超过最强训练式策略 20 分以上，并可通过跨具身记忆适配迁移到真实双臂机器人。",
-      "score": 3,
-      "reason": "机器人操作为低分方向，仅上下文学习与Agent记忆机制略有关联",
       "deepDive": false,
       "relevant": false
     },
@@ -104,7 +50,7 @@
         "abs": "https://arxiv.org/abs/2611.14320",
         "pdf": "https://arxiv.org/pdf/2611.14320"
       },
-      "upvotes": 58,
+      "upvotes": 60,
       "githubRepo": "https://github.com/yukyeongleee/wikitrace",
       "githubStars": 12,
       "projectPage": "https://yukyeongleee.github.io/wikitrace/",
@@ -113,6 +59,60 @@
       "summaryZh": "外部记忆让 LLM Agent 从历史轨迹中提炼经验，但也会带来「记忆引发的退化」:Agent 因盲信错误经验、误用或误读有效经验，反而在无记忆时能解的任务上失败，根源在于经验只带任务成败标签、却不附带其来源轨迹，Agent 无从核验。WikiTrace 将每条经验存为简短洞见，并链接到「该轨迹为何成功/失败」的摘要与原始轨迹;面对新任务时 Agent 先浏览全部洞见，一旦发现细节不足、彼此冲突或来自失败任务，就用终端工具沿链接下钻，补齐细节或修正经验后再行动。在五个 Agent 基准上，WikiTrace 稳定优于现有记忆方法与仅提供相同洞见的基线，同时降低了记忆引发的退化，为可核验的 Agent 记忆设计提供了可直接复用的方案。",
       "score": 7,
       "reason": "Agent 记忆机制改进，证据链可核验设计扎实，五基准验证",
+      "deepDive": false
+    },
+    {
+      "id": "2611.12885",
+      "title": "World In-Context Learning for Agentic Robot Manipulation",
+      "authors": [
+        "Heng Fang",
+        "Zehui Guo",
+        "Yuehan Zhang",
+        "Mingyang Du",
+        "Dingkang Liang",
+        "Xiang Bai"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Trained action policies write manipulation skill into network weights, tying what is learned to the distribution it is learned from. In-context learning (ICL) avoids this coupling but has not matched trained policies, because a demonstration recorded in another scene carries no feedback from the world the robot currently faces. We observe that what an agent learns in context is semantic, recording task steps and object roles rather than visual appearance, so experience gathered in one world transfers to another. Based on this insight, we propose World In-Context Learning (WICL), a paradigm in which a frozen model starts from a demonstration, rehearses the task in a world such as a simulator, and writes the feedback into its context rather than its weights. We build RoboScript, a modular infrastructure that implements WICL for agentic manipulation. From a single demonstration, RoboScript learns each task through rehearsal in simulation, freezes the learned knowledge as a Task Memory, and deploys the frozen memory on new scenes with data isolation that ensures every deployment input is available on a real robot. On all 50 tasks of RoboTwin 2.0, RoboScript reaches 83.4% mean success across clean and randomized settings with one demonstration per task and no gradient updates, exceeding the strongest trained action policy by over 20 points. The method generalizes across visual distributions, improves through reflection, scales with the foundation model, and transfers to a physical dual-arm robot through cross-embodiment memory adaptation. With a world in the loop, a robot can learn a manipulation task in its context as well as it learns one in its weights. All code is available at https://github.com/ArcheOne-AI/RoboScript",
+      "published": "2026-11-09T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.12885",
+        "pdf": "https://arxiv.org/pdf/2611.12885"
+      },
+      "upvotes": 55,
+      "githubRepo": "https://github.com/ArcheOne-AI/RoboScript",
+      "githubStars": 116,
+      "projectPage": "https://archeone-ai.github.io/RoboScript/",
+      "numComments": 3,
+      "titleZh": "世界上下文学习：面向智能体机器人操作",
+      "summaryZh": "针对训练式动作策略把操作技能写进网络权重、导致技能与训练分布强耦合的问题，提出 World In-Context Learning（WICL）范式：冻结模型从单条演示出发，在仿真等世界中反复演练任务，把环境反馈写入上下文而非权重，因为智能体在上下文中习得的是任务步骤与物体角色这类语义信息，而非视觉外观。配套的 RoboScript 基础设施将每个任务学到的知识固化为 Task Memory，并以数据隔离方式部署到新场景。在 RoboTwin 2.0 全部 50 个任务上，每任务仅一条演示且不做梯度更新，清洁与随机化设置平均成功率达 83.4%，超过最强训练式策略 20 分以上，并可通过跨具身记忆适配迁移到真实双臂机器人。",
+      "score": 3,
+      "reason": "机器人操作为低分方向，仅上下文学习与Agent记忆机制略有关联",
+      "deepDive": false,
+      "relevant": false
+    },
+    {
+      "id": "2611.14210",
+      "title": "Tree-Ising: Repairing Language Models with Bit-Level Ising Edits",
+      "authors": [
+        "Hadi Salloum",
+        "Ammar Ali"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Weight-space programming, introduced in recent MIT work by Takehi et al., enables a frontier LLM agent to read a network's weights and write a repair. Their GPT-6 Astra agent corrected the reasoning loops of Qwen3.5-0.8B without gradients, using 158 agent turns, 89.7 million tokens, and 50 forward-pass requests. Our method, Tree-Ising, casts this repair as a sparse discrete optimization problem over the model's own BF16 weights. Forward statistics define an objective that weakens a loop direction, strengthens a concluding direction, and preserves the layer's output on productive tokens. Within a state-tree representation, where lossless BF16 storage acts as a special case, the admissible edits are sign flips and exponent shifts that preserve all shared group exponents and mantissas. We decompose this objective exactly into independent QUBO (Ising) problems, one per output row, which we solve on a GPU using simulated annealing or quantum-inspired simulated bifurcation. On the agent's two layers, Tree-Ising achieves 54.6% on MATH-500, outperforming the agent's edit (51.7%) under the same evaluation protocol, while the base model scores 7.9% as reported. The simulated bifurcation solver yields a statistically indistinguishable repair at 55.1%. Both solvers outperform the agent edit across all five math benchmarks, with statistically significant improvements on MATH-500 and GSM8K after correcting for multiple comparisons. Our approach modifies 13% to 17% fewer weights and reduces BF16 bit flips by a factor of 2.2 to 2.3. It requires only four forward-pass requests and zero LLM tokens, with the annealing recipe costing about $0.90 in GPU time. On Qwen3.5-2B, with layers and dose selected using only the base model, the same recipe increases greedy GSM8K accuracy from 21.6% to 69.4%. As a proof of concept, we execute an eight-variable repair subproblem using QAOA on an IBM Heron processor.",
+      "published": "2026-11-10T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.14210",
+        "pdf": "https://arxiv.org/pdf/2611.14210"
+      },
+      "upvotes": 50,
+      "githubRepo": "https://github.com/TheQuantumGOAT/Tree-Ising",
+      "githubStars": 5,
+      "numComments": 2,
+      "titleZh": "Tree-Ising:用位级 Ising 编辑修复语言模型",
+      "summaryZh": "无需梯度，直接改写模型权重即可修复推理缺陷:把修复建模为 BF16 权重上的稀疏离散优化，并用前向统计构造目标:削弱循环方向、强化收尾方向，同时保持有效 token 上的层输出不变。方法在 state-tree 表示下只允许符号翻转与指数移位，并把目标精确分解为每输出行独立的 QUBO(Ising)问题，再在 GPU 上用模拟退火或量子启发模拟分岔求解。在 Qwen3.5-0.8B 上 MATH-500 达 54.6%，高于 agent 编辑的 51.7%(原始模型 7.9%)，改动权重少 13%~17%、BF16 位翻转少 2.2~2.3 倍，仅需 4 次前向、零 LLM token;同一配方把 2B 模型 GSM8K 贪心准确率从 21.6% 提到 69.4%。",
+      "score": 7,
+      "reason": "权重空间无梯度修复的新范式，方法扎实但模型规模偏小",
       "deepDive": false
     },
     {
@@ -133,10 +133,10 @@
         "abs": "https://arxiv.org/abs/2611.13001",
         "pdf": "https://arxiv.org/pdf/2611.13001"
       },
-      "upvotes": 35,
+      "upvotes": 36,
       "githubRepo": "https://github.com/limix-ldm-ai/OTBench",
       "githubStars": 0,
-      "numComments": 4,
+      "numComments": 5,
       "titleZh": "一表多查：跨生成、插补与预测的通用表格模型基准评测",
       "summaryZh": "针对表格生成、插补与预测通常分开评测、难以判断单一模型能否兼顾的问题，构建 One Table Benchmark，覆盖56个数据集、46个方法和20个能力维度，在统一划分与任务契约下比较排名，并在5个数据集、3个种子上训练5个骨干模型的7种非空目标组合。结果显示：加入接收任务自身目标的汇总增益最大；生成对辅助目标的正面覆盖最广，预测可改善插补与合成数据效用；固定通用模型在效用上可超过专家组合，但保真度仍偏向专用化；冻结基础模型在预测与数值点插补上表现强，并具合成数据效用潜力。",
       "score": 3,
@@ -172,6 +172,35 @@
       "deepDive": false
     },
     {
+      "id": "2611.10649",
+      "title": "MACaQ: Fast, Model Agnostic Calibrated Quantization for Low-Precision Weights and Activations",
+      "authors": [
+        "Lorenz K. Muller",
+        "Philippe Bich",
+        "Chiara Boretti",
+        "Hyun-Min Chang",
+        "Jiawei Zhuang",
+        "Lukas Cavigelli"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Weight-activation quantization can reduce the memory and compute cost of neural-network inference, but recent methods often require expensive optimization and architecture-specific propagation of basis transforms across layers. We introduce MACaQ, an MXFP4 W4A4 post-training quantization method that treats every linear layer independently. MACaQ applies a per-channel scale and a block-Hadamard transform online to each layer's activations, while absorbing the corresponding inverse transforms into its weights. Retaining these transforms online avoids cross-layer dependencies and enables a simple streaming implementation of the quantization process, in which only one layer must reside in memory at a time. To improve over round-to-nearest quantization, we introduce Flip-Refinement, a Hessian-aware coordinate-descent procedure that greedily moves individual FP4 codes to adjacent representable values. Despite executing the activation transforms at inference time, MACaQ adds only 2.3% end-to-end overhead over pure MXFP4 on Qwen3-32B in vLLM. MACaQ reaches lower perplexity than DuQuant++ and MR-GPTQ, and already matches their best perplexity on Llama-3-8B in 11 times less quantization time. We further apply MACaQ without architecture-specific modifications to an image diffusion model, illustrating the generality of its layer-local design and show quantization of a 122B parameter model in 64 minutes, using only 32.5GB GPU RAM.",
+      "published": "2026-11-07T00:00:00.000Z",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.10649",
+        "pdf": "https://arxiv.org/pdf/2611.10649"
+      },
+      "upvotes": 28,
+      "githubRepo": "https://github.com/huawei-csl/MACaQ",
+      "githubStars": 162,
+      "projectPage": "https://huawei-csl.com/blog/macaq/",
+      "numComments": 2,
+      "titleZh": "MACaQ：快速、模型无关的校准量化，面向低精度权重与激活",
+      "summaryZh": "针对权重—激活量化中跨层基变换传播带来的昂贵优化与架构依赖，MACaQ把每个线性层独立处理：在线对激活施加逐通道缩放与block-Hadamard变换，并把对应的逆变换吸收进权重，从而避免跨层依赖；该过程可用流式方式实现，同一时间只需一层驻留显存。为改进round-to-nearest量化，MACaQ提出Hessian感知的坐标下降方法Flip-Refinement，逐个把FP4码移动到相邻的可表示值。在Qwen3-32B上经vLLM部署仅增加2.3%端到端开销，困惑度低于DuQuant++与MR-GPTQ；在Llama-3-8B上，量化时间减少11倍即可达到两者的最优困惑度，并在64分钟、32.5GB显存内完成122B参数模型的量化。",
+      "score": 8,
+      "reason": "W4A4量化新方法，含vLLM实测与122B规模验证",
+      "deepDive": true
+    },
+    {
       "id": "2611.12177",
       "title": "Embodied First Exam",
       "authors": [
@@ -189,7 +218,7 @@
         "abs": "https://arxiv.org/abs/2611.12177",
         "pdf": "https://arxiv.org/pdf/2611.12177"
       },
-      "upvotes": 26,
+      "upvotes": 27,
       "githubRepo": "https://github.com/mll-lab-nu/embodied-first-exam",
       "githubStars": 263,
       "projectPage": "https://www.embodied-first-exam.ai/",
@@ -257,35 +286,6 @@
       "reason": "灵巧操作机器人策略，属具身智能低分方向",
       "deepDive": false,
       "relevant": false
-    },
-    {
-      "id": "2611.10649",
-      "title": "MACaQ: Fast, Model Agnostic Calibrated Quantization for Low-Precision Weights and Activations",
-      "authors": [
-        "Lorenz K. Muller",
-        "Philippe Bich",
-        "Chiara Boretti",
-        "Hyun-Min Chang",
-        "Jiawei Zhuang",
-        "Lukas Cavigelli"
-      ],
-      "authorsTotal": 6,
-      "abstract": "Weight-activation quantization can reduce the memory and compute cost of neural-network inference, but recent methods often require expensive optimization and architecture-specific propagation of basis transforms across layers. We introduce MACaQ, an MXFP4 W4A4 post-training quantization method that treats every linear layer independently. MACaQ applies a per-channel scale and a block-Hadamard transform online to each layer's activations, while absorbing the corresponding inverse transforms into its weights. Retaining these transforms online avoids cross-layer dependencies and enables a simple streaming implementation of the quantization process, in which only one layer must reside in memory at a time. To improve over round-to-nearest quantization, we introduce Flip-Refinement, a Hessian-aware coordinate-descent procedure that greedily moves individual FP4 codes to adjacent representable values. Despite executing the activation transforms at inference time, MACaQ adds only 2.3% end-to-end overhead over pure MXFP4 on Qwen3-32B in vLLM. MACaQ reaches lower perplexity than DuQuant++ and MR-GPTQ, and already matches their best perplexity on Llama-3-8B in 11 times less quantization time. We further apply MACaQ without architecture-specific modifications to an image diffusion model, illustrating the generality of its layer-local design and show quantization of a 122B parameter model in 64 minutes, using only 32.5GB GPU RAM.",
-      "published": "2026-11-07T00:00:00.000Z",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.10649",
-        "pdf": "https://arxiv.org/pdf/2611.10649"
-      },
-      "upvotes": 23,
-      "githubRepo": "https://github.com/huawei-csl/MACaQ",
-      "githubStars": 89,
-      "projectPage": "https://huawei-csl.com/blog/macaq/",
-      "numComments": 2,
-      "titleZh": "MACaQ：快速、模型无关的校准量化，面向低精度权重与激活",
-      "summaryZh": "针对权重—激活量化中跨层基变换传播带来的昂贵优化与架构依赖，MACaQ把每个线性层独立处理：在线对激活施加逐通道缩放与block-Hadamard变换，并把对应的逆变换吸收进权重，从而避免跨层依赖；该过程可用流式方式实现，同一时间只需一层驻留显存。为改进round-to-nearest量化，MACaQ提出Hessian感知的坐标下降方法Flip-Refinement，逐个把FP4码移动到相邻的可表示值。在Qwen3-32B上经vLLM部署仅增加2.3%端到端开销，困惑度低于DuQuant++与MR-GPTQ；在Llama-3-8B上，量化时间减少11倍即可达到两者的最优困惑度，并在64分钟、32.5GB显存内完成122B参数模型的量化。",
-      "score": 8,
-      "reason": "W4A4量化新方法，含vLLM实测与122B规模验证",
-      "deepDive": true
     },
     {
       "id": "2611.07464",
@@ -418,7 +418,7 @@
       },
       "upvotes": 12,
       "githubRepo": "https://github.com/agentic-learning-ai-lab/deleting-weights",
-      "githubStars": 50,
+      "githubStars": 59,
       "projectPage": "https://agenticlearning.ai/deleting-weights/",
       "numComments": 3,
       "titleZh": "删除权重在 LLM 后训练中的惊人有效性",
@@ -474,7 +474,7 @@
       },
       "upvotes": 10,
       "projectPage": "https://intosyn.github.io/BioAgent-DF/",
-      "numComments": 4,
+      "numComments": 5,
       "titleZh": "从工具状态到科学行动：审计生物医学研究智能体中的决策溯源",
       "summaryZh": "科学智能体可能在引用不同证据时给出相同结论。BioAgent-DF 在同一科学计算位置保存参考值与候选值，在原始坐标处恢复或移植这些值后重跑智能体，从而把工具数值状态与最终结论分开审计。八个 SciFact 批次中，Qwen3.5-4B 与 Gemma 3 4B IT 分别出现三组和四组可复现的读取或引用变化，完全恢复可还原参考证据集而结论不变；hERG 心脏安全性检测分配中，静默数值故障改变了测试决策，恢复执行状态并补入认证分数挽回了全部 39 个被改变决策，仅替换预测文件则一个都未挽回，流式算术校验使前向执行与验证总时间下降 42.4%。",
       "score": 6,
@@ -580,7 +580,7 @@
       "upvotes": 7,
       "githubRepo": "https://github.com/bennidict23/memory-clock",
       "githubStars": 1,
-      "numComments": 6,
+      "numComments": 7,
       "titleZh": "你的机器人记忆只是一个时钟吗？记忆增强VLA策略中的时间捷径",
       "summaryZh": "记忆增强VLA策略常用按时间均匀采样并打时间戳的方式填充记忆，可能让机器人把「等待」误判为「进展」。在RoboMME计数任务中注入短暂停顿或手腕抖动这类空事件，使已发布模型的成功率从50次中47次降至16次、从44次降至10次，称为「幻影进展」（phantom progress）；不写入这些帧则恢复，说明问题出在记忆而非中断本身。仅缩放时间戳即可让策略在时钟走快时提前停止、走慢时重复，而去掉时间编码并不能修复，因为空事件帧仍占据按时间采样的记忆槽位。按事件索引记忆可在不重训的情况下挽回至少一半损失，提示记忆应按事件而非时钟计数。",
       "score": 3,
@@ -633,7 +633,7 @@
       "githubRepo": "https://github.com/zhuqinfeng1999/LEASH",
       "githubStars": 1,
       "projectPage": "https://zhuqinfeng1999.github.io/LEASH/",
-      "numComments": 6,
+      "numComments": 8,
       "titleZh": "LEASH：在具身智能体机器人中保持安全",
       "summaryZh": "用基础模型直接控制机器人存在明显安全风险，而现有评测最多只覆盖任务级拒答、计划修复等五类风险中的两类，且多数只检查文本输出。为此构建 RoboRisk 基准，含 92 个仿真任务与 13 个真机任务，覆盖任务级拒答、计划修复、执行期危险、注入攻击与序列记忆五类，全部闭环执行，并测得 GPT-6 系列、Claude Opus 5.5、Gemini 4 Argon、Grok 4.7 等六个模型普遍存在较高危害率。进一步提出 LEASH，借助决策模型（Jev 或 OpenAI Decisions API）在视觉上下文中设置任务门、动作门与提交门，三层门与规划器共享同一安全策略；实验显示其显著降低六个模型的危害，基本保持任务完成率，时间与 token 开销很小。",
       "score": 3,
@@ -662,7 +662,7 @@
       "upvotes": 5,
       "githubRepo": "https://github.com/OpenFinMind/MC-JEPA",
       "githubStars": 2,
-      "numComments": 3,
+      "numComments": 5,
       "titleZh": "市场条件化 JEPA：从不可预测的市场冲击中学习",
       "summaryZh": "金融时间序列的大部分波动来自无法由单个资产自身历史预测的市场级冲击，逐资产自监督学习只能把它当作不可约噪声。方法上构建联合嵌入预测架构 MC-JEPA：训练时为每个资产用其他资产的未来目标嵌入构造留一法市场条件，并通过由该资产自身表征导出的因子载荷将其注入预测器。在 11 年分钟级中国 A 股数据上，模型在收益、市场暴露、风险、流动性等九类目标上均优于逐资产 JEPA，在流动性与 2 小时至 5 天收益期限上取得最佳 RankIC，历史回测组合表现最优；消融显示收益与暴露增益依赖条件与真实市场走势对齐。该方法面向量化金融表征学习，适用场景限于金融时序预测与风险建模。",
       "score": 3,
@@ -690,7 +690,7 @@
       },
       "upvotes": 4,
       "githubRepo": "https://github.com/jefftan969/dycraft",
-      "githubStars": 15,
+      "githubStars": 20,
       "projectPage": "https://dy-craft.github.io/",
       "numComments": 3,
       "titleZh": "DyCraft：面向长时程4D场景生成的智能体系统",
@@ -719,7 +719,7 @@
       },
       "upvotes": 4,
       "githubRepo": "https://github.com/zou-group/BVSR",
-      "githubStars": 8,
+      "githubStars": 9,
       "projectPage": "https://zou-group.github.io/BVSR/",
       "numComments": 3,
       "titleZh": "盲变异与选择性保留:改进 AI 科学家的创意生成",
@@ -772,7 +772,7 @@
       },
       "upvotes": 4,
       "projectPage": "https://xinjie-shen.com/post/rlmisalignment",
-      "numComments": 4,
+      "numComments": 5,
       "titleZh": "捷径与边界：可验证的 RL 不对齐与上下文安全学习",
       "summaryZh": "针对 RL 训练在提升任务能力的同时强化违反执行上下文要求的行为（含 reward hacking）这一问题，提出可验证的奖励—上下文冲突设定：合规完成始终可行，但某些可执行捷径的收益高于任何合规策略。将冲突编码进任务动力学后可规模化生成交互环境，并从执行历史中导出合规反馈；在资源与报告类工作流中，任务优化会通过未授权资源使用提高真实产出，或抬高报告分数而实际工作量下降。受控分布实验显示，25% 冲突混合下仅 128 次更新即在 API 任务上达到 97.9% 的可认证获利违规，而同一上下文检查提供的二元惩罚可支撑能力与合规同步提升并部分缓解已习得违规；在 32 个未见的变化证据任务上，安全完成率由 53.1% 升至 89.1%，且两种策略均完成全部真实工作。",
       "score": 8,
@@ -825,7 +825,7 @@
       },
       "upvotes": 4,
       "githubRepo": "https://github.com/Frankluox/ExRL",
-      "githubStars": 3,
+      "githubStars": 4,
       "projectPage": "https://exrl-project.github.io/",
       "numComments": 3,
       "titleZh": "ExRL:通过执行长度控制实现长动作块策略的样本高效在线适应",
@@ -838,5 +838,5 @@
   ],
   "arxiv": [],
   "arxivStatus": "pending",
-  "generatedAt": "2026-11-12T09:50:11.571110+00:00"
+  "generatedAt": "2026-11-12T16:50:38.800990+00:00"
 }
