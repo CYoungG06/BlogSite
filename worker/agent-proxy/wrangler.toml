@@ -11,11 +11,21 @@ simple = { limit = 40, period = 60 }
 
 # DEEPSEEK_API_KEY 用 `npx wrangler secret put DEEPSEEK_API_KEY` 注入,不要写在这里
 
+# 论文速递的准点触发(UTC):到点调 GitHub 的 workflow_dispatch。
+# 比 .github/workflows/daily-papers.yml 里的兜底 schedule 早 5 分钟;
+# 午班在 10:05 而不是更早,是为了避开 DeepSeek 的高峰计价(工作日 UTC 06–10 点翻倍)。
+# 改这里的表达式要同步改 src/index.js 的 DISPATCH_MODES。
+# 需要 secret:npx wrangler secret put GITHUB_DISPATCH_TOKEN
+#   (fine-grained PAT,只授权本仓库,Repository permissions → Actions: Read and write)
+[triggers]
+crons = ["12 2 * * *", "5 10 * * *"]
+
 # 全站每日预算(UTC 日,所有访客合计):任一用尽后对话接口当天返回 429,次日自动恢复。
 # 这是费用的硬上限 —— 限流是按 IP 的,换 IP 就能绕过,预算绕不过。
 # 用量查询:npx wrangler d1 execute blogsite-stats --remote \
 #   --command "SELECT * FROM kv WHERE key LIKE 'budget:%' ORDER BY key DESC LIMIT 14"
 [vars]
+GITHUB_REPO = "CYoungG06/BlogSite"     # Cron Trigger 要触发的仓库
 DAILY_REQUEST_BUDGET = "1500"          # 上游请求数;一次普通提问约 2–10 次,深度调研约 18 次
 DAILY_INPUT_CHAR_BUDGET = "30000000"   # 发给上游的输入字符数(含服务端 system prompt)
 

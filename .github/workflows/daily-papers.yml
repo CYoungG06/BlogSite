@@ -1,8 +1,14 @@
 name: Daily Papers
 
 # 两班制生成前一天的论文速递:
-# - 早间 02:17 UTC(北京 10:17):只出 HF 先行版(arXiv 批次尚未完成 API 入库)
-# - 下午 08:17 UTC(北京 16:17):补全 arXiv,回查最近 14 天缺失或未完成的速递
+# - 早班(mode=hf):只出 HF 先行版(arXiv 批次尚未完成 API 入库)
+# - 午班(mode=full):抓当天全部 arXiv 候选并逐篇打分,按分入选(主栏目 ≥7 分至多 50 篇,
+#   具身栏目至多 10 篇);回查最近 14 天缺失或未完成的速递,重查前 3 天晚入库的论文
+# 触发方式:GitHub 的 schedule 实测会晚 7–8 小时,所以准点触发交给
+# worker/agent-proxy 的 Cloudflare Cron Trigger(UTC 02:12 / 10:05 调 workflow_dispatch);
+# 午班放在 10:05 是为了避开 DeepSeek 的高峰计价时段(工作日 UTC 01–04、06–10 点价格翻倍),
+# 全量候选打分的开销几乎都在这一班;
+# 下面的 schedule 只是兜底 —— 准点那轮跑过之后它基本是空转,不会重复提交。
 # 周末公告/入库延迟记为待更新;来源异常保留旧数据,可用部分照常发布后报错。
 # 重抓会按 id 保留已有中文导读;有新内容时显式 dispatch Deploy 上线;
 # 任一步骤失败用 Issue 提醒(同一时间只保留一个未关闭的失败 Issue,后续失败追加评论);
@@ -10,13 +16,19 @@ name: Daily Papers
 on:
   schedule:
     - cron: "17 2 * * *"
-    - cron: "17 8 * * *"
+    - cron: "10 10 * * *"
   workflow_dispatch:
     inputs:
       date:
         description: "内容日期 YYYY-MM-DD(留空 = 昨天 UTC)"
         required: false
         type: string
+      mode:
+        description: "full = 含 arXiv 并回查;hf = 只更新 Hugging Face"
+        required: false
+        type: choice
+        options: [full, hf]
+        default: full
 
 permissions:
   contents: write
@@ -50,7 +62,7 @@ jobs:
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Test paper fetcher
-        run: python3 -B -m unittest discover -s scripts -p 'test_fetch_daily_papers.py'
+        run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
 
       - name: Fetch daily papers
         id: fetch
@@ -58,12 +70,14 @@ jobs:
         env:
           DIGEST_DATE: ${{ steps.d.outputs.date }}
           SCHEDULE: ${{ github.event.schedule }}
+          MODE: ${{ github.event.inputs.mode }}
         run: |
           ARGS=(--date "$DIGEST_DATE" --changed-dates-file "$RUNNER_TEMP/paper-dates")
-          if [ "$SCHEDULE" = "17 2 * * *" ]; then
+          if [ "$SCHEDULE" = "17 2 * * *" ] || [ "$MODE" = "hf" ]; then
             ARGS+=(--skip-arxiv)
           else
-            ARGS+=(--lookback-days 14)
+            # 回查 14 天内缺失/未完成的;并重查前 3 天,补上晚入库的 arXiv 论文
+            ARGS+=(--lookback-days 14 --recheck-days 3)
           fi
           python3 scripts/fetch-daily-papers.py "${ARGS[@]}"
 
@@ -131,7 +145,7 @@ jobs:
       # 恢复后自动关闭遗留的失败 Issue。早班只抓 HF,它成功不代表 arXiv 已恢复,
       # 所以只在含 arXiv 的一轮(午班 / 手动触发)成功后才关。
       - name: Close resolved failure issues
-        if: success() && github.event.schedule != '17 2 * * *'
+        if: success() && github.event.schedule != '17 2 * * *' && github.event.inputs.mode != 'hf'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -142,3 +156,32 @@ jobs:
           while IFS= read -r NUMBER; do
             gh issue close "$NUMBER" --comment "已恢复:$RUN_URL 运行成功,自动关闭。"
           done
+
+      # 准点触发靠 Worker 的 Cron Trigger(见文件头)。它用的 token 会过期,过期后一切
+      # 照常但悄悄退回晚 7–8 小时 —— 所以兜底的 schedule 运行顺手查一下:
+      # 前 7 天有过 workflow_dispatch、今天却一次都没有,就说明外部触发断了。
+      - name: Check external trigger
+        if: always() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          count() {
+            gh run list --workflow daily-papers.yml --event workflow_dispatch \
+              --created ">=$1" --limit 50 --json databaseId --jq length
+          }
+          TODAY=$(count "$(date -u +%F)")
+          WEEK=$(count "$(date -u -d '7 days ago' +%F)")
+          OPEN=$(gh issue list --state open --limit 200 --json number,title \
+            --jq '[.[] | select(.title | startswith("Daily Papers 外部定时触发失效"))][0].number // empty')
+          if [ "$WEEK" -gt 0 ] && [ "$TODAY" -eq 0 ]; then
+            BODY="今天(UTC $(date -u +%F))没有收到 Worker 的准点触发,速递退回由 GitHub schedule 兜底(会晚数小时)。"$'\n\n'"最常见的原因是 GITHUB_DISPATCH_TOKEN 过期,处理方法见 worker/agent-proxy/README.md。"
+            if [ -n "$OPEN" ]; then
+              gh issue comment "$OPEN" --body "$BODY"
+            else
+              gh issue create --title "Daily Papers 外部定时触发失效" --body "$BODY" --assignee "$OWNER"
+            fi
+          elif [ "$TODAY" -gt 0 ] && [ -n "$OPEN" ]; then
+            gh issue close "$OPEN" --comment "今天已收到外部触发,自动关闭。"
+          fi

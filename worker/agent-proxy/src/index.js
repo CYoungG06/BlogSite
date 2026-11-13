@@ -7,6 +7,7 @@
  * 真正限制滥用成本的是上面这几道。
  * 统计职责:/pv 打点(D1 计数)、/stats 查询。
  * 工具数据都是站内公开静态 JSON,由浏览器直接 fetch。
+ * 另有一个 Cron Trigger:准点触发仓库的 Daily Papers workflow(见文件末尾 scheduled)。
  */
 import { buildSuggestPrompt, buildSystemPrompt } from "../../../lib/agent/system.ts";
 import { AGENT_TOOLS } from "../../../lib/agent/tool-schemas.ts";
@@ -18,7 +19,7 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 
 const UPSTREAM_URL = "https://api.deepseek.com/chat/completions";
-const MODEL = "deepseek-v4-flash";
+const MODEL = "deepseek-flash";
 const MAX_MESSAGES = 64; // 深度调研 16 轮工具交换 + 历史,预留余量
 const MAX_MESSAGE_CHARS = 80_000; // read_paper 全文工具结果可到数万字符
 const MAX_TOTAL_CHARS = 400_000; // 单次请求全部消息的字符总量上限
@@ -408,7 +409,53 @@ async function consumeBudget(env, chars) {
   );
 }
 
+/**
+ * 论文速递的准点触发器。GitHub 自带的 schedule 实测会晚 7–8 小时,
+ * 所以由 Cloudflare Cron Trigger 到点调 workflow_dispatch;GitHub 的 schedule 留作兜底。
+ * cron 表达式 → workflow 的 mode 输入(与 wrangler.toml [triggers] 保持一致):
+ * hf = 早班,只抓 Hugging Face;full = 午班,补 arXiv 并回查
+ * (排在 10:05 以避开 DeepSeek 工作日 UTC 06–10 点的高峰计价)。
+ */
+const DISPATCH_MODES = {
+  "12 2 * * *": "hf",
+  "5 10 * * *": "full",
+};
+
+async function dispatchDailyPapers(cron, env) {
+  const mode = DISPATCH_MODES[cron];
+  if (!mode) throw new Error(`no dispatch mode for cron "${cron}"`);
+  // 没配 token 就什么都不做:GitHub 的 schedule 兜底照常跑,只是不准点
+  if (!env.GITHUB_DISPATCH_TOKEN) {
+    console.warn("GITHUB_DISPATCH_TOKEN not set; skipping daily-papers dispatch");
+    return;
+  }
+  const repo = env.GITHUB_REPO || "CYoungG06/BlogSite";
+  const res = await fetch(
+    `https://api.github.com/repos/${repo}/actions/workflows/daily-papers.yml/dispatches`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.GITHUB_DISPATCH_TOKEN}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json",
+        "User-Agent": "blogsite-agent-proxy",
+      },
+      body: JSON.stringify({ ref: "main", inputs: { mode } }),
+    },
+  );
+  // 抛错会让这次 cron 在 Cloudflare 后台记为失败(可见、可告警);
+  // 仓库侧也有检查:兜底 schedule 发现当天没有外部触发时会开 Issue
+  if (!res.ok) {
+    throw new Error(`daily-papers dispatch (${mode}) failed: ${res.status} ${(await res.text()).slice(0, 200)}`);
+  }
+  console.log(`daily-papers dispatched (${mode})`);
+}
+
 const proxy = {
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(dispatchDailyPapers(controller.cron, env));
+  },
   async fetch(request, env) {
     const origin = request.headers.get("Origin") ?? "";
     // 顶层兜底:任何未捕获异常(上游 DNS/TLS 失败等)都返回带 CORS 的 502,
