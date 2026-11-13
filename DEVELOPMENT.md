@@ -150,17 +150,39 @@ npm run lint            # eslint
 
 ### 2.9 论文速递(自动,一般不用管)
 
-`.github/workflows/daily-papers.yml` 每天定时跑两班:早班只抓 Hugging Face 热门,午班补 arXiv
-并回查最近 14 天缺失或未完成的速递。流程是 `scripts/fetch-daily-papers.py` 抓取 →
-`scripts/summarize-digest.py` 调 DeepSeek 生成中文导读与兴趣评分 → bot 提交 `content/papers/` →
-触发部署。所以 **`main` 上每天都有 bot 提交,本地动手前先 `git pull`**。
+`.github/workflows/daily-papers.yml` 每天跑两班,由 `worker/agent-proxy` 的 Cloudflare Cron Trigger
+准点触发(workflow 自带的 `schedule` 只是兜底,GitHub 的定时实测会晚 7–8 小时):
 
-- 评分依据是 `scripts/interest-profile.md`(兴趣画像),误判的方向直接改这个文件。
-- 需要仓库 Secret `DEEPSEEK_API_KEY`;没配时只是没有中文导读,不影响发布。
+| 班次 | 触发(UTC / 北京) | 做什么 |
+|---|---|---|
+| 早班 `mode=hf` | 02:12 / 10:12 | 只更新 Hugging Face 热门 |
+| 午班 `mode=full` | 10:05 / 18:05 | 抓前一天**全部** arXiv 候选并打分入选;回查 14 天内缺失的;重查前 3 天晚入库的论文 |
+
+午班排在 10:05 是为了避开 DeepSeek 的高峰计价(工作日 UTC 01–04、06–10 点价格翻倍)。
+
+**arXiv 部分的筛选规则**(`scripts/digest_select.py`):
+
+1. `fetch-daily-papers.py` 抓当天 cs.CL / cs.LG / cs.AI / cs.RO 的全部投稿(主分类在白名单内),每天约 250–450 篇。
+2. `summarize-digest.py` 先做一次便宜的主题分流:主分类 cs.RO 的,以及被判为具身主题的,进「具身智能」栏目。
+3. 每篇按所在栏目的兴趣画像打分并生成中文导读;首轮得分在 6–8 的再判一次取平均
+   (同一裁判重复运行时前 50 名只有约 44 篇重合,复判入选线附近这一段能提到约 46 篇)。
+4. 入选:≥7 分,主栏目至多 50 篇,具身栏目至多 10 篇。过线但超出上限的进 `overflow`(页面底部折叠列表,
+   只有标题和分数);其余只在 `scores` 里留分数,重跑时不会再打一遍。
+
+HF 热门不做筛选,只把 ≤4 分的折叠。所以 **`main` 上每天都有 bot 提交,本地动手前先 `git pull`**。
+
+- 兴趣画像:主栏目 `scripts/interest-profile.md`,具身栏目 `scripts/interest-profile-embodied.md`。
+  觉得选得不对,优先改画像;入选线和篇数上限是 `digest_select.py` 顶部的常量。
+- **不要给打分提示词(`SYSTEM_PROMPT`)加输出字段**:实测只多一个布尔字段,分数就整体下移约 0.2,
+  入选数少两成。需要新的判断就像主题分流那样单独调用。
+- 需要仓库 Secret `DEEPSEEK_API_KEY`;没配时页面临时显示最新的 50 篇、没有中文导读,不影响发布。
+  成本:全量打分约每月 4–6 美元(非高峰价)。
 - 失败会开(或追加评论到)一个标题以「Daily Papers 失败」开头的 Issue,恢复后自动关闭。
+- 准点触发用的 `GITHUB_DISPATCH_TOKEN` 过期后,速递会悄悄退回晚几小时;兜底运行检测到会开
+  「Daily Papers 外部定时触发失效」Issue,换 token 的步骤见 `worker/agent-proxy/README.md`。
 - 手动补某一天:Actions → **Daily Papers** → Run workflow,填日期;或本地
   `python3 scripts/fetch-daily-papers.py --date 2026-07-20 && python3 scripts/summarize-digest.py 2026-07-20`。
-- 抓取脚本的测试:`python3 -B -m unittest discover -s scripts -p 'test_fetch_daily_papers.py'`。
+- 测试:`python3 -B -m unittest discover -s scripts -p 'test_*.py'`。
 
 ### 2.10 AI 助手与访客统计(Cloudflare Worker)
 
@@ -308,8 +330,9 @@ BlogSite/
 │   ├── new-post.mjs         # npm run new-post
 │   ├── build-search-index.mjs / generate-feed.mjs / generate-papers-api.mjs
 │   ├── generate-agent-api.mjs / generate-export.mjs     # 以上均为 build 前置,见 §2.7
-│   ├── fetch-daily-papers.py / summarize-digest.py / interest-profile.md   # 论文速递管线
-│   ├── test_fetch_daily_papers.py
+│   ├── fetch-daily-papers.py / summarize-digest.py / digest_select.py      # 论文速递管线:抓取 / 打分 / 入选规则
+│   ├── interest-profile.md / interest-profile-embodied.md                  # 主栏目与具身栏目的兴趣画像
+│   ├── test_fetch_daily_papers.py / test_digest_select.py
 │   ├── generate-*-figures.py            # 个别文章的配图脚本(matplotlib,用 .venv)
 │   └── migrate-old-blog.mjs # 一次性:旧 Hexo 站文章迁移
 │
@@ -344,7 +367,7 @@ npm audit fix
 
 # 验证
 npm run typecheck && npm run lint && npm run build
-python3 -B -m unittest discover -s scripts -p 'test_fetch_daily_papers.py'
+python3 -B -m unittest discover -s scripts -p 'test_*.py'
 ```
 
 Dependabot 每月会各提一个 PR(npm 的非大版本升级、GitHub Actions 版本),CI 绿了即可合;
