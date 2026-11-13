@@ -2,6 +2,11 @@
 """Fetch one day's papers — Hugging Face Daily Papers + arXiv new submissions —
 and write a JSON digest to content/papers/<date>.json for the site to render.
 
+arXiv: *every* eligible submission of the day is fetched as a candidate. Which
+ones the digest keeps is decided by score (digest_select.py) after
+summarize-digest.py has judged them; until then the newest ones are shown
+provisionally and the rest wait in the digest's `candidates` field.
+
 No Python dependencies. Uses curl as a fallback for arXiv HTTP 406 responses.
 Designed for CI (GitHub Actions) but works locally too; HF falls back to
 hf-mirror.com when huggingface.co is unreachable.
@@ -26,6 +31,8 @@ import xml.etree.ElementTree as ET
 from datetime import date as date_type
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
+
+import digest_select
 
 ARXIV_API = os.environ.get("ARXIV_API", "https://export.arxiv.org/api/query")
 _env_hf = os.environ.get("HF_BASE")
@@ -327,7 +334,7 @@ def recent_ids(output_dir: str, day: date_type, lookback: int = 3) -> set:
         try:
             with open(path) as f:
                 d = json.load(f)
-            ids.update(p["id"] for p in d.get("hf", []) + d.get("arxiv", []))
+            ids.update(p["id"] for p in d.get("hf", []) + d.get("arxiv", []) + d.get("embodied", []))
         except (OSError, json.JSONDecodeError):
             continue
     return ids
@@ -360,10 +367,10 @@ def read_digest(path: str) -> dict:
 
 
 def restore_annotations(papers: list, old: dict) -> None:
-    previous = {p["id"]: p for p in old.get("hf", []) + old.get("arxiv", [])}
+    previous = {p["id"]: p for p in old.get("hf", []) + digest_select.pool_of(old)}
     for paper in papers:
         saved = previous.get(paper["id"], {})
-        for key in ("titleZh", "summaryZh", "score", "reason", "deepDive", "relevant"):
+        for key in ("titleZh", "summaryZh", "score", "reason", "deepDive", "relevant", "track"):
             if key in saved:
                 paper[key] = saved[key]
 
@@ -380,6 +387,7 @@ def refresh_digest(day: date_type, categories: list, primary_cats: list,
     arxiv = old.get("arxiv", [])
     status = old.get("arxivStatus", "complete" if arxiv else "pending")
     errors = []
+    pool = None  # 本轮重新抓到的全部 arXiv 候选;None = 这一轮没有更新 arXiv 部分
 
     def record_error(source: str, error: Exception) -> None:
         message = f"{day_s} {source}: {error}"
@@ -412,8 +420,13 @@ def refresh_digest(day: date_type, categories: list, primary_cats: list,
             )
             excluded = {p["id"] for p in hf} | recent_ids(output_dir, day)
             fresh_arxiv = [p for p in fresh_arxiv if p["id"] not in excluded]
-            if fresh_arxiv or not arxiv:
-                arxiv = fresh_arxiv
+            if fresh_arxiv or not digest_select.pool_of(old):
+                for paper in fresh_arxiv:
+                    digest_select.assign_track(paper)
+                # 接口偶尔少返回:上一轮已有完整记录的论文不因此从速递里消失
+                fetched = {p["id"] for p in fresh_arxiv}
+                kept = [p for p in digest_select.pool_of(old) if p["id"] not in fetched and p["id"] not in excluded]
+                pool = fresh_arxiv + kept
             else:
                 warn(f"arXiv {day_s} returned empty; keeping existing papers")
             status = "complete"
@@ -424,8 +437,10 @@ def refresh_digest(day: date_type, categories: list, primary_cats: list,
             status = "error"
             record_error("arXiv", exc)
 
-    restore_annotations(hf + arxiv, old)
-    if not hf and not arxiv:
+    restore_annotations(hf + (arxiv if pool is None else pool), old)
+    if pool is not None:
+        digest_select.restore_scores(pool, old)
+    if not hf and not (arxiv if pool is None else pool):
         warn(f"No available papers for {day_s}; skipping empty digest")
         return False, errors
 
@@ -437,6 +452,12 @@ def refresh_digest(day: date_type, categories: list, primary_cats: list,
         "arxiv": arxiv,
         "arxivStatus": status,
     }
+    if pool is not None:
+        # 已知分数的候选直接复用旧分,入选结果与上一轮逐字节一致;
+        # 只有新出现的候选会留在 candidates 里等裁判
+        digest = digest_select.apply(digest, pool)
+        waiting = len(digest.get("candidates", []))
+        warn(f"{day_s}: {len(pool)} arXiv candidates, {waiting} waiting for the judge")
     content = lambda d: {k: v for k, v in d.items() if k != "generatedAt"}
     if content(digest) == content(old):
         return False, errors
@@ -446,17 +467,29 @@ def refresh_digest(day: date_type, categories: list, primary_cats: list,
         json.dump(digest, f, ensure_ascii=False, indent=2)
         f.write("\n")
     os.replace(path + ".tmp", path)
-    warn(f"Wrote {path} (hf={len(hf)}, arxiv={len(arxiv)}, arxivStatus={status})")
+    warn(f"Wrote {path} (hf={len(hf)}, arxiv={len(digest['arxiv'])}, arxivStatus={status})")
     return True, errors
 
 
-def catchup_dates(day: date_type, output_dir: str, lookback: int) -> list:
-    """Retry missing or incomplete dates; empty replies never create archives."""
+def catchup_dates(day: date_type, output_dir: str, lookback: int, recheck: int = 0) -> list:
+    """Retry missing or incomplete dates; empty replies never create archives.
+
+    `recheck` re-fetches the most recent *complete* days as well: submissions
+    made after arXiv's daily cutoff (roughly the last five hours of a UTC day,
+    about one paper in six) only show up in the API one to three days later.
+    A second look costs one query per day; only candidates that were not there
+    before go to the judge.
+    """
     dates = [day]
-    for offset in range(1, lookback + 1):
+    for offset in range(1, max(lookback, recheck) + 1):
         earlier = day - timedelta(days=offset)
         old = read_digest(os.path.join(output_dir, earlier.isoformat() + ".json"))
-        if not old or not old.get("arxiv") or old.get("arxivStatus") in ("pending", "error"):
+        status = old.get("arxivStatus")
+        # 入选线之下可以一篇不留:已完成的日子即使 arxiv 为空也不再重抓
+        incomplete = not old or status in ("pending", "error") or (status is None and not old.get("arxiv"))
+        # 只回看按新规则生成的速递(有 pool 字段);更早的定稿不重新筛选
+        second_look = offset <= recheck and status == "complete" and "pool" in old
+        if (offset <= lookback and incomplete) or second_look:
             dates.append(earlier)
     return sorted(dates)
 
@@ -464,17 +497,20 @@ def catchup_dates(day: date_type, output_dir: str, lookback: int) -> list:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--date", help="content date, YYYY-MM-DD (default: yesterday UTC)")
-    ap.add_argument("--categories", default="cs.CL,cs.LG,cs.AI")
-    ap.add_argument("--primary-cats", default="cs.CL,cs.LG,cs.AI,cs.MA,cs.IR,cs.SE")
+    ap.add_argument("--categories", default="cs.CL,cs.LG,cs.AI,cs.RO")
+    ap.add_argument("--primary-cats", default="cs.CL,cs.LG,cs.AI,cs.MA,cs.IR,cs.SE,cs.RO")
     ap.add_argument("--hf-limit", type=int, default=30)
-    ap.add_argument("--arxiv-limit", type=int, default=50)
+    ap.add_argument("--arxiv-limit", type=int, default=1500,
+                    help="safety cap on arXiv candidates per day (all are scored; selection happens later)")
     ap.add_argument("--skip-arxiv", action="store_true", help="HF-only update; preserve existing arXiv papers")
     ap.add_argument("--arxiv-only", action="store_true", help="reuse existing HF papers when repairing a digest")
     ap.add_argument("--lookback-days", type=int, default=0, help="also retry missing or incomplete digests from this many previous days")
+    ap.add_argument("--recheck-days", type=int, default=0,
+                    help="also re-fetch this many previous complete days to pick up late-indexed arXiv submissions")
     ap.add_argument("--changed-dates-file", help="write changed dates, one per line, for the summary step")
     ap.add_argument("--output-dir", default="content/papers")
     args = ap.parse_args()
-    if min(args.hf_limit, args.arxiv_limit, args.lookback_days) < 0:
+    if min(args.hf_limit, args.arxiv_limit, args.lookback_days, args.recheck_days) < 0:
         ap.error("limits and lookback must be non-negative")
 
     now = datetime.now(timezone.utc)
@@ -493,7 +529,11 @@ def main() -> None:
     if args.changed_dates_file:
         with open(args.changed_dates_file, "w"):
             pass
-    targets = catchup_dates(day, args.output_dir, 0 if args.skip_arxiv else args.lookback_days)
+    targets = catchup_dates(
+        day, args.output_dir,
+        0 if args.skip_arxiv else args.lookback_days,
+        0 if args.skip_arxiv else args.recheck_days,
+    )
     for target in targets:
         preserve_hf = args.arxiv_only or (
             target != day and os.path.exists(os.path.join(args.output_dir, target.isoformat() + ".json"))
@@ -504,7 +544,9 @@ def main() -> None:
             reuse_hf=preserve_hf, now=now,
         )
         errors.extend(failures)
-        if updated:
+        # 上一轮裁判失败留下的候选:文件没变也要再送去打分
+        waiting = read_digest(os.path.join(args.output_dir, target.isoformat() + ".json")).get("candidates")
+        if updated or waiting:
             changed.append(target.isoformat())
             if args.changed_dates_file:
                 with open(args.changed_dates_file, "a") as f:
