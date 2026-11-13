@@ -47,13 +47,15 @@ async function main() {
       date,
       url: `${SITE}/api/papers/${date}.json`,
       page: `${SITE}/zh/papers/${date}/`,
-      papers: digest.hf.length + digest.arxiv.length,
+      papers: digest.hf.length + digest.arxiv.length + (digest.embodied ?? []).length,
       arxivStatus: digest.arxivStatus,
       relevant:
-        digest.hf.filter(relevant).length + digest.arxiv.filter(relevant).length,
+        digest.hf.filter(relevant).length +
+        digest.arxiv.filter(relevant).length +
+        (digest.embodied ?? []).filter(relevant).length,
     });
     // 跨天检索索引(AI 助手 search_papers 工具用):只收相关论文,摘要截断控体积
-    for (const source of ["hf", "arxiv"]) {
+    for (const source of ["hf", "arxiv", "embodied"]) {
       for (const p of (digest[source] ?? []).filter(relevant)) {
         allPapers.push({
           date,

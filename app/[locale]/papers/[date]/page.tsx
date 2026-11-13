@@ -44,7 +44,7 @@ function SectionHeader({ label, count }: { label: string; count: string }) {
   );
 }
 
-/** 单日速递:今日焦点(Top3 HF 面板)→ HF 热门 → arXiv 新论文(分组),底部期号导航;宽屏右侧 sticky 索引 */
+/** 单日速递:今日焦点(Top3 HF 面板)→ HF 热门 → arXiv 新论文(分组)→ 具身智能,底部期号导航;宽屏右侧 sticky 索引 */
 export default async function PaperDigestPage({
   params,
 }: {
@@ -73,12 +73,16 @@ export default async function PaperDigestPage({
   // 相关性过滤:正文只显示相关论文,被过滤的收进底部折叠区
   const hfRel = digest.hf.filter(isRelevant);
   const arxivRel = digest.arxiv.filter(isRelevant);
+  const embodied = (digest.embodied ?? []).filter(isRelevant);
+  const overflow = digest.overflow ?? [];
   const arxivLabel = arxivRel.length === 0 && digest.arxivStatus === "pending"
     ? t("arxivPendingShort")
     : arxivRel.length === 0 && digest.arxivStatus === "error"
       ? t("arxivErrorShort")
       : t("arxivCount", { count: arxivRel.length });
-  const filtered = [...digest.hf, ...digest.arxiv].filter((p) => !isRelevant(p));
+  const filtered = [...digest.hf, ...digest.arxiv, ...(digest.embodied ?? [])].filter(
+    (p) => !isRelevant(p),
+  );
 
   // 今日焦点:HF 榜前 3,面板突出;其余 HF 进入常规列表
   const focus = hfRel.slice(0, 3);
@@ -110,6 +114,15 @@ export default async function PaperDigestPage({
       tocItems.push({ id: `arxiv-${cat}`, label: cat, sub: true });
     }
   }
+  if (embodied.length > 0) {
+    tocItems.push({ id: "embodied", label: t("embodiedSection") });
+  }
+  if (overflow.length > 0) {
+    tocItems.push({
+      id: "overflow",
+      label: t("overflowCount", { count: overflow.length }),
+    });
+  }
   if (filtered.length > 0) {
     tocItems.push({
       id: "filtered",
@@ -127,7 +140,7 @@ export default async function PaperDigestPage({
     <Container>
       <PageHeader
         title={t("digestTitle", { date: digest.date })}
-        description={`${t("hfCount", { count: hfRel.length })} · ${arxivLabel}${filtered.length > 0 ? ` · ${t("filteredCount", { count: filtered.length })}` : ""}`}
+        description={`${t("hfCount", { count: hfRel.length })} · ${arxivLabel}${embodied.length > 0 ? ` · ${t("embodiedCount", { count: embodied.length })}` : ""}${filtered.length > 0 ? ` · ${t("filteredCount", { count: filtered.length })}` : ""}`}
       />
       <ExportButtons url={`/export/papers/${digest.date}.md`} />
 
@@ -203,6 +216,11 @@ export default async function PaperDigestPage({
               label={t("arxivSection")}
               count={t("arxivCount", { count: arxivRel.length })}
             />
+            {digest.pool ? (
+              <p className="mt-2 font-mono text-xs text-muted">
+                {t("selectedFrom", { total: digest.pool.main })}
+              </p>
+            ) : null}
             {groups.map((cat) => (
               <div key={cat} id={`arxiv-${cat}`} className="mt-6 scroll-mt-24">
                 <h3 className="font-mono text-xs text-accent">{cat}</h3>
@@ -220,6 +238,63 @@ export default async function PaperDigestPage({
               </div>
             ))}
           </section>
+        ) : null}
+
+        {/* 具身智能栏目:独立画像评分、独立名额,不占主列表 */}
+        {embodied.length > 0 ? (
+          <section id="embodied" className="scroll-mt-24 pb-12">
+            <SectionHeader
+              label={t("embodiedSection")}
+              count={t("embodiedCount", { count: embodied.length })}
+            />
+            {digest.pool ? (
+              <p className="mt-2 font-mono text-xs text-muted">
+                {t("selectedFrom", { total: digest.pool.embodied })}
+              </p>
+            ) : null}
+            <div className="mt-4">
+              {[...embodied].sort(byScore).map((paper) => (
+                <PaperCard
+                  key={paper.id}
+                  paper={paper}
+                  locale={locale}
+                  t={cardT}
+                  insightHref={insightHref(paper.id)}
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {/* 过了入选线但超出篇数上限的论文:只列标题与分数,方便回看筛选是否合理 */}
+        {overflow.length > 0 ? (
+          <details
+            id="overflow"
+            className="group mb-6 scroll-mt-24 rounded-2xl bg-surface px-5 py-3 ring-1 ring-hairline"
+          >
+            <summary className="cursor-pointer select-none font-mono text-xs text-muted transition-colors duration-300 ease-premium hover:text-foreground">
+              {t("overflowCount", { count: overflow.length })}
+            </summary>
+            <ul className="mt-3 border-t border-hairline pt-3">
+              {overflow.map((paper) => (
+                <li key={paper.id} className="flex items-baseline gap-3 py-1">
+                  <span className="w-7 shrink-0 font-mono text-xs text-muted">
+                    {paper.score}
+                  </span>
+                  <a
+                    href={paper.urls.abs}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block min-w-0 truncate text-sm text-muted transition-colors duration-300 ease-premium hover:text-accent"
+                  >
+                    {locale === "zh" && paper.titleZh
+                      ? paper.titleZh
+                      : paper.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
         ) : null}
 
         {/* 被兴趣过滤掉的论文:折叠保留,可展开捞回 */}

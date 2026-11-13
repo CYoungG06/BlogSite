@@ -47,6 +47,7 @@ function digestHtml(digest) {
   };
   section("Hugging Face 热门", digest.hf.filter(relevant));
   section("arXiv 新论文", digest.arxiv.filter(relevant));
+  section("具身智能", (digest.embodied ?? []).filter(relevant));
   return parts.join("");
 }
 

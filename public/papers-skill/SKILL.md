@@ -29,7 +29,8 @@ UA="papers-digest-skill/0.1 (+https://cyoungg06.github.io/BlogSite/)"
 ## 端点合同
 
 - `GET /api/papers/index.json` — 归档索引:`{ latest, dates: [{ date, url, page, papers, relevant }] }`(`relevant` 是该期通过兴趣过滤的篇数)
-- `GET /api/papers/{YYYY-MM-DD}.json` — 单日速递:`{ date, hf: [...], arxiv: [...] }`
+- `GET /api/papers/{YYYY-MM-DD}.json` — 单日速递:`{ date, hf: [...], arxiv: [...], embodied?: [...] }`
+  (`arxiv` 是从当天全部候选里按兴趣评分选出的,至多 50 篇、均 ≥7 分;`embodied` 是 2026-11 起新增的具身智能栏目,至多 10 篇,旧日期没有该字段)
 
 论文对象字段(只增不删,不要猜测未列字段):
 
@@ -38,7 +39,7 @@ UA="papers-digest-skill/0.1 (+https://cyoungg06.github.io/BlogSite/)"
 - `authors` / `authorsTotal`、`abstract`(英文摘要全文)、`published`、`primaryCategory`
 - `upvotes`(HF 社区热度)、`githubRepo` / `githubStars` / `projectPage`、`comment`(页数/收录信息)
 - `relevant`:仅当为 `false` 时表示被兴趣过滤(音视频生成/视觉重建/扩散模型/物理硬件/生物医药/纯理论/垂直行业应用等方向)
-- `score`:AI 兴趣评分 0–10(越高越贴近 LLM/后训练/Agent 等核心方向;≤4 即被过滤);`reason`:一句中文打分依据
+- `score`:AI 兴趣评分 0–10,可能带半分(越高越贴近 LLM/后训练/Agent 等核心方向;≤4 即被过滤);`reason`:一句中文打分依据
 - `deepDive`:仅当为 `true` 时表示本站编辑视角的「值得深读」候选(每日 ≤10 个,可能已有或将有深度解读长文)
 
 ## 意图路由

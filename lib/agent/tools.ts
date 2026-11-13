@@ -129,14 +129,18 @@ async function readDigest(date: string, source: string | undefined): Promise<str
   const relevant = (p: DigestPaper) => p.relevant !== false;
   const out: Record<string, unknown> = { date };
   if (source !== "arxiv") out.hf = (digest.hf ?? []).filter(relevant).map(slim);
-  if (source !== "hf") out.arxiv = (digest.arxiv ?? []).filter(relevant).map(slim);
+  if (source !== "hf") {
+    out.arxiv = (digest.arxiv ?? []).filter(relevant).map(slim);
+    // 具身智能栏目(独立画像评分);旧速递没有这个字段
+    if (digest.embodied?.length) out.embodied = digest.embodied.filter(relevant).map(slim);
+  }
   return JSON.stringify(out);
 }
 
 /** all.json 里的跨天论文索引条目(scripts/generate-papers-api.mjs 产出) */
 export interface IndexedPaper {
   date: string;
-  source: "hf" | "arxiv";
+  source: "hf" | "arxiv" | "embodied";
   id: string;
   title: string;
   titleZh?: string;
@@ -348,7 +352,7 @@ function detailOf(name: string, args: Record<string, unknown>, result: string, l
       case "list_digests":
         return zh ? `最新一期 ${data.latest}` : `latest: ${data.latest}`;
       case "read_digest": {
-        const n = (data.hf?.length ?? 0) + (data.arxiv?.length ?? 0);
+        const n = (data.hf?.length ?? 0) + (data.arxiv?.length ?? 0) + (data.embodied?.length ?? 0);
         return zh ? `${data.date} · ${n} 篇` : `${data.date} · ${n} paper(s)`;
       }
       case "search_papers": {

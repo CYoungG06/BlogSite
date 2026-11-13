@@ -96,6 +96,7 @@ function exportPapers() {
     const relevant = (list) => (list ?? []).filter((p) => p.relevant !== false);
     const hf = relevant(digest.hf);
     const arxiv = relevant(digest.arxiv);
+    const embodied = relevant(digest.embodied);
     const parts = [`# 论文速递 ${digest.date}`];
     if (digest.arxivStatus === "pending") {
       parts.push("> arXiv 部分待更新，后续会自动补齐。");
@@ -109,6 +110,10 @@ function exportPapers() {
     if (arxiv.length) {
       parts.push(`## arXiv 新论文(${arxiv.length} 篇)\n`);
       parts.push(arxiv.map(paperBlock).join("\n---\n\n"));
+    }
+    if (embodied.length) {
+      parts.push(`## 具身智能(${embodied.length} 篇)\n`);
+      parts.push(embodied.map(paperBlock).join("\n---\n\n"));
     }
     const out = path.join(OUT, "papers", file.replace(/\.json$/, ".md"));
     fs.mkdirSync(path.dirname(out), { recursive: true });

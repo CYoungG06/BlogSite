@@ -50,6 +50,7 @@ export default async function PapersPage({
       ...d,
       hf: d.hf.filter(isRelevant),
       arxiv: d.arxiv.filter(isRelevant),
+      embodied: (d.embodied ?? []).filter(isRelevant),
     }));
 
   return (
@@ -138,6 +139,9 @@ export default async function PapersPage({
                         : digest.arxiv.length === 0 && digest.arxivStatus === "error"
                           ? t("arxivErrorShort")
                           : t("arxivCount", { count: digest.arxiv.length })}
+                      {digest.embodied.length > 0
+                        ? ` · ${t("embodiedCount", { count: digest.embodied.length })}`
+                        : ""}
                     </span>
                     <ArrowUpRight
                       size={14}
