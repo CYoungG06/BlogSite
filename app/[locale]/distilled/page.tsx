@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getDistilled } from "@/lib/distilled";
 import { isoDate } from "@/lib/format";
+import { pageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -16,8 +17,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "distilled" });
-  return { title: t("title"), description: t("description") };
+  return pageMetadata({
+    locale,
+    path: "/distilled/",
+    title: t("title"),
+    description: t("description"),
+  });
 }
 
 /** 蒸馏列表:转载/译文,日期倒序,带来源徽章与转载声明 */

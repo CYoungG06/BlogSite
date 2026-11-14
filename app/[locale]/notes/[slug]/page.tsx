@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import ArticleDetail from "@/components/ArticleDetail";
 import { routing } from "@/i18n/routing";
 import { getNote, getNoteSlugs } from "@/lib/notes";
+import { pageMetadata } from "@/lib/metadata";
 
 /** locale × slug 并集,与文章详情同一套回退逻辑 */
 export function generateStaticParams() {
@@ -20,7 +21,18 @@ export async function generateMetadata({
   if (!hasLocale(routing.locales, locale)) return {};
   const note = getNote(locale, slug);
   if (!note) return {};
-  return { title: note.title, description: note.preview };
+  return pageMetadata({
+    locale,
+    path: `/notes/${slug}/`,
+    title: note.title,
+    description: note.preview,
+    // 英文站回退显示中文原文时,canonical 指向中文页;hreflang 只列真有该语言版本的
+    contentLocale: note.locale,
+    locales: note.locales,
+    type: "article",
+    publishedTime: note.date,
+    tags: note.tags,
+  });
 }
 
 export default async function NotePage({

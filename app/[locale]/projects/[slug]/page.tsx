@@ -6,13 +6,14 @@ import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
 import MDXContent from "@/components/mdx/MDXContent";
 import { Link } from "@/i18n/navigation";
-import { routing, type Locale } from "@/i18n/routing";
+import { type Locale, routing } from "@/i18n/routing";
 import { formatDate } from "@/lib/format";
 import {
   getDetailProjectSlugs,
   getProject,
   type Project,
 } from "@/lib/projects";
+import { pageMetadata } from "@/lib/metadata";
 
 /** hasDetail: true 的项目才生成详情页 */
 export function generateStaticParams() {
@@ -28,7 +29,12 @@ export async function generateMetadata({
   if (!hasLocale(routing.locales, locale)) return {};
   const project = getProject(locale, slug);
   if (!project) return {};
-  return { title: project.title, description: project.description };
+  return pageMetadata({
+    locale,
+    path: `/projects/${slug}/`,
+    title: project.title,
+    description: project.description,
+  });
 }
 
 export default async function ProjectPage({

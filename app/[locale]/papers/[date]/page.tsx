@@ -5,9 +5,10 @@ import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
 import PageHeader from "@/components/layout/PageHeader";
 import AskAcaneButtons from "@/components/agent/AskAcaneButtons";
+import BackToTop from "@/components/BackToTop";
 import ExportButtons from "@/components/ExportButtons";
 import DigestToc, { type TocItem } from "@/components/papers/DigestToc";
-import PaperCard from "@/components/papers/PaperCard";
+import PaperCard, { type PaperCardText } from "@/components/papers/PaperCard";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getInsightIds } from "@/lib/insights";
@@ -17,6 +18,7 @@ import {
   isRelevant,
   type PaperItem,
 } from "@/lib/papers";
+import { pageMetadata } from "@/lib/metadata";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
@@ -30,8 +32,22 @@ export async function generateMetadata({
   params: Promise<{ locale: string; date: string }>;
 }): Promise<Metadata> {
   const { locale, date } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "papers" });
-  return { title: t("digestTitle", { date }) };
+  const digest = getDigest(date);
+  // 分享预览里列出当期最受关注的三篇
+  const top = digest
+    ? [...digest.hf, ...digest.arxiv]
+        .filter(isRelevant)
+        .slice(0, 3)
+        .map((p) => (locale === "zh" && p.titleZh ? p.titleZh : p.title))
+    : [];
+  return pageMetadata({
+    locale,
+    path: `/papers/${date}/`,
+    title: t("digestTitle", { date }),
+    description: top.length > 0 ? top.join(" · ") : t("description"),
+  });
 }
 
 /** 分区标题:大标题 + 计数 + 分隔线,页面内的视觉锚点 */
@@ -58,12 +74,15 @@ export default async function PaperDigestPage({
   if (!digest) notFound();
 
   const t = await getTranslations({ locale, namespace: "papers" });
-  const cardT = {
+  const cardT: PaperCardText = {
     code: t("code"),
     project: t("project"),
     etAl: t("etAl"),
     insight: t("insightBadge"),
     deepDive: t("deepDive"),
+    score: (score) => t("scoreLabel", { score }),
+    scoreWhy: t("scoreWhy"),
+    githubStars: t("githubStars"),
   };
   // 有深度解读的论文 id 集合,卡片据此渲染徽章
   const insightIds = getInsightIds();
@@ -83,6 +102,7 @@ export default async function PaperDigestPage({
   const filtered = [...digest.hf, ...digest.arxiv, ...(digest.embodied ?? [])].filter(
     (p) => !isRelevant(p),
   );
+  const hasScores = [...digest.hf, ...digest.arxiv].some((p) => p.score !== undefined);
 
   // 今日焦点:HF 榜前 3,面板突出;其余 HF 进入常规列表
   const focus = hfRel.slice(0, 3);
@@ -141,20 +161,23 @@ export default async function PaperDigestPage({
       <PageHeader
         title={t("digestTitle", { date: digest.date })}
         description={`${t("hfCount", { count: hfRel.length })} · ${arxivLabel}${embodied.length > 0 ? ` · ${t("embodiedCount", { count: embodied.length })}` : ""}${filtered.length > 0 ? ` · ${t("filteredCount", { count: filtered.length })}` : ""}`}
-      />
-      <ExportButtons url={`/export/papers/${digest.date}.md`} />
-
-      {/* 情境化入口:让阿卡内按口味筛一遍今天 */}
-      <div className="mb-10 print:hidden">
-        <AskAcaneButtons
-          items={[
-            {
-              label: t("askFilterBtn"),
-              prompt: t("askFilterPrompt", { date: digest.date }),
-            },
-          ]}
-        />
-      </div>
+      >
+        {hasScores ? (
+          <p className="mt-2 max-w-2xl text-sm text-muted">{t("scoreLegend")}</p>
+        ) : null}
+        <ExportButtons url={`/export/papers/${digest.date}.md`} />
+        {/* 情境化入口:让阿卡内按口味筛一遍今天 */}
+        <div className="mt-3 print:hidden">
+          <AskAcaneButtons
+            items={[
+              {
+                label: t("askFilterBtn"),
+                prompt: t("askFilterPrompt", { date: digest.date }),
+              },
+            ]}
+          />
+        </div>
+      </PageHeader>
 
       <div className="relative">
         {/* 宽屏右侧 sticky 索引 */}
@@ -349,6 +372,7 @@ export default async function PaperDigestPage({
           )}
         </nav>
       </div>
+      <BackToTop />
     </Container>
   );
 }

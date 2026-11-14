@@ -3,6 +3,7 @@
  * 轻量实现:Markdown 转纯文本后按像素宽度折行,不做完整排版;
  * 配色固定浅色主题(accent #2952e3),分享出去不依赖站点暗色模式。
  */
+import { SITE_HOST } from "@/lib/site";
 
 const WIDTH = 840;
 const PADDING = 48;
@@ -122,7 +123,7 @@ export function downloadShareCard(content: string): void {
   ctx.font = "12px -apple-system, 'PingFang SC', sans-serif";
   ctx.fillStyle = MUTED;
   ctx.fillText(new Date().toISOString().slice(0, 10), PADDING, height - 28);
-  const url = "cyoungg06.github.io/BlogSite";
+  const url = SITE_HOST;
   ctx.fillText(url, WIDTH - PADDING - ctx.measureText(url).width, height - 28);
 
   canvas.toBlob((blob) => {

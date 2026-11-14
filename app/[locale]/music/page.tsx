@@ -8,6 +8,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getMusic } from "@/lib/music";
+import { pageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -15,8 +16,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "music" });
-  return { title: t("title"), description: t("description") };
+  return pageMetadata({
+    locale,
+    path: "/music/",
+    title: t("title"),
+    description: t("description"),
+  });
 }
 
 export default async function MusicPage({

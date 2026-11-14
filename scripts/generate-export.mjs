@@ -13,7 +13,8 @@ const CONTENT = path.join(ROOT, "content");
 const OUT = path.join(ROOT, "public", "export");
 
 /** 导出的 .md 脱离站点使用,站内图片相对路径改写为绝对 URL(联网可加载) */
-const SITE_ORIGIN = "https://cyoungg06.github.io/BlogSite";
+const SITE_ORIGIN =
+  (process.env.SITE_URL ?? "https://cyoungg06.github.io") + (process.env.NEXT_PUBLIC_BASE_PATH ?? "");
 
 function absolutizeImages(body) {
   return body

@@ -7,6 +7,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import MDXContent from "@/components/mdx/MDXContent";
 import { routing } from "@/i18n/routing";
 import { getAbout } from "@/lib/about";
+import { pageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -14,8 +15,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "about" });
-  return { title: t("title"), description: t("description") };
+  return pageMetadata({
+    locale,
+    path: "/about/",
+    title: t("title"),
+    description: t("description"),
+  });
 }
 
 export default async function AboutPage({

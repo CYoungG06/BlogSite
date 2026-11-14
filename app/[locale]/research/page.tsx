@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { imageUrl } from "@/lib/images";
 import { getResearch, sortPublications } from "@/lib/research";
+import { pageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -16,8 +17,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "research" });
-  return { title: t("title"), description: t("description") };
+  return pageMetadata({
+    locale,
+    path: "/research/",
+    title: t("title"),
+    description: t("description"),
+  });
 }
 
 /** 研究专栏:组介绍 + 方向简介 + 论文列表(匿名,不印作者名单)+ News */

@@ -1,17 +1,29 @@
 /**
- * 生成论文速递 RSS 2.0 feed。
- * 读 content/papers/*.json,取最近 14 期、每期仅 AI 判定相关的论文,
- * 写 public/feed.xml(构建期生成,已 gitignore)。每期一条 entry,
- * 内容为中文导读列表 HTML,可直接在阅读器里读完。
+ * 生成两个 RSS 2.0 feed(构建期生成,已 gitignore):
+ * - public/feed.xml:论文速递。读 content/papers/*.json,取最近 14 期、每期仅 AI 判定相关的论文,
+ *   每期一条 entry,内容为中文导读列表 HTML,可直接在阅读器里读完。
+ * - public/rss.xml:全站文章(文章 / 蒸馏 / 精读 / 笔记 / 论文深度解读,中文版),最近 30 篇,
+ *   每篇一条 entry,带简介与标签,全文在站点上读。
  */
 import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import matter from "gray-matter";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const papersDir = path.join(root, "content", "papers");
 const outFile = path.join(root, "public", "feed.xml");
+const articlesFile = path.join(root, "public", "rss.xml");
+const MAX_ARTICLES = 30;
+/** 收进文章 feed 的集合:目录 → 站内路由与分类名 */
+const ARTICLE_SOURCES = [
+  { dir: "blog/zh", route: "blog", category: "文章" },
+  { dir: "distilled/zh", route: "distilled", category: "蒸馏" },
+  { dir: "reading/zh", route: "reading", category: "精读" },
+  { dir: "notes/zh", route: "notes", category: "笔记" },
+  { dir: "insights", route: "papers/insights", category: "论文深度解读" },
+];
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const SITE = (process.env.SITE_URL ?? "https://cyoungg06.github.io") + BASE_PATH;
@@ -97,4 +109,58 @@ ${items.join("\n")}
   console.log(`[feed] wrote public/feed.xml with ${items.length} issue(s)`);
 }
 
+/** frontmatter 的 date 可能被 YAML 解析成 Date,统一成 YYYY-MM-DD */
+const isoDate = (value) =>
+  value instanceof Date ? value.toISOString().slice(0, 10) : String(value ?? "").slice(0, 10);
+
+async function articlesFeed() {
+  const items = [];
+  for (const { dir, route, category } of ARTICLE_SOURCES) {
+    const full = path.join(root, "content", dir);
+    if (!existsSync(full)) continue;
+    for (const file of (await readdir(full)).filter((f) => /\.mdx?$/.test(f))) {
+      const { data } = matter(await readFile(path.join(full, file), "utf8"));
+      const date = isoDate(data.date);
+      if (data.draft === true || !data.title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+      const slug = file.replace(/\.mdx?$/, "");
+      items.push({
+        title: String(data.title),
+        url: `${SITE}/zh/${route}/${slug}/`,
+        date,
+        description: String(data.description ?? ""),
+        categories: [category, ...(Array.isArray(data.tags) ? data.tags.map(String) : [])],
+      });
+    }
+  }
+  items.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.url.localeCompare(b.url)));
+  const latest = items.slice(0, MAX_ARTICLES);
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>相对性阿卡内 · 文章</title>
+    <link>${SITE}/zh/</link>
+    <description>LLM、后训练与 Agent 方向的文章、论文精读与深度解读。</description>
+    <language>zh-cn</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+${latest
+  .map(
+    (item) => `    <item>
+      <title>${esc(item.title)}</title>
+      <link>${item.url}</link>
+      <guid isPermaLink="true">${item.url}</guid>
+      <pubDate>${new Date(`${item.date}T00:00:00+08:00`).toUTCString()}</pubDate>
+${item.categories.map((c) => `      <category>${esc(c)}</category>`).join("\n")}
+      <description>${cdata(item.description)}</description>
+    </item>`,
+  )
+  .join("\n")}
+  </channel>
+</rss>
+`;
+  await mkdir(path.dirname(articlesFile), { recursive: true });
+  await writeFile(articlesFile, xml);
+  console.log(`[feed] wrote public/rss.xml with ${latest.length} article(s)`);
+}
+
 await main();
+await articlesFeed();

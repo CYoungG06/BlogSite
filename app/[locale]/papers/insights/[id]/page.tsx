@@ -4,13 +4,17 @@ import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
+import BackToTop from "@/components/BackToTop";
 import CiteBlock from "@/components/CiteBlock";
+import TagLink from "@/components/TagLink";
 import ExportButtons from "@/components/ExportButtons";
 import Lightbox from "@/components/mdx/Lightbox";
 import MDXContent from "@/components/mdx/MDXContent";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getInsight, getInsightIds } from "@/lib/insights";
+import { absoluteUrl } from "@/lib/site";
+import { pageMetadata } from "@/lib/metadata";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
@@ -23,10 +27,22 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { locale, id } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const insight = getInsight(id);
   if (!insight) return {};
-  return { title: insight.meta.title, description: insight.meta.description };
+  // 解读只有中文版:英文站同路径显示的也是中文,canonical 统一指向中文页
+  return pageMetadata({
+    locale,
+    path: `/papers/insights/${id}/`,
+    title: insight.meta.title,
+    description: insight.meta.description,
+    contentLocale: "zh",
+    locales: ["zh"],
+    type: "article",
+    publishedTime: insight.meta.date,
+    tags: insight.meta.tags,
+  });
 }
 
 /** 论文深度解读:标题 + 论文 meta 行(外链 arXiv/alphaXiv、回链当日速递)+ MDX 正文 */
@@ -106,12 +122,7 @@ export default async function InsightPage({
           {meta.tags.length > 0 ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">
               {meta.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full bg-surface px-2.5 py-0.5 font-mono text-xs text-muted ring-1 ring-hairline"
-                >
-                  {tag}
-                </span>
+                <TagLink key={tag} tag={tag} />
               ))}
             </div>
           ) : null}
@@ -129,7 +140,8 @@ export default async function InsightPage({
         <div className="mx-auto mt-12 max-w-3xl">
           <CiteBlock
             title={meta.title}
-            url={`https://cyoungg06.github.io/BlogSite/zh/papers/insights/${id}/`}
+            // 解读只有中文版,引用统一指向中文页
+            url={absoluteUrl(`/zh/papers/insights/${id}/`)}
             date={meta.date}
           />
         </div>
@@ -144,6 +156,7 @@ export default async function InsightPage({
           </Link>
         </nav>
       </div>
+      <BackToTop />
     </Container>
   );
 }

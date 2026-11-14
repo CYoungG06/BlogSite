@@ -1,14 +1,17 @@
-import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRight, CaretRight } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Container from "@/components/layout/Container";
 import PageHeader from "@/components/layout/PageHeader";
+import PaperSearch from "@/components/papers/PaperSearch";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getAllInsights } from "@/lib/insights";
 import { getDigestDates, getDigest, isRelevant } from "@/lib/papers";
+import { SITE_URL } from "@/lib/site";
+import { pageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -16,16 +19,15 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "papers" });
-  return {
+  // RSS 发现链接(文章 + 速递)由 pageMetadata 统一带上
+  return pageMetadata({
+    locale,
+    path: "/papers/",
     title: t("title"),
     description: t("description"),
-    alternates: {
-      types: {
-        "application/rss+xml": `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/feed.xml`,
-      },
-    },
-  };
+  });
 }
 
 /** 速递归档:按日期倒序列出每期,附篇数与当日 Top3 标题 */
@@ -39,7 +41,7 @@ export default async function PapersPage({
   setRequestLocale(locale);
 
   // 文档区块里的完整 URL(对外复制用)
-  const SITE = `https://cyoungg06.github.io${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}`;
+  const SITE = SITE_URL;
   const t = await getTranslations({ locale, namespace: "papers" });
   const insights = getAllInsights();
   const digests = getDigestDates()
@@ -52,18 +54,34 @@ export default async function PapersPage({
       arxiv: d.arxiv.filter(isRelevant),
       embodied: (d.embodied ?? []).filter(isRelevant),
     }));
+  // 按月折叠:最近一个月展开,更早的收起(速递每天一期,平铺列表会越来越长)
+  const months: { month: string; digests: typeof digests }[] = [];
+  for (const digest of digests) {
+    const month = digest.date.slice(0, 7);
+    const last = months[months.length - 1];
+    if (last?.month === month) last.digests.push(digest);
+    else months.push({ month, digests: [digest] });
+  }
+  const monthLabel = (month: string) =>
+    new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en-US", {
+      year: "numeric",
+      month: "long",
+      timeZone: "UTC",
+    }).format(new Date(`${month}-01T00:00:00Z`));
 
   return (
     <Container>
-      <PageHeader title={t("title")} description={t("description")} />
-      <p className="-mt-6 pb-8 font-mono text-xs">
-        <a
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/feed.xml`}
-          className="text-muted transition-colors duration-300 ease-premium hover:text-foreground"
-        >
-          {t("rss")} ↗
-        </a>
-      </p>
+      <PageHeader title={t("title")} description={t("description")}>
+        <p className="mt-3 font-mono text-xs">
+          <a
+            href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/feed.xml`}
+            className="text-muted transition-colors duration-300 ease-premium hover:text-foreground"
+          >
+            {t("rss")} ↗
+          </a>
+        </p>
+      </PageHeader>
+      <PaperSearch />
       {insights.length > 0 ? (
         <section className="pb-16">
           <h2 className="font-mono text-sm text-muted">{t("insightsTitle")}</h2>
@@ -112,55 +130,77 @@ export default async function PapersPage({
       {digests.length === 0 ? (
         <p className="pb-16 text-muted">{t("empty")}</p>
       ) : (
-        <ul className="pb-16">
-          {digests.map((digest) => {
-            const top3 = [...digest.hf, ...digest.arxiv].slice(0, 3);
+        <div className="pb-16">
+          {months.map((group, index) => {
+            const papers = group.digests.reduce(
+              (sum, d) => sum + d.hf.length + d.arxiv.length + d.embodied.length,
+              0,
+            );
             return (
-              <li
-                key={digest.date}
-                className="border-b border-hairline first:border-t"
-              >
-                <Link
-                  href={`/papers/${digest.date}`}
-                  className="group block py-4"
-                >
-                  <span className="flex items-baseline gap-3">
-                    <time
-                      dateTime={digest.date}
-                      className="shrink-0 font-mono text-xs text-muted"
-                    >
-                      {digest.date}
-                    </time>
-                    <span className="shrink-0 font-mono text-xs text-muted">
-                      {t("hfCount", { count: digest.hf.length })}
-                      {" · "}
-                      {digest.arxiv.length === 0 && digest.arxivStatus === "pending"
-                        ? t("arxivPendingShort")
-                        : digest.arxiv.length === 0 && digest.arxivStatus === "error"
-                          ? t("arxivErrorShort")
-                          : t("arxivCount", { count: digest.arxiv.length })}
-                      {digest.embodied.length > 0
-                        ? ` · ${t("embodiedCount", { count: digest.embodied.length })}`
-                        : ""}
-                    </span>
-                    <ArrowUpRight
-                      size={14}
+              <details key={group.month} open={index === 0} className="group/month">
+                <summary className="flex cursor-pointer list-none items-baseline justify-between gap-3 border-b border-hairline py-3 select-none [&::-webkit-details-marker]:hidden">
+                  <span className="flex items-baseline gap-2 font-medium tracking-tight">
+                    <CaretRight
+                      size={12}
                       aria-hidden
-                      className="ml-auto shrink-0 -translate-x-1 self-center text-accent opacity-0 transition-all duration-300 ease-premium group-hover:translate-x-0 group-hover:opacity-100"
+                      className="self-center text-muted transition-transform duration-300 ease-premium group-open/month:rotate-90"
                     />
+                    {monthLabel(group.month)}
                   </span>
-                  <span className="mt-1.5 block truncate text-sm text-muted transition-colors duration-300 ease-premium group-hover:text-foreground">
-                    {top3
-                      .map((p) =>
-                        locale === "zh" && p.titleZh ? p.titleZh : p.title,
-                      )
-                      .join(" · ")}
+                  <span className="font-mono text-xs text-muted">
+                    {t("monthSummary", { issues: group.digests.length, papers })}
                   </span>
-                </Link>
-              </li>
+                </summary>
+                <ul className="mb-6">
+                  {group.digests.map((digest) => {
+                    const top3 = [...digest.hf, ...digest.arxiv].slice(0, 3);
+                    return (
+                      <li key={digest.date} className="border-b border-hairline">
+                        <Link
+                          href={`/papers/${digest.date}`}
+                          className="group block py-4"
+                        >
+                          <span className="flex items-baseline gap-3">
+                            <time
+                              dateTime={digest.date}
+                              className="shrink-0 font-mono text-xs text-muted"
+                            >
+                              {digest.date}
+                            </time>
+                            <span className="shrink-0 font-mono text-xs text-muted">
+                              {t("hfCount", { count: digest.hf.length })}
+                              {" · "}
+                              {digest.arxiv.length === 0 && digest.arxivStatus === "pending"
+                                ? t("arxivPendingShort")
+                                : digest.arxiv.length === 0 && digest.arxivStatus === "error"
+                                  ? t("arxivErrorShort")
+                                  : t("arxivCount", { count: digest.arxiv.length })}
+                              {digest.embodied.length > 0
+                                ? ` · ${t("embodiedCount", { count: digest.embodied.length })}`
+                                : ""}
+                            </span>
+                            <ArrowUpRight
+                              size={14}
+                              aria-hidden
+                              className="ml-auto shrink-0 -translate-x-1 self-center text-accent opacity-0 transition-all duration-300 ease-premium group-hover:translate-x-0 group-hover:opacity-100"
+                            />
+                          </span>
+                          <span className="mt-1.5 block truncate text-sm text-muted transition-colors duration-300 ease-premium group-hover:text-foreground">
+                            {top3
+                              .map((p) =>
+                                locale === "zh" && p.titleZh ? p.titleZh : p.title,
+                              )
+                              .join(" · ")}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
             );
           })}
-        </ul>
+        </div>
       )}
 
       {/* Agent 与开发者接入:静态 JSON API + RSS + skill 安装提示 */}

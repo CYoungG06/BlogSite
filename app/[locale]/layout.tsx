@@ -13,6 +13,8 @@ import ThemeProvider from "@/components/ThemeProvider";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import { routing } from "@/i18n/routing";
+import { DEFAULT_OG_IMAGE, feedLinks } from "@/lib/metadata";
+import { SITE_URL } from "@/lib/site";
 import "katex/dist/katex.min.css";
 import "../globals.css";
 
@@ -37,12 +39,23 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "site" });
+  const lang = hasLocale(routing.locales, locale) ? locale : routing.defaultLocale;
+  // 页面没有自己设置的部分(分享卡片、RSS 发现链接)都用这里的默认值,见 lib/metadata.ts
   return {
+    metadataBase: new URL(`${SITE_URL}/`),
     title: {
       default: t("title"),
       template: `%s · ${t("name")}`,
     },
     description: t("description"),
+    alternates: { types: feedLinks(lang) },
+    openGraph: {
+      type: "website",
+      siteName: t("name"),
+      locale: lang === "zh" ? "zh_CN" : "en_US",
+      images: [DEFAULT_OG_IMAGE],
+    },
+    twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
   };
 }
 

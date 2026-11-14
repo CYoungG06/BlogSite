@@ -9,6 +9,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { routing } from "@/i18n/routing";
 import { getFriends } from "@/lib/friends";
 import { getGiscusConfig } from "@/lib/giscus";
+import { pageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -16,8 +17,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "friends" });
-  return { title: t("title"), description: t("description") };
+  return pageMetadata({
+    locale,
+    path: "/friends/",
+    title: t("title"),
+    description: t("description"),
+  });
 }
 
 export default async function FriendsPage({

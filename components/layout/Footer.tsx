@@ -1,4 +1,4 @@
-import { GithubLogo } from "@phosphor-icons/react/dist/ssr";
+import { GithubLogo, Rss } from "@phosphor-icons/react/dist/ssr";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import SiteStats from "../SiteStats";
@@ -17,8 +17,14 @@ export default async function Footer() {
   ];
 
   const moreItems = [
+    { href: "/archive", label: t("nav.archive") },
     { href: "/friends", label: t("nav.friends") },
     { href: "/search", label: t("footer.search") },
+  ];
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  const feeds = [
+    { href: `${basePath}/rss.xml`, label: t("footer.rssArticles") },
+    { href: `${basePath}/feed.xml`, label: t("footer.rssPapers") },
   ];
 
   return (
@@ -57,6 +63,17 @@ export default async function Footer() {
                   >
                     {item.label}
                   </Link>
+                </li>
+              ))}
+              {feeds.map((feed) => (
+                <li key={feed.href}>
+                  <a
+                    href={feed.href}
+                    className="inline-flex items-center gap-1.5 text-muted transition-colors duration-300 ease-premium hover:text-foreground"
+                  >
+                    <Rss size={15} aria-hidden />
+                    {feed.label}
+                  </a>
                 </li>
               ))}
               <li>

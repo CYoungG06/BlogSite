@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { useTranslations } from "next-intl";
+import TagLink from "@/components/TagLink";
 import { Link } from "@/i18n/navigation";
 import { formatDate } from "@/lib/format";
 import type { Post } from "@/lib/posts";
@@ -39,11 +40,9 @@ export default function PostCard({
       {post.tags.length > 0 ? (
         <ul className="mt-3 flex flex-wrap gap-2">
           {post.tags.map((tag) => (
-            <li
-              key={tag}
-              className="rounded-full bg-surface px-2.5 py-0.5 font-mono text-xs text-muted ring-1 ring-hairline"
-            >
-              {tag}
+            <li key={tag} className="flex">
+              {/* 整卡是一个覆盖链接,标签要浮在它上面才点得到 */}
+              <TagLink tag={tag} className="relative z-10" />
             </li>
           ))}
         </ul>

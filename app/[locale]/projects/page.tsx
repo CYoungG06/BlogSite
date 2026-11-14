@@ -7,6 +7,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import ProjectCard from "@/components/projects/ProjectCard";
 import { routing } from "@/i18n/routing";
 import { getProjects } from "@/lib/projects";
+import { pageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -14,8 +15,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "projects" });
-  return { title: t("title"), description: t("description") };
+  return pageMetadata({
+    locale,
+    path: "/projects/",
+    title: t("title"),
+    description: t("description"),
+  });
 }
 
 export default async function ProjectsPage({
