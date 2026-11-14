@@ -12,9 +12,10 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { isoDate } from "@/lib/format";
 import { getNotes } from "@/lib/notes";
-import { getLatestDigest, isRelevant } from "@/lib/papers";
+import { getLatestDigest, isRelevant, type PaperItem } from "@/lib/papers";
 import { getPosts, type Post } from "@/lib/posts";
 import { getProjects } from "@/lib/projects";
+import { pageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -22,12 +23,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "site" });
+  if (!hasLocale(routing.locales, locale)) return {};
+  const t = await getTranslations({ locale, namespace: "home" });
   // 标题走 layout 的 default,避免 template 拼成 "站名 · 站名"
-  return { description: t("description") };
+  return pageMetadata({ locale, path: "/", description: t("heroSubtitle") });
 }
 
-/** 首页:Hero → 最近文章 → 最新笔记 → 精选项目,全部条件渲染 */
+/** 首页:Hero(含最新一期速递)→ 文章 → 最新笔记 → 精选项目,全部条件渲染 */
 export default async function HomePage({
   params,
 }: {
@@ -46,70 +48,133 @@ export default async function HomePage({
   const projects = getProjects(locale)
     .filter((project) => project.featured)
     .slice(0, 2);
-  // 论文速递:最新一期,HF 热门(已按 upvotes 排序)优先,arXiv 补足 5 条;
-  // 只取 AI 判定相关的论文
+  // 首屏右侧的最新一期速递:值得深读的优先,再按兴趣评分、热度;只取 AI 判定相关的论文
   const digest = getLatestDigest();
+  const rank = (p: PaperItem) => [p.deepDive ? 1 : 0, p.score ?? -1, p.upvotes ?? 0];
   const paperItems = digest
-    ? [...digest.hf, ...digest.arxiv].filter(isRelevant).slice(0, 5)
+    ? [...digest.hf, ...digest.arxiv, ...(digest.embodied ?? [])]
+        .filter(isRelevant)
+        .sort((a, b) => {
+          const [x, y] = [rank(a), rank(b)];
+          return y[0] - x[0] || y[1] - x[1] || y[2] - x[2];
+        })
+        .slice(0, 4)
     : [];
+  const tp = await getTranslations({ locale, namespace: "papers" });
+  const digestCounts = digest
+    ? [
+        tp("hfCount", { count: digest.hf.filter(isRelevant).length }),
+        digest.arxiv.length === 0 && digest.arxivStatus === "pending"
+          ? tp("arxivPendingShort")
+          : tp("arxivCount", { count: digest.arxiv.filter(isRelevant).length }),
+        ...(digest.embodied?.length
+          ? [tp("embodiedCount", { count: digest.embodied.filter(isRelevant).length })]
+          : []),
+      ].join(" · ")
+    : "";
 
   const stagger = (index: number) =>
     ({ "--stagger": `${index * 100}ms` }) as CSSProperties;
 
   return (
     <Container>
-      {/* Hero */}
-      <section className="py-16 sm:py-24">
-        <p
-          className="animate-fade-up mb-6 inline-flex items-center rounded-full bg-surface px-3 py-1 font-mono text-xs text-muted ring-1 ring-hairline"
-          style={stagger(0)}
-        >
-          {t("home.construction")}
-        </p>
-        <h1
-          className="animate-fade-up max-w-3xl text-4xl font-semibold tracking-tighter sm:text-5xl"
-          style={stagger(1)}
-        >
-          {t("home.heroTitle")}
-          {/* 竖条光标:em 尺寸跟随标题字号 */}
-          <span
-            aria-hidden
-            className="animate-blink ml-[0.1em] inline-block h-[0.82em] w-[0.09em] translate-y-[0.1em] rounded-[1px] bg-accent"
-          />
-        </h1>
-        <p
-          className="animate-fade-up mt-5 max-w-2xl text-lg font-medium tracking-tight"
-          style={stagger(2)}
-        >
-          {t("home.motto")}
-        </p>
-        <p
-          className="animate-fade-up mt-2 max-w-2xl text-muted"
-          style={stagger(2)}
-        >
-          {t("home.heroSubtitle")}
-        </p>
-        <div className="animate-fade-up mt-8 flex gap-3" style={stagger(3)}>
-          <Link
-            href="/blog"
-            className="group inline-flex h-12 items-center gap-3 rounded-full bg-foreground pr-2 pl-6 text-sm font-medium text-background transition-transform duration-300 ease-premium active:scale-[0.98]"
+      {/* Hero:左侧标语与入口,右侧(手机上在下方)是最新一期速递 —— 站点每天都在更新的部分放在首屏 */}
+      <section className="py-16 sm:py-24 lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-center lg:gap-12">
+        <div>
+          <h1
+            className="animate-fade-up max-w-3xl text-4xl font-semibold tracking-tighter sm:text-5xl"
+            style={stagger(0)}
           >
-            {t("home.primaryCta")}
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-background/15 transition-transform duration-300 ease-premium group-hover:translate-x-0.5 group-hover:scale-105">
-              <ArrowRight size={15} />
-            </span>
-          </Link>
-          <Link
-            href="/about"
-            className="inline-flex h-12 items-center rounded-full px-6 text-sm font-medium ring-1 ring-hairline transition-colors duration-300 ease-premium hover:bg-foreground/5 active:scale-[0.98]"
+            {t("home.heroTitle")}
+            {/* 竖条光标:em 尺寸跟随标题字号 */}
+            <span
+              aria-hidden
+              className="animate-blink ml-[0.1em] inline-block h-[0.82em] w-[0.09em] translate-y-[0.1em] rounded-[1px] bg-accent"
+            />
+          </h1>
+          <p
+            className="animate-fade-up mt-5 max-w-2xl text-lg font-medium tracking-tight"
+            style={stagger(1)}
           >
-            {t("home.secondaryCta")}
-          </Link>
+            {t("home.motto")}
+          </p>
+          <p
+            className="animate-fade-up mt-2 max-w-xl text-muted"
+            style={stagger(1)}
+          >
+            {t("home.heroSubtitle")}
+          </p>
+          <div className="animate-fade-up mt-8 flex gap-3" style={stagger(2)}>
+            <Link
+              href="/blog"
+              className="group inline-flex h-12 items-center gap-3 rounded-full bg-foreground pr-2 pl-6 text-sm font-medium text-background transition-transform duration-300 ease-premium active:scale-[0.98]"
+            >
+              {t("home.primaryCta")}
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-background/15 transition-transform duration-300 ease-premium group-hover:translate-x-0.5 group-hover:scale-105">
+                <ArrowRight size={15} />
+              </span>
+            </Link>
+            <Link
+              href="/about"
+              className="inline-flex h-12 items-center rounded-full px-6 text-sm font-medium ring-1 ring-hairline transition-colors duration-300 ease-premium hover:bg-foreground/5 active:scale-[0.98]"
+            >
+              {t("home.secondaryCta")}
+            </Link>
+          </div>
+          {/* AI 助手大门:首页直接问阿卡内 */}
+          <div className="animate-fade-up mt-6" style={stagger(3)}>
+            <HeroAsk />
+          </div>
         </div>
-        {/* AI 助手大门:首页直接问阿卡内 */}
-        <div className="animate-fade-up mt-6" style={stagger(3)}>
-          <HeroAsk />
-        </div>
+
+        {digest && paperItems.length > 0 ? (
+          <aside className="animate-fade-up mt-12 lg:mt-0" style={stagger(3)}>
+            <div className="rounded-[1.75rem] bg-surface p-1.5 ring-1 ring-hairline">
+              <div className="rounded-[calc(1.75rem-0.375rem)] bg-background px-5 pt-4 pb-3 ring-1 ring-hairline">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="text-sm font-semibold tracking-tight">
+                    {t("home.digestHeading")}
+                  </h2>
+                  <time dateTime={digest.date} className="font-mono text-xs text-muted">
+                    {digest.date}
+                  </time>
+                </div>
+                <ul className="mt-3">
+                  {paperItems.map((paper) => (
+                    <li key={paper.id} className="border-t border-hairline">
+                      <Link
+                        href={`/papers/${digest.date}/#${paper.id}`}
+                        className="group flex items-baseline gap-3 py-2.5"
+                      >
+                        <span
+                          className={`shrink-0 rounded-full px-1.5 py-0.5 font-mono text-xs ${
+                            paper.deepDive
+                              ? "bg-accent text-white"
+                              : "bg-accent/10 text-accent"
+                          }`}
+                        >
+                          {paper.score ?? `▲${paper.upvotes ?? 0}`}
+                        </span>
+                        <span className="line-clamp-2 text-sm leading-snug transition-colors duration-300 ease-premium group-hover:text-accent">
+                          {locale === "zh" && paper.titleZh ? paper.titleZh : paper.title}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/papers/${digest.date}`}
+                  className="group flex items-baseline justify-between gap-3 border-t border-hairline pt-3 font-mono text-xs text-muted transition-colors duration-300 ease-premium hover:text-foreground"
+                >
+                  <span className="truncate">{digestCounts}</span>
+                  <span className="shrink-0 transition-transform duration-300 ease-premium group-hover:translate-x-0.5">
+                    {t("home.digestOpen")} →
+                  </span>
+                </Link>
+              </div>
+            </div>
+          </aside>
+        ) : null}
       </section>
 
       {/* 文章:md 以上两栏(精选 | 最近),共用一个区块头,紧凑排版 */}
@@ -130,7 +195,7 @@ export default async function HomePage({
               />
             </Link>
           </div>
-          <div className="grid gap-x-10 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-10 md:grid-cols-2">
             {featuredPosts.length > 0 ? (
               <div>
                 <p className="mt-6 font-mono text-xs text-muted">
@@ -148,63 +213,6 @@ export default async function HomePage({
               </div>
             ) : null}
           </div>
-        </section>
-      ) : null}
-
-      {/* 论文速递:最新一期 Top5,行内外链 arXiv,区块头链归档 */}
-      {digest && paperItems.length > 0 ? (
-        <section className="animate-fade-up py-16" style={stagger(5)}>
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-xl font-semibold tracking-tight">
-              {t("home.papers")}
-            </h2>
-            <Link
-              href="/papers"
-              className="group inline-flex items-center gap-1 font-mono text-xs text-muted transition-colors duration-300 ease-premium hover:text-foreground"
-            >
-              {t("home.viewAll")}
-              <ArrowUpRight
-                size={13}
-                className="transition-transform duration-300 ease-premium group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-              />
-            </Link>
-          </div>
-          <p className="mt-6 font-mono text-xs text-muted">{digest.date}</p>
-          <ul className="mt-3">
-            {paperItems.map((paper) => (
-              <li
-                key={paper.id}
-                className="border-b border-hairline first:border-t"
-              >
-                <a
-                  href={paper.urls.abs}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group flex items-baseline gap-3 py-3"
-                >
-                  {paper.upvotes ? (
-                    <span className="w-12 shrink-0 rounded-full bg-accent/10 px-2 py-0.5 text-center font-mono text-xs text-accent">
-                      ▲ {paper.upvotes}
-                    </span>
-                  ) : (
-                    <span className="w-12 shrink-0 font-mono text-xs text-muted">
-                      {paper.primaryCategory}
-                    </span>
-                  )}
-                  <span className="min-w-0 flex-1 truncate font-medium transition-colors duration-300 ease-premium group-hover:text-accent">
-                    {locale === "zh" && paper.titleZh
-                      ? paper.titleZh
-                      : paper.title}
-                  </span>
-                  <ArrowUpRight
-                    size={15}
-                    aria-hidden
-                    className="shrink-0 -translate-x-1 self-center text-accent opacity-0 transition-all duration-300 ease-premium group-hover:translate-x-0 group-hover:opacity-100"
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
         </section>
       ) : null}
 

@@ -1,6 +1,7 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
+import { hasTopLevelHeading } from "@/lib/markdown";
 import { rehypePlugins, remarkPlugins } from "@/lib/mdx";
-import { mdxComponents } from "./MDXComponents";
+import { demotedHeadings, mdxComponents } from "./MDXComponents";
 
 /** 构建期编译 MDX,零运行时成本 */
 export default function MDXContent({ source }: { source: string }) {
@@ -13,7 +14,11 @@ export default function MDXContent({ source }: { source: string }) {
           rehypePlugins,
         },
       }}
-      components={mdxComponents}
+      components={
+        hasTopLevelHeading(source)
+          ? { ...mdxComponents, ...demotedHeadings }
+          : mdxComponents
+      }
     />
   );
 }

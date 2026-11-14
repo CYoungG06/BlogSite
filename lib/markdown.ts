@@ -123,16 +123,32 @@ function cleanHeadingText(raw: string): string {
  * 解析 markdown 的 h2/h3 生成 TOC。
  * slug 用 github-slugger — 必须和 rehype-slug 同款,否则锚点对不上。
  */
+/** 正文里是否用了一级标题(# xxx)。页面标题已经是 h1,见 MDXContent 的降级处理 */
+export function hasTopLevelHeading(source: string): boolean {
+  for (const line of iterNonCodeLines(source)) {
+    if (/^#\s+\S/.test(line)) return true;
+  }
+  return false;
+}
+
+/**
+ * 目录:取渲染后的 h2 / h3。正文用了一级标题(#)的文章整体降一级渲染(见 MDXContent),
+ * 这时 # → h2、## → h3,目录也跟着取 # 和 ##,否则会漏掉最外层的章节。
+ * 锚点 slug 要和 rehype-slug 生成的 id 一致:它按文档顺序给所有标题算 slug(重名加 -1、-2),
+ * 所以这里也遍历全部级别的标题算 slug,只是不收进目录。
+ */
 export function extractHeadings(source: string): TocItem[] {
+  const shift = hasTopLevelHeading(source) ? 1 : 0;
   const slugger = new GithubSlugger();
   const items: TocItem[] = [];
   for (const line of iterNonCodeLines(source)) {
-    const match = line.match(/^(#{2,3})\s+(.+?)\s*#*\s*$/);
+    const match = line.match(/^(#{1,6})\s+(.+?)\s*#*\s*$/);
     if (!match) continue;
-    const depth = match[1].length as 2 | 3;
     const text = cleanHeadingText(match[2]);
     if (!text) continue;
-    items.push({ depth, text, slug: slugger.slug(text) });
+    const slug = slugger.slug(text);
+    const depth = match[1].length + shift;
+    if (depth === 2 || depth === 3) items.push({ depth, text, slug });
   }
   return items;
 }

@@ -11,6 +11,8 @@ const mobileItems = [...navItems, { href: "/friends", key: "friends" }] as const
 /**
  * 移动端菜单:汉堡两条线 morph 成 X → 全屏毛玻璃 overlay(z-35,
  * 故意低于导航,让胶囊始终可点关闭)。
+ * 菜单项多于一屏时(小屏手机 / 横屏)overlay 自身滚动:body 已锁滚动,
+ * 不能指望页面滚;顶部留出胶囊的高度。
  * overlay 走 portal:胶囊上的 backdrop-filter 会让 fixed 后代以其为包含块。
  */
 export default function MobileNav() {
@@ -35,8 +37,11 @@ export default function MobileNav() {
   // open 只能由客户端事件置真,portal 不会出现在服务端渲染里
   const overlay = open
     ? createPortal(
-          <div className="fixed inset-0 z-35 bg-background/80 backdrop-blur-xl">
-            <nav className="flex h-full flex-col items-center justify-center gap-6">
+          <div className="fixed inset-0 z-35 overflow-y-auto overscroll-contain bg-background/80 backdrop-blur-xl">
+            <nav
+              aria-label={t("footer.nav")}
+              className="flex min-h-full flex-col items-center justify-center gap-5 px-6 pb-10 pt-24"
+            >
               {mobileItems.map(({ href, key }, i) => (
                 <Link
                   key={key}
@@ -46,7 +51,7 @@ export default function MobileNav() {
                     isActivePath(pathname, href) ? "page" : undefined
                   }
                   className="animate-fade-up text-2xl font-medium tracking-tight"
-                  style={{ "--stagger": `${i * 100}ms` } as CSSProperties}
+                  style={{ "--stagger": `${i * 35}ms` } as CSSProperties}
                 >
                   {t(`nav.${key}`)}
                 </Link>
