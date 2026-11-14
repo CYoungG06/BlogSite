@@ -16,7 +16,10 @@ auto-generated paper digest. Built with Next.js static export and deployed to Gi
 | 精读 | `/reading/` | 论文精读 |
 | 论文速递 | `/papers/` | 每日 arXiv 新论文 + Hugging Face 热门,附 AI 中文导读与兴趣评分;另有深度解读 |
 | 研究 / 项目 | `/research/` `/projects/` | |
+| 归档 | `/archive/` | 全站内容按年分组,可按标签筛选 |
 | 其他 | `/about/` `/friends/` `/music/` `/search/` | |
+
+订阅:[全站文章 RSS](https://cyoungg06.github.io/BlogSite/rss.xml) · [论文速递 RSS](https://cyoungg06.github.io/BlogSite/feed.xml)
 
 站内还有一个 AI 助手(右下角),可以检索文章与速递、读论文全文。
 

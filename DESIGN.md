@@ -272,8 +272,10 @@ content/
 
 ### 6.3 搜索
 
-- 构建脚本扫描 `content/{blog,notes,distilled,reading}/{locale}/`,剥 markdown,MiniSearch 建索引
-  (CJK bigram 分词),写 `public/search-index/{zh,en}.json`(gitignore)。
+- 构建脚本扫描 `content/{blog,notes,distilled,reading}/{locale}/`、`content/insights/`、
+  `content/research/`、`content/projects/`,剥 markdown,MiniSearch 建索引
+  (CJK bigram 分词),写 `public/search-index/{zh,en}.json`(gitignore)。英文索引按站点规则回退收中文原文。
+- 索引与 MiniSearch 在第一次打开搜索时才加载,不进首屏。
 - `npm run build`/`dev` 前置自动重建;客户端 `loadJSON` + `prefix: true, fuzzy: 0.15, combineWith: 'AND'`,上限 20 条。
 
 ### 6.4 i18n 与根重定向

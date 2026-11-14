@@ -118,7 +118,11 @@ content/blog/en/my-slug.md     # 英文版(可选)
 ### 2.6 全文搜索
 
 - 索引在 build 时自动生成到 `public/search-index/{locale}.json`(已加 `.gitignore`)
-- 覆盖 blog / notes / distilled / reading 四个集合;改了文章后,`npm run dev` 会重新生成索引
+- 覆盖文章 / 笔记 / 蒸馏 / 精读、论文深度解读、研究详情和项目;改了文章后,`npm run dev` 会重新生成索引
+- 英文索引和英文站一样回退:没有英文版的内容收中文原文。每条结果存好了站内路径(`href`),
+  顶栏搜索、/search 页和 AI 助手直接用,不用各自按类型拼路由
+- 索引和 MiniSearch 都是第一次打开搜索时才加载(整站全文压缩后约 250 KB,大多数访问用不到)
+- 论文速递不在站内搜索里:速递归档页有单独的论文搜索(按月分片的标题索引,见 §2.7 的 `api`)
 - 也可以单独跑:`npm run search:index`
 - 搜索逻辑:中文 bigram + 英文按词,见 `lib/search/tokenize.ts`
 
@@ -134,10 +138,12 @@ npm run preview         # npx serve out -l 3000,本地看生产产物
 | 脚本 | 产物 | 用途 |
 |---|---|---|
 | `search:index` | `public/search-index/` | 站内搜索索引 |
-| `feed` | `public/feed.xml` | 论文速递 RSS |
-| `api` | `public/api/papers/` | 论文速递静态 JSON API(含 AI 助手用的 `all.json`) |
+| `feed` | `public/feed.xml` / `public/rss.xml` | 论文速递 RSS / 全站文章 RSS |
+| `api` | `public/api/papers/` | 论文速递静态 JSON API(含 AI 助手用的 `all.json`,和速递归档页论文搜索用的 `titles/<YYYY-MM>.json`) |
 | `agent:api` | `public/api/agent/` | AI 助手读取的站点地图与文章正文 |
 | `export:files`(仅 build) | `public/export/` | 文章与速递的 Markdown 导出 |
+
+另外 `next build` 会由 `app/sitemap.ts` 生成 `sitemap.xml`(只列 canonical 地址)。
 
 ### 2.8 typecheck / lint
 
@@ -189,6 +195,24 @@ HF 热门不做筛选,只把 ≤4 分的折叠。所以 **`main` 上每天都有
 右下角助手和页脚 PV/UV 走 `worker/agent-proxy/` 这个 Worker,**它不随站点部署,需要单独
 `npx wrangler deploy`**。系统提示词(`lib/agent/system.ts`)和工具定义(`lib/agent/tool-schemas.ts`)
 是打进 Worker 的,改了它们要重新部署 Worker。接口、预算与发布顺序见 `worker/agent-proxy/README.md`。
+
+助手面板(含 Markdown / KaTeX 渲染,压缩后约 100 KB)是按需加载的:首屏只有
+`components/agent/AgentWidgetLoader.tsx` 里的轻量按钮和新速递提醒,点按钮、悬停,
+或任何入口调用 `openAgent()` / `preloadAgent()`(`lib/agent/bus.ts`)时才加载;
+加载完成前的打开请求会排队补发。新增入口时照着 `HeroAsk` / `AskAcaneButtons` 调这两个函数即可。
+
+### 2.11 站内链接、元数据与分享卡片
+
+- **站内链接一律用 `@/i18n/navigation` 的 `Link`**,不要直接用 `next/link`:它只在悬停 / 聚焦 /
+  触摸时才预取目标页(`components/IntentLink.tsx`)。默认的视口预取会让列表页一次拉几十个请求。
+- **页面元数据用 `lib/metadata.ts` 的 `pageMetadata()`**:统一生成 canonical、hreflang、RSS 发现链接
+  和分享卡片(Open Graph / Twitter)。Next 合并 metadata 时这几块是整块覆盖的,只写 `{ title }`
+  会丢掉分享卡片。英文站回退显示中文原文的页面传 `contentLocale` / `locales`,canonical 会指向中文页。
+- 绝对地址(canonical、引用链接等)从 `lib/site.ts` 的 `SITE_URL` 拼:默认是域名 + basePath,
+  换域名时设 `NEXT_PUBLIC_SITE_URL`。
+- 默认分享图是 `public/og/default.png`(1200×630)。
+- 标签胶囊(`components/TagLink.tsx`)链到归档页 `/archive/?tag=…`;归档、相关内容、上一篇 / 下一篇
+  共用 `lib/archive.ts`。
 
 ---
 
@@ -296,27 +320,32 @@ BlogSite/
 │       ├── blog/ notes/ distilled/ reading/   # 列表 + [slug] 详情
 │       ├── papers/          # 速递归档 + [date] 单日 + insights/[id] 深度解读
 │       ├── research/ projects/          # 列表 + [slug] 详情
+│       ├── archive/         # 归档:全站内容按年分组 + 标签筛选(?tag=)
 │       └── about/ friends/ music/ search/
+│   └── sitemap.ts           # 构建期生成 sitemap.xml
 │
 ├── components/
 │   ├── layout/              # Header / HeaderBar / NavLinks / MobileNav / Footer / Container / PageHeader
 │   ├── agent/               # AI 助手:悬浮窗、对话渲染、划词提问、每日简报
-│   ├── papers/              # PaperCard / DigestToc
+│   ├── papers/              # PaperCard / DigestToc / PaperSearch(速递归档页的论文搜索)
+│   ├── archive/             # ArchiveList / ArchiveFilter
 │   ├── blog/ notes/ projects/           # 各集合的卡片
 │   ├── mdx/                 # BlogImage / MDXComponents / MDXContent / CodeBlock / Lightbox / TableOfContents
 │   ├── search/              # use-search hook / HeaderSearch / SearchClient
-│   └── ArticleDetail / CiteBlock / ExportButtons / SiteStats / PvBeacon / Analytics / Giscus / Theme* ...
+│   └── ArticleDetail / ArticleNeighbors / BackToTop / TagLink / IntentLink / CiteBlock / ExportButtons / ...
 │
 ├── lib/
 │   ├── content-loader.ts / collection.ts   # MDX 扫描解析;locale 回退、草稿过滤
 │   ├── posts.ts / notes.ts / distilled.ts / reading.ts / projects.ts / research.ts
 │   ├── papers.ts / insights.ts          # 论文速递与深度解读数据层
+│   ├── archive.ts           # 全站内容统一视图:归档、相关内容、上一篇 / 下一篇
+│   ├── metadata.ts / site.ts            # 页面元数据(canonical / hreflang / 分享卡片)与站点地址
 │   ├── agent/               # chat.ts(对话循环)/ tools.ts(工具执行)/ tool-schemas.ts / system.ts(后两者被 Worker 引用)
 │   ├── analytics/pv.ts      # PV 打点
 │   ├── mdx.ts / markdown.ts / images.ts / format.ts
 │   └── search/              # tokenize.ts(中英混合分词)/ load-index.ts
 │
-├── i18n/                    # routing.ts / request.ts / navigation.ts
+├── i18n/                    # routing.ts / request.ts / navigation.ts(Link 按意图预取)/ navigation-base.ts
 ├── messages/                # i18n 文案 — zh.json / en.json(key 严格对齐)
 │
 ├── content/                 # 所有内容
@@ -341,7 +370,8 @@ BlogSite/
 ├── public/
 │   ├── images/  research/   # 本地图床与附件
 │   ├── papers-skill/  llms.txt          # 对外公开的 skill 与 llms.txt
-│   └── search-index/ api/ export/ feed.xml   # build 产物,.gitignore 已忽略
+│   ├── og/default.png       # 默认分享图
+│   └── search-index/ api/ export/ feed.xml rss.xml   # build 产物,.gitignore 已忽略
 │
 └── next.config.ts
 ```
