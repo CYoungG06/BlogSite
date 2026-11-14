@@ -79,7 +79,8 @@ async function searchSite(query: string, locale: string): Promise<string> {
         slug,
         title,
         description: truncate(description ?? "", 120),
-        path: `${TYPE_ROUTES[type] ?? "/"}${slug}/`,
+        // 索引里存好了站内路径;旧索引没有 href 时按类型拼
+        path: (r as unknown as SearchResultItem).href ?? `${TYPE_ROUTES[type] ?? "/"}${slug}/`,
       };
     });
   return JSON.stringify({ results });

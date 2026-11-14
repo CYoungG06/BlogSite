@@ -10,6 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { imageUrl } from "@/lib/images";
 import { getResearchWork, getResearchWorkSlugs } from "@/lib/research";
+import { pageMetadata } from "@/lib/metadata";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
@@ -22,10 +23,17 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
   const work = getResearchWork(slug);
   if (!work) return {};
-  return { title: work.meta.title, description: work.meta.tldr };
+  return pageMetadata({
+    locale,
+    path: `/research/${slug}/`,
+    title: work.meta.title,
+    description: work.meta.tldr,
+    type: "article",
+  });
 }
 
 /** 链接列按钮:外部链接样式(主=实心 accent,次=描边) */
@@ -129,6 +137,8 @@ export default async function ResearchWorkPage({
           <img
             src={imageUrl(meta.posterImage)}
             alt={`${meta.title} poster`}
+            loading="lazy"
+            decoding="async"
             className="w-full rounded-2xl ring-1 ring-hairline transition-opacity duration-300 ease-premium hover:opacity-90"
           />
         </a>

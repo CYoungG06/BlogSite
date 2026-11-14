@@ -25,7 +25,6 @@ import {
   saveSession,
   type ChatSession,
 } from "@/lib/agent/history";
-import { basePath } from "@/lib/images";
 import AcaneAvatar from "./AcaneAvatar";
 import ChatMessages, { type ChatMessage } from "./ChatMessages";
 import DailyBrief from "./DailyBrief";
@@ -33,7 +32,8 @@ import DailyBrief from "./DailyBrief";
 /**
  * 全站 AI 助手悬浮窗:右下角按钮 + 聊天面板。
  * 代理地址来自 NEXT_PUBLIC_AGENT_API(构建期内联);未配置时不渲染。
- * 面板本体动态加载,react-markdown 不进首屏 bundle。
+ * 本组件(含 react-markdown / KaTeX)按需加载:首屏只有 AgentWidgetLoader 的轻量外壳,
+ * 新速递提醒气泡也在外壳里。
  * 左上角把手可拖拽调整面板尺寸,大小存 localStorage 跨页保持。
  */
 
@@ -44,7 +44,6 @@ const MIN_W = 320;
 const MIN_H = 400;
 const SIZE_KEY = "agent-panel-size";
 const MODE_KEY = "agent-panel-mode";
-const SEEN_DIGEST_KEY = "acane-seen-digest";
 
 function loadSize() {
   try {
@@ -90,7 +89,7 @@ const EASTER_EGGS: Record<
   "/彩蛋": { key: "eggHelp" },
 };
 
-function AgentWidgetInner() {
+function AgentWidgetInner({ onReady }: { onReady?: () => void }) {
   const t = useTranslations("agent");
   const locale = useLocale();
   const pathname = usePathname();
@@ -117,8 +116,6 @@ function AgentWidgetInner() {
   const [mode, setMode] = useState<"float" | "dock">(loadMode);
   /** 深度调研模式:更多工具轮数、更长输出、调研者 prompt */
   const [deep, setDeep] = useState(false);
-  /** 主动冒泡:检测到新一期速递且用户没见过时,展示其日期 */
-  const [digestBubble, setDigestBubble] = useState<string | null>(null);
   /** 服务可达性:面板打开时探测 /health,不通则挂提示横幅 */
   const [netDown, setNetDown] = useState(false);
   /** 滚动跟随:true=贴底自动滚;用户上翻置 false,出「回到底部」钮 */
@@ -240,24 +237,6 @@ function AgentWidgetInner() {
     return () => window.removeEventListener(AGENT_OPEN_EVENT, onOpen);
   }, []);
 
-  // 主动冒泡:对比最新速递日期与 localStorage 里的已读日期
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${basePath}/api/papers/index.json`);
-        if (!res.ok) return;
-        const index = await res.json();
-        const latest = index.latest as string | undefined;
-        if (!latest) return;
-        if (localStorage.getItem(SEEN_DIGEST_KEY) !== latest) {
-          setDigestBubble(latest);
-        }
-      } catch {
-        // 冒泡是锦上添花,失败静默
-      }
-    })();
-  }, []);
-
   const updateMessage = (id: number, patch: Partial<ChatMessage>) =>
     setMessages((prev) =>
       prev.map((m) => (m.id === id ? { ...m, ...patch } : m)),
@@ -372,6 +351,12 @@ function AgentWidgetInner() {
     sendRef.current = send;
   });
 
+  // 打开监听与 sendRef 都已就绪:通知外壳补发排队中的打开请求。
+  // 必须声明在上面两个 effect 之后(同一组件的 effect 按声明顺序执行)
+  useEffect(() => {
+    onReady?.();
+  }, [onReady]);
+
   /** 新对话:清空当前视图开新会话;旧对话已落盘,留在历史列表里 */
   const newChat = () => {
     abortRef.current?.abort();
@@ -447,15 +432,6 @@ function AgentWidgetInner() {
         ? { hour: "numeric", minute: "2-digit" }
         : { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" },
     );
-  };
-
-  const markDigestSeen = (date: string) => {
-    try {
-      localStorage.setItem(SEEN_DIGEST_KEY, date);
-    } catch {
-      // 存不上就每次冒一下,无妨
-    }
-    setDigestBubble(null);
   };
 
   return (
@@ -692,31 +668,6 @@ function AgentWidgetInner() {
         </div>
       ) : (
         <div className="relative">
-          {digestBubble ? (
-            <div className="animate-fade-up absolute bottom-full right-0 mb-3 flex w-56 items-start gap-1.5 rounded-xl border border-hairline bg-background p-3 shadow-lg">
-              <button
-                type="button"
-                onClick={() => {
-                  const date = digestBubble;
-                  markDigestSeen(date);
-                  setOpen(true);
-                  sendRef.current(t("newDigestAsk", { date }));
-                }}
-                className="flex-1 text-left text-xs leading-relaxed text-muted transition-colors duration-300 ease-premium hover:text-accent"
-              >
-                {t("newDigestBubble")}
-                <span className="mt-0.5 block font-mono text-[0.7rem]">{digestBubble}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => markDigestSeen(digestBubble)}
-                aria-label={t("close")}
-                className="rounded p-0.5 text-muted transition-colors duration-300 ease-premium hover:text-foreground"
-              >
-                <X size={11} aria-hidden />
-              </button>
-            </div>
-          ) : null}
           <button
             type="button"
             onClick={() => setOpen(true)}
@@ -733,7 +684,7 @@ function AgentWidgetInner() {
 }
 
 /** 未配置 NEXT_PUBLIC_AGENT_API 时不渲染(保持原有早退语义,且不违反 hooks 顺序) */
-export default function AgentWidget() {
+export default function AgentWidget({ onReady }: { onReady?: () => void }) {
   if (!API_URL) return null;
-  return <AgentWidgetInner />;
+  return <AgentWidgetInner onReady={onReady} />;
 }

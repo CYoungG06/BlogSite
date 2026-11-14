@@ -3,7 +3,7 @@
 import { ArrowRight, Sparkle } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { openAgent } from "@/lib/agent/bus";
+import { openAgent, preloadAgent } from "@/lib/agent/bus";
 
 /**
  * 首页 Hero 大输入框:让 AI 助手成为站点大门。
@@ -28,6 +28,7 @@ export default function HeroAsk() {
     >
       <Sparkle size={16} className="shrink-0 text-accent" aria-hidden />
       <input
+        onFocus={preloadAgent}
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}

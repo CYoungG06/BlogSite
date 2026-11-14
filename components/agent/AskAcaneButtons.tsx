@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkle } from "@phosphor-icons/react";
-import { openAgent } from "@/lib/agent/bus";
+import { openAgent, preloadAgent } from "@/lib/agent/bus";
 
 /**
  * 情境化入口按钮组:文章页底部「帮我总结 / 出题考考我」、
@@ -33,6 +33,8 @@ export default function AskAcaneButtons({
             key={item.label}
             type="button"
             onClick={() => openAgent({ prompt: item.prompt })}
+            onPointerEnter={preloadAgent}
+            onFocus={preloadAgent}
             className="rounded-full border border-hairline px-3.5 py-1.5 text-sm text-muted transition-colors duration-300 ease-premium hover:border-accent hover:text-accent"
           >
             {item.label}

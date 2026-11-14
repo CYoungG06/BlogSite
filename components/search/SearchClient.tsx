@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
+import { SEARCH_TYPE_KEY } from "@/lib/search/load-index";
 import { useSearch } from "./use-search";
 
 /**
@@ -44,20 +45,12 @@ export default function SearchClient() {
               {results.map((item) => (
                 <li key={`${item.type}/${item.slug}`}>
                   <Link
-                    href={
-                      item.type === "post"
-                        ? `/blog/${item.slug}`
-                        : item.type === "distilled"
-                          ? `/distilled/${item.slug}`
-                          : item.type === "reading"
-                            ? `/reading/${item.slug}`
-                            : `/notes/${item.slug}`
-                    }
+                    href={item.href}
                     className="group block border-b border-hairline py-4"
                   >
                     <div className="flex items-center gap-3">
                       <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 font-mono text-xs text-muted ring-1 ring-hairline">
-                        {item.type === "post" ? t("typePost") : t("typeNote")}
+                        {t(SEARCH_TYPE_KEY[item.type])}
                       </span>
                       <span className="truncate font-medium transition-colors duration-300 ease-premium group-hover:text-accent">
                         {item.title}

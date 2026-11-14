@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { openAgent } from "@/lib/agent/bus";
+import { SEARCH_TYPE_KEY } from "@/lib/search/load-index";
 import { useSearch, type SearchResultItem } from "./use-search";
 
 /**
@@ -20,9 +21,10 @@ export default function HeaderSearch() {
   const tSearch = useTranslations("search");
   const router = useRouter();
   const pathname = usePathname();
-  const { search } = useSearch();
-
   const [open, setOpen] = useState(false);
+  // 第一次打开搜索时才加载索引(之后留在模块缓存里)
+  const { search } = useSearch(open);
+
   const [query, setQuery] = useState("");
   const [prevPathname, setPrevPathname] = useState(pathname);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,15 +69,7 @@ export default function HeaderSearch() {
   const results = search(query, 8);
 
   const goTo = (item: SearchResultItem) => {
-    router.push(
-      item.type === "post"
-        ? `/blog/${item.slug}`
-        : item.type === "distilled"
-          ? `/distilled/${item.slug}`
-          : item.type === "reading"
-            ? `/reading/${item.slug}`
-            : `/notes/${item.slug}`,
-    );
+    router.push(item.href);
     close();
   };
 
@@ -97,7 +91,8 @@ export default function HeaderSearch() {
   };
 
   return (
-    <div className="relative flex items-center">
+    // data-search-open:胶囊里其他元素据此让位(手机端的快捷入口在搜索展开时隐藏)
+    <div className="relative flex items-center" data-search-open={open || undefined}>
       {/* 触发按钮:打开后放大镜原位保留,胶囊连续变宽 */}
       <button
         type="button"
@@ -159,9 +154,7 @@ export default function HeaderSearch() {
                     className="group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-300 ease-premium hover:bg-foreground/5"
                   >
                     <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 font-mono text-xs text-muted ring-1 ring-hairline">
-                      {item.type === "post"
-                        ? tSearch("typePost")
-                        : tSearch("typeNote")}
+                      {tSearch(SEARCH_TYPE_KEY[item.type])}
                     </span>
                     <span className="truncate text-sm transition-colors duration-300 ease-premium group-hover:text-accent">
                       {item.title}

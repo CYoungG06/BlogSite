@@ -3,7 +3,7 @@
 import { Sparkle } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { openAgent } from "@/lib/agent/bus";
+import { openAgent, preloadAgent } from "@/lib/agent/bus";
 
 /**
  * 划词提问:选中页面正文文字(≥8 字符)后,在选区下方浮出
@@ -74,6 +74,7 @@ export default function SelectionAsk() {
     <button
       type="button"
       style={{ top: bubble.top, left: bubble.left }}
+      onPointerEnter={preloadAgent}
       onClick={() => {
         openAgent({ prompt: t("selectionAskPrompt", { quote: bubble.quote }) });
         setBubble(null);
