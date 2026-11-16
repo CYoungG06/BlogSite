@@ -1,0 +1,772 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>分布式部署</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose; each figure is a wider "instrument panel"
+   with its controls on top and its readout beside or below the drawing. */
+:root{
+  --bg:#f2f5f5; --surface:#fbfcfc; --surface-2:#e6ecec;
+  --ink:#101b1c; --ink-2:#44565a; --ink-3:#6f8186; --line:#cfd9d9;
+  --prefill:#2a78d6; --decode:#eb6834; --cache:#1baf7a; --waste:#aab7b9; --crit:#c93535;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-display:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+    --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+    --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+  --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+  --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:72px}
+.prose{max-width:43rem;display:flex;flex-direction:column;gap:16px}
+.prose p,.prose ul,.prose ol,.prose dl{margin:0}
+.prose ul,.prose ol{padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-0.01em}
+h2{font-size:25px}
+h3{font-size:17px}
+.eyebrow,.fig-no,.sec-no{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.lede{font-size:18px;color:var(--ink-2)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .38em;border-radius:3px;overflow-wrap:anywhere}
+strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid var(--line)}
+.note{font-size:14px;color:var(--ink-2);line-height:1.7}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.fig-head h3{flex:1 1 16rem}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.7;max-width:46rem}
+.scroll-x{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:currentColor}
+svg .mono{font-family:var(--font-mono)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);min-width:150px;flex:1 1 150px;max-width:260px}
+.ctl output{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.ctl .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink-3);border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--ink-3)}
+.seg button:last-child{border-right:0}
+button{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink-3);border-radius:5px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--surface-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--prefill);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepno{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.sw-tc{background:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.sw-tp{background:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.sw-td{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.sw-old{background:var(--surface-2);border:1px solid var(--line)}
+.sw-ring{border:2px solid var(--ink)}
+.sw-hit{background:var(--cache)} .sw-comp{background:var(--prefill)}
+
+/* svg classes */
+.t-cache{fill:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.t-prefill{fill:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.t-decode{fill:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.t-old{fill:var(--surface-2)}
+.t-empty{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+.t-free{fill:none;stroke:var(--line);stroke-width:1}
+.t-row{fill:var(--surface-2)}
+.c-ring{stroke:var(--ink);stroke-width:2}
+.o-sel{fill:none;stroke:var(--ink);stroke-width:1.5}
+.o-ghost{fill:none;stroke:var(--crit);stroke-width:1.5;stroke-dasharray:4 3}
+.g-ink{stroke:var(--ink)} .g-muted{stroke:var(--ink-3)}
+.g-grid{stroke:var(--line);stroke-width:1}
+.g-axis{fill:var(--ink-3);font-size:11px}
+.f-muted{fill:var(--ink-3)} .f-crit{fill:var(--crit)} .f-cache{fill:var(--cache)} .f-prefill{fill:var(--prefill)}
+.dim{opacity:.38}
+
+.narr{font-size:15px;line-height:1.75;min-height:5.4em;margin:0;max-width:52rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 22px}
+.stat{display:flex;flex-direction:column}
+.stat span{font-size:12.5px;color:var(--ink-2)}
+.stat b{font-family:var(--font-mono);font-weight:500;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.4}
+.stat small{font-size:12px;color:var(--ink-3);font-family:var(--font-mono)}
+.status{font-size:14.5px;padding:8px 12px;border-radius:4px;background:var(--surface-2)}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-weight:500;color:var(--ink-2);font-size:13px}
+td:first-child{color:var(--ink-2);white-space:nowrap}
+table.cmp{max-width:56rem}
+
+details.quiz{border:1px dashed var(--ink-3);border-radius:6px;padding:12px 16px;max-width:43rem}
+details.quiz summary{cursor:pointer;font-weight:500;list-style-position:outside;margin-left:1.1em}
+details.quiz summary .tag{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-right:8px}
+details.quiz .ans{margin-top:10px;color:var(--ink-2);font-size:15px;display:flex;flex-direction:column;gap:8px}
+details.quiz .ans p{margin:0}
+
+.callout{border-left:4px solid var(--cache);padding:4px 0 4px 16px;max-width:43rem;font-size:15px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.sys>div{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.sys ul{margin:0;padding-left:1.2em;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-width:43rem}
+.road li{display:grid;grid-template-columns:2.4em 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.road li span:first-child{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.road li em{font-style:normal;color:var(--ink-2);font-size:14px;display:block}
+.road li.here{font-weight:600}
+.road li.here em{font-weight:400}
+header{display:flex;flex-direction:column;gap:18px}
+/* lesson 7 additions */
+.ctl .seg{align-self:flex-start}
+td.num,th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.sel td{background:var(--surface-2);font-weight:500}
+.g-w{fill:var(--ink)} .g-k{fill:var(--cache)} .g-box{fill:var(--surface);stroke:var(--ink-3);stroke-width:1}
+.g-bad{fill:color-mix(in srgb,var(--crit) 22%,var(--surface));stroke:var(--crit);stroke-width:1.5}
+.g-br{stroke:var(--ink-2);fill:none;stroke-width:1.5}
+.hatch-line{stroke:var(--waste);stroke-width:2}
+.sw-w{background:var(--ink)} .sw-k{background:var(--cache)}
+.sw-r{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px);border:1px solid var(--line)}
+.on-dark{fill:var(--bg)} .on-fill{fill:#fff}
+.b-pre{fill:var(--prefill)} .b-dec{fill:var(--decode)}
+.sw-pre{background:var(--prefill)} .sw-dec{background:var(--decode)}
+.rq{cursor:pointer}
+.rq.off{opacity:.42}
+.rq.on rect{stroke:var(--ink);stroke-width:1.3}
+.rq-l{font-size:9.5px;fill:#fff;pointer-events:none;font-family:var(--font-mono)}
+.l-co{stroke:var(--decode);fill:none;stroke-width:2.2}
+.l-pd{stroke:var(--ink);fill:none;stroke-width:2.2}
+.sw-co{background:var(--decode)} .sw-pd{background:var(--ink)}
+.l-mark{stroke-width:1.5;stroke-dasharray:4 3}
+.m-co{stroke:var(--decode)} .m-pd{stroke:var(--ink)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">推理 Infra · 第 7 课 / 共 9 课</div>
+  <h1>一张卡不够之后</h1>
+  <p class="lede prose">前六课都在一张 GPU、一个引擎里。这一课把范围放大到多张卡、多个引擎实例。要回答四个问题：一个模型怎么拆到多张卡上；有了多个副本之后请求该发给谁；为什么有人把 prefill 和 decode 拆到不同的机器上；一个基础模型怎么同时服务很多个微调版本。每一个都和前面讲过的 KV cache 直接相关。</p>
+  <p class="note prose">图里的耗时沿用前几课的成本模型，是示意。参数名、默认值和文档说法对照了两个项目当前的 main 分支。</p>
+</header>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">1 · 三种并行</div>
+    <h2>拆模型，还是复制模型</h2>
+    <p>手里有 8 张卡，有两类完全不同的用法，先分清目的。</p>
+    <p><strong>模型一张卡放不下</strong>，就得把一个模型拆开，让几张卡合起来算同一个请求：</p>
+    <ul>
+      <li><span class="term">张量并行</span>（tensor parallelism，TP）。把每一层的权重矩阵都切成几份，每张卡拿一份。一个 token 经过每一层时，几张卡各算一部分，再把结果汇总。所以每一层都要在卡之间通信一次，需要卡间有高速互联。</li>
+      <li><span class="term">流水线并行</span>（pipeline parallelism，PP）。按层的先后切：前一半的层放第一张卡，后一半放第二张卡，数据算完前半段传给下一张卡。一次前向只在交界处通信一次，对网络要求低，可以跨机器。</li>
+    </ul>
+    <p><strong>模型放得下，但一个引擎扛不住流量</strong>，就把整个模型复制几份，每份独立处理各自的请求。这叫<span class="term">数据并行</span>（data parallelism，DP），每一份叫一个副本。第 4 课说过 vLLM 里每个副本是一个独立的 EngineCore 进程。</p>
+    <p>三者可以叠加。vLLM 文档给的选法是：单卡放得下就不拆；放不下但一台机器的卡够，用 TP；一台机器也不够，机器内 TP、机器间 PP。卡之间没有高速互联时（文档举的例子是 L40S），用 PP 代替 TP 通信开销更低。</p>
+    <p>下图是同样的 8 张卡在 TP 和 DP 之间的不同分法。注意看权重占了多少、留给 KV cache 多少。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 1</span><h3>8 张卡的几种分法</h3></div>
+    <div class="controls">
+      <div class="ctl"><span>每张卡的显存</span>
+        <div class="seg" role="group" aria-label="每张卡的显存">
+          <button id="gp-g24" aria-pressed="true">24 GB</button>
+          <button id="gp-g48" aria-pressed="false">48 GB</button>
+          <button id="gp-g80" aria-pressed="false">80 GB</button>
+        </div>
+      </div>
+      <div class="ctl"><span>模型（16 位权重）</span>
+        <div class="seg" role="group" aria-label="模型">
+          <button id="gp-m8" aria-pressed="true">Llama-3.1-8B</button>
+          <button id="gp-m70" aria-pressed="false">Llama-3.1-70B</button>
+        </div>
+      </div>
+      <div class="ctl"><span>分法：TP × 副本数</span>
+        <div class="seg" role="group" aria-label="分法">
+          <button id="gp-t1" aria-pressed="true">1 × 8</button>
+          <button id="gp-t2" aria-pressed="false">2 × 4</button>
+          <button id="gp-t4" aria-pressed="false">4 × 2</button>
+          <button id="gp-t8" aria-pressed="false">8 × 1</button>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-w"></i>权重</span>
+      <span><i class="sw sw-k"></i>KV cache</span>
+      <span><i class="sw sw-r"></i>引擎不占用的 10%</span>
+    </div>
+    <div class="scroll-x" id="gp-svg"></div>
+    <div class="stats">
+      <div class="stat"><span>副本数，也是独立前缀缓存的个数</span><b id="gp-rep"></b></div>
+      <div class="stat"><span>每个副本的 KV 池</span><b id="gp-kv"></b><small id="gp-kv-s"></small></div>
+      <div class="stat"><span>8 张卡上权重一共占</span><b id="gp-w"></b></div>
+      <div class="stat"><span>8 张卡的 KV 总量</span><b id="gp-tot"></b></div>
+    </div>
+    <div class="status" id="gp-status"></div>
+    <figcaption>每个方框是一张卡，上面的括号把属于同一个副本的卡连在一起。显存账沿用第 6 课：90% 可用，权重按 TP 均分到每张卡，剩下的给 KV。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>8 张 24 GB 的卡跑 8B 模型。开 8 个独立副本，和 8 张卡合成一个 TP=8 的副本，哪种的 KV 总量大？</summary>
+    <div class="ans">
+      <p>TP=8 的大，约 158 GB 对 53 GB，三倍。8 个副本把 15 GB 的权重复制了 8 份，占掉 120 GB；TP=8 只存一份。</p>
+      <p>但这不等于 TP=8 更好。8 个副本的吞吐接近单卡的 8 倍，互不干扰，坏一个还有 7 个。TP=8 每一层都要 8 张卡通信一次，加速远到不了 8 倍，一张卡出问题整个副本就停了。模型放得下单卡时，通常的做法是多副本；TP 是给放不下的模型用的。这道题要说明的是另一件事：<strong>副本越多，缓存被切得越碎</strong>。8 个副本就是 8 个互相看不见的前缀缓存，下一节的问题由此而来。</p>
+    </div>
+  </details>
+
+  <div class="scroll-x">
+  <table class="cmp">
+    <thead><tr><th></th><th>拆的是什么</th><th>通信</th><th>单个请求的延迟</th><th>主要用途</th></tr></thead>
+    <tbody>
+      <tr><td>张量并行 TP</td><td>每一层的权重矩阵</td><td>每层一次，要求高速互联</td><td>能降，但不成比例</td><td>单机内放下大模型</td></tr>
+      <tr><td>流水线并行 PP</td><td>层的先后顺序</td><td>每次前向只在交界处一次</td><td>基本不降</td><td>跨机器放下更大的模型</td></tr>
+      <tr><td>数据并行 DP</td><td>不拆，整个复制</td><td>副本之间不通信</td><td>不变</td><td>提高总吞吐</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <p class="note">MoE（混合专家）模型还有一种专门针对专家层的并行方式（expert parallelism），常和 DP 组合使用，这时各副本的前向需要对齐，不再完全独立。这里不展开。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">2 · 路由</div>
+    <h2>请求发给哪个副本，决定了缓存能不能命中</h2>
+    <p>有了多个副本，前面要加一个<span class="term">路由层</span>（router，也叫网关或负载均衡器）决定每个请求去哪。传统 Web 服务的做法是轮询或者挑最闲的，因为请求之间互不相关，发给谁都一样。</p>
+    <p>LLM 服务不一样。第 3 课讲过，请求能跳过多少 prefill 取决于这个副本的 KV 池里有没有它的前缀，而每个副本的缓存是各管各的。Agent 的第 10 步如果被发到一个没见过前 9 步的副本，那一万多 token 的历史要从头算。vLLM 文档的原话：每个 DP 引擎有独立的 KV cache，把请求智能地导向合适的副本可以最大化前缀缓存的收益。</p>
+    <p>所以路由要同时考虑两件事，而且它们会打架：</p>
+    <ul>
+      <li><strong>缓存亲和</strong>：同一个会话的请求尽量去同一个副本。</li>
+      <li><strong>负载均衡</strong>：别让某个副本堆积太多请求。</li>
+    </ul>
+    <p>下图用同一组 agent 会话跑四种策略。每个会话有 4K token 的公共系统提示，每一步新增 1.5K 上下文，输出 150 个 token，两步之间有几秒的工具执行时间。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 2</span><h3>四种路由策略跑同一组 agent 会话</h3></div>
+    <div class="controls">
+      <div class="ctl" style="max-width:none;flex:1 1 100%"><span>路由策略</span>
+        <div class="seg" role="group" aria-label="路由策略">
+          <button id="rt-rr" aria-pressed="true">轮询</button>
+          <button id="rt-ll" aria-pressed="false">最少负载</button>
+          <button id="rt-hash" aria-pressed="false">按会话哈希</button>
+          <button id="rt-ca" aria-pressed="false">缓存感知 + 负载保护</button>
+        </div>
+      </div>
+      <label class="ctl"><span class="row"><span>并发会话数</span><output id="rt-K-o"></output></span><input type="range" id="rt-K" min="4" max="24" step="1" value="12"></label>
+      <label class="ctl"><span class="row"><span>每个副本的缓存容量</span><output id="rt-C-o"></output></span><input type="range" id="rt-C" min="10" max="200" step="10" value="120"></label>
+      <div class="ctl"><span>&nbsp;</span><div class="btns"><button id="rt-seed">换一组会话</button></div></div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-pre"></i>prefill（越长说明重算得越多）</span>
+      <span><i class="sw sw-dec"></i>decode</span>
+      <span>点任意一个色块，高亮同一个会话的所有请求</span>
+    </div>
+    <div class="scroll-x" id="rt-svg"></div>
+    <div class="status" id="rt-status"></div>
+    <div class="scroll-x">
+    <table id="rt-table">
+      <thead><tr><th>策略</th><th class="num">缓存命中率</th><th class="num">重算的 prefill</th><th class="num">平均 TTFT</th><th class="num">各副本请求数</th><th class="num">平均每个会话耗时</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <figcaption>4 个副本，每行一个；一个色块是一次请求，字母是会话编号。缓存命中率 = 命中的 prompt token ÷ 全部 prompt token。「缓存感知 + 负载保护」按 SGLang 网关源码注释里的规则实现，阈值按这个小例子的规模缩小了。没有模拟排队和抢占。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>4 个副本、轮询。和「同一个会话永远去同一个副本」相比，每一步要重算的 prefill token 大约是几倍？</summary>
+    <div class="ans">
+      <p>默认这组会话是 2.9 倍，看表里「重算的 prefill」一列：轮询 493K，按会话哈希 172K。理论上限是副本数 4。</p>
+      <p>亲和路由下，副本上留着这个会话上一步的全部 KV，每步只需要算新增的 1.5K。轮询下，一个会话的各步被轮流发到 4 个副本，某个副本上次见到它是大约 4 步之前，这中间几步的新增内容都得补算。副本越多，轮询浪费得越厉害。llm-d 项目的文档里给过一组实测对比：前缀感知路由相对轮询，输出吞吐 3 倍、TTFT 快 2 倍。</p>
+      <p>「按会话哈希」命中率最高，代价在最后一列之前那一列：各副本收到的请求数是 35 / 24 / 29 / 26，最多的比最少的多出近一半。哈希不看负载，碰巧几个长会话落在同一个副本就会挤，会话少或者长短悬殊时更明显。「缓存感知 + 负载保护」让出几个点的命中率，换来更均匀的分布。</p>
+      <p>还有一个值得注意的数：TTFT 降了六成，但每个会话的总耗时只快了 5% 左右。这组会话的时间主要花在 decode 和工具执行上。只看 TTFT 会高估路由的收益，第 8 课会回到「按任务而不是按请求度量」这件事。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>真实的路由层怎么做</h3>
+    <ul>
+      <li><strong>SGLang 的模型网关</strong>（一个 Rust 写的独立进程）默认策略就是 <code>cache_aware</code>。它不去问副本缓存里有什么，而是自己记账：为每个副本维护一棵近似的 radix tree，记录发给过它的请求文本。来一个新请求，先看负载是否失衡，判据是最忙和最闲的副本负载差超过 <code>--balance-abs-threshold</code>，并且比值超过 <code>--balance-rel-threshold</code>；失衡就发给最闲的。不失衡时找前缀匹配最长的副本，匹配比例超过 <code>--cache-threshold</code> 就发给它，否则发给树最小的那个，也就是缓存空间最宽裕的。树里存的是原始字符，不是 token，省掉了在路由层分词。</li>
+      <li><strong>vLLM 内置的 DP 负载均衡</strong>（<code>--data-parallel-size</code>）目前只看每个引擎的运行队列和等待队列，文档明说还没有加入 KV cache 感知的逻辑。需要缓存感知时，把每个副本当成独立的 vLLM 实例，前面放外部路由。</li>
+      <li><strong>外部路由</strong>有 vLLM 自己的 production-stack（文档列了前缀感知路由），以及 llm-d。后者的做法不一样：读取 vLLM 上报的 KV cache 事件，维护一个全局索引，记录哪些 token 块在哪个副本上，属于「精确」而非「近似」的缓存感知。</li>
+    </ul>
+    <p>路由层自己要高可用时还有一层问题。SGLang 文档提醒：部署多个网关实例时，各实例的 radix tree 不同步，同一个用户的请求可能经过不同的网关被导到不同的副本，预期缓存命中率会下降 10% 到 20%；在意的话，在网关前面再按用户 ID 做一致性哈希。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">3 · Prefill 和 decode 分离</div>
+    <h2>让长 prompt 不再打扰正在生成的请求</h2>
+    <p>第 1 课讲过 prefill 和 decode 的性质相反：prefill 一次算很多 token，吃计算；decode 每步只算一个 token，但要很多步，对每一步的延迟敏感。放在同一个引擎里，一个长 prompt 进来，当前这几轮迭代都要带上它的 prefill，所有正在生成的请求的 token 间隔都被拉长。第 1 课的 chunked prefill 是把这次打扰切薄摊开，没有消除它。</p>
+    <p><span class="term">PD 分离</span>（prefill/decode disaggregation）把两个阶段放到不同的引擎实例上：</p>
+    <ol>
+      <li>请求先到 <strong>prefill 实例</strong>，算完整个 prompt 的 KV。</li>
+      <li>KV 通过网络<strong>传</strong>给 <strong>decode 实例</strong>。</li>
+      <li>decode 实例拿到 KV，直接开始逐 token 生成并流式返回。</li>
+    </ol>
+    <p>decode 实例上只有 decode，每一步的耗时稳定。代价是第 2 步：KV 很大。第 1 课算过 Llama-3.1-8B 每个 token 的 KV 是 128 KiB，32K token 的 prompt 就是 4 GB，要在几百毫秒内从一台机器搬到另一台，普通网络做不到，需要 RDMA 这类高速网络和专门的传输库。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 3</span><h3>一个长 prompt 到来时，别人的 token 间隔</h3></div>
+    <div class="controls">
+      <label class="ctl"><span class="row"><span>新请求的 prompt 长度</span><output id="pd-P-o"></output></span><input type="range" id="pd-P" min="4" max="128" step="4" value="32"></label>
+      <label class="ctl"><span class="row"><span>正在 decode 的序列数</span><output id="pd-B-o"></output></span><input type="range" id="pd-B" min="8" max="256" step="8" value="64"></label>
+      <div class="ctl" style="max-width:none;flex:0 1 auto"><span>合并部署时每轮的 prefill 分块</span>
+        <div class="seg" role="group" aria-label="分块大小">
+          <button id="pd-c512" aria-pressed="false">512</button>
+          <button id="pd-c2048" aria-pressed="true">2048</button>
+          <button id="pd-c8192" aria-pressed="false">8192</button>
+        </div>
+      </div>
+      <div class="ctl" style="max-width:none;flex:0 1 auto"><span>传 KV 的网络</span>
+        <div class="seg" role="group" aria-label="网络带宽">
+          <button id="pd-n10" aria-pressed="false">10 Gb</button>
+          <button id="pd-n25" aria-pressed="false">25 Gb</button>
+          <button id="pd-n100" aria-pressed="true">100 Gb</button>
+          <button id="pd-n400" aria-pressed="false">400 Gb</button>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-co"></i>合并部署：已有请求的 token 间隔</span>
+      <span><i class="sw sw-pd"></i>PD 分离：decode 实例上的 token 间隔</span>
+      <span>竖虚线：新请求拿到首 token 的时刻</span>
+    </div>
+    <div class="scroll-x" id="pd-svg"></div>
+    <div class="scroll-x">
+    <table id="pd-table">
+      <thead><tr><th></th><th class="num">平时的 token 间隔</th><th class="num">被打扰时的 token 间隔</th><th class="num">打扰持续</th><th class="num">新请求的 TTFT</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <div class="status" id="pd-status"></div>
+    <figcaption>示意模型：每轮固定 20 ms，每个 decode 序列 0.4 ms，每个 prefill token 0.1 ms。新请求在 0.5 秒时到达。PD 分离下假设 prefill 实例空闲、每轮最多处理 8192 个 token。KV 按 Llama-3.1-8B 的每 token 128 KiB 计，传输时间只算了带宽，没有算建立连接和注册内存的开销。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>做了 PD 分离，这个长请求自己的 TTFT 变快了吗？</summary>
+    <div class="ans">
+      <p>默认参数下从 3.9 秒变成 3.7 秒，差不多。prompt 还是那么长，prefill 的计算量一点没少，还多了一段传 KV 的时间；快的那一点来自 prefill 实例不用同时照顾 64 个 decode 序列。把网络切到 10 Gb，传输要 3.4 秒，TTFT 反而比合并部署慢得多。</p>
+      <p>PD 分离改善的是<strong>别人</strong>：合并部署时已有的 64 个请求有将近 4 秒钟 token 间隔从 46 ms 涨到 250 ms，分离之后它们完全不受影响。vLLM 文档对这个功能有一句加粗的说明：它不提高吞吐。它的用处是分别调 TTFT 和 token 间隔，以及压住 token 间隔的长尾。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>真实系统里</h3>
+    <ul>
+      <li><strong>SGLang</strong>：同一个二进制用 <code>--disaggregation-mode prefill</code> 或 <code>decode</code> 启动成两种角色，传输后端用 <code>--disaggregation-transfer-backend</code> 选，支持 Mooncake（默认）和 NIXL。前面的网关用 <code>--pd-disaggregation</code> 模式，并且可以给两段分别设路由策略，文档的例子是 prefill 用 <code>cache_aware</code>、decode 用 <code>power_of_two</code>：prefill 那一侧才有前缀可复用，decode 那一侧只需要均衡。</li>
+      <li><strong>vLLM</strong>：功能标注为实验性。跑两个 vLLM 实例，中间用一个 KV connector 传输，用 <code>--kv-transfer-config</code> 配置。文档列了 NixlConnector、MooncakeConnector、LMCache 等多种 connector。文档也承认 chunked prefill 调好分块大小能达到类似的效果，只是合适的值在实践中很难找，分离更可靠。</li>
+      <li>同一套 connector 机制也用来把 KV 卸载到 CPU 内存或外部存储（vLLM 的 OffloadingConnector、LMCache）。原理相同：KV 是可以搬走、存起来、再搬回来的数据。第 8 课讲工具调用间隙的缓存保留时会用到。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">4 · 多 LoRA</div>
+    <h2>一份基础模型，挂很多个微调版本</h2>
+    <p><span class="term">LoRA</span> 是一种微调方法：不改原来的权重矩阵 W，另外训练两个很窄的矩阵 A 和 B，用的时候按 W + BA 算。A 和 B 的宽度叫<span class="term">秩</span>（rank），通常是 8 到 64，而 W 的边长是几千，所以一个 LoRA 适配器的体积通常不到基础模型的百分之一。</p>
+    <p>这给推理服务带来一种很划算的部署方式：显存里只放一份基础模型，同时加载几十个适配器，每个请求用 <code>model</code> 字段指定要哪一个。同一个 batch 里不同的序列可以用不同的适配器：大头的 W 那部分大家一起算，各自的 BA 那一小部分分别算再加上去。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">算一下</span><h3>一个 LoRA 适配器有多大</h3></div>
+    <div class="controls">
+      <label class="ctl"><span class="row"><span>秩</span><output id="lr-r-o"></output></span><input type="range" id="lr-r" min="0" max="5" step="1" value="1"></label>
+      <div class="ctl"><span>每层改哪些矩阵</span>
+        <div class="seg" role="group" aria-label="目标模块">
+          <button id="lr-m2" aria-pressed="true">q、v 两个</button>
+          <button id="lr-m4" aria-pressed="false">注意力的四个</button>
+          <button id="lr-m7" aria-pressed="false">全部七个</button>
+        </div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>适配器参数量</span><b id="lr-p"></b></div>
+      <div class="stat"><span>16 位存储的体积</span><b id="lr-mb"></b></div>
+      <div class="stat"><span>相当于基础模型的</span><b id="lr-pct"></b></div>
+      <div class="stat"><span>1 GB 显存能放</span><b id="lr-n"></b></div>
+    </div>
+    <figcaption>按 Llama-3.1-8B 的结构算：32 层，隐藏维度 4096，k、v 投影输出 1024，前馈层中间维度 14336。一个输入 m 维、输出 n 维的矩阵，秩为 r 的适配器有 r × (m + n) 个参数。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>它和前几课的交互</h3>
+    <ul>
+      <li><strong>前缀缓存按适配器隔离。</strong>KV 是由权重算出来的，权重不同 KV 就不同。两个请求系统提示完全一样，用的适配器不同，谁也复用不了谁的 KV。10 个适配器就是 10 套互不相通的前缀。</li>
+      <li><strong>一个 batch 里能混几个适配器有上限。</strong>vLLM 是 <code>--max-loras</code>，默认 1；SGLang 是 <code>--max-loras-per-batch</code>，默认 8。超过上限的请求要等下一轮，适配器种类多、流量分散时，这会变成排队延迟。</li>
+      <li><strong>适配器可以运行时加载和卸载。</strong>两边都有 <code>load_lora_adapter</code> 和 <code>unload_lora_adapter</code> 接口。显存里放不下所有适配器时按 LRU 换入换出，SGLang 里对应 <code>lora_eviction_policy</code>。冷的适配器第一次被用到要先加载，这是又一种首请求延迟。</li>
+      <li><strong>路由要多考虑一维。</strong>多副本时，请求最好去已经加载了它的适配器、并且缓存里有它前缀的副本。</li>
+    </ul>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>一个 agent 系统给「规划」「写代码」「审查」三个角色各训了一个 LoRA，三个角色共用同一段 8K token 的系统提示。这段系统提示在 KV 池里占几份？</summary>
+    <div class="ans">
+      <p>三份。三个适配器各算各的 KV，互不复用，8K 的公共前缀在显存里存了三遍，prefill 也算了三遍。</p>
+      <p>如果三个角色改用同一个基础模型、只靠不同的提示词区分，并且把角色说明放在公共系统提示的后面，这 8K 只存一份。要不要为每个角色训 LoRA，除了效果，还要把这笔缓存的账算进去。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">5 · Agent 视角</div>
+    <h2>分布式部署下，harness 能做什么</h2>
+  </div>
+  <div class="callout">
+    <p><b>让路由层认得出会话。</b>缓存感知路由靠前缀匹配能自动把同一个会话导回同一个副本，但前提是 prompt 的前缀稳定（第 3 课）。如果用的是只支持按键哈希的普通负载均衡器，harness 要在每个请求里带一个稳定的会话标识（请求头或 <code>user</code> 字段），让它有东西可哈希。</p>
+  </div>
+  <div class="callout">
+    <p><b>子 agent 扇出时，亲和和均衡的矛盾最尖锐。</b>主 agent 一次派出 10 个子 agent，它们共享同一大段父上下文。全发给同一个副本，前缀只算一次，但那个副本瞬间多了 10 个并发；分散开，每个副本都要把父上下文重算一遍。图 2 的「缓存感知 + 负载保护」处理的就是这种情况：先亲和，负载差超过阈值再分流。阈值怎么设，取决于前缀有多长、重算有多贵。</p>
+  </div>
+  <div class="callout">
+    <p><b>副本数不是越多越好。</b>图 1 的结论：同样的卡，副本越多，每个副本的 KV 池越小，缓存越碎。长上下文的 agent 负载下，少一些、大一些的副本可能比多一些、小一些的副本总体更省。</p>
+  </div>
+  <div class="callout">
+    <p><b>PD 分离和多轮会话配合要留意。</b>下一步的 prefill 要用到上一步的 KV，包括上一步在 decode 实例上生成的那部分。prefill 实例上有没有这些 KV、要不要再传一次，取决于具体的实现和配置。部署前用真实的多轮负载测缓存命中率，不要只测单轮。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">6 · 对应到真实系统</div>
+    <h2>文档入口和开关</h2>
+  </div>
+  <div class="sys">
+    <div>
+      <h3>vLLM</h3>
+      <ul>
+        <li>并行：<code>--tensor-parallel-size</code>、<code>--pipeline-parallel-size</code>、<code>--data-parallel-size</code>。文档 Serving → Parallelism and Scaling、Data Parallel Deployment。</li>
+        <li>启动日志里的 <code>GPU KV cache size: … tokens</code> 和 <code>Maximum concurrency for … tokens per request</code> 两行，就是图 1 算的那两个数，是判断卡够不够的第一手依据。</li>
+        <li>内置 DP 负载均衡在 API server 进程里，按各引擎的运行和等待队列分配。<code>--max-num-seqs</code> 是每个副本各自的上限。</li>
+        <li>PD 分离：文档 Features → Disaggregated Prefilling（实验性）。配置项 <code>--kv-transfer-config</code>。</li>
+        <li>LoRA：<code>--enable-lora</code>、<code>--lora-modules 名字=路径</code>、<code>--max-loras</code>（一个 batch 里最多几个，默认 1）、<code>--max-lora-rank</code>（默认 16）、<code>--max-cpu-loras</code>。运行时加载要设环境变量 <code>VLLM_ALLOW_RUNTIME_LORA_UPDATING=True</code>。</li>
+        <li>外部路由和编排：文档 Deployment → Integrations 下的 production-stack、llm-d 等。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>SGLang</h3>
+      <ul>
+        <li>并行：<code>--tp-size</code>、<code>--pp-size</code>、<code>--dp-size</code>（也接受和 vLLM 同名的长参数）。</li>
+        <li>网关：仓库里的 <code>sgl-model-gateway/</code>，策略实现在 <code>src/policies/</code>，<code>cache_aware.rs</code> 开头有一段完整的算法说明。策略用 <code>--policy</code> 选：<code>random</code>、<code>round_robin</code>、<code>power_of_two</code>、<code>cache_aware</code>（默认）、<code>bucket</code>。</li>
+        <li>缓存感知的调节项：<code>--cache-threshold</code>（默认 0.3）、<code>--balance-abs-threshold</code>（默认 64）、<code>--balance-rel-threshold</code>（默认 1.5）。</li>
+        <li>PD 分离：<code>--disaggregation-mode</code>、<code>--disaggregation-transfer-backend</code>；网关侧 <code>--pd-disaggregation</code>、<code>--prefill-policy</code>、<code>--decode-policy</code>。文档 advanced_features/pd_disaggregation。</li>
+        <li>LoRA：<code>--enable-lora</code>、<code>--lora-paths</code>、<code>--max-loras-per-batch</code>（默认 8）、<code>--max-lora-rank</code>、<code>--lora-target-modules</code>。文档 advanced_features/lora。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="prose">
+    <h3>原始资料</h3>
+    <ul>
+      <li>Shoeybi et al., <em>Megatron-LM</em>, 2019。张量并行的切法，vLLM 文档指明用的是这篇的算法。</li>
+      <li>Hu et al., <em>LoRA: Low-Rank Adaptation of Large Language Models</em>, 2021。</li>
+      <li>Sheng et al., <em>S-LoRA</em>, 2023；Chen et al., <em>Punica</em>, 2023。同一个 batch 里混跑多个适配器的两篇工作，SGLang 文档说明用了它们的技术。</li>
+      <li>Zhong et al., <em>DistServe</em>, OSDI 2024。prefill/decode 分离的代表性论文。</li>
+      <li>SGLang 仓库 <code>sgl-model-gateway/src/policies/cache_aware.rs</code> 的头部注释。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="prose">
+    <div class="sec-no">路线图</div>
+    <h2>进度</h2>
+  </div>
+  <ol class="road">
+    <li><span>01</span><div>推理基础与 continuous batching<em>已完成</em></div></li>
+    <li><span>02</span><div>显存管理：PagedAttention<em>已完成</em></div></li>
+    <li><span>03</span><div>前缀缓存<em>已完成</em></div></li>
+    <li><span>04</span><div>引擎架构<em>已完成</em></div></li>
+    <li><span>05</span><div>结构化输出与工具调用<em>已完成</em></div></li>
+    <li><span>06</span><div>加速手段<em>已完成</em></div></li>
+    <li class="here"><span>07</span><div>分布式部署<em>本页</em></div></li>
+    <li><span>08</span><div>Agent 负载对推理 infra 的新要求<em>长前缀多轮次、工具调用间隙的缓存保留、子 agent 并发、按任务而非按请求度量</em></div></li>
+    <li><span>09</span><div>压测与实操<em>在真实 GPU 上跑一次，读懂延迟和吞吐曲线</em></div></li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtInt=n=>Math.round(n).toLocaleString('en-US');
+const fmtK=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1000?Math.round(n/1000)+'K':String(Math.round(n));
+function press(ids,on){ids.forEach(id=>$(id).setAttribute('aria-pressed',id===on?'true':'false'));}
+
+/*SIM-START*/
+const GIB=1073741824;
+const MODELS={m8:{name:'Llama-3.1-8B',params:8.03e9,layers:32,kvHeads:8,headDim:128},
+              m70:{name:'Llama-3.1-70B',params:70.6e9,layers:80,kvHeads:8,headDim:128}};
+// ── Fig 1: split 8 GPUs into tp x dp ──
+function gpuSplit(gpu,m,tp){
+  const dp=8/tp, wTotal=m.params*2/GIB, wPer=wTotal/tp, usable=0.9*gpu, kvPer=usable-wPer;
+  const perTok=2*m.layers*m.kvHeads*m.headDim*2, fits=kvPer>0;
+  const kvRep=fits?kvPer*tp:0;
+  return {tp,dp,wPer,usable,kvPer,fits,kvRep,tokRep:kvRep*GIB/perTok,wAll:wTotal*dp,kvAll:kvRep*dp};
+}
+// ── Fig 2: routing simulation ──
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const RT={R:4,S:4000,D:1500,OUT:150,absT:2,relT:1.5,cacheT:0.3};
+function makeSessions(seed,K){
+  const rng=mulberry32(seed),out=[];
+  for(let i=0;i<K;i++)out.push({i,name:String.fromCharCode(65+i),turns:6+Math.floor(rng()*7),start:rng()*12000,think:1500+rng()*3000});
+  return out;
+}
+function routeSim(sessions,policy,capTokens){
+  const R=RT.R;
+  const reps=[];for(let r=0;r<R;r++)reps.push({ends:[],cache:new Map(),used:0,seen:false,peak:0,count:0});
+  const reqs=[];let rr=0,llPtr=0;
+  const pending=sessions.map(s=>({s,turn:1,at:s.start}));
+  const done=new Map();
+  while(pending.length){
+    pending.sort((a,b)=>a.at-b.at);
+    const ev=pending.shift(),s=ev.s,t=ev.at,prompt=RT.S+ev.turn*RT.D;
+    reps.forEach(p=>{p.ends=p.ends.filter(e=>e>t);});
+    const load=reps.map(p=>p.ends.length);
+    const hitOn=r=>{const c=reps[r].cache.get(s.i);return Math.min(prompt,Math.max(reps[r].seen?RT.S:0,c?c.len:0));};
+    const least=()=>{let best=-1;for(let k=0;k<R;k++){const r=(llPtr+k)%R;if(best<0||load[r]<load[best])best=r;}llPtr=(best+1)%R;return best;};
+    let r;
+    if(policy==='rr'){r=rr%R;rr++;}
+    else if(policy==='ll')r=least();
+    else if(policy==='hash')r=(Math.imul(s.i+1,2654435761)>>>0)%R;
+    else{
+      const mx=Math.max(...load),mn=Math.min(...load);
+      if(mx-mn>RT.absT&&mx>RT.relT*mn)r=least();
+      else{
+        let best=0;
+        for(let k=1;k<R;k++){const a=hitOn(k),b=hitOn(best);if(a>b||(a===b&&load[k]<load[best]))best=k;}
+        if(hitOn(best)/prompt>RT.cacheT)r=best;
+        else{r=0;for(let k=1;k<R;k++)if(reps[k].used<reps[r].used||(reps[k].used===reps[r].used&&load[k]<load[r]))r=k;}
+      }
+    }
+    const rep=reps[r],hit=hitOn(r),comp=prompt-hit,B=load[r]+1;
+    const prefill=20+0.1*comp,decode=RT.OUT*(20+0.4*B),end=t+prefill+decode;
+    rep.ends.push(end);rep.peak=Math.max(rep.peak,B);rep.count++;rep.seen=true;
+    const old=rep.cache.get(s.i);
+    if(old)rep.used-=old.len-RT.S;
+    const len=prompt+RT.OUT;
+    rep.cache.set(s.i,{len,last:t});rep.used+=len-RT.S;
+    while(rep.used>capTokens&&rep.cache.size>1){
+      let victim=-1,vt=Infinity;
+      rep.cache.forEach((v,k)=>{if(k!==s.i&&v.last<vt){vt=v.last;victim=k;}});
+      if(victim<0)break;
+      rep.used-=rep.cache.get(victim).len-RT.S;rep.cache.delete(victim);
+    }
+    reqs.push({s:s.i,name:s.name,turn:ev.turn,r,t,prefill,end,prompt,hit,comp,B});
+    if(ev.turn<s.turns)pending.push({s,turn:ev.turn+1,at:end+s.think});
+    else done.set(s.i,end-s.start);
+  }
+  const sum=f=>reqs.reduce((a,q)=>a+f(q),0);
+  const durs=[...done.values()];
+  return {reqs,reps,
+    hitRate:sum(q=>q.hit)/sum(q=>q.prompt),comp:sum(q=>q.comp),
+    ttft:sum(q=>q.prefill)/reqs.length,peak:Math.max(...reps.map(p=>p.peak)),
+    counts:reps.map(p=>p.count),dur:durs.reduce((a,b)=>a+b,0)/durs.length,
+    tEnd:Math.max(...reqs.map(q=>q.end))};
+}
+// ── Fig 3: a long prompt arrives; colocated vs disaggregated ──
+function pdSim(p){ // P tokens, B decode seqs, chunk, gbps
+  const base=20+0.4*p.B, n=Math.ceil(p.P/p.chunk);
+  const coIter=base+0.1*Math.min(p.chunk,p.P);
+  const coDur=n*base+0.1*p.P;            // total time of the disturbed iterations = TTFT of the long request
+  const pdPrefill=20*Math.ceil(p.P/8192)+0.1*p.P;
+  const kvBytes=p.P*131072, xfer=kvBytes/(p.gbps*1e9/8)*1000;
+  return {base,n,coIter,coDur,coTTFT:coDur,pdPrefill,kvBytes,xfer,pdTTFT:pdPrefill+xfer+base+0.4,pdIter:base};
+}
+// ── LoRA size for Llama-3.1-8B ──
+const LORA_DIMS={q:4096+4096,k:4096+1024,v:4096+1024,o:4096+4096,gate:4096+14336,up:4096+14336,down:14336+4096};
+const LORA_SETS={m2:['q','v'],m4:['q','k','v','o'],m7:['q','k','v','o','gate','up','down']};
+function loraSize(rank,set){
+  const perLayer=LORA_SETS[set].reduce((a,k)=>a+LORA_DIMS[k],0)*rank, params=perLayer*32, bytes=params*2;
+  return {params,bytes,pct:params/8.03e9,perGiB:Math.floor(GIB/bytes)};
+}
+/*SIM-END*/
+
+// ───────────── Fig 1 ─────────────
+const gp={gpu:24,model:'m8',tp:1};
+function drawGP(){
+  const m=MODELS[gp.model],r=gpuSplit(gp.gpu,m,gp.tp);
+  const W=1040,bw=112,gap=12,x0=(W-(8*bw+7*gap))/2,top=40,bh=150;
+  let s='<svg viewBox="0 0 '+W+' '+(top+bh+30)+'" style="min-width:760px" role="img" aria-label="8 张 GPU 按 TP '+r.tp+'、'+r.dp+' 个副本分配时每张卡的显存占用">';
+  s+='<defs><pattern id="gp-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="6"/></pattern></defs>';
+  for(let d=0;d<r.dp;d++){
+    const a=x0+d*r.tp*(bw+gap),b=a+r.tp*bw+(r.tp-1)*gap;
+    s+='<path class="g-br" d="M'+a+' 30V22H'+b+'V30"/>';
+    s+='<text x="'+((a+b)/2)+'" y="15" text-anchor="middle" font-size="12">副本 '+(d+1)+(r.tp>1?' · TP='+r.tp:'')+'</text>';
+  }
+  for(let g=0;g<8;g++){
+    const x=x0+g*(bw+gap);
+    if(!r.fits){
+      s+='<rect class="g-bad" x="'+x+'" y="'+top+'" width="'+bw+'" height="'+bh+'" rx="4"/>';
+      s+='<text x="'+(x+bw/2)+'" y="'+(top+bh/2-4)+'" text-anchor="middle" font-size="12.5" font-weight="600">放不下</text>';
+      s+='<text class="mono" x="'+(x+bw/2)+'" y="'+(top+bh/2+14)+'" text-anchor="middle" font-size="11">需要 '+r.wPer.toFixed(1)+' GB</text>';
+    }else{
+      const hw=r.wPer/gp.gpu*bh,hk=r.kvPer/gp.gpu*bh,hr=bh-hw-hk;
+      s+='<rect x="'+x+'" y="'+top+'" width="'+bw+'" height="'+hr+'" fill="url(#gp-hatch)"/>';
+      s+='<rect class="g-k" x="'+x+'" y="'+(top+hr+1)+'" width="'+bw+'" height="'+Math.max(hk-2,1)+'"><title>KV cache '+r.kvPer.toFixed(1)+' GB</title></rect>';
+      s+='<rect class="g-w" x="'+x+'" y="'+(top+hr+hk)+'" width="'+bw+'" height="'+hw+'"><title>权重 '+r.wPer.toFixed(1)+' GB</title></rect>';
+      s+='<rect class="g-box" style="fill:none" x="'+x+'" y="'+top+'" width="'+bw+'" height="'+bh+'" rx="4"/>';
+      if(hk>18)s+='<text class="on-fill" x="'+(x+bw/2)+'" y="'+(top+hr+hk/2+4)+'" text-anchor="middle" font-size="11.5">KV '+r.kvPer.toFixed(1)+' GB</text>';
+      if(hw>18)s+='<text class="on-dark" x="'+(x+bw/2)+'" y="'+(top+hr+hk+hw/2+4)+'" text-anchor="middle" font-size="11.5">权重 '+r.wPer.toFixed(1)+' GB</text>';
+    }
+    s+='<text class="f-muted mono" x="'+(x+bw/2)+'" y="'+(top+bh+18)+'" text-anchor="middle" font-size="11">GPU '+g+'</text>';
+  }
+  s+='</svg>';
+  $('gp-svg').innerHTML=s;
+  $('gp-rep').textContent=r.dp+' 个';
+  $('gp-kv').textContent=r.fits?fmtK(r.tokRep)+' token':'放不下';
+  $('gp-kv-s').textContent=r.fits?r.kvRep.toFixed(1)+' GB，相当于 '+Math.floor(r.tokRep/32768)+' 个 32K 的会话':'';
+  $('gp-w').textContent=r.wAll.toFixed(0)+' GB';
+  $('gp-tot').textContent=r.fits?r.kvAll.toFixed(0)+' GB':'—';
+  let msg;
+  if(!r.fits)msg='每张卡要放 '+r.wPer.toFixed(1)+' GB 权重，超过了可用的 '+r.usable.toFixed(1)+' GB。需要更大的 TP，或者量化（第 6 课）。';
+  else if(r.dp===8)msg='每张卡一个完整的副本。权重存了 8 份。吞吐最高，但有 8 个互不相通的前缀缓存。';
+  else if(r.dp===1)msg='8 张卡合成一个副本，权重只存一份，所有请求共用一个大 KV 池。每一层都要 8 张卡通信一次。';
+  else msg=r.dp+' 个副本，每个副本内部 '+r.tp+' 张卡做张量并行。权重存了 '+r.dp+' 份。';
+  $('gp-status').textContent=msg;
+}
+[24,48,80].forEach(g=>{$('gp-g'+g).onclick=()=>{gp.gpu=g;press(['gp-g24','gp-g48','gp-g80'],'gp-g'+g);drawGP();};});
+['m8','m70'].forEach(k=>{$('gp-'+k).onclick=()=>{gp.model=k;press(['gp-m8','gp-m70'],'gp-'+k);drawGP();};});
+[1,2,4,8].forEach(t=>{$('gp-t'+t).onclick=()=>{gp.tp=t;press(['gp-t1','gp-t2','gp-t4','gp-t8'],'gp-t'+t);drawGP();};});
+
+// ───────────── Fig 2 ─────────────
+const rt={policy:'rr',seed:7,sel:0};
+const POL=[['rr','轮询'],['ll','最少负载'],['hash','按会话哈希'],['ca','缓存感知 + 负载保护']];
+function drawRT(){
+  const K=+$('rt-K').value,cap=+$('rt-C').value*1000;
+  $('rt-K-o').textContent=K+' 个';
+  $('rt-C-o').textContent=$('rt-C').value+'K token';
+  const sessions=makeSessions(rt.seed,K);
+  if(rt.sel>=K)rt.sel=0;
+  const all={};POL.forEach(p=>{all[p[0]]=routeSim(sessions,p[0],cap);});
+  const sim=all[rt.policy];
+  const T=Math.max(...POL.map(p=>all[p[0]].tEnd));
+  // lane packing per replica
+  const lanes=[];for(let r=0;r<RT.R;r++)lanes.push([]);
+  sim.reqs.forEach(q=>{
+    const L=lanes[q.r];let k=0;
+    while(k<L.length&&L[k]>q.t)k++;
+    L[k]=q.end;q.lane=k;
+  });
+  const W=1040,Lm=64,Rm=14,pw=W-Lm-Rm,lh=13,pad=7;
+  let y=6;const rows=[];
+  for(let r=0;r<RT.R;r++){const n=Math.max(lanes[r].length,1);rows.push({y,h:n*lh+pad*2});y+=n*lh+pad*2+6;}
+  const H=y+26,X=t=>Lm+t/T*pw;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="min-width:780px" role="img" aria-label="所选路由策略下，每个副本上各次请求的时间分布">';
+  const step=T>90000?20000:10000;
+  for(let t=0;t<=T;t+=step){
+    s+='<line class="g-grid" x1="'+X(t)+'" y1="4" x2="'+X(t)+'" y2="'+(H-24)+'"/>';
+    s+='<text class="g-axis mono" x="'+X(t)+'" y="'+(H-8)+'" text-anchor="middle">'+(t/1000)+' s</text>';
+  }
+  rows.forEach((row,r)=>{
+    s+='<rect class="t-row" x="'+Lm+'" y="'+row.y+'" width="'+pw+'" height="'+row.h+'" opacity=".5" rx="3"/>';
+    s+='<text x="'+(Lm-10)+'" y="'+(row.y+row.h/2+4)+'" text-anchor="end" font-size="12">副本 '+(r+1)+'</text>';
+  });
+  sim.reqs.forEach(q=>{
+    const yy=rows[q.r].y+pad+q.lane*lh,x1=X(q.t),x2=X(q.t+q.prefill),x3=X(q.end);
+    const off=q.s!==rt.sel;
+    s+='<g class="rq'+(off?' off':' on')+'" data-s="'+q.s+'"><title>会话 '+q.name+' 第 '+q.turn+' 步：prompt '+fmtInt(q.prompt)+'，命中 '+fmtInt(q.hit)+'，重算 '+fmtInt(q.comp)+'</title>';
+    s+='<rect class="b-pre" x="'+x1+'" y="'+yy+'" width="'+Math.max(x2-x1,1.5)+'" height="'+(lh-2)+'" rx="1.5"/>';
+    s+='<rect class="b-dec" x="'+(x2+0.5)+'" y="'+yy+'" width="'+Math.max(x3-x2-1.5,1.5)+'" height="'+(lh-2)+'" rx="1.5"/>';
+    if(x3-x2>12)s+='<text class="rq-l" x="'+(x2+3.5)+'" y="'+(yy+lh-4.5)+'">'+q.name+'</text>';
+    s+='</g>';
+  });
+  s+='</svg>';
+  $('rt-svg').innerHTML=s;
+  const mine=sim.reqs.filter(q=>q.s===rt.sel),used=new Set(mine.map(q=>q.r)).size;
+  const mh=mine.reduce((a,q)=>a+q.hit,0)/mine.reduce((a,q)=>a+q.prompt,0);
+  $('rt-status').textContent='高亮的是会话 '+sessions[rt.sel].name+'：共 '+mine.length+' 步，落在 '+used+' 个不同的副本上，它自己的缓存命中率 '+Math.round(mh*100)+'%。'+(rt.policy==='ca'&&Math.min(...sim.counts)*3<Math.max(...sim.counts)?'负载低的时候，这个策略会把请求集中到已经有公共前缀的副本上，直到负载差超过阈值才分流：没有压力就不必分散。':'');
+  $('rt-table').tBodies[0].innerHTML=POL.map(p=>{
+    const a=all[p[0]];
+    return '<tr'+(p[0]===rt.policy?' class="sel"':'')+'><td>'+p[1]+'</td><td class="num">'+Math.round(a.hitRate*100)+'%</td><td class="num">'+fmtK(a.comp)+' token</td><td class="num">'+(a.ttft/1000).toFixed(2)+' s</td><td class="num">'+a.counts.join(' / ')+'</td><td class="num">'+(a.dur/1000).toFixed(1)+' s</td></tr>';
+  }).join('');
+}
+POL.forEach(p=>{$('rt-'+p[0]).onclick=()=>{rt.policy=p[0];press(POL.map(x=>'rt-'+x[0]),'rt-'+p[0]);drawRT();};});
+['rt-K','rt-C'].forEach(id=>$(id).addEventListener('input',drawRT));
+$('rt-seed').onclick=()=>{rt.seed=rt.seed*31%9973+1;drawRT();};
+$('rt-svg').addEventListener('click',ev=>{const g=ev.target.closest('.rq');if(g){rt.sel=+g.getAttribute('data-s');drawRT();}});
+
+// ───────────── Fig 3 ─────────────
+const pd={chunk:2048,gbps:100};
+function drawPD(){
+  const p={P:+$('pd-P').value*1000,B:+$('pd-B').value,chunk:pd.chunk,gbps:pd.gbps};
+  $('pd-P-o').textContent=$('pd-P').value+'K token';
+  $('pd-B-o').textContent=p.B+' 个';
+  const r=pdSim(p),T0=500;
+  const T=Math.max(T0+Math.max(r.coDur,r.pdTTFT)*1.18,3000);
+  const W=1040,L=58,R=20,top=16,H=250,bot=34;
+  const ymax=Math.ceil(Math.max(r.coIter,r.base*1.5)*1.12/50)*50;
+  const X=t=>L+t/T*(W-L-R),Y=v=>top+(1-v/ymax)*(H-top-bot);
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="min-width:720px" role="img" aria-label="长 prompt 到达前后，已有请求的 token 间隔随时间的变化">';
+  const ystep=ymax<=200?50:ymax<=500?100:ymax<=1000?200:500;
+  for(let v=0;v<=ymax;v+=ystep){
+    s+='<line class="g-grid" x1="'+L+'" y1="'+Y(v)+'" x2="'+(W-R)+'" y2="'+Y(v)+'"/>';
+    s+='<text class="g-axis mono" x="'+(L-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v+' ms</text>';
+  }
+  const tstep=T>40000?10000:T>16000?4000:T>8000?2000:1000;
+  for(let t=0;t<=T;t+=tstep)s+='<text class="g-axis mono" x="'+X(t)+'" y="'+(H-12)+'" text-anchor="middle">'+(t/1000)+' s</text>';
+  s+='<line class="g-muted" x1="'+X(T0)+'" y1="'+top+'" x2="'+X(T0)+'" y2="'+(H-bot)+'" stroke-dasharray="2 3"/>';
+  s+='<text class="f-muted" x="'+(X(T0)+5)+'" y="'+(top+10)+'" font-size="11.5">长 prompt 到达</text>';
+  const tEnd=T0+r.coDur;
+  s+='<path class="l-co" d="M'+L+' '+Y(r.base)+'H'+X(T0)+'V'+Y(r.coIter)+'H'+X(tEnd)+'V'+Y(r.base+0.4)+'H'+(W-R)+'"/>';
+  s+='<path class="l-pd" d="M'+L+' '+(Y(r.base)+3)+'H'+X(T0+r.pdPrefill+r.xfer)+'V'+(Y(r.base+0.4)+3)+'H'+(W-R)+'"/>';
+  s+='<line class="l-mark m-co" x1="'+X(tEnd)+'" y1="'+top+'" x2="'+X(tEnd)+'" y2="'+(H-bot)+'"/>';
+  s+='<line class="l-mark m-pd" x1="'+X(T0+r.pdTTFT)+'" y1="'+top+'" x2="'+X(T0+r.pdTTFT)+'" y2="'+(H-bot)+'"/>';
+  s+='<text class="mono" x="'+((X(T0)+X(tEnd))/2)+'" y="'+(Y(r.coIter)-7)+'" text-anchor="middle" font-size="12">'+r.coIter.toFixed(0)+' ms</text>';
+  s+='</svg>';
+  $('pd-svg').innerHTML=s;
+  const sec=v=>(v/1000).toFixed(v<10000?2:1)+' s';
+  $('pd-table').tBodies[0].innerHTML=
+    '<tr><td>合并部署</td><td class="num">'+r.base.toFixed(1)+' ms</td><td class="num">'+r.coIter.toFixed(1)+' ms</td><td class="num">'+sec(r.coDur)+'（'+r.n+' 轮）</td><td class="num">'+sec(r.coTTFT)+'</td></tr>'+
+    '<tr><td>PD 分离</td><td class="num">'+r.base.toFixed(1)+' ms</td><td class="num">'+r.base.toFixed(1)+' ms</td><td class="num">无</td><td class="num">'+sec(r.pdTTFT)+'</td></tr>';
+  $('pd-status').textContent='这个 prompt 的 KV 有 '+(r.kvBytes/GIB).toFixed(1)+' GB。PD 分离下 TTFT 的构成：prefill '+sec(r.pdPrefill)+' + 传 KV '+sec(r.xfer)+' + 第一步 decode。'+
+    (r.xfer>r.pdPrefill?'传输比 prefill 本身还久，这个带宽下不适合分离。':r.pdTTFT>r.coTTFT?'TTFT 比合并部署慢 '+sec(r.pdTTFT-r.coTTFT)+'，换来的是已有请求不受打扰。':'TTFT 和合并部署接近，已有请求不受打扰。');
+}
+['pd-P','pd-B'].forEach(id=>$(id).addEventListener('input',drawPD));
+[512,2048,8192].forEach(c=>{$('pd-c'+c).onclick=()=>{pd.chunk=c;press(['pd-c512','pd-c2048','pd-c8192'],'pd-c'+c);drawPD();};});
+[10,25,100,400].forEach(n=>{$('pd-n'+n).onclick=()=>{pd.gbps=n;press(['pd-n10','pd-n25','pd-n100','pd-n400'],'pd-n'+n);drawPD();};});
+
+// ───────────── LoRA ─────────────
+const lr={set:'m2'};
+const RANKS=[8,16,32,64,128,256];
+function drawLR(){
+  const rank=RANKS[+$('lr-r').value],r=loraSize(rank,lr.set);
+  $('lr-r-o').textContent=rank;
+  $('lr-p').textContent=(r.params/1e6).toFixed(1)+'M';
+  $('lr-mb').textContent=(r.bytes/1048576).toFixed(0)+' MB';
+  $('lr-pct').textContent=(r.pct*100).toFixed(2)+'%';
+  $('lr-n').textContent=r.perGiB+' 个';
+}
+$('lr-r').addEventListener('input',drawLR);
+['m2','m4','m7'].forEach(k=>{$('lr-'+k).onclick=()=>{lr.set=k;press(['lr-m2','lr-m4','lr-m7'],'lr-'+k);drawLR();};});
+
+drawGP();drawRT();drawPD();drawLR();
+})();
+</script>

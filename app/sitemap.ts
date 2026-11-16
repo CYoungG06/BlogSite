@@ -6,6 +6,7 @@ import { getAllInsights } from "@/lib/insights";
 import { getDigest, getDigestDates } from "@/lib/papers";
 import { getProjects } from "@/lib/projects";
 import { getResearchWorkSlugs } from "@/lib/research";
+import { getAllSeries } from "@/lib/series";
 import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -20,6 +21,7 @@ const STATIC_PAGES = [
   "/research/",
   "/projects/",
   "/archive/",
+  "/series/",
   "/about/",
   "/music/",
   "/friends/",
@@ -46,9 +48,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       add(locale, `/papers/${date}/`, getDigest(date)?.generatedAt);
     }
     for (const slug of getResearchWorkSlugs()) add(locale, `/research/${slug}/`);
+    for (const series of getAllSeries(locale)) add(locale, `/series/${series.slug}/`, series.date);
     for (const project of getProjects(locale)) {
       if (project.hasDetail) add(locale, `/projects/${project.slug}/`, project.date ?? undefined);
     }
+  }
+  // 课件只有中文
+  for (const series of getAllSeries("zh")) {
+    for (const lesson of series.lessons) add("zh", `/series/${series.slug}/${lesson.slug}/`, lesson.date);
   }
   for (const insight of getAllInsights()) {
     add("zh", `/papers/insights/${insight.paperId}/`, insight.date);

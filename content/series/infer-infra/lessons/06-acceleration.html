@@ -1,0 +1,769 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>加速手段</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose; each figure is a wider "instrument panel"
+   with its controls on top and its readout beside or below the drawing. */
+:root{
+  --bg:#f2f5f5; --surface:#fbfcfc; --surface-2:#e6ecec;
+  --ink:#101b1c; --ink-2:#44565a; --ink-3:#6f8186; --line:#cfd9d9;
+  --prefill:#2a78d6; --decode:#eb6834; --cache:#1baf7a; --waste:#aab7b9; --crit:#c93535;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-display:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+    --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+    --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+  --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+  --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:72px}
+.prose{max-width:43rem;display:flex;flex-direction:column;gap:16px}
+.prose p,.prose ul,.prose ol,.prose dl{margin:0}
+.prose ul,.prose ol{padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-0.01em}
+h2{font-size:25px}
+h3{font-size:17px}
+.eyebrow,.fig-no,.sec-no{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.lede{font-size:18px;color:var(--ink-2)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .38em;border-radius:3px;overflow-wrap:anywhere}
+strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid var(--line)}
+.note{font-size:14px;color:var(--ink-2);line-height:1.7}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.fig-head h3{flex:1 1 16rem}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.7;max-width:46rem}
+.scroll-x{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:currentColor}
+svg .mono{font-family:var(--font-mono)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);min-width:150px;flex:1 1 150px;max-width:260px}
+.ctl output{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.ctl .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink-3);border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--ink-3)}
+.seg button:last-child{border-right:0}
+button{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink-3);border-radius:5px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--surface-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--prefill);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepno{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.sw-tc{background:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.sw-tp{background:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.sw-td{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.sw-old{background:var(--surface-2);border:1px solid var(--line)}
+.sw-ring{border:2px solid var(--ink)}
+.sw-hit{background:var(--cache)} .sw-comp{background:var(--prefill)}
+
+/* svg classes */
+.t-cache{fill:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.t-prefill{fill:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.t-decode{fill:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.t-old{fill:var(--surface-2)}
+.t-empty{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+.t-free{fill:none;stroke:var(--line);stroke-width:1}
+.t-row{fill:var(--surface-2)}
+.c-ring{stroke:var(--ink);stroke-width:2}
+.o-sel{fill:none;stroke:var(--ink);stroke-width:1.5}
+.o-ghost{fill:none;stroke:var(--crit);stroke-width:1.5;stroke-dasharray:4 3}
+.g-ink{stroke:var(--ink)} .g-muted{stroke:var(--ink-3)}
+.g-grid{stroke:var(--line);stroke-width:1}
+.g-axis{fill:var(--ink-3);font-size:11px}
+.f-muted{fill:var(--ink-3)} .f-crit{fill:var(--crit)} .f-cache{fill:var(--cache)} .f-prefill{fill:var(--prefill)}
+.dim{opacity:.38}
+
+.narr{font-size:15px;line-height:1.75;min-height:5.4em;margin:0;max-width:52rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 22px}
+.stat{display:flex;flex-direction:column}
+.stat span{font-size:12.5px;color:var(--ink-2)}
+.stat b{font-family:var(--font-mono);font-weight:500;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.4}
+.stat small{font-size:12px;color:var(--ink-3);font-family:var(--font-mono)}
+.status{font-size:14.5px;padding:8px 12px;border-radius:4px;background:var(--surface-2)}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-weight:500;color:var(--ink-2);font-size:13px}
+td:first-child{color:var(--ink-2);white-space:nowrap}
+table.cmp{max-width:56rem}
+
+details.quiz{border:1px dashed var(--ink-3);border-radius:6px;padding:12px 16px;max-width:43rem}
+details.quiz summary{cursor:pointer;font-weight:500;list-style-position:outside;margin-left:1.1em}
+details.quiz summary .tag{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-right:8px}
+details.quiz .ans{margin-top:10px;color:var(--ink-2);font-size:15px;display:flex;flex-direction:column;gap:8px}
+details.quiz .ans p{margin:0}
+
+.callout{border-left:4px solid var(--cache);padding:4px 0 4px 16px;max-width:43rem;font-size:15px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.sys>div{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.sys ul{margin:0;padding-left:1.2em;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-width:43rem}
+.road li{display:grid;grid-template-columns:2.4em 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.road li span:first-child{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.road li em{font-style:normal;color:var(--ink-2);font-size:14px;display:block}
+.road li.here{font-weight:600}
+.road li.here em{font-weight:400}
+header{display:flex;flex-direction:column;gap:18px}
+/* lesson 6 additions */
+.ctl .seg{align-self:flex-start}
+td.num,th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.s-read{fill:var(--ink)} .s-over{fill:var(--ink-3)} .s-seq{fill:var(--decode)} .s-ver{fill:color-mix(in srgb,var(--decode) 45%,var(--surface))}
+.sw-read{background:var(--ink)} .sw-over{background:var(--ink-3)} .sw-seq{background:var(--decode)} .sw-ver{background:color-mix(in srgb,var(--decode) 45%,var(--surface))}
+.seg-lbl{font-size:11.5px}
+.on-dark{fill:var(--bg)}
+/* fig 2 memory bar */
+.mem{display:flex;height:34px;border-radius:4px;overflow:hidden;border:1px solid var(--line);gap:2px;background:var(--surface)}
+.mem>div{display:flex;align-items:center;justify-content:center;font-size:12.5px;white-space:nowrap;overflow:hidden;min-width:0}
+.mem .w{background:var(--ink);color:var(--bg)}
+.mem .k{background:var(--cache);color:#fff}
+.mem .r{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px);color:var(--ink-2)}
+.mem .x{background:var(--crit);color:#fff}
+.sw-w{background:var(--ink)} .sw-k{background:var(--cache)}
+.sw-r{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px);border:1px solid var(--line)}
+/* fig 3 table */
+table.sd{width:auto;min-width:min(100%,640px);font-size:14px}
+table.sd th,table.sd td{text-align:center;padding:7px 12px}
+table.sd td:first-child,table.sd th:first-child{text-align:left;color:var(--ink-2);white-space:nowrap;font-weight:400;font-size:13px}
+table.sd .tok{font-family:var(--font-mono);font-size:14px}
+table.sd .hide{visibility:hidden}
+table.sd .acc{font-weight:600}
+table.sd .rej{color:var(--crit);font-weight:600}
+table.sd .drop{color:var(--ink-3);text-decoration:line-through}
+table.sd td.cur{background:var(--surface-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{font-family:var(--font-mono);font-size:13px;padding:2px 8px;border-radius:3px;border:1px solid var(--line);background:var(--surface-2);white-space:pre}
+.chip.new{background:color-mix(in srgb,var(--decode) 36%,var(--surface));border-color:transparent}
+.chip.fix{outline:2px solid var(--ink);outline-offset:1px}
+.rows{display:grid;grid-template-columns:minmax(7em,auto) 1fr;gap:12px 18px;align-items:baseline}
+.rows>span{font-size:13px;color:var(--ink-2)}
+.l-main{stroke:var(--decode);fill:none;stroke-width:2}
+.l-ref{stroke:var(--ink-3);stroke-dasharray:5 4;stroke-width:1.2}
+.l-guide{stroke:var(--ink);stroke-width:1}
+.d-main{fill:var(--decode);stroke:var(--surface);stroke-width:2}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">推理 Infra · 第 6 课 / 共 9 课</div>
+  <h1>每种加速手段，省的是哪一项</h1>
+  <p class="lede prose">量化、speculative decoding、CUDA graph、编译、更快的注意力算子，名字很多，常被混在一起说「能加速」。这一课把一步 decode 的时间拆成几项，逐个对上：每种手段动的是哪一项，在什么负载下有用，在什么负载下没用甚至更慢。</p>
+  <p class="note prose">图里的耗时是示意模型，沿用第 1 课的成本模型并把它拆开。引擎的参数名、默认值和文档说法对照了两个项目当前的 main 分支；这些功能迭代很快，选型前请以当时的文档为准。</p>
+</header>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">1 · 先拆账</div>
+    <h2>一步 decode 的时间由三项组成</h2>
+    <p>第 1 课给过一个成本模型：一次前向的固定开销 20 ms，每多一个 decode 序列加 0.4 ms。那个 20 ms 里其实有两样性质完全不同的东西，这一课要把它拆开。</p>
+    <ul>
+      <li><strong>读一遍权重。</strong>每生成一个 token，每一层的权重矩阵都要从显存里读出来参与一次运算。8B 参数的模型用 16 位浮点存是 16 GB。GPU 每秒能从显存读多少字节是有上限的，叫<span class="term">显存带宽</span>，A100 80GB 的标称值是 2,039 GB/s。16 GB ÷ 2,039 GB/s ≈ 8 ms，这是读一遍权重的时间下限。第 1 课说 decode「受显存带宽限制」指的就是它。</li>
+      <li><strong>框架和启动开销。</strong>一次前向由成百上千个小的 GPU 运算组成，每个都要由 CPU 上的 Python 和 PyTorch 代码发起。发起本身要时间，和模型算了多少没关系。</li>
+      <li><strong>每个序列自己的计算。</strong>每个序列要读自己的 KV cache、做自己的那一行矩阵运算。这一项和 batch 大小成正比。</li>
+    </ul>
+    <p>关键在于前两项是一个 batch 里所有序列<strong>共摊</strong>的：权重只读一遍，大家一起用。所以 batch 小的时候它们占大头，batch 大的时候第三项占大头。下面每种手段只动其中一项，这就决定了它在哪种负载下有效。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 1</span><h3>每种手段动的是哪一项</h3></div>
+    <div class="controls">
+      <label class="ctl"><span class="row"><span>decode 序列数</span><output id="st-B-o"></output></span><input type="range" id="st-B" min="1" max="256" step="1" value="8"></label>
+      <div class="ctl"><span>权重精度</span>
+        <div class="seg" role="group" aria-label="权重精度">
+          <button id="st-q16" aria-pressed="true">16 位</button>
+          <button id="st-q8" aria-pressed="false">8 位</button>
+          <button id="st-q4" aria-pressed="false">4 位</button>
+        </div>
+      </div>
+      <div class="ctl"><span>CUDA graph 和编译</span>
+        <div class="seg" role="group" aria-label="CUDA graph 和编译">
+          <button id="st-g1" aria-pressed="true">开（默认）</button>
+          <button id="st-g0" aria-pressed="false">关</button>
+        </div>
+      </div>
+      <div class="ctl"><span>speculative decoding</span>
+        <div class="seg" role="group" aria-label="speculative decoding">
+          <button id="st-s0" aria-pressed="true">关</button>
+          <button id="st-s1" aria-pressed="false">开</button>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-read"></i>读权重</span>
+      <span><i class="sw sw-over"></i>框架和启动开销</span>
+      <span><i class="sw sw-seq"></i>每序列计算</span>
+      <span><i class="sw sw-ver"></i>验证草稿 token</span>
+    </div>
+    <div class="scroll-x" id="st-svg"></div>
+    <div class="stats">
+      <div class="stat"><span>一步前向</span><b id="st-step"></b><small id="st-step-d"></small></div>
+      <div class="stat"><span>每个序列每步产出</span><b id="st-e"></b></div>
+      <div class="stat"><span>平均每个 token 的间隔（TPOT）</span><b id="st-tpot"></b><small id="st-tpot-d"></small></div>
+      <div class="stat"><span>吞吐</span><b id="st-tps"></b><small id="st-tps-d"></small></div>
+    </div>
+    <div class="status" id="st-status"></div>
+    <figcaption>示意模型。基准是「16 位权重、CUDA graph 开、不用 speculative decoding」，此时一步是 20 ms + 每序列 0.4 ms，和前几课一致。各项的拆分比例是为了说明关系设的；speculative decoding 这里固定为每步猜 4 个、接受率 0.7、草稿不花时间，第 3 节可以调。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>把权重从 16 位量化到 4 位。只有 1 个序列时 TPOT 降多少？256 个序列时呢？</summary>
+    <div class="ans">
+      <p>1 个序列时从 20.4 ms 降到 14.4 ms，少了 29%。256 个序列时从 122.4 ms 降到 116.4 ms，只少 5%。</p>
+      <p>省掉的都是那 6 ms 的读权重时间。batch 小的时候它占一步的三成，batch 大了之后一步的时间主要花在每个序列自己的计算上，那一项量化没有动。所以「量化能加速」这句话要带上条件：并发低的时候明显，并发高的时候主要收益不在速度上，在第 2 节要讲的显存上。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">2 · 量化</div>
+    <h2>每个数少占几位</h2>
+    <p>模型权重默认用 16 位浮点数存（FP16 或 BF16）。<span class="term">量化</span>是用更少的位数表示它们：8 位或 4 位。常见的写法是 <code>W4A16</code> 这种形式：W 后面是权重的位数，A 后面是<span class="term">激活值</span>的位数。激活值指每一层算出来、传给下一层的中间结果，它们不存盘，每次前向现算。</p>
+    <ul>
+      <li><strong>只量化权重</strong>（W4A16、W8A16）。权重按 4 位或 8 位存，用的时候还原成 16 位再算。省的是存储和读取；计算本身还是 16 位的。GPTQ、AWQ 这两种常见方法产出的就是这类模型。它们需要先拿一批校准数据跑一遍，决定每一层怎么舍入损失最小，所以是离线做好再加载。</li>
+      <li><strong>权重和激活都量化</strong>（W8A8，常见的是 FP8）。连计算也在 8 位上做，需要硬件和算子支持。可以离线做，也可以加载时现转。</li>
+      <li><strong>KV cache 量化</strong>。和上面两种无关，量化的是第 2 课那个 KV 池子里存的数，从 16 位变成 FP8，同样的显存能放两倍的 token。</li>
+    </ul>
+    <p>量化省下的显存去了哪，是它对推理服务最重要的影响。第 2 课说过，显存里除了权重，剩下的几乎全给 KV cache。权重占得少，KV 池子就大。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 2</span><h3>量化之后，显存怎么分</h3></div>
+    <div class="controls">
+      <div class="ctl"><span>GPU 显存</span>
+        <div class="seg" role="group" aria-label="GPU 显存">
+          <button id="mm-g24" aria-pressed="true">24 GB</button>
+          <button id="mm-g48" aria-pressed="false">48 GB</button>
+          <button id="mm-g80" aria-pressed="false">80 GB</button>
+        </div>
+      </div>
+      <div class="ctl"><span>模型</span>
+        <div class="seg" role="group" aria-label="模型">
+          <button id="mm-m8" aria-pressed="true">Llama-3.1-8B</button>
+          <button id="mm-m70" aria-pressed="false">Llama-3.1-70B</button>
+        </div>
+      </div>
+      <div class="ctl"><span>权重精度</span>
+        <div class="seg" role="group" aria-label="权重精度">
+          <button id="mm-w16" aria-pressed="true">16 位</button>
+          <button id="mm-w8" aria-pressed="false">8 位</button>
+          <button id="mm-w4" aria-pressed="false">4 位</button>
+        </div>
+      </div>
+      <div class="ctl"><span>KV cache 精度</span>
+        <div class="seg" role="group" aria-label="KV cache 精度">
+          <button id="mm-k16" aria-pressed="true">16 位</button>
+          <button id="mm-k8" aria-pressed="false">FP8</button>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-w"></i>权重</span>
+      <span><i class="sw sw-k"></i>KV cache</span>
+      <span><i class="sw sw-r"></i>引擎不占用的 10%</span>
+    </div>
+    <div class="mem" id="mm-bar" role="img" aria-label="显存分配"></div>
+    <div class="stats">
+      <div class="stat"><span>权重占用</span><b id="mm-w"></b></div>
+      <div class="stat"><span>留给 KV cache</span><b id="mm-kv"></b></div>
+      <div class="stat"><span>每个 token 的 KV</span><b id="mm-pt"></b></div>
+      <div class="stat"><span>KV 池能放下的 token</span><b id="mm-tok"></b><small id="mm-ses"></small></div>
+    </div>
+    <div class="status" id="mm-status"></div>
+    <figcaption>沿用第 1 课的 KV 公式（2 × 层数 × KV 头数 × 头维度 × 每个数的字节数）和 90% 的默认显存占用比例。没有计入前向计算的临时显存和 CUDA graph 占用，实际可用的 KV 空间会再少一两个 GB；4 位量化的实际文件也会比这里算的略大。这张图里的 GB 按 2 的 30 次方字节算，所以 8B 模型的 16 位权重显示为 15.0 GB。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>24 GB 的卡跑 8B 模型。权重从 16 位量化到 4 位，KV 池能放的 token 数变成原来的几倍？</summary>
+    <div class="ans">
+      <p>约 2.7 倍，从 5.4 万个 token 到 14.6 万个。权重从 15 GB 降到 3.7 GB，省出来的 11 GB 全部进了 KV 池，池子从 6.6 GB 变成 17.9 GB。</p>
+      <p>对 Agent 负载，这比 TPOT 上那几毫秒重要。第 3 课讲过，工具调用的间隙里前缀留在缓存里靠的是池子够大；池子大 2.7 倍，同样的并发下被淘汰的前缀少得多。再把 KV 也换成 FP8，容量再翻一倍。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>几个容易想当然的地方</h3>
+    <ul>
+      <li><strong>只量化权重，高并发下不会更快。</strong>图 1 已经看到了。权重在用之前要还原成 16 位，计算量没有少。vLLM 文档里写明它的权重量化算子（Marlin）始终用 16 位激活值运行。</li>
+      <li><strong>标的方案和实际跑的方案可能不一样。</strong>一个标着 W8A8 的模型，如果当前设备上没有能跑 8 位激活的算子，vLLM 默认会退回到只量化权重的算子，按 W8A16 跑，并打一条警告。精度不受影响，但速度和这个模型发布时的基准测试不是一回事。设 <code>VLLM_STRICT_QUANT_SCHEME=1</code> 可以禁止这种回退。</li>
+      <li><strong>精度损失要在自己的任务上测。</strong>8 位通常损失很小，4 位在小模型上更明显，但都因模型和任务而异。SGLang 文档的原话是量化后的模型必须重新跑基准验证。对 Agent 要测的是任务成功率和工具调用的合法率：第 5 课算过，单次合法率掉一个百分点，50 步的任务成功率会掉很多。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">3 · Speculative decoding</div>
+    <h2>让大模型一步确认好几个 token</h2>
+    <p>decode 慢的根源是串行：生成 100 个 token 就要跑 100 次前向，每次都要把权重读一遍。但第 1 课也说过，prefill 可以一次前向并行处理很多个位置。<span class="term">Speculative decoding</span>（推测解码）利用的就是这个不对称：</p>
+    <ol>
+      <li>用一个便宜的办法先<strong>猜</strong>接下来的 K 个 token，叫草稿。</li>
+      <li>大模型（目标模型）做<strong>一次</strong>前向，像 prefill 那样同时处理这 K 个位置，得到它自己在每个位置上的概率分布。</li>
+      <li>从左到右检查草稿：和目标模型的意见相符就接受，遇到第一个不接受的，用目标模型自己的分布重新采一个，后面的草稿全部丢弃。</li>
+    </ol>
+    <p>猜对了几个，这一次前向就白赚几个 token。猜错了也不亏正确性：被拒绝的位置上目标模型本来就算出了自己的分布。</p>
+    <p>接受的规则是精心设计过的。设草稿在某个位置给它选的 token 的概率是 q，目标模型给同一个 token 的概率是 p。p ≥ q 就直接接受；p &lt; q 时以 p/q 的概率接受。被拒绝时，从「p 减 q 的正的部分」重新归一化得到的分布里采样。可以证明这样得到的输出分布和只用目标模型逐个采样<strong>完全相同</strong>，所以它是无损的，只换速度，不换质量。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 3</span><h3>一轮 speculative decoding</h3></div>
+    <div class="controls">
+      <div class="btns">
+        <button id="sd-prev">上一步</button>
+        <button id="sd-next">下一步</button>
+        <button id="sd-reset">回到开头</button>
+        <span class="stepno" id="sd-no"></span>
+      </div>
+    </div>
+    <div class="rows">
+      <span>已有的输出</span><div class="chips" id="sd-ctx"></div>
+    </div>
+    <div class="scroll-x"><table class="sd" id="sd-table"></table></div>
+    <div class="rows">
+      <span>这一轮的产出</span><div class="chips" id="sd-out"></div>
+    </div>
+    <p class="narr" id="sd-narr"></p>
+    <figcaption>q 是草稿给这个 token 的概率，p 是目标模型给它的概率。概率和随机数是编的。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>第 4 个草稿 token 被拒绝了。第 5 个草稿 token「的」目标模型也算过了，为什么不能留着用？</summary>
+    <div class="ans">
+      <p>因为它是接在「数字」后面猜的，目标模型验证它时看到的上文也是「数字」。现在第 4 个位置换成了「元素」，第 5 个位置的上文变了，之前算的概率和 KV 都作废。</p>
+      <p>这一轮的结果是：一次目标前向处理了 5 个位置，产出 4 个 token（3 个接受的草稿，加 1 个重新采样的）。被丢弃的位置对应的 KV 也要从块里退掉，这是第 2 课的块管理要配合的地方。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>划不划算，取决于两个数和当前的并发</h3>
+    <p>设每个草稿 token 被接受的概率是 α，每轮猜 K 个。Leviathan 等人的论文给出每轮期望产出的 token 数是 (1 − α<sup>K+1</sup>) / (1 − α)。α = 0.7、K = 4 时是 2.8 个。</p>
+    <p>成本有两块。一是出草稿的成本，每个草稿 token 花目标模型一步的 c 倍时间。二是验证的成本：目标模型这一步要多处理 K 个位置。并发低的时候 GPU 的计算能力有富余（时间花在读权重上），多算几个位置几乎不要钱。并发高的时候 GPU 已经在满负荷计算，每个序列多 K 个位置就是实打实的多 K 份计算量。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 4</span><h3>加速比随并发的变化</h3></div>
+    <div class="controls">
+      <label class="ctl"><span class="row"><span>接受率 α</span><output id="sp-a-o"></output></span><input type="range" id="sp-a" min="0.2" max="0.95" step="0.05" value="0.6"></label>
+      <label class="ctl"><span class="row"><span>每轮猜几个（K）</span><output id="sp-k-o"></output></span><input type="range" id="sp-k" min="1" max="10" step="1" value="5"></label>
+      <label class="ctl"><span class="row"><span>每个草稿 token 的成本 c</span><output id="sp-c-o"></output></span><input type="range" id="sp-c" min="0" max="0.3" step="0.01" value="0.05"></label>
+    </div>
+    <div class="scroll-x" id="sp-svg"></div>
+    <div class="stats">
+      <div class="stat"><span>每轮期望产出</span><b id="sp-e"></b></div>
+      <div class="stat"><span>并发 1 时的加速比</span><b id="sp-lo"></b></div>
+      <div class="stat"><span>并发 512 时的加速比</span><b id="sp-hi"></b></div>
+      <div class="stat"><span>加速比降到 1 的并发</span><b id="sp-be"></b></div>
+    </div>
+    <div class="status" id="sp-status"></div>
+    <figcaption>纵轴是同样并发下，开启后每个序列的生成速度除以不开时的速度；高于 1 才是赚的。横轴是对数刻度。模型里验证一个草稿位置按第 1 课的每 prefill token 0.1 ms 计。c = 0 对应查表式的草稿（n-gram），草稿模型大约在 0.05 到 0.2。鼠标移到图上可以读某个并发下的数值。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>默认参数（α = 0.6，K = 5，c = 0.05）。并发从 1 涨到 512，加速比怎么变？</summary>
+    <div class="ans">
+      <p>从 1.9 倍一路降到 1.0，在 512 附近变成不赚不亏。再把 α 调到 0.4，并发过了 25 左右就低于 1，开着比不开还慢。</p>
+      <p>vLLM 文档对这个功能的定位就是「在中低 QPS、受显存带宽限制的负载下降低 token 间隔」，并提醒：GPU 不再受显存带宽限制之后，验证每个草稿位置都要花计算量，高并发下可能比不开更慢。所以它是一个延迟优化，不是吞吐优化。负载波动大的服务需要能按当前并发动态减少或关掉推测，两个引擎都有这类自适应的选项。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>草稿从哪来</h3>
+  </div>
+  <div class="scroll-x">
+  <table class="cmp">
+    <thead><tr><th></th><th>草稿来源</th><th>出草稿的成本</th><th>适合</th></tr></thead>
+    <tbody>
+      <tr><td>草稿模型</td><td>一个同系列的小模型，比如 8B 配 0.6B</td><td>中。要多占一份权重和 KV 的显存</td><td>通用</td></tr>
+      <tr><td>EAGLE、MTP 一类</td><td>接在目标模型上的一个小预测头，利用目标模型内部的中间结果（hidden states）来猜</td><td>低。但要有针对该模型训练好的头</td><td>通用，两个引擎文档里都列为收益最高的一类</td></tr>
+      <tr><td>n-gram</td><td>不用模型。看最近输出的几个 token 在 prompt 里出现过没有，出现过就把它后面那一段抄来当草稿</td><td>几乎为零</td><td>输出大量重复输入的任务：改代码、摘抄、改写</td></tr>
+      <tr><td>Suffix decoding</td><td>n-gram 的扩展。除了本请求的 prompt 和输出，还去匹配之前其他请求的输出，并按出现频率选最可能的续写</td><td>几乎为零</td><td>重复度高的负载。vLLM 文档点名了代码编辑和 agent 循环</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">4 · 图捕获、编译和算子</div>
+    <h2>把「发起运算」本身的开销压下去</h2>
+    <p>图 1 里灰色的那一项和模型算了什么无关，是把运算发起出去的成本。这一类优化对用户是透明的，引擎默认就开着，需要知道的是它们各自在做什么、代价是什么。</p>
+    <h3>CUDA graph：把一次前向录下来重放</h3>
+    <p>正常执行时，一次前向里的每个 GPU 运算都由 Python 代码逐个发起：准备参数、调用驱动、提交给 GPU。模型小、batch 小的时候，GPU 算一个运算的时间可能比 CPU 发起它的时间还短，GPU 在等 CPU。CUDA graph 是 CUDA 提供的一种机制：把一整串运算的调用录成一张图，之后每次只需一次调用就能把整张图重放一遍。</p>
+    <p>录下来的图形状是固定的，所以有三个后果：</p>
+    <ul>
+      <li>引擎要在启动时为一组 batch 大小各录一张图，这是启动变慢、多占一些显存的原因之一。运行时遇到没录过的大小，就补齐到最近的一个录过的大小。</li>
+      <li>形状规整的 batch 最容易录。vLLM 把「所有请求都只算 1 个 token」的纯 decode batch 单独对待，为它录整张图；含 prefill 的 batch 形状多变，只录注意力之外的部分，注意力照常逐次发起。这个默认模式叫 <code>FULL_AND_PIECEWISE</code>。</li>
+      <li>文档说这种设置对小模型的低延迟场景收益最大，同时占显存最多、启动时录制最久。</li>
+    </ul>
+    <h3>编译：把相邻的小运算合成大的</h3>
+    <p><code>torch.compile</code> 会先把模型的前向过程追踪成一张计算图，再生成更紧凑的代码，比如把相邻的几个逐元素运算合成一个 GPU 运算（融合），省掉中间结果的读写。vLLM 里它默认开启，并且有一条约束值得记住：所有编译都在开始服务之前完成，不会有哪个请求触发新的编译，否则那个请求的延迟会突然变得很长。编译产物缓存在 <code>~/.cache/vllm/torch_compile_cache</code>，可以整个目录拷到部署环境里省掉启动时的编译。</p>
+    <p>vLLM 用 <code>-O0</code> 到 <code>-O3</code> 四个等级打包这些开关：<code>-O0</code> 不编译、不录图，启动最快，适合调试；<code>-O2</code> 是默认，也是文档推荐的生产配置。SGLang 的 CUDA graph 同样默认开启，用 <code>--cuda-graph-config</code> 一类的参数配置；它的 <code>--enable-torch-compile</code> 在文档里标注为不再维护。</p>
+    <h3>注意力算子</h3>
+    <p>注意力是前向里最特殊的一个运算：它要去读 KV cache，而第 2 课讲过 KV 是按块表分散存放的。通用的矩阵运算库不认识块表，所以两个引擎都依赖专门为推理写的注意力算子库（FlashAttention、FlashInfer 等），并允许用 <code>--attention-backend</code> 选择。SGLang 还可以给 prefill 和 decode 分别指定。不同的算子库对 CUDA graph、FP8 KV cache、speculative decoding 的支持程度不同，这是「某两个功能不能同时开」这类限制的常见来源。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">5 · 对照表</div>
+    <h2>谁省在哪</h2>
+  </div>
+  <div class="scroll-x">
+  <table class="cmp">
+    <thead><tr><th>手段</th><th>动的是哪一项</th><th>主要改善</th><th>代价和失效条件</th></tr></thead>
+    <tbody>
+      <tr><td>权重量化</td><td>每步要读的字节数；权重占的显存</td><td>低并发下的 TPOT；KV 池容量</td><td>精度。只量化权重时，高并发下不变快</td></tr>
+      <tr><td>KV cache 量化</td><td>每个 token 的 KV 占用</td><td>并发数、能保留的前缀</td><td>精度。依赖注意力算子支持</td></tr>
+      <tr><td>Speculative decoding</td><td>每个 token 平均要跑几步大模型</td><td>中低并发下的 TPOT</td><td>高并发下可能更慢；草稿模型占显存；接受率因任务而异</td></tr>
+      <tr><td>CUDA graph</td><td>每步发起运算的 CPU 开销</td><td>小模型、小 batch 的每步固定开销</td><td>启动时间和显存</td></tr>
+      <tr><td>编译和融合</td><td>运算之间的衔接开销</td><td>每步固定开销</td><td>启动时的编译时间，可以缓存</td></tr>
+      <tr><td>前缀缓存（第 3 课）</td><td>prefill 要算的 token 数</td><td>TTFT</td><td>只对相同前缀有效，不影响 decode</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <p>把前缀缓存也放进来，是因为这张表给出了一个完整的分工：前缀缓存管 prefill，这一课的手段主要管 decode 和显存。一个请求的延迟是 TTFT 加上输出 token 数乘以 TPOT，先看清哪一段长，再决定用哪一种。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">6 · Agent 视角</div>
+    <h2>Agent 负载下怎么选</h2>
+  </div>
+  <div class="callout">
+    <p><b>缓存命中之后，剩下的时间主要在 decode。</b>Agent 的请求输入长、输出短，看上去是 prefill 重的负载。但第 3 课之后，命中缓存的那一步 prefill 只算新增的几千个 token，几百毫秒；输出 200 个 token 的工具调用，按每步 20 多毫秒算也要好几秒。所以前缀缓存做好之后，下一个值得优化的就是 TPOT。</p>
+  </div>
+  <div class="callout">
+    <p><b>Agent 的输出重复度高，查表式的草稿特别合适。</b>改代码时大段照抄原文件，工具调用的 JSON 骨架每次都一样，同一个任务的多个子 agent 输出相似的内容。n-gram 和 suffix decoding 在这类输出上接受率高，又不占显存、不需要额外的模型。</p>
+  </div>
+  <div class="callout">
+    <p><b>跨请求的草稿是一条旁路。</b>Suffix decoding 的语料库存的是所有请求的输出。vLLM 文档专门提醒：草稿不会改变输出内容，但被接受了多少会体现在生成速度上，所以一个请求能从速度上间接感知别的请求输出过什么。多租户、请求之间必须互不影响的服务，要把这个语料库关掉（<code>suffix_decoding_corpus_tokens: 0</code>）。</p>
+  </div>
+  <div class="callout">
+    <p><b>量化对 Agent 的主要价值是显存。</b>图 2 的结论。更大的 KV 池意味着工具调用间隙里前缀更不容易被淘汰，也意味着能同时挂住更多长上下文的会话。</p>
+  </div>
+  <div class="callout">
+    <p><b>和约束解码一起用时要查兼容性。</b>第 5 课讲过，自动机每一步都要推进状态。Speculative decoding 一次试走好几步、还可能退回，自动机就得支持回退。两个功能能不能同时开、开了之后重叠调度还在不在，取决于具体的算法组合，上线前要对照文档确认。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 7 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">7 · 对应到真实系统</div>
+    <h2>文档入口和开关</h2>
+    <p>这一课的内容主要落在配置上，所以列的是文档和参数。路径以当前 main 分支为准。</p>
+  </div>
+  <div class="sys">
+    <div>
+      <h3>vLLM</h3>
+      <ul>
+        <li>量化：文档 Features → Quantization。预先量化好的模型直接加载；也可以用 <code>--quantization fp8_per_tensor</code> 这类参数在加载时现转。官方配套的量化工具是 LLM Compressor，支持 FP8 W8A8、INT8 W8A8、INT4 W4A16 等方案。</li>
+        <li>KV cache 量化：<code>--kv-cache-dtype fp8</code>。可以用 <code>--kv-cache-dtype-skip-layers</code> 让个别层保持原精度。</li>
+        <li>Speculative decoding：文档 Features → Speculative Decoding。用一个 JSON 配置，例如 <code>--speculative-config '{"method": "ngram", "num_speculative_tokens": 5, "prompt_lookup_max": 4}'</code>。<code>method</code> 常见取值有 <code>draft_model</code>、<code>ngram</code>、<code>suffix</code>、<code>mtp</code>、<code>eagle3</code>。</li>
+        <li>CUDA graph 和编译：文档 Design → CUDA Graphs、torch.compile integration、Optimization Levels。开关是 <code>-O0</code> 到 <code>-O3</code>，细调用 <code>--compilation-config</code>。</li>
+        <li>注意力算子：文档 Design → Attention Backend Feature Support 有一张自动生成的支持矩阵。开关是 <code>--attention-backend</code>。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>SGLang</h3>
+      <ul>
+        <li>量化：文档 advanced_features/quantization。AWQ、GPTQ 这类离线量化的模型直接加载，不要再加 <code>--quantization</code>；这个参数是给加载时现转用的。文档建议优先用离线量化。</li>
+        <li>KV cache 量化：<code>--kv-cache-dtype</code>，可选 <code>fp8_e4m3</code>、<code>fp8_e5m2</code> 等。</li>
+        <li>Speculative decoding：文档 advanced_features/speculative_decoding。<code>--speculative-algorithm</code> 可选 <code>EAGLE3</code>、<code>EAGLE</code>、<code>STANDALONE</code>（小草稿模型）、<code>NGRAM</code> 等；配套参数有 <code>--speculative-draft-model-path</code>、<code>--speculative-num-steps</code>、<code>--speculative-num-draft-tokens</code>、<code>--speculative-eagle-topk</code>。文档提醒在重叠调度下要显式设 <code>--speculative-eagle-topk 1</code>。</li>
+        <li>CUDA graph：<code>--cuda-graph-config</code>，或者按阶段的 <code>--cuda-graph-max-bs-decode</code> 等。</li>
+        <li>注意力算子：文档 advanced_features/attention_backend。<code>--attention-backend</code>，以及 <code>--prefill-attention-backend</code>、<code>--decode-attention-backend</code>。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="prose">
+    <h3>原始资料</h3>
+    <ul>
+      <li>Leviathan, Kalman &amp; Matias, <em>Fast Inference from Transformers via Speculative Decoding</em>, ICML 2023。接受规则、期望 token 数和加速比公式的出处。</li>
+      <li>Chen et al., <em>Accelerating Large Language Model Decoding with Speculative Sampling</em>, 2023。同期独立提出，vLLM 文档引用的是这一篇。</li>
+      <li>Li et al., <em>EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty</em>, 2024。</li>
+      <li>Suffix Decoding 的技术报告，arXiv 2411.04975。</li>
+      <li>Frantar et al., <em>GPTQ</em>, 2022；Lin et al., <em>AWQ</em>, 2023。两种主流的权重量化方法。</li>
+      <li>NVIDIA A100 的规格页，显存带宽的数字出自那里。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="prose">
+    <div class="sec-no">路线图</div>
+    <h2>进度</h2>
+  </div>
+  <ol class="road">
+    <li><span>01</span><div>推理基础与 continuous batching<em>已完成</em></div></li>
+    <li><span>02</span><div>显存管理：PagedAttention<em>已完成</em></div></li>
+    <li><span>03</span><div>前缀缓存<em>已完成</em></div></li>
+    <li><span>04</span><div>引擎架构<em>已完成</em></div></li>
+    <li><span>05</span><div>结构化输出与工具调用<em>已完成</em></div></li>
+    <li class="here"><span>06</span><div>加速手段<em>本页</em></div></li>
+    <li><span>07</span><div>分布式部署<em>多卡并行、prefill/decode 分离、缓存感知路由、多 LoRA</em></div></li>
+    <li><span>08</span><div>Agent 负载对推理 infra 的新要求<em>长前缀多轮次、工具调用间隙的缓存保留、子 agent 并发、按任务而非按请求度量</em></div></li>
+    <li><span>09</span><div>压测与实操<em>在真实 GPU 上跑一次，读懂延迟和吞吐曲线</em></div></li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtInt=n=>Math.round(n).toLocaleString('en-US');
+function press(ids,on){ids.forEach(id=>$(id).setAttribute('aria-pressed',id===on?'true':'false'));}
+const signed=x=>(x>0?'+':'')+Math.round(x)+'%';
+
+/*SIM-START*/
+// Expected tokens per round, Leviathan et al. 2023, Eq. 1
+function expTok(a,k){return (1-Math.pow(a,k+1))/(1-a);}
+// ── Fig 1: one decode step split into its parts (ms) ──
+const SPEC1={a:0.7,k:4};
+function stepParts(o){
+  const read=8*o.bits/16, over=o.graph?12:30, seq=0.4*o.B, ver=o.spec?0.1*o.B*SPEC1.k:0;
+  const E=o.spec?expTok(SPEC1.a,SPEC1.k):1, total=read+over+seq+ver;
+  return {read,over,seq,ver,total,E,tpot:total/E,tps:o.B*E/total*1000};
+}
+// ── Fig 2: memory split ──
+const GIB=1073741824;
+const MODELS={m8:{name:'Llama-3.1-8B',params:8.03e9,layers:32,kvHeads:8,headDim:128},
+              m70:{name:'Llama-3.1-70B',params:70.6e9,layers:80,kvHeads:8,headDim:128}};
+function memCalc(gpu,m,wbits,kvbits){
+  const weights=m.params*wbits/8/GIB, usable=0.9*gpu, kv=usable-weights;
+  const perTok=2*m.layers*m.kvHeads*m.headDim*(kvbits/8);
+  const tokens=kv>0?kv*GIB/perTok:0;
+  return {weights,usable,kv,perTok,tokens,sessions:Math.floor(tokens/32768),fits:kv>0};
+}
+// ── Fig 3: one speculation round ──
+const SD_CTX=['这个','函数','返回'];
+const SD=[{t:'列表',q:0.80,p:0.90},{t:'里',q:0.90,p:0.85,u:0.41},{t:'所有',q:0.60,p:0.70},{t:'数字',q:0.70,p:0.14,u:0.63,re:'元素'},{t:'的',q:0.85,p:0.88}];
+function sdVerify(){
+  const res=[];let stopped=false;
+  for(const d of SD){
+    if(stopped){res.push({state:'drop'});continue;}
+    const pa=Math.min(1,d.p/d.q), ok=d.p>=d.q||d.u<pa;
+    res.push({state:ok?'acc':'rej',pa});
+    if(!ok)stopped=true;
+  }
+  return res;
+}
+// ── Fig 4: speedup vs concurrency ──
+function specSpeedup(B,a,k,c){
+  const base=20+0.4*B, spec=base+0.1*B*k+k*c*base;
+  return expTok(a,k)*base/spec;
+}
+function breakEven(a,k,c){
+  if(specSpeedup(1,a,k,c)<=1)return 0;
+  for(let B=1;B<=4096;B++)if(specSpeedup(B,a,k,c)<=1)return B;
+  return Infinity;
+}
+/*SIM-END*/
+
+// ───────────── Fig 1 ─────────────
+const st={bits:16,graph:true,spec:false};
+function drawST(){
+  const B=+$('st-B').value;
+  $('st-B-o').textContent=B+' 个';
+  const base=stepParts({B,bits:16,graph:true,spec:false}),cur=stepParts({B,bits:st.bits,graph:st.graph,spec:st.spec});
+  const W=1040,L=92,R=70,pw=W-L-R,bh=30,max=Math.max(base.total,cur.total);
+  const X=v=>v/max*pw;
+  let s='<svg viewBox="0 0 '+W+' 118" style="min-width:680px" role="img" aria-label="一步前向的时间构成，基准和当前配置对比">';
+  const bar=(y,name,p)=>{
+    let x=L,o='<text x="'+(L-10)+'" y="'+(y+bh/2+4)+'" font-size="12.5" text-anchor="end">'+name+'</text>';
+    [['read','s-read','读权重',1],['over','s-over','开销',1],['seq','s-seq','每序列计算',0],['ver','s-ver','验证草稿',0]].forEach(d=>{
+      const w=X(p[d[0]]);if(w<=0)return;
+      o+='<rect class="'+d[1]+'" x="'+x+'" y="'+y+'" width="'+Math.max(w-2,1)+'" height="'+bh+'" rx="3"><title>'+d[2]+' '+p[d[0]].toFixed(1)+' ms</title></rect>';
+      if(w>74)o+='<text class="seg-lbl'+(d[3]?' on-dark':'')+'" x="'+(x+7)+'" y="'+(y+bh/2+4)+'">'+d[2]+' '+p[d[0]].toFixed(1)+'</text>';
+      x+=w;
+    });
+    o+='<text class="mono" x="'+(x+6)+'" y="'+(y+bh/2+4)+'" font-size="12.5">'+p.total.toFixed(1)+' ms</text>';
+    return o;
+  };
+  s+=bar(14,'基准',base)+bar(64,'当前配置',cur)+'</svg>';
+  $('st-svg').innerHTML=s;
+  const rel=(a,b)=>(a/b-1)*100;
+  $('st-step').textContent=cur.total.toFixed(1)+' ms';
+  $('st-step-d').textContent='基准 '+base.total.toFixed(1)+' ms';
+  $('st-e').textContent=cur.E.toFixed(2)+' 个 token';
+  $('st-tpot').textContent=cur.tpot.toFixed(1)+' ms';
+  $('st-tpot-d').textContent='相对基准 '+signed(rel(cur.tpot,base.tpot));
+  $('st-tps').textContent=fmtInt(cur.tps)+' tok/s';
+  $('st-tps-d').textContent='相对基准 '+signed(rel(cur.tps,base.tps));
+  const shared=(cur.read+cur.over)/cur.total;
+  let msg='当前这一步里，所有序列共摊的两项（读权重和开销）占 '+Math.round(shared*100)+'%。';
+  msg+=shared>0.5?'并发低，共摊的部分是大头：量化、图捕获和 speculative decoding 都看得到效果。'
+                 :'并发高，时间主要花在每个序列自己的计算上：动共摊项的手段效果有限，speculative decoding 多出来的验证成本也变得显眼。';
+  $('st-status').textContent=msg;
+}
+$('st-B').addEventListener('input',drawST);
+[16,8,4].forEach(b=>{$('st-q'+b).onclick=()=>{st.bits=b;press(['st-q16','st-q8','st-q4'],'st-q'+b);drawST();};});
+$('st-g1').onclick=()=>{st.graph=true;press(['st-g1','st-g0'],'st-g1');drawST();};
+$('st-g0').onclick=()=>{st.graph=false;press(['st-g1','st-g0'],'st-g0');drawST();};
+$('st-s0').onclick=()=>{st.spec=false;press(['st-s0','st-s1'],'st-s0');drawST();};
+$('st-s1').onclick=()=>{st.spec=true;press(['st-s0','st-s1'],'st-s1');drawST();};
+
+// ───────────── Fig 2 ─────────────
+const mm={gpu:24,model:'m8',w:16,k:16};
+function drawMM(){
+  const m=MODELS[mm.model],r=memCalc(mm.gpu,m,mm.w,mm.k);
+  const pc=v=>(v/mm.gpu*100).toFixed(2)+'%';
+  let bar;
+  if(r.fits)bar='<div class="w" style="width:'+pc(r.weights)+'">权重 '+r.weights.toFixed(1)+' GB</div><div class="k" style="width:'+pc(r.kv)+'">KV cache '+r.kv.toFixed(1)+' GB</div><div class="r" style="flex:1"></div>';
+  else bar='<div class="x" style="flex:1">权重 '+r.weights.toFixed(1)+' GB，超过可用的 '+r.usable.toFixed(1)+' GB</div>';
+  $('mm-bar').innerHTML=bar;
+  $('mm-w').textContent=r.weights.toFixed(1)+' GB';
+  $('mm-kv').textContent=r.fits?r.kv.toFixed(1)+' GB':'放不下';
+  $('mm-pt').textContent=(r.perTok/1024)+' KiB';
+  $('mm-tok').textContent=r.fits?fmtInt(r.tokens/1000)+'K':'0';
+  $('mm-ses').textContent=r.fits?'相当于 '+r.sessions+' 个 32K token 的会话':'';
+  let msg;
+  if(!r.fits)msg='这个精度下模型放不进这张卡。量化在这里不是加速手段，是能不能跑的前提。';
+  else if(r.sessions===0)msg='放得下模型，但 KV 池连一个 32K token 的上下文都装不下。';
+  else{
+    const ref=memCalc(mm.gpu,m,16,16);
+    msg=(mm.w===16&&mm.k===16)?'这是不做任何量化的基准。切换权重或 KV 的精度，看 KV 池的变化。'
+      :(ref.fits?'相比全 16 位，KV 池能放的 token 数是原来的 '+(r.tokens/ref.tokens).toFixed(1)+' 倍。':'全 16 位时这个模型放不进这张卡，量化之后才跑得起来。');
+  }
+  $('mm-status').textContent=msg;
+}
+[24,48,80].forEach(g=>{$('mm-g'+g).onclick=()=>{mm.gpu=g;press(['mm-g24','mm-g48','mm-g80'],'mm-g'+g);drawMM();};});
+['m8','m70'].forEach(k=>{$('mm-'+k).onclick=()=>{mm.model=k;press(['mm-m8','mm-m70'],'mm-'+k);drawMM();};});
+[16,8,4].forEach(b=>{$('mm-w'+b).onclick=()=>{mm.w=b;press(['mm-w16','mm-w8','mm-w4'],'mm-w'+b);drawMM();};});
+[16,8].forEach(b=>{$('mm-k'+b).onclick=()=>{mm.k=b;press(['mm-k16','mm-k8'],'mm-k'+b);drawMM();};});
+
+// ───────────── Fig 3 ─────────────
+const sd={cur:3};
+const SD_NARR=[
+ '目标模型刚生成到「返回」。接下来要生成后面的内容，不用 speculative decoding 的话是一步一个 token。',
+ '草稿这一边先连着猜出 5 个 token。它很便宜：可能是一个小得多的模型跑了 5 步，也可能只是查了一次表。每个 token 带着草稿给它的概率 q。',
+ '目标模型做一次前向，把这 5 个位置一起算了，和 prefill 一次处理多个 token 是同一种并行。结果是它自己在每个位置上给草稿 token 的概率 p。这一步的耗时和普通的一步 decode 差不多。',
+ '从左到右逐个检查。p ≥ q 直接接受；p < q 时以 p/q 的概率接受，用一个随机数决定。第 2 个位置 p/q = 0.94，抽到的随机数是 0.41，接受。第 4 个位置目标模型只给了 0.14，p/q = 0.2，随机数 0.63，拒绝。',
+ '在被拒绝的位置上，目标模型从自己调整过的分布里重新采样，得到「元素」。第 5 个草稿 token 是接在「数字」后面猜的，上文已经变了，只能丢弃。',
+ '这一轮结束：一次目标前向产出了 4 个 token。下一轮从「元素」之后继续猜。如果草稿一个都没中，这一轮仍然能产出 1 个 token（重新采样的那个），所以正确性上不会比不用更差，只是白花了出草稿和多验证几个位置的成本。'
+];
+function drawSD(){
+  const i=sd.cur,res=sdVerify();
+  $('sd-ctx').innerHTML=SD_CTX.map(t=>'<span class="chip">'+esc(t)+'</span>').join('');
+  const show=(min,html)=>'<span'+(i<min?' class="hide"':'')+'>'+html+'</span>';
+  let h='<thead><tr><th>位置</th>'+SD.map((_,j)=>'<th>'+(j+1)+'</th>').join('')+'</tr></thead><tbody>';
+  h+='<tr><td>草稿 token</td>'+SD.map((d,j)=>'<td class="tok">'+show(1,'<span class="'+(i>=4&&res[j].state!=='acc'?'drop':'')+'">'+esc(d.t)+'</span>')+'</td>').join('')+'</tr>';
+  h+='<tr><td>草稿的概率 q</td>'+SD.map(d=>'<td class="mono">'+show(1,d.q.toFixed(2))+'</td>').join('')+'</tr>';
+  h+='<tr><td>目标模型的概率 p</td>'+SD.map(d=>'<td class="mono">'+show(2,d.p.toFixed(2))+'</td>').join('')+'</tr>';
+  h+='<tr><td>接受概率 min(1, p/q)</td>'+SD.map((d,j)=>'<td class="mono">'+show(3,res[j].state==='drop'?'—':res[j].pa.toFixed(2))+'</td>').join('')+'</tr>';
+  h+='<tr><td>结果</td>'+SD.map((d,j)=>{
+    const r=res[j].state;
+    return '<td>'+show(3,r==='acc'?'<span class="acc">接受</span>':r==='rej'?'<span class="rej">拒绝</span>':'<span class="drop">不再检查</span>')+'</td>';
+  }).join('')+'</tr></tbody>';
+  $('sd-table').innerHTML=h;
+  let out='';
+  if(i>=3){
+    SD.forEach((d,j)=>{if(res[j].state==='acc')out+='<span class="chip new">'+esc(d.t)+'</span>';
+      else if(res[j].state==='rej'&&i>=4)out+='<span class="chip new fix">'+esc(d.re)+'</span>';});
+  }
+  if(i>=5)out+='<span class="note">共 4 个 token，用了 1 次目标前向</span>';
+  $('sd-out').innerHTML=out||'<span class="note">（还没有）</span>';
+  $('sd-narr').textContent=SD_NARR[i];
+  $('sd-no').textContent='第 '+i+' / '+(SD_NARR.length-1)+' 步';
+  $('sd-prev').disabled=i===0;
+  $('sd-next').disabled=i===SD_NARR.length-1;
+}
+$('sd-prev').onclick=()=>{if(sd.cur>0){sd.cur--;drawSD();}};
+$('sd-next').onclick=()=>{if(sd.cur<SD_NARR.length-1){sd.cur++;drawSD();}};
+$('sd-reset').onclick=()=>{sd.cur=0;drawSD();};
+
+// ───────────── Fig 4 ─────────────
+const sp={hover:null};
+const SPW=1040,SPL=56,SPR=24,SPT=18,SPH=300,SPB=40;
+const spX=B=>SPL+Math.log2(B)/9*(SPW-SPL-SPR);
+function drawSP(){
+  const a=+$('sp-a').value,k=+$('sp-k').value,c=+$('sp-c').value;
+  $('sp-a-o').textContent=a.toFixed(2);
+  $('sp-k-o').textContent=k+' 个';
+  $('sp-c-o').textContent=c===0?'0（查表）':c.toFixed(2);
+  const f=B=>specSpeedup(B,a,k,c);
+  let ymax=Math.max(1.5,f(1)*1.1);ymax=Math.ceil(ymax*2)/2;
+  const Y=v=>SPT+(1-v/ymax)*(SPH-SPT-SPB);
+  let s='<svg viewBox="0 0 '+SPW+' '+SPH+'" style="min-width:680px" role="img" aria-label="speculative decoding 的加速比随并发数的变化">';
+  for(let v=0;v<=ymax+1e-9;v+=0.5){
+    s+='<line class="g-grid" x1="'+SPL+'" y1="'+Y(v)+'" x2="'+(SPW-SPR)+'" y2="'+Y(v)+'"/>';
+    s+='<text class="g-axis mono" x="'+(SPL-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v.toFixed(1)+'×</text>';
+  }
+  for(let e=0;e<=9;e++){const B=Math.pow(2,e);s+='<text class="g-axis mono" x="'+spX(B)+'" y="'+(SPH-18)+'" text-anchor="middle">'+B+'</text>';}
+  s+='<text class="g-axis" x="'+(SPW-SPR)+'" y="'+(SPH-2)+'" text-anchor="end">同时 decode 的序列数</text>';
+  s+='<line class="l-ref" x1="'+SPL+'" y1="'+Y(1)+'" x2="'+(SPW-SPR)+'" y2="'+Y(1)+'"/>';
+  s+='<text class="f-muted" x="'+(SPL+8)+'" y="'+(Y(1)+15)+'" font-size="11.5">不开 speculative decoding = 1.0×</text>';
+  let d='';
+  for(let e=0;e<=90;e++){const B=Math.pow(2,e/10);d+=(e?'L':'M')+spX(B).toFixed(1)+' '+Y(f(B)).toFixed(1);}
+  s+='<path class="l-main" d="'+d+'"/>';
+  s+='<circle class="d-main" cx="'+spX(1)+'" cy="'+Y(f(1))+'" r="5"/><circle class="d-main" cx="'+spX(512)+'" cy="'+Y(f(512))+'" r="5"/>';
+  s+='<text class="mono" x="'+(spX(1)+10)+'" y="'+(Y(f(1))-8)+'" font-size="12">'+f(1).toFixed(2)+'×</text>';
+  s+='<text class="mono" x="'+(spX(512)-8)+'" y="'+(Y(f(512))+(f(512)>=1?-10:18))+'" font-size="12" text-anchor="end">'+f(512).toFixed(2)+'×</text>';
+  if(sp.hover){
+    const B=sp.hover;
+    s+='<line class="l-guide" x1="'+spX(B)+'" y1="'+SPT+'" x2="'+spX(B)+'" y2="'+(SPH-SPB)+'"/><circle class="d-main" cx="'+spX(B)+'" cy="'+Y(f(B))+'" r="5"/>';
+  }
+  s+='<rect id="sp-hit" x="'+SPL+'" y="'+SPT+'" width="'+(SPW-SPL-SPR)+'" height="'+(SPH-SPT-SPB)+'" fill="transparent"/></svg>';
+  $('sp-svg').innerHTML=s;
+  $('sp-e').textContent=expTok(a,k).toFixed(2)+' 个 token';
+  $('sp-lo').textContent=f(1).toFixed(2)+'×';
+  $('sp-hi').textContent=f(512).toFixed(2)+'×';
+  const be=breakEven(a,k,c);
+  $('sp-be').textContent=be===0?'一开始就不赚':be===Infinity||be>512?'超过 512':'约 '+be;
+  let msg;
+  if(sp.hover)msg='并发 '+sp.hover+'：加速比 '+f(sp.hover).toFixed(2)+'×。不开时每个 token '+(20+0.4*sp.hover).toFixed(1)+' ms，开启后平均 '+((20+0.4*sp.hover)/f(sp.hover)).toFixed(1)+' ms。';
+  else msg=be===0?'这组参数下任何并发都不划算：接受率太低，或者草稿太贵。'
+    :be>512?'这组参数下在图上的整个范围内都有收益，收益随并发升高而变小。'
+    :'并发低于约 '+be+' 时有收益，高于它之后开着比不开慢。';
+  $('sp-status').textContent=msg;
+}
+['sp-a','sp-k','sp-c'].forEach(id=>$(id).addEventListener('input',()=>{drawSP();}));
+$('sp-svg').addEventListener('pointermove',ev=>{
+  const svg=$('sp-svg').querySelector('svg');if(!svg)return;
+  const r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*SPW;
+  const e=(x-SPL)/(SPW-SPL-SPR)*9;
+  const B=Math.max(1,Math.min(512,Math.round(Math.pow(2,e))));
+  if(B!==sp.hover){sp.hover=B;drawSP();}
+});
+$('sp-svg').addEventListener('pointerleave',()=>{sp.hover=null;drawSP();});
+
+drawST();drawMM();drawSD();drawSP();
+})();
+</script>

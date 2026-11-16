@@ -1,0 +1,831 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>结构化输出与工具调用</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose; each figure is a wider "instrument panel"
+   with its controls on top and its readout beside or below the drawing. */
+:root{
+  --bg:#f2f5f5; --surface:#fbfcfc; --surface-2:#e6ecec;
+  --ink:#101b1c; --ink-2:#44565a; --ink-3:#6f8186; --line:#cfd9d9;
+  --prefill:#2a78d6; --decode:#eb6834; --cache:#1baf7a; --waste:#aab7b9; --crit:#c93535;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-display:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+    --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+    --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+  --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+  --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:72px}
+.prose{max-width:43rem;display:flex;flex-direction:column;gap:16px}
+.prose p,.prose ul,.prose ol,.prose dl{margin:0}
+.prose ul,.prose ol{padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-0.01em}
+h2{font-size:25px}
+h3{font-size:17px}
+.eyebrow,.fig-no,.sec-no{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.lede{font-size:18px;color:var(--ink-2)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .38em;border-radius:3px;overflow-wrap:anywhere}
+strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid var(--line)}
+.note{font-size:14px;color:var(--ink-2);line-height:1.7}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.fig-head h3{flex:1 1 16rem}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.7;max-width:46rem}
+.scroll-x{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:currentColor}
+svg .mono{font-family:var(--font-mono)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);min-width:150px;flex:1 1 150px;max-width:260px}
+.ctl output{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.ctl .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink-3);border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--ink-3)}
+.seg button:last-child{border-right:0}
+button{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink-3);border-radius:5px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--surface-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--prefill);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepno{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.sw-tc{background:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.sw-tp{background:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.sw-td{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.sw-old{background:var(--surface-2);border:1px solid var(--line)}
+.sw-ring{border:2px solid var(--ink)}
+.sw-hit{background:var(--cache)} .sw-comp{background:var(--prefill)}
+
+/* svg classes */
+.t-cache{fill:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.t-prefill{fill:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.t-decode{fill:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.t-old{fill:var(--surface-2)}
+.t-empty{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+.t-free{fill:none;stroke:var(--line);stroke-width:1}
+.t-row{fill:var(--surface-2)}
+.c-ring{stroke:var(--ink);stroke-width:2}
+.o-sel{fill:none;stroke:var(--ink);stroke-width:1.5}
+.o-ghost{fill:none;stroke:var(--crit);stroke-width:1.5;stroke-dasharray:4 3}
+.g-ink{stroke:var(--ink)} .g-muted{stroke:var(--ink-3)}
+.g-grid{stroke:var(--line);stroke-width:1}
+.g-axis{fill:var(--ink-3);font-size:11px}
+.f-muted{fill:var(--ink-3)} .f-crit{fill:var(--crit)} .f-cache{fill:var(--cache)} .f-prefill{fill:var(--prefill)}
+.dim{opacity:.38}
+
+.narr{font-size:15px;line-height:1.75;min-height:5.4em;margin:0;max-width:52rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 22px}
+.stat{display:flex;flex-direction:column}
+.stat span{font-size:12.5px;color:var(--ink-2)}
+.stat b{font-family:var(--font-mono);font-weight:500;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.4}
+.stat small{font-size:12px;color:var(--ink-3);font-family:var(--font-mono)}
+.status{font-size:14.5px;padding:8px 12px;border-radius:4px;background:var(--surface-2)}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-weight:500;color:var(--ink-2);font-size:13px}
+td:first-child{color:var(--ink-2);white-space:nowrap}
+table.cmp{max-width:56rem}
+
+details.quiz{border:1px dashed var(--ink-3);border-radius:6px;padding:12px 16px;max-width:43rem}
+details.quiz summary{cursor:pointer;font-weight:500;list-style-position:outside;margin-left:1.1em}
+details.quiz summary .tag{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-right:8px}
+details.quiz .ans{margin-top:10px;color:var(--ink-2);font-size:15px;display:flex;flex-direction:column;gap:8px}
+details.quiz .ans p{margin:0}
+
+.callout{border-left:4px solid var(--cache);padding:4px 0 4px 16px;max-width:43rem;font-size:15px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.sys>div{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.sys ul{margin:0;padding-left:1.2em;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-width:43rem}
+.road li{display:grid;grid-template-columns:2.4em 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.road li span:first-child{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.road li em{font-style:normal;color:var(--ink-2);font-size:14px;display:block}
+.road li.here{font-weight:600}
+.road li.here em{font-weight:400}
+header{display:flex;flex-direction:column;gap:18px}
+/* lesson 5 additions */
+.lbl{font-size:12.5px;color:var(--ink-2);margin-bottom:4px}
+pre.data{margin:0;font-family:var(--font-mono);font-size:12.5px;line-height:1.6;background:var(--surface-2);padding:10px 12px;border-radius:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+.b-gpu{fill:var(--decode)} .b-sched{fill:var(--ink)}
+.hatch-line{stroke:var(--waste);stroke-width:2}
+.sw-gpu{background:var(--decode)} .sw-sched{background:var(--ink)} .sw-raw{background:var(--ink-3)}
+.sw-idle{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px);border:1px solid var(--line)}
+td.num,th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ctl .seg{align-self:flex-start}
+.rows{display:grid;grid-template-columns:minmax(7em,auto) 1fr;gap:12px 18px;align-items:baseline}
+.rows>span{font-size:13px;color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:13px;padding:2px 8px;border-radius:3px;border:1px solid var(--line);background:var(--surface-2);white-space:pre}
+.chip.cur{outline:2px solid var(--ink);outline-offset:1px}
+.chip.fut{opacity:.35}
+.chip.con{border-bottom:3px solid var(--decode)}
+.sw-con{background:var(--surface-2);border:1px solid var(--line);border-bottom:3px solid var(--decode)}
+.plain{font-size:15px}
+/* fig 1 */
+.cd-rows{display:flex;flex-direction:column;gap:9px}
+.cd-row{display:grid;grid-template-columns:6.5em 1fr 9em;gap:12px;align-items:center}
+.cd-row .chip{justify-self:start}
+.cd-bars{display:flex;flex-direction:column;gap:2px}
+.cd-bar{height:9px;border-radius:2px;min-width:2px}
+.cd-bar.raw{background:var(--ink-3)}
+.cd-bar.con{background:var(--decode)}
+.cd-row.illegal .cd-bar.raw{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px);outline:1px solid var(--line)}
+.cd-row.illegal .cd-bar.con{background:none}
+.cd-row.illegal .chip{text-decoration:line-through;color:var(--ink-3)}
+.cd-row.pick .chip{outline:2px solid var(--ink);outline-offset:1px}
+.cd-num{font-family:var(--font-mono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+/* fig 2 */
+.tk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
+.tk{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 5px;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.tk .t{font-family:var(--font-mono);font-size:14px;white-space:pre}
+.tk .bit{font-family:var(--font-mono);font-size:12px;color:var(--ink-3)}
+.tk.ok{border-color:var(--ink);border-width:2px;padding:6px 3px 4px}
+.tk.ok .bit{color:var(--ink);font-weight:500}
+.tk.no{background:var(--surface-2)}
+.tk.no .t{color:var(--ink-3)}
+.tk .bad{color:var(--crit);text-decoration:underline;text-decoration-thickness:2px;font-weight:500}
+.tk .rest{opacity:.45}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">推理 Infra · 第 5 课 / 共 9 课</div>
+  <h1>把语法变成一张掩码</h1>
+  <p class="lede prose">模型输出的是概率，解析器要的是一个字符都不能错的 JSON。这一课讲推理引擎怎样在采样的那一刻把不合法的 token 全部排除，这张「掩码」是怎么算出来的、算它要花多少、放在主循环的哪里，以及工具调用是怎样建在这套机制上面的。Agent 的每一次工具调用都要过这一关。</p>
+  <p class="note prose">图里的概率、词表和 token 切分都是为了讲清机制编的小例子。引擎的行为、参数名和文件路径对照了两个项目当前的 main 分支。</p>
+</header>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">1 · 采样前的一步</div>
+    <h2>把不合法的 token 的概率清零</h2>
+    <p>第 1 课讲过，模型每一步输出一个长度等于词表大小的 logits 向量，softmax 之后是每个 token 的概率，再从中采样。模型没有任何机制保证采到的 token 能让输出继续保持合法的 JSON：它只是觉得某些 token 更可能。提示词写得再清楚，也只是把合法输出的概率推高，到不了 100%。</p>
+    <p><span class="term">约束解码</span>（constrained decoding）在 logits 和采样之间插入一步：根据已经输出的内容和目标语法，算出此刻哪些 token 是合法的，把其余 token 的 logit 设成负无穷。softmax 之后它们的概率正好是 0，合法 token 的概率按原来的比例自动放大到总和为 1。这张标明每个 token 合法与否的表就是<span class="term">掩码</span>（mask）。</p>
+    <p>下图用一个很小的例子走一遍。目标是让模型按这个 schema 输出：<code>city</code> 是三个城市之一，<code>days</code> 是整数。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 1</span><h3>约束解码的每一步</h3></div>
+    <div class="controls">
+      <div class="btns">
+        <button id="cd-prev">上一步</button>
+        <button id="cd-next">下一步</button>
+        <button id="cd-reset">回到开头</button>
+        <span class="stepno" id="cd-no"></span>
+      </div>
+    </div>
+    <div class="rows">
+      <span>目标 schema</span><div class="chips"><span class="chip">{"city": "北京" | "上海" | "广州", "days": 整数}</span></div>
+      <span>已经输出</span><div class="chips" id="cd-out"></div>
+      <span>语法此刻期待</span><div class="plain" id="cd-expect"></div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-raw"></i>模型原本给的概率</span>
+      <span><i class="sw sw-gpu"></i>掩码之后的概率</span>
+      <span><i class="sw sw-idle"></i>不合法，被掩掉</span>
+      <span><i class="sw sw-ring"></i>这一步选中的 token</span>
+    </div>
+    <div class="cd-rows" id="cd-rows"></div>
+    <div class="stats">
+      <div class="stat"><span>这一步合法 token 的概率合计</span><b id="cd-mass"></b></div>
+      <div class="stat"><span>不加约束，到这一步仍然合法的概率</span><b id="cd-prod"></b></div>
+      <div class="stat"><span>到这一步，语法只允许一种写法的 token</span><b id="cd-forced"></b></div>
+    </div>
+    <p class="narr" id="cd-narr"></p>
+    <figcaption>每一步只列出模型认为最可能的几个 token，真实词表有十几万个。这里每步都选掩码后概率最高的那个。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>这个例子里，模型每一步选到合法 token 的概率都不低于 95%。不加约束，10 个 token 全部合法的概率大约是多少？</summary>
+    <div class="ans">
+      <p>79%。每一步的合法概率相乘：0.96 × 0.99 × 0.995 × 0.95 × 0.99 × 0.995 × 0.97 × 0.97 × 0.98 × 0.97 ≈ 0.79。</p>
+      <p>输出越长、结构越复杂，要连续做对的步数越多，这个乘积掉得越快。约束解码把它直接变成 100%，代价是每一步多算一张掩码。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <p>走完图 1 还能看到一件事：10 个 token 里有 7 个是语法唯一确定的，模型真正在做选择的只有城市、天数和要不要再写一位数字这三处。第 4 节会回到这一点。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">2 · 掩码怎么算</div>
+    <h2>语法按字符定义，模型按 token 输出</h2>
+    <p>难点在于两边的单位对不上。JSON 的语法规则是逐字符写的：左花括号后面要么是引号要么是右花括号。模型的词表里是 token，一个 token 可能是半个词，也可能是 <code>","</code> 这样一口气跨过「字符串结束、逗号、下一个字符串开始」三个语法位置的片段。</p>
+    <p>所以算掩码要做的事情是：把语法编译成一台按字符前进的<span class="term">自动机</span>；对词表里的每一个 token，从自动机当前的状态出发，把这个 token 的字符一个个喂进去，中途走不通就是不合法，全部走通就是合法。</p>
+    <p>下图是一台只认「合法 JSON 对象」的小自动机（为了简单，不允许空白）。选一个已经输出的前缀，看 21 个 token 各自的命运。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 2</span><h3>同一个 token，在不同状态下合法性不同</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="已经输出的前缀">
+        <button id="tk-p0" aria-pressed="false">刚开始</button>
+        <button id="tk-p1" aria-pressed="false">在字符串里</button>
+        <button id="tk-p2" aria-pressed="false">等一个值</button>
+        <button id="tk-p3" aria-pressed="true">一层对象，值写完了</button>
+        <button id="tk-p4" aria-pressed="false">两层对象，值写完了</button>
+        <button id="tk-p5" aria-pressed="false">数组里，值写完了</button>
+      </div>
+    </div>
+    <div class="rows">
+      <span>已经输出</span><div class="chips"><span class="chip" id="tk-prefix"></span></div>
+      <span>自动机状态</span><div class="plain" id="tk-state"></div>
+    </div>
+    <div class="tk-grid" id="tk-grid"></div>
+    <div class="stats">
+      <div class="stat"><span>合法 token</span><b id="tk-count"></b></div>
+      <div class="stat"><span>这一行 0/1 就是掩码</span><b id="tk-bits" style="font-size:14px;line-height:2.1"></b></div>
+      <div class="stat"><span>真实词表的掩码大小</span><b>≈ 16 KB</b><small>128,256 个 token，每个 1 bit，每个序列每步一张</small></div>
+    </div>
+    <figcaption>粗框是合法的 token，下面的数字是它在掩码里的那一位。不合法的 token 里，红色带下划线的字符是自动机走不下去的位置。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>「值写完了」这个位置上，token <code>}}</code> 合法吗？</summary>
+    <div class="ans">
+      <p>看嵌套了几层。只有一层对象时，第一个 <code>}</code> 已经把整个 JSON 闭合了，第二个无处可去；嵌套两层时两个都用得上。在图 2 里切换「一层对象」和「两层对象」可以看到这一位从 0 变成 1。</p>
+      <p>这说明只记「语法走到哪条规则」不够，还得记一个栈。能用有限个状态描述的语法（正则表达式）可以把每个状态的掩码全部提前算好；JSON 这种能任意嵌套的语法需要带栈的自动机，状态有无穷多个，没法全部预先算。各家库的差别主要就在怎么处理这件事。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>三种算法路线</h3>
+    <p>朴素做法是每一步把十几万个 token 都走一遍，这在 Python 里要几十毫秒，比一次前向还慢。实际用的库各有各的省法：</p>
+  </div>
+  <div class="scroll-x">
+  <table class="cmp">
+    <thead><tr><th></th><th>做法</th><th>编译（第一次见到这个 schema）</th><th>每步算掩码</th></tr></thead>
+    <tbody>
+      <tr><td>Outlines</td><td>把约束变成有限状态机，提前为每个状态算好掩码</td><td>慢，状态多时占内存</td><td>查表</td></tr>
+      <tr><td>XGrammar</td><td>带栈的字符级自动机。大部分 token 的合法性只取决于当前规则位置，提前算好；少数像 <code>}}</code> 这样取决于栈的 token，运行时再查</td><td>通常很快，复杂 schema 可能到秒级</td><td>微秒级</td></tr>
+      <tr><td>llguidance</td><td>不做预计算。把词表组织成前缀树，每步在树上走一遍，共享前缀的 token 一起判定</td><td>几乎没有</td><td>文档给的数字是 128K 词表下约 50 微秒，少数情况到毫秒</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <p class="note">两个引擎都把这些库当作可替换的后端。vLLM 默认是 <code>auto</code>，按请求内容在 xgrammar、guidance 等之间选；SGLang 用 <code>--grammar-backend</code> 指定。schema 先被转成语法（JSON Schema、正则、EBNF 都可以作为输入），再交给后端编译。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">3 · 放进主循环</div>
+    <h2>掩码在 CPU 上算，前向在 GPU 上跑，两件事同时做</h2>
+    <p>把第 4 课的主循环拿过来，约束解码往里加了四件事：</p>
+    <ul>
+      <li><strong>编译</strong>：请求刚到时把 schema 编译成自动机。这一步可能很慢，两个引擎都把它丢到线程池里做，请求先在一个专门的状态里等（vLLM 是 <code>WAITING_FOR_STRUCTURED_OUTPUT_GRAMMAR</code>，SGLang 是 <code>grammar_queue</code>），不挡主循环。编译结果按 schema 内容缓存，同一个 schema 第二次来直接命中。</li>
+      <li><strong>算掩码</strong>：每一轮为每个受约束的序列算一张掩码，在引擎进程的 CPU 上。</li>
+      <li><strong>应用掩码</strong>：掩码送到 GPU，对 logits 做一次按位操作。开销可以忽略。</li>
+      <li><strong>推进状态</strong>：采样出 token 之后，告诉自动机「走了这个 token」，它才知道下一步的状态（代码里叫 <code>accept_token</code>）。</li>
+    </ul>
+    <p>这里有一条依赖链：第 N+1 步的掩码要等第 N 步采样出的 token。看起来这会打断第 4 课说的重叠调度，实际没有，因为两个引擎都把<strong>前向和采样拆成了两步</strong>。前向只需要上一个 token 作为输入，这个 token 一直留在 GPU 上，不用等 CPU；CPU 这边在前向进行的同时拿到上一步的 token、推进自动机、算出新掩码，前向一结束就拿掩码去采样。只要算掩码比一次前向快，它就完全藏在前向的时间里。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 3</span><h3>算掩码要多快才不拖慢 GPU</h3></div>
+    <div class="controls">
+      <label class="ctl"><span class="row"><span>decode 序列数</span><output id="mk-B-o"></output></span><input type="range" id="mk-B" min="8" max="512" step="8" value="128"></label>
+      <label class="ctl"><span class="row"><span>受约束比例</span><output id="mk-r-o"></output></span><input type="range" id="mk-r" min="0" max="100" step="5" value="100"></label>
+      <label class="ctl"><span class="row"><span>每张掩码耗时</span><output id="mk-m-o"></output></span><input type="range" id="mk-m" min="0" max="90" step="1" value="30"></label>
+      <div class="ctl"><span>算掩码的线程数</span>
+        <div class="seg" role="group" aria-label="线程数">
+          <button id="mk-t1" aria-pressed="true">1</button>
+          <button id="mk-t4" aria-pressed="false">4</button>
+          <button id="mk-t8" aria-pressed="false">8</button>
+        </div>
+      </div>
+      <div class="ctl"><span>模型速度</span>
+        <div class="seg" role="group" aria-label="模型速度">
+          <button id="mk-m-std" aria-pressed="true">标准</button>
+          <button id="mk-m-fast" aria-pressed="false">快 4 倍</button>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-gpu"></i>GPU 前向</span>
+      <span><i class="sw sw-idle"></i>GPU 等掩码</span>
+      <span><i class="sw sw-sched"></i>CPU 算掩码（含推进自动机）</span>
+    </div>
+    <div class="scroll-x" id="mk-svg"></div>
+    <div class="scroll-x">
+    <table id="mk-table">
+      <thead><tr><th>做法</th><th class="num">每轮周期</th><th class="num">吞吐</th><th class="num">相对不加约束</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <div class="status" id="mk-status"></div>
+    <figcaption>示意模型。GPU 每轮耗时沿用第 1 课的 20 ms + 每序列 0.4 ms。掩码耗时的滑块是对数刻度，从 5 微秒到 5 毫秒，覆盖了从最快的后端到纯 Python 实现的范围。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>默认参数：128 个序列全部受约束，每张掩码 50 微秒，单线程。约束解码让每一轮慢了多少？</summary>
+    <div class="ans">
+      <p>没有变慢。128 张掩码一共 6.4 ms，一次前向要 71 ms，掩码在前向跑到十分之一的时候就算完了。</p>
+      <p>把掩码耗时拖到 1 ms 以上再看：128 ms 的掩码时间超过了前向，GPU 开始等 CPU。这时有三条路：换更快的后端、加线程、或者接受吞吐下降。把线程数切到 8，等待又消失了。llguidance 的文档里有一句同样意思的话：16 个核、前向 10 ms 时，它可以在不拖慢模型的前提下支撑 3200 的 batch。</p>
+      <p>再切到「快 4 倍」的模型：前向变短，同样的掩码耗时更容易露出来。和第 4 课的结论一样，模型越快，CPU 上的活越要紧。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>开销清单</h3>
+    <ul>
+      <li><strong>第一次编译</strong>是最显眼的一项。vLLM 的工具调用文档直接写着：第一次使用会有几秒甚至更长的延迟，之后走缓存。它只影响这个请求自己的首 token 延迟，不影响别人。</li>
+      <li><strong>每步掩码</strong>的总量和受约束的序列数成正比。vLLM 在一轮里受约束的请求超过 128 个时，会把它们按 16 个一组分给线程池并行算，线程数最多 8 个。</li>
+      <li><strong>和其他功能的交互</strong>。第 6 课要讲的 speculative decoding 一次猜好几个 token，自动机就得能试走几步再退回来（<code>rollback</code>）。SGLang 在语法约束遇上某些猜测算法时会放弃重叠，先处理完上一轮再排下一轮。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">4 · 反过来省时间</div>
+    <h2>语法已经确定的 token，可以不问模型</h2>
+    <p>图 1 里有 7 步，语法只允许一种写法：schema 规定了属性名和顺序，<code>{"city":"</code> 这一串字符在请求到达时就已经确定了。为这些 token 各跑一次前向是浪费，掩码把词表削得只剩一个 token，模型算出来的概率分布根本没用上。</p>
+    <p>所以可以反过来利用语法：发现接下来的一段只有一种合法写法时，直接把这段文字接到输出后面，跳过这几步的采样。SGLang 的论文把它叫 jump-forward，llguidance 叫 fast-forward tokens，XGrammar 提供了 <code>find_jump_forward_string</code>。对属性名很长、值很短的 JSON，能省掉大半的 decode 步数。</p>
+    <p>它有一个细节要处理好：这段确定的文字要重新分词，而分词结果要和模型自己会输出的切法一致，否则后面的 KV 是在一个模型没见过的 token 序列上算的，质量会下降。服务路径里是否默认启用，取决于引擎版本和所选的后端。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">5 · 工具调用</div>
+    <h2>工具调用是「模板 + 解析器 + 可选的语法约束」</h2>
+    <p>模型本身没有「调用工具」这个动作，它只会输出文本。工具调用在推理引擎这一层由三段拼成：</p>
+    <ol>
+      <li><strong>进</strong>：请求里的 <code>tools</code>（每个工具的名字、说明、参数的 JSON Schema）由 chat template 拼进 prompt。这就是第 4 课图 1 第 2 步里说的「工具定义被拼进 prompt」。</li>
+      <li><strong>模型输出</strong>：模型训练时学过一种约定的写法。比如 Hermes 风格是把一段 JSON 包在 <code>&lt;tool_call&gt;</code> 标记里，Llama 3 是直接输出一个 JSON 对象，还有模型用 Python 函数调用的写法。每家不一样。</li>
+      <li><strong>出</strong>：引擎前端的<span class="term">工具解析器</span>（tool parser）认出这种写法，把它从文本里摘出来，转成 OpenAI 协议里结构化的 <code>tool_calls</code> 字段。启动服务时要用 <code>--tool-call-parser</code> 告诉引擎用哪一种。</li>
+    </ol>
+    <p>解析器跑在第 4 课说的前端进程里，在反分词之后。流式输出时它要边收边判断：这段文字是正文，还是工具调用的一部分？函数名读完了没有？下图走一遍。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 4</span><h3>流式解析一次工具调用</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="约束模式">
+        <button id="tc-auto" aria-pressed="true">tool_choice="auto"，工具没写 strict</button>
+        <button id="tc-strict" aria-pressed="false">工具写了 strict: true</button>
+      </div>
+      <div class="btns">
+        <button id="tc-prev">上一步</button>
+        <button id="tc-next">下一步</button>
+        <button id="tc-reset">回到开头</button>
+        <span class="stepno" id="tc-no"></span>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-con"></i>这个 token 是在语法约束下采样的</span>
+      <span><i class="sw sw-ring"></i>当前 token</span>
+    </div>
+    <div class="rows">
+      <span>模型吐出的 token</span><div class="chips" id="tc-chips"></div>
+      <span>解析器状态</span><div class="plain" id="tc-state"></div>
+      <span>这一步发给客户端</span><pre class="data" id="tc-delta"></pre>
+      <span>客户端累计拼出</span><pre class="data" id="tc-acc"></pre>
+    </div>
+    <p class="narr" id="tc-narr"></p>
+    <figcaption>用的是 Hermes 风格的写法。token 的切分和调用 id 是编的。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>什么时候有语法约束</h3>
+    <p>这是最容易想当然的地方。解析器只负责「摘出来」，不负责「保证能摘出来」。模型输出的 JSON 少了一个引号，解析器就摘不出合法的参数。要不要用第 1 到 3 节的机制去约束模型的输出，由 <code>tool_choice</code> 和工具定义里的 <code>strict</code> 字段决定。下表是 vLLM 文档里的规则，SGLang 的实现是同一套思路。</p>
+  </div>
+  <div class="scroll-x">
+  <table class="cmp">
+    <thead><tr><th><code>tool_choice</code></th><th>模型的义务</th><th>有没有语法约束</th></tr></thead>
+    <tbody>
+      <tr><td><code>"auto"</code>（默认）</td><td>可以调用，也可以直接回答</td><td>默认<strong>没有</strong>。至少一个工具写了 <code>strict: true</code>，或者服务端设了 <code>--tool-strict-level</code>，才有</td></tr>
+      <tr><td><code>"required"</code></td><td>至少调用一次</td><td>有</td></tr>
+      <tr><td>指定某个函数</td><td>调用这个函数</td><td>有</td></tr>
+      <tr><td><code>"none"</code></td><td>不调用</td><td>不涉及</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <p><code>auto</code> 模式下的约束有个特别之处：模型可以先自由地说话，也可以完全不调用工具，语法不能从第一个 token 就管起来。这靠一种叫 <span class="term">structural tag</span> 的语法形式实现：平时不约束，一旦输出里出现触发标记（比如 <code>&lt;tool_call&gt;</code>），从那里到结束标记之间按语法约束。图 4 切到「工具写了 strict」可以看到约束是从哪个 token 开始的。</p>
+    <p>约束还分两层。外壳（标记和函数名）只要 structural tag 生效就会约束；每个工具的参数 schema 只有该工具写了 <code>strict: true</code> 才会逐字段约束，否则参数只保证是合法的 JSON。服务端可以用 <code>--tool-strict-level function</code> 或 <code>parameter</code> 把所有带工具的请求统一抬到某一层，不依赖客户端有没有写 <code>strict</code>。vLLM 文档里有一句提醒：大多数 agent 框架从不设置 <code>strict</code>，所以默认情况下工具调用是没有语法保护的。</p>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>开了约束，同时设了 <code>max_tokens=20</code>。输出一定是合法的 JSON 吗？</summary>
+    <div class="ans">
+      <p>不一定。语法约束保证的是「已经输出的部分总能被续写成合法的 JSON」，不保证它在长度用完之前写完。第 20 个 token 时对象还没闭合，得到的就是半截 JSON，<code>finish_reason</code> 是 <code>length</code>。</p>
+      <p>harness 这一侧要检查 <code>finish_reason</code>，给工具调用留够 <code>max_tokens</code>。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">6 · 边界</div>
+    <h2>约束保证不了的事</h2>
+    <ul>
+      <li><strong>只保证语法，不保证内容。</strong>文档的原话是：保证得到一个能解析的函数调用，不保证是一个高质量的。城市名在枚举里，不代表它是用户问的那个城市。</li>
+      <li><strong>会被截断。</strong>上面测验里说的 <code>max_tokens</code>。</li>
+      <li><strong>掩码改变了模型原本想说的话。</strong>模型想先解释一句再给 JSON，被掩码强行按进 JSON 里，它后面的选择是在一个自己没打算走的开头上做的，质量可能下降。两条常用的对策：在 prompt 里也把 schema 讲清楚，让模型本来就想这么输出，约束只负责兜底；需要推理的任务，在 schema 里把推理字段放在答案字段前面，因为属性是按顺序生成的。</li>
+      <li><strong>思考过程默认不受约束。</strong>带推理的模型，约束从思考结束之后才开始生效。vLLM 里对应 <code>reasoning_ended</code> 这个状态，配置项 <code>enable_in_reasoning</code> 默认是关的。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────────────────── 7 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">7 · Agent 视角</div>
+    <h2>错误率是按步数连乘的</h2>
+    <p>聊天里一次格式错误，用户重试一下就过去了。Agent 一个任务要连续调用几十次工具，任何一次参数解析失败都要 harness 处理：重试、把错误喂回给模型、或者整个任务失败。每一种都要多花 token 和时间。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">算一下</span><h3>单次合法率和整个任务不出格式错误的概率</h3></div>
+    <div class="controls">
+      <label class="ctl"><span class="row"><span>单次工具调用的合法率</span><output id="ag-p-o"></output></span><input type="range" id="ag-p" min="95" max="100" step="0.1" value="99"></label>
+      <label class="ctl"><span class="row"><span>一个任务的工具调用次数</span><output id="ag-n-o"></output></span><input type="range" id="ag-n" min="1" max="200" step="1" value="50"></label>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>整个任务一次格式错误都不出</span><b id="ag-ok"></b></div>
+      <div class="stat"><span>平均每个任务出错的调用数</span><b id="ag-fail"></b></div>
+      <div class="stat"><span>想让 95% 的任务全程不出错，单次合法率要到</span><b id="ag-need"></b></div>
+    </div>
+    <figcaption>假设每次调用是否出错相互独立。</figcaption>
+  </figure>
+
+  <div class="callout">
+    <p><b>服务端兜底比指望客户端可靠。</b>harness 和 agent 框架通常用默认的 <code>tool_choice="auto"</code>，也不写 <code>strict</code>，这时工具调用没有语法约束。自己部署推理服务时，可以用 <code>--tool-strict-level</code> 在服务端统一打开。</p>
+  </div>
+  <div class="callout">
+    <p><b>工具定义要稳定，有两个缓存靠它。</b>第 3 课讲过工具定义在 prompt 的最前面，顺序一变前缀缓存就失效。这一课多了一个：语法的编译结果是按 schema 内容缓存的，工具集合或 schema 文本变了就要重新编译。动态增删工具的 harness 两头都吃亏。</p>
+  </div>
+  <div class="callout">
+    <p><b>第一次调用的延迟要预热掉。</b>复杂 schema 的首次编译可能是秒级的，落在某个用户的首 token 延迟上。服务上线后先用真实的工具定义发一轮请求，把编译缓存填上。</p>
+  </div>
+  <div class="callout">
+    <p><b>工具多了，三处一起变重。</b>几十个工具的 schema 拼进 prompt，前缀变长（第 3 课），分词和模板渲染变慢（第 4 课），要编译的语法变大（本课）。按任务阶段只暴露用得上的工具能缓解，但要和上一条「工具定义稳定」权衡。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 8 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">8 · 对应到真实系统</div>
+    <h2>源码入口和开关</h2>
+    <p>路径以当前 main 分支为准。</p>
+  </div>
+  <div class="sys">
+    <div>
+      <h3>vLLM</h3>
+      <ul>
+        <li>总入口：<code>vllm/v1/structured_output/__init__.py</code> 的 <code>StructuredOutputManager</code>。<code>grammar_init()</code> 提交编译，<code>grammar_bitmask()</code> 算一轮的掩码，<code>accept_tokens()</code> 推进自动机。</li>
+        <li>后端：同目录的 <code>backend_xgrammar.py</code>、<code>backend_guidance.py</code>、<code>backend_outlines.py</code>。</li>
+        <li>在主循环里的位置：<code>vllm/v1/engine/core.py</code> 的 <code>step()</code>，顺序是 <code>execute_model()</code>（不等结果）→ <code>scheduler.get_grammar_bitmask()</code> → <code>sample_tokens(grammar_output)</code>。推进自动机在 <code>Scheduler.update_from_output()</code> 里。</li>
+        <li>工具解析器：<code>vllm/tool_parsers/</code>，每种模型格式一个文件，比如 <code>hermes_tool_parser.py</code>。</li>
+        <li>请求参数：<code>response_format</code>，或者 <code>structured_outputs</code> 里的 <code>json</code>、<code>regex</code>、<code>choice</code>、<code>grammar</code>、<code>structural_tag</code>。旧的 <code>guided_json</code> 一类字段已在 v0.12.0 移除。</li>
+        <li>服务端开关：<code>--enable-auto-tool-choice</code>、<code>--tool-call-parser</code>、<code>--tool-strict-level</code>、<code>--structured-outputs-config.backend</code>。环境变量 <code>VLLM_XGRAMMAR_CACHE_MB</code>（默认 512）限制编译缓存的大小。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>SGLang</h3>
+      <ul>
+        <li>后端基类：<code>python/sglang/srt/constrained/base_grammar_backend.py</code>。<code>BaseGrammarBackend</code> 里有编译用的线程池和按（类型，内容）做键的 <code>cache</code>。</li>
+        <li>后端：同目录的 <code>xgrammar_backend.py</code>、<code>llguidance_backend.py</code>、<code>outlines_backend.py</code>。</li>
+        <li>等编译的队列：<code>constrained/grammar_manager.py</code> 的 <code>GrammarManager.grammar_queue</code>，编译好的请求由 <code>get_ready_grammar_requests()</code> 放回等待队列。</li>
+        <li>每轮算掩码：<code>sampling/sampling_batch_info.py</code> 的 <code>update_regex_vocab_mask()</code>。重叠模式下推迟的采样在 <code>scheduler.py</code> 的 <code>launch_batch_sample_if_needed()</code>。</li>
+        <li>工具调用：<code>function_call/function_call_parser.py</code>，各模型格式在同目录的 <code>*_detector.py</code>。</li>
+        <li>开关：<code>--grammar-backend</code>、<code>--tool-call-parser</code>。环境变量 <code>SGLANG_TOOL_STRICT_LEVEL</code> 对应 vLLM 的 <code>--tool-strict-level</code>。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="prose">
+    <h3>原始资料</h3>
+    <ul>
+      <li>Willard &amp; Louf, <em>Efficient Guided Generation for Large Language Models</em>, 2023。Outlines 背后的论文，提出把正则约束预编译成「状态 → 合法 token」的索引。</li>
+      <li>Dong et al., <em>XGrammar: Flexible and Efficient Structured Generation Engine for Large Language Models</em>, 2024。把 token 分成和栈无关、和栈有关两类分别处理。</li>
+      <li>llguidance 仓库的 README 和 <code>docs/optimizations.md</code>，讲前缀树遍历和每步耗时的实测数字。</li>
+      <li>vLLM 文档 Features → Structured Outputs 和 Tool Calling。后者的 Constrained Decoding Behavior 一节是上面那张表的出处。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="prose">
+    <div class="sec-no">路线图</div>
+    <h2>进度</h2>
+  </div>
+  <ol class="road">
+    <li><span>01</span><div>推理基础与 continuous batching<em>已完成</em></div></li>
+    <li><span>02</span><div>显存管理：PagedAttention<em>已完成</em></div></li>
+    <li><span>03</span><div>前缀缓存<em>已完成</em></div></li>
+    <li><span>04</span><div>引擎架构<em>已完成</em></div></li>
+    <li class="here"><span>05</span><div>结构化输出与工具调用<em>本页</em></div></li>
+    <li><span>06</span><div>加速手段<em>量化、speculative decoding、编译与算子优化各自省在哪</em></div></li>
+    <li><span>07</span><div>分布式部署<em>多卡并行、prefill/decode 分离、缓存感知路由、多 LoRA</em></div></li>
+    <li><span>08</span><div>Agent 负载对推理 infra 的新要求<em>长前缀多轮次、工具调用间隙的缓存保留、子 agent 并发、按任务而非按请求度量</em></div></li>
+    <li><span>09</span><div>压测与实操<em>在真实 GPU 上跑一次，读懂延迟和吞吐曲线</em></div></li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtInt=n=>Math.round(n).toLocaleString('en-US');
+const pct=(x,d)=>(x*100).toFixed(d===undefined?1:d)+'%';
+function press(ids,on){ids.forEach(id=>$(id).setAttribute('aria-pressed',id===on?'true':'false'));}
+
+/*SIM-START*/
+// ── Fig 1: scripted constrained-decoding walk. cands: [token, raw prob, legal] ──
+const CD=[
+ {expect:'一个 JSON 对象的开头',forced:true,cands:[['{"',0.96,1],['好的',0.03,0],['```',0.01,0]],
+  note:'模型有 3% 的概率想先说一句「好的」，1% 的概率想先开一个 Markdown 代码块。在聊天里这很自然，解析器遇到就报错。'},
+ {expect:'第一个属性名，schema 规定是 city',forced:true,cands:[['city',0.99,1],['location',0.01,0]],
+  note:'语法在这里只允许一种写法。模型有 1% 的概率想把属性叫 location，意思没错，但下游代码按 city 取值。'},
+ {expect:'属性名结束、冒号、字符串开始',forced:true,cands:[['":"',0.995,1],['":',0.005,0]],
+  note:'一个 token 跨过了三个语法位置。只有一种合法写法，模型的意见不影响结果。'},
+ {expect:'枚举值：北京、上海、广州之一',forced:false,cands:[['北京',0.90,1],['Beijing',0.05,0],['上海',0.03,1],['广州',0.02,1]],
+  note:'这是模型第一次真正做选择。它有 5% 的概率写成英文 Beijing，作为字符串没问题，但不在枚举里。掩掉之后，三个合法值按原来的比例重新分配概率，北京从 90% 变成 94.7%。'},
+ {expect:'字符串结束、逗号、下一个属性名开始',forced:true,cands:[['","',0.99,1],['"}',0.01,0]],
+  note:'模型有 1% 的概率想在这里就把对象闭合。schema 里 days 是必填的，所以不允许。'},
+ {expect:'第二个属性名 days',forced:true,cands:[['days',0.995,1],['day',0.005,0]],
+  note:'又是只有一种写法的一步。'},
+ {expect:'属性名结束、冒号；后面是整数，不能跟引号',forced:true,cands:[['":',0.97,1],['":"',0.03,0]],
+  note:'最常见的类型错误出在这里：模型有 3% 的概率把数字当字符串写，输出 "days":"3"。它是合法的 JSON，但不符合 schema。'},
+ {expect:'整数的第一位',forced:false,cands:[['3',0.92,1],['7',0.05,1],['三',0.03,0]],
+  note:'汉字「三」被掩掉。3 和 7 都合法，由模型按概率选。'},
+ {expect:'更多数字，或者对象结束',forced:false,cands:[['}',0.96,1],['0',0.02,1],['天',0.02,0]],
+  note:'可以闭合对象，也可以再写一位数字变成 30。想加一个单位「天」不行。'},
+ {expect:'对象已经闭合，只能结束',forced:true,cands:[['<eos>',0.97,1],['\\n',0.03,0]],
+  note:'语法只允许结束。不加约束时，模型有 3% 的概率再补一个换行，然后很可能接一句解释。'}
+];
+function cdState(i){ // after choosing at steps 0..i
+  let prod=1,forced=0;const out=[];
+  for(let j=0;j<=i;j++){
+    const s=CD[j],mass=s.cands.reduce((a,c)=>a+(c[2]?c[1]:0),0);
+    prod*=mass;if(s.forced)forced++;
+    const pick=s.cands.filter(c=>c[2]).sort((a,b)=>b[1]-a[1])[0];
+    out.push(pick[0]);
+  }
+  const s=CD[i],mass=s.cands.reduce((a,c)=>a+(c[2]?c[1]:0),0);
+  return {out,prod,forced,mass,rows:s.cands.map(c=>({tok:c[0],raw:c[1],legal:!!c[2],con:c[2]?c[1]/mass:0}))};
+}
+
+// ── Fig 2: a character-level pushdown automaton for "one JSON object, no whitespace" ──
+const isDigit=ch=>ch>='0'&&ch<='9';
+function pdaStart(){return {stack:[],mode:'start'};}
+function closeVal(st){return {stack:st.stack,mode:st.stack.length?'after':'done'};}
+function pdaStep(st,ch){
+  const top=st.stack[st.stack.length-1],push=k=>st.stack.concat([k]),pop=()=>st.stack.slice(0,-1);
+  switch(st.mode){
+    case 'start':return ch==='{'?{stack:push('o'),mode:'okey0'}:null;
+    case 'okey0':
+      if(ch==='"')return {stack:st.stack,mode:'key'};
+      if(ch==='}')return closeVal({stack:pop()});
+      return null;
+    case 'okey':return ch==='"'?{stack:st.stack,mode:'key'}:null;
+    case 'key':return ch==='"'?{stack:st.stack,mode:'colon'}:(ch==='\\'||ch==='\n'?null:st);
+    case 'colon':return ch===':'?{stack:st.stack,mode:'val'}:null;
+    case 'val':case 'aval0':
+      if(ch==='"')return {stack:st.stack,mode:'str'};
+      if(isDigit(ch))return {stack:st.stack,mode:'num'};
+      if(ch==='{')return {stack:push('o'),mode:'okey0'};
+      if(ch==='[')return {stack:push('a'),mode:'aval0'};
+      if(ch===']'&&st.mode==='aval0')return closeVal({stack:pop()});
+      return null;
+    case 'str':return ch==='"'?closeVal(st):(ch==='\\'||ch==='\n'?null:st);
+    case 'num':return isDigit(ch)?st:pdaStep(closeVal(st),ch);
+    case 'after':
+      if(ch===',')return {stack:st.stack,mode:top==='o'?'okey':'val'};
+      if(ch==='}'&&top==='o')return closeVal({stack:pop()});
+      if(ch===']'&&top==='a')return closeVal({stack:pop()});
+      return null;
+    default:return null; // done
+  }
+}
+function pdaRun(st,str){
+  const chars=Array.from(str);
+  for(let i=0;i<chars.length;i++){st=pdaStep(st,chars[i]);if(!st)return {ok:false,at:i};}
+  return {ok:true,st};
+}
+const EOS='<eos>';
+const VOCAB=['{','{"','"','":','":"','",','","','"}','}','}}','}]',']',',',',"','3','42','[','city','北京','好的',EOS];
+function tokenMask(prefix){
+  const r=pdaRun(pdaStart(),prefix);
+  if(!r.ok)throw new Error('bad prefix '+prefix);
+  const st=r.st;
+  return {st,toks:VOCAB.map(t=>{
+    if(t===EOS)return {t,ok:st.mode==='done',at:0};
+    const q=pdaRun(st,t);return {t,ok:q.ok,at:q.ok?-1:q.at};
+  })};
+}
+
+// ── Fig 3: mask computation vs one forward pass ──
+function gpuMs(B,fast){return (fast?0.25:1)*(20+0.4*B);}
+function maskUs(x){return 5*Math.pow(10,x/30);} // slider 0..90 → 5 µs .. 5 ms, log scale
+function maskSim(p){
+  const K=Math.round(p.B*p.r/100),G=gpuMs(p.B,p.fast),M=K*p.us/1000/p.th;
+  return {K,G,M,base:G,par:Math.max(G,M),ser:G+M,wait:Math.max(0,M-G)};
+}
+/*SIM-END*/
+
+// ───────────── Fig 1 ─────────────
+const cd={cur:3};
+const showTok=t=>esc(t);
+function drawCD(){
+  const st=cdState(cd.cur),s=CD[cd.cur];
+  const prev=st.out.slice(0,-1);
+  $('cd-out').innerHTML=prev.length?prev.map(t=>'<span class="chip">'+showTok(t)+'</span>').join(''):'<span class="note">（还没有输出）</span>';
+  $('cd-expect').textContent=s.expect+(s.forced?'。只有一种合法写法':'');
+  const pick=st.out[st.out.length-1];
+  $('cd-rows').innerHTML=st.rows.map(r=>
+    '<div class="cd-row'+(r.legal?'':' illegal')+(r.tok===pick?' pick':'')+'"><span class="chip">'+showTok(r.tok)+'</span>'+
+    '<div class="cd-bars"><div class="cd-bar raw" style="width:'+(r.raw*100)+'%"></div><div class="cd-bar con" style="width:'+(r.con*100)+'%"></div></div>'+
+    '<span class="cd-num">'+pct(r.raw)+' → '+(r.legal?pct(r.con):'0')+'</span></div>').join('');
+  $('cd-mass').textContent=pct(st.mass);
+  $('cd-prod').textContent=pct(st.prod);
+  $('cd-forced').textContent=st.forced+' / '+(cd.cur+1)+' 个';
+  $('cd-narr').textContent=s.note;
+  $('cd-no').textContent='第 '+(cd.cur+1)+' / '+CD.length+' 步';
+  $('cd-prev').disabled=cd.cur===0;
+  $('cd-next').disabled=cd.cur===CD.length-1;
+}
+$('cd-prev').onclick=()=>{if(cd.cur>0){cd.cur--;drawCD();}};
+$('cd-next').onclick=()=>{if(cd.cur<CD.length-1){cd.cur++;drawCD();}};
+$('cd-reset').onclick=()=>{cd.cur=0;drawCD();};
+
+// ───────────── Fig 2 ─────────────
+const PREFIX=['','{"city":"北','{"days":','{"days":3','{"a":{"days":3','{"a":[1'];
+const MODE={start:'等对象开头的 {',okey0:'对象刚打开，等属性名或 }',okey:'逗号之后，等属性名',key:'在属性名里',colon:'等冒号',
+  val:'等一个值',aval0:'数组刚打开，等一个值或 ]',str:'在字符串里',num:'正在写数字，下一个字符可以是数字，也可以让这个值结束',after:'值写完了，等逗号或闭合',done:'整个对象已经闭合'};
+const tk={cur:3};
+function drawTK(){
+  const pre=PREFIX[tk.cur],m=tokenMask(pre);
+  $('tk-prefix').textContent=pre===''?'（空）':pre;
+  const stack=m.st.stack.map(k=>k==='o'?'对象':'数组');
+  $('tk-state').textContent=MODE[m.st.mode]+'。栈：'+(stack.length?'[ '+stack.join('，')+' ]':'空');
+  $('tk-grid').innerHTML=m.toks.map(x=>{
+    let inner;
+    if(x.ok||x.t===EOS)inner=esc(x.t);
+    else{const ch=Array.from(x.t);inner=esc(ch.slice(0,x.at).join(''))+'<span class="bad">'+esc(ch[x.at])+'</span><span class="rest">'+esc(ch.slice(x.at+1).join(''))+'</span>';}
+    return '<div class="tk '+(x.ok?'ok':'no')+'" title="'+(x.ok?'合法':'不合法')+'"><span class="t">'+inner+'</span><span class="bit">'+(x.ok?1:0)+'</span></div>';
+  }).join('');
+  const n=m.toks.filter(x=>x.ok).length;
+  $('tk-count').textContent=n+' / '+VOCAB.length;
+  $('tk-bits').textContent=m.toks.map(x=>x.ok?1:0).join('');
+}
+PREFIX.forEach((_,i)=>{$('tk-p'+i).onclick=()=>{tk.cur=i;press(PREFIX.map((_,j)=>'tk-p'+j),'tk-p'+i);drawTK();};});
+
+// ───────────── Fig 3 ─────────────
+const mk={th:1,fast:false};
+function fmtUs(us){return us>=1000?(us/1000).toFixed(us>=2000?1:2)+' ms':Math.round(us)+' μs';}
+function drawMK(){
+  const p={B:+$('mk-B').value,r:+$('mk-r').value,us:maskUs(+$('mk-m').value),th:mk.th,fast:mk.fast};
+  const s=maskSim(p);
+  $('mk-B-o').textContent=p.B+' 个';
+  $('mk-r-o').textContent=p.r+'% · '+s.K+' 个';
+  $('mk-m-o').textContent=fmtUs(p.us);
+  const T=s.ser*2.6;
+  const W=1040,L=128,R=16,pw=W-L-R,lh=15,lg=3,gh=20+2*lh+lg,gg=18;
+  const H=2*gh+gg+34;
+  const X=t=>L+Math.min(t,T)/T*pw;
+  let v='<svg viewBox="0 0 '+W+' '+H+'" style="min-width:760px" role="img" aria-label="掩码计算和前向在时间轴上的关系">';
+  v+='<defs><pattern id="mk-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="6"/></pattern></defs>';
+  const raw=T/6,pw10=Math.pow(10,Math.floor(Math.log10(raw))),mm=raw/pw10,step=(mm<=1?1:mm<=2?2:mm<=5?5:10)*pw10;
+  for(let t=0;t<=T;t+=step){
+    v+='<line class="g-grid" x1="'+X(t)+'" y1="14" x2="'+X(t)+'" y2="'+(H-26)+'"/>';
+    v+='<text class="g-axis mono" x="'+X(t)+'" y="'+(H-10)+'" text-anchor="middle">'+(t===0?'0':(step<1?t.toFixed(1):Math.round(t))+' ms')+'</text>';
+  }
+  const groups=[['掩码和前向并行（两个引擎的做法）','前向结束时掩码已经备好，立刻采样',s.par,t=>({cpu:[t,t+s.M],gpu:[t,t+s.G]})],
+                ['假如先算完掩码再开始前向','GPU 每轮都要等',s.ser,t=>({cpu:[t,t+s.M],gpu:[t+s.M,t+s.M+s.G]})]];
+  groups.forEach((g,gi)=>{
+    const gy=gi*(gh+gg);
+    v+='<text x="0" y="'+(gy+13)+'" font-size="13" font-weight="600">'+g[0]+'</text>';
+    v+='<text class="f-muted" x="'+(L+pw)+'" y="'+(gy+13)+'" font-size="11.5" text-anchor="end">'+g[1]+'</text>';
+    const yc=gy+20,yg=yc+lh+lg;
+    v+='<text class="f-muted" x="'+(L-10)+'" y="'+(yc+11.5)+'" font-size="11.5" text-anchor="end">引擎 CPU</text>';
+    v+='<text class="f-muted" x="'+(L-10)+'" y="'+(yg+11.5)+'" font-size="11.5" text-anchor="end">GPU</text>';
+    v+='<rect class="t-row" x="'+L+'" y="'+yc+'" width="'+pw+'" height="'+lh+'" opacity=".55"/>';
+    v+='<rect x="'+L+'" y="'+yg+'" width="'+pw+'" height="'+lh+'" fill="url(#mk-hatch)"><title>GPU 等掩码</title></rect>';
+    for(let t=0;t<T;t+=g[2]){
+      const b=g[3](t);
+      if(s.M>0&&b.cpu[0]<T)v+='<rect class="b-sched" x="'+X(b.cpu[0])+'" y="'+yc+'" width="'+Math.max(X(b.cpu[1])-X(b.cpu[0])-1.5,1)+'" height="'+lh+'" rx="2"><title>算掩码 '+s.M.toFixed(1)+' ms</title></rect>';
+      if(b.gpu[0]<T)v+='<rect class="b-gpu" x="'+X(b.gpu[0])+'" y="'+yg+'" width="'+Math.max(X(b.gpu[1])-X(b.gpu[0])-1.5,1)+'" height="'+lh+'" rx="2"><title>GPU 前向 '+s.G.toFixed(1)+' ms</title></rect>';
+    }
+  });
+  v+='</svg>';
+  $('mk-svg').innerHTML=v;
+  const tps=per=>p.B/per*1000;
+  const row=(name,per)=>'<tr><td>'+name+'</td><td class="num">'+per.toFixed(1)+' ms</td><td class="num">'+fmtInt(tps(per))+' tok/s</td><td class="num">'+Math.round(s.base/per*100)+'%</td></tr>';
+  $('mk-table').tBodies[0].innerHTML=row('不加约束',s.base)+row('掩码和前向并行',s.par)+row('假如先算掩码再前向',s.ser);
+  let msg='这一轮要算 '+s.K+' 张掩码，共 '+s.M.toFixed(1)+' ms（'+p.th+' 个线程）；一次前向 '+s.G.toFixed(1)+' ms。';
+  msg+=s.wait>0?'掩码比前向慢，GPU 每轮要等 '+s.wait.toFixed(1)+' ms，吞吐降到不加约束时的 '+Math.round(s.base/s.par*100)+'%。'
+               :'掩码在前向结束之前就算完了，约束解码没有拖慢这一轮。';
+  $('mk-status').textContent=msg;
+}
+['mk-B','mk-r','mk-m'].forEach(id=>$(id).addEventListener('input',drawMK));
+[1,4,8].forEach(k=>{$('mk-t'+k).onclick=()=>{mk.th=k;press(['mk-t1','mk-t4','mk-t8'],'mk-t'+k);drawMK();};});
+$('mk-m-std').onclick=()=>{mk.fast=false;press(['mk-m-std','mk-m-fast'],'mk-m-std');drawMK();};
+$('mk-m-fast').onclick=()=>{mk.fast=true;press(['mk-m-std','mk-m-fast'],'mk-m-fast');drawMK();};
+
+// ───────────── Fig 4 ─────────────
+const TC=[
+ {t:'我来',state:'正文',content:'我来',note:'普通文字，直接作为正文发出。'},
+ {t:'查一下。',state:'正文',content:'查一下。',note:'还是正文。'},
+ {t:'<tool_call>',state:'进入工具调用',note:'解析器认出了起始标记。从这里起的内容不再当正文发，标记本身也不发给客户端。写了 strict 的话，语法约束从这个标记之后开始生效。'},
+ {t:'{"name": "',state:'读函数名',note:'函数名刚开始，什么都还不能发。'},
+ {t:'get_weather',state:'读函数名',note:'看起来名字有了，但引号还没闭合，后面可能还有字（比如 get_weather_forecast），所以继续等。'},
+ {t:'", "arguments": ',state:'读参数',name:'get_weather',note:'引号闭合，函数名确定了。这时才发出第一个工具调用 chunk：带调用 id 和函数名，参数先是空串。'},
+ {t:'{"city": "',state:'读参数',args:'{"city": "',note:'参数是一段 JSON 文本，按原样一截一截地发。客户端要把这些片段拼起来，拼完才能解析。'},
+ {t:'北京',state:'读参数',args:'北京',note:'继续发参数片段。'},
+ {t:'"}',state:'读参数',args:'"}',note:'参数对象闭合。'},
+ {t:'}',state:'调用结束',note:'这个 } 属于外层那个带 name 和 arguments 的对象，不属于参数，不发。'},
+ {t:'</tool_call>',state:'回到正文',note:'结束标记，不发。模型如果还要并行调用第二个工具，会再输出一个起始标记，index 变成 1。'},
+ {t:'<eos>',state:'结束',finish:true,note:'生成结束。因为这一轮里有工具调用，finish_reason 是 tool_calls，harness 看到它就去执行工具。'}
+];
+const tc={cur:6,strict:false};
+function drawTC(){
+  const i=tc.cur;
+  $('tc-chips').innerHTML=TC.map((s,j)=>'<span class="chip'+(j===i-1?' cur':j>i-1?' fut':'')+(tc.strict&&j>=3&&j<=10?' con':'')+'">'+esc(s.t)+'</span>').join('');
+  let content='',name=null,args='',fin=false;
+  for(let j=0;j<i;j++){const s=TC[j];if(s.content)content+=s.content;if(s.name)name=s.name;if(s.args)args+=s.args;if(s.finish)fin=true;}
+  const s=i>0?TC[i-1]:null;
+  $('tc-state').textContent=s?s.state:'正文';
+  let d='（这一步没有发出任何内容）';
+  if(s){
+    if(s.content)d=JSON.stringify({delta:{content:s.content}});
+    else if(s.name)d=JSON.stringify({delta:{tool_calls:[{index:0,id:'call_a1',type:'function',function:{name:s.name,arguments:''}}]}});
+    else if(s.args)d=JSON.stringify({delta:{tool_calls:[{index:0,function:{arguments:s.args}}]}});
+    else if(s.finish)d=JSON.stringify({delta:{},finish_reason:'tool_calls'});
+  }
+  $('tc-delta').textContent=d;
+  let acc='content: '+JSON.stringify(content);
+  if(name)acc+='\ntool_calls[0]: '+name+'  arguments = '+JSON.stringify(args);
+  if(fin)acc+='\nfinish_reason: "tool_calls"';
+  $('tc-acc').textContent=acc;
+  let n=s?s.note:'模型还没有输出。每按一次「下一步」来一个 token。';
+  if(s&&!tc.strict&&i===7)n+=' 现在这种模式下没有语法约束，模型要是在这里漏了一个引号，客户端拼出来的参数就解析不了。';
+  if(s&&tc.strict&&i===7)n+=' 橙色底边的 token 是在约束下采样的，参数一定符合这个工具的 schema。';
+  $('tc-narr').textContent=n;
+  $('tc-no').textContent='第 '+i+' / '+TC.length+' 步';
+  $('tc-prev').disabled=i===0;
+  $('tc-next').disabled=i===TC.length;
+}
+$('tc-auto').onclick=()=>{tc.strict=false;press(['tc-auto','tc-strict'],'tc-auto');drawTC();};
+$('tc-strict').onclick=()=>{tc.strict=true;press(['tc-auto','tc-strict'],'tc-strict');drawTC();};
+$('tc-prev').onclick=()=>{if(tc.cur>0){tc.cur--;drawTC();}};
+$('tc-next').onclick=()=>{if(tc.cur<TC.length){tc.cur++;drawTC();}};
+$('tc-reset').onclick=()=>{tc.cur=0;drawTC();};
+
+// ───────────── agent calculator ─────────────
+function drawAG(){
+  const p=+$('ag-p').value/100,n=+$('ag-n').value;
+  $('ag-p-o').textContent=(p*100).toFixed(1)+'%';
+  $('ag-n-o').textContent=n+' 次';
+  $('ag-ok').textContent=pct(Math.pow(p,n));
+  $('ag-fail').textContent=(n*(1-p)).toFixed(2)+' 次';
+  $('ag-need').textContent=(Math.pow(0.95,1/n)*100).toFixed(2)+'%';
+}
+['ag-p','ag-n'].forEach(id=>$(id).addEventListener('input',drawAG));
+
+drawCD();drawTK();drawMK();drawTC();drawAG();
+})();
+</script>

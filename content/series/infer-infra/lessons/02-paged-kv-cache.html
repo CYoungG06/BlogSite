@@ -1,0 +1,747 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>KV Cache 分页</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose; each figure is a wider "instrument panel"
+   with its controls on top and its readout beside or below the drawing. */
+:root{
+  --bg:#f2f5f5; --surface:#fbfcfc; --surface-2:#e6ecec;
+  --ink:#101b1c; --ink-2:#44565a; --ink-3:#6f8186; --line:#cfd9d9;
+  --prefill:#2a78d6; --decode:#eb6834; --cache:#1baf7a; --waste:#aab7b9; --crit:#c93535;
+  --on-cache:#05261a;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-display:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+    --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+    --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+  --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+  --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:72px}
+.prose{max-width:43rem;display:flex;flex-direction:column;gap:16px}
+.prose p,.prose ul,.prose ol,.prose dl{margin:0}
+.prose ul,.prose ol{padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-0.01em}
+h2{font-size:25px}
+h3{font-size:17px}
+.eyebrow,.fig-no,.sec-no{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.lede{font-size:18px;color:var(--ink-2)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .38em;border-radius:3px;overflow-wrap:anywhere}
+strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid var(--line)}
+.note{font-size:14px;color:var(--ink-2);line-height:1.7}
+.formula{font-family:var(--font-mono);font-size:13.5px;line-height:1.9;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 16px;overflow-x:auto;white-space:pre}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.fig-head h3{flex:1 1 16rem}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.7;max-width:46rem}
+.scroll-x{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:currentColor}
+svg .mono{font-family:var(--font-mono)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);min-width:150px;flex:0 1 200px}
+select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:5px 8px}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink-3);border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--ink-3)}
+.seg button:last-child{border-right:0}
+button{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink-3);border-radius:5px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--surface-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--prefill);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepno{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.scrub{flex:1 1 200px;min-width:160px}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend b{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.sw-used{background:var(--cache)}
+.sw-will{background:color-mix(in srgb,var(--cache) 24%,var(--surface));border:1px solid color-mix(in srgb,var(--cache) 50%,var(--surface))}
+.sw-never{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px);border:1px solid var(--waste)}
+.sw-free{border:1px solid var(--ink-3)}
+.sw-tp{background:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.sw-td{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.sw-ring{border:2px solid var(--ink)}
+
+/* svg classes */
+.m-used{fill:var(--cache)}
+.m-will{fill:color-mix(in srgb,var(--cache) 24%,var(--surface))}
+.m-free{fill:none;stroke:var(--line);stroke-width:1}
+.m-never{stroke:var(--waste);stroke-width:1}
+.hatch-line{stroke:var(--waste);stroke-width:1.6}
+.seg-o{fill:none;stroke:var(--ink-3);stroke-width:1;pointer-events:none}
+.seg-o.sel{stroke:var(--ink);stroke-width:2.5}
+.on-cache{fill:var(--on-cache)}
+.lbl{pointer-events:none;font-size:10px}
+.t-prefill{fill:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.t-decode{fill:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.t-empty{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+.t-free{fill:none;stroke:var(--line);stroke-width:1}
+.t-row{fill:var(--surface-2)}
+.c-ring{stroke:var(--ink);stroke-width:2}
+.o-sel{fill:none;stroke:var(--ink);stroke-width:1.5}
+.g-ink{stroke:var(--ink)}
+.f-muted{fill:var(--ink-3)}
+.dim{opacity:.38}
+[data-r]{cursor:pointer}
+
+.bar{display:flex;gap:2px;height:22px;border-radius:4px;overflow:hidden;background:var(--surface-2)}
+.bar>div{height:100%;min-width:0;flex:none}
+.b-used{background:var(--cache)}
+.b-will{background:color-mix(in srgb,var(--cache) 24%,var(--surface))}
+.b-never{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px)}
+.stack{display:flex;flex-direction:column;gap:6px}
+
+.detail{background:var(--surface-2);border-radius:4px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:14px;min-height:8.5em}
+.detail-head{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12.5px;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:2px 8px;color:var(--ink)}
+.chip.bad{border-left:4px solid var(--crit)}
+.chip.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.chips .k{font-size:12.5px;color:var(--ink-2);margin-right:2px}
+.narr{font-size:15px;line-height:1.75;min-height:5.4em;margin:0;max-width:52rem}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+thead th{font-weight:500;color:var(--ink-2);font-size:13px;white-space:nowrap}
+td{font-family:var(--font-mono);font-size:13.5px}
+td:first-child{font-family:var(--font-body);font-size:14px}
+tr.is-on{background:var(--surface-2)}
+tr.is-on td:first-child{font-weight:600}
+table.map td,table.map th{text-align:left;font-family:var(--font-body);font-size:14.5px}
+table.map{max-width:43rem}
+
+details.quiz{border:1px dashed var(--ink-3);border-radius:6px;padding:12px 16px;max-width:43rem}
+details.quiz summary{cursor:pointer;font-weight:500;list-style-position:outside;margin-left:1.1em}
+details.quiz summary .tag{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-right:8px}
+details.quiz .ans{margin-top:10px;color:var(--ink-2);font-size:15px;display:flex;flex-direction:column;gap:8px}
+details.quiz .ans p{margin:0}
+
+.callout{border-left:4px solid var(--cache);padding:4px 0 4px 16px;max-width:43rem;font-size:15px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.sys>div{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.sys ul{margin:0;padding-left:1.2em;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-width:43rem}
+.road li{display:grid;grid-template-columns:2.4em 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.road li span:first-child{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.road li em{font-style:normal;color:var(--ink-2);font-size:14px;display:block}
+.road li.here{font-weight:600}
+.road li.here em{font-weight:400}
+header{display:flex;flex-direction:column;gap:18px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">推理 Infra · 第 2 课 / 共 9 课</div>
+  <h1>把 KV cache 切成页</h1>
+  <p class="lede prose">第 1 课的结论是：显存里放完权重，剩下的都是 KV cache 的地盘，它决定一台机器能同时服务多少请求。这一课讲这块地盘怎么分。vLLM 的核心贡献 PagedAttention，就是把操作系统管理内存的办法搬到了 KV cache 上。</p>
+  <p class="note prose">图里的显存池都缩小到了几百个 token 的规模，为的是一屏能看清每一格。机制和真实系统一致，数量不一致。</p>
+</header>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">1 · 问题</div>
+    <h2>一个请求要占多少显存，事先不知道</h2>
+    <p>KV cache 每生成一个 token 就长一格，而一个请求最终会生成多少 token，要等它采样出结束符才知道。深度学习框架里的张量又要求一段<strong>连续</strong>的内存。两件事合在一起，早期的推理系统只能在请求进来时就给它划一整段连续空间，并且按可能的最大长度来划。</p>
+    <p>这样做有三种浪费：</p>
+    <ul>
+      <li><strong>预留</strong>：划给这个请求、它之后确实会写到、但现在还空着的部分。空着的这段时间，别人用不了。</li>
+      <li><strong>内部碎片</strong>：划给了这个请求，但它到结束也写不到的部分。按最大长度预留时，大多数请求远远用不满。</li>
+      <li><strong>外部碎片</strong>：请求结束后留下大小不一的空洞。总的空闲空间够，但没有一段连续的空间够大，新请求还是进不来。</li>
+    </ul>
+    <p>下面的模拟器里，同一组请求用三种办法分配显存。先看前两种连续分配。第三种「分页」是本课的主角，机制在第 2 节讲，讲完再回来切过去对比。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 1</span><h3>同一组请求，三种显存分配方式</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="分配方式">
+        <button id="al-m-max" aria-pressed="true">连续 · 按最大长度预留</button>
+        <button id="al-m-oracle" aria-pressed="false">连续 · 预知真实长度</button>
+        <button id="al-m-paged" aria-pressed="false">分页 · 按需分配</button>
+      </div>
+      <label class="ctl" for="al-bs">每块的 token 数（仅分页）
+        <select id="al-bs"><option value="1">1</option><option value="4">4</option><option value="8" selected>8</option><option value="16">16</option></select>
+      </label>
+      <button id="al-reseed">换一组请求</button>
+    </div>
+    <div class="stack">
+      <div class="bar" id="al-bar" role="img" aria-label="显存池占用构成"></div>
+      <div class="legend">
+        <span><i class="sw sw-used"></i>已写入的 KV <b id="al-n1"></b></span>
+        <span><i class="sw sw-will"></i>占着，之后会写到 <b id="al-n2"></b></span>
+        <span><i class="sw sw-never"></i>占着，但永远写不到 <b id="al-n3"></b></span>
+        <span><i class="sw sw-free"></i>空闲 <b id="al-n4"></b></span>
+      </div>
+    </div>
+    <div class="scroll-x"><div id="al-svg" style="min-width:760px;color:var(--ink)"></div></div>
+    <div class="btns">
+      <button id="al-first">⏮ 从头</button>
+      <button id="al-prev">◀ 上一轮</button>
+      <button id="al-next">下一轮 ▶</button>
+      <button id="al-play">▶ 播放</button>
+      <input type="range" id="al-scrub" class="scrub" min="0" max="1" step="1" value="0" aria-label="迭代进度">
+      <span class="stepno" id="al-stepno"></span>
+    </div>
+    <div class="detail" id="al-detail" aria-live="polite"></div>
+    <div class="scroll-x">
+      <table id="al-table">
+        <thead><tr><th>同一组请求</th><th>全部完成</th><th>平均同时在跑</th><th>最多同时在跑</th><th>池子里真实 KV 的平均占比</th><th>抢占次数</th><th>需重算的 token</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <figcaption>KV 池共 256 格，每格放 1 个 token 的 K、V，从左到右、从上到下是地址顺序。18 个请求每轮到达一个，上限是 64 个 token，但四分之三的请求最终只有 7–33 个 token，其余是 42–64 个的长请求。每轮迭代里，在跑的请求各写 1 格。点击任意一格或下方的请求标签，可以高亮这个请求占的全部位置。切换分配方式时进度保持不变，方便对比同一时刻。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>「预知真实长度」已经没有内部碎片了，为什么池子还是用不满？</summary>
+    <div class="ans">
+      <p>两个原因。一是预留：每个请求一进来就占住它最终需要的全部空间，其中大部分要过很多轮才写到。二是外部碎片：请求长短不一、结束时间不一，留下的空洞大小不一，后来的请求未必塞得进去。在模拟器里往后单步，会看到「空闲格数够，但最大连续段不够」的提示。</p>
+      <p>而且这个模式在现实中做不到，没人能预知输出长度。它是一个理论上界，用来说明连续分配再怎么优化也有限。vLLM 论文实测的三种连续分配基线里，KV 显存中存着真实 token 状态的比例分别只有 20.4%、26.8%、38.2%，最后一个就是预知长度的版本。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">2 · 分页</div>
+    <h2>不要求连续，问题就消失了</h2>
+    <p>操作系统在几十年前遇到过同样的问题：每个进程要多少内存事先不知道，又都希望自己的内存是连续的。解法是<strong>虚拟内存加分页</strong>：把物理内存切成大小相同的页，进程看到的是连续的虚拟地址，实际的页散落在物理内存各处，中间靠一张页表翻译。</p>
+    <p>PagedAttention 把这套办法原样搬到 KV cache 上：</p>
+    <ul>
+      <li>KV 池在启动时切成大小相同的<span class="term">物理块</span>（block），每块放固定数量 token 的 K、V。</li>
+      <li>每个请求有一张<span class="term">块表</span>（block table），记录它的第 0、1、2… 个<span class="term">逻辑块</span>分别放在哪个物理块。</li>
+      <li><span class="term">按需分配</span>：上一块写满了，才去拿下一块。</li>
+      <li>空闲的物理块排在一个<span class="term">空闲队列</span>里，要用就从队头取，用完还到队尾。</li>
+    </ul>
+    <p>三种浪费由此逐一消失：不再提前预留；内部碎片最多是最后一块里没写满的几格；所有块一样大，任何空闲块都能给任何请求用，外部碎片不存在。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 2</span><h3>块表怎么把逻辑位置翻译成物理位置</h3></div>
+    <div class="controls">
+      <div class="btns">
+        <button id="bt-reset">重置</button>
+        <button id="bt-prev">◀ 上一步</button>
+        <button id="bt-next">下一步 ▶</button>
+        <span class="stepno" id="bt-stepno"></span>
+      </div>
+      <div class="btns"><span class="note">查看请求</span>
+        <div class="seg" role="group" aria-label="查看哪个请求的块表">
+          <button id="bt-r-A" aria-pressed="true">A</button>
+          <button id="bt-r-B" aria-pressed="false">B</button>
+          <button id="bt-r-C" aria-pressed="false">C</button>
+        </div>
+      </div>
+    </div>
+    <p class="narr" id="bt-narr" aria-live="polite"></p>
+    <div class="scroll-x"><div id="bt-svg" style="min-width:820px;color:var(--ink)"></div></div>
+    <div class="legend">
+      <span><i class="sw sw-tp"></i>prefill 时写入</span>
+      <span><i class="sw sw-td"></i>decode 时写入</span>
+      <span><i class="sw sw-ring"></i>这一步刚写的</span>
+      <span><i class="sw sw-free" style="border-style:dashed"></i>已分配，还没写</span>
+    </div>
+    <figcaption>左边是所选请求自己看到的 KV cache：一段连续的位置。右边是它们在显存里的真实位置。物理块右侧的标签是「请求 · 逻辑块号」。其他请求的块显示为淡色。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>和操作系统的概念逐一对应：</p>
+  </div>
+  <div class="scroll-x">
+    <table class="map">
+      <thead><tr><th>操作系统</th><th>PagedAttention</th></tr></thead>
+      <tbody>
+        <tr><td>进程</td><td>一个请求（一条序列）</td></tr>
+        <tr><td>虚拟页</td><td>逻辑块</td></tr>
+        <tr><td>物理页帧</td><td>物理块</td></tr>
+        <tr><td>页表</td><td>块表</td></tr>
+        <tr><td>按需调页</td><td>上一块写满才分配下一块</td></tr>
+        <tr><td>fork 后的写时复制</td><td>多条序列共享同一个 prompt（第 4 节）</td></tr>
+        <tr><td>内存不足时换出</td><td>抢占（第 5 节）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <h3>注意力计算怎么读散落的块</h3>
+    <p>每一层有一个大张量存这一层的全部 K、V，第一维就是物理块号。所以「一个物理块」实际上是每一层张量里同一个下标的那一片，分配一个块等于在所有层同时占住这个下标。算注意力时，引擎把每条序列的块表作为一个整数数组一起传给注意力算子，算子按块表逐块取出 K、V。这个能按块表取数的注意力算子，就是 PagedAttention 这个名字指的东西。</p>
+    <p>多一层间接寻址是有代价的。论文测到注意力算子本身比连续内存的高度优化实现慢 20%–26%，但只影响这一个算子，换来的是同一块显存能多放几倍的请求，论文报告的整体吞吐是当时系统的 2–4 倍。回到图 1 切到「分页」，看表格里「同时在跑」和「全部完成」几列的变化。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">3 · 块的大小</div>
+    <h2>一块放多少 token</h2>
+    <p>块越小，最后一块里浪费的空间越少；块越大，块表越短，一次能连续读的数据越多。vLLM 默认每块 16 个 token。用第 1 课的数字算一遍（Llama-3.1-8B，48 GB 的 GPU，权重之外留给 KV 池约 28 GB）：</p>
+    <div class="formula">每 token 的 KV     = 128 KiB                 （第 1 课算过）
+每块               = 16 × 128 KiB = 2 MiB    （跨全部 32 层）
+物理块总数         = 28 GiB ÷ 2 MiB = 14,336 块
+能缓存的 token 总数 = 14,336 × 16 = 229,376
+每条序列最多浪费    = 15 个 token ≈ 1.9 MiB   （最后一块只写了 1 格时）
+32K 上下文的块表    = 2,048 个整数</div>
+    <p>vLLM 启动时会把这个结果打在日志里，形如 <code>GPU KV cache size: 229,376 tokens, Maximum concurrency for 32,768 tokens per request: 7.00x</code>。第二个数是「如果每个请求都用满最大上下文，能同时放几个」，是排查并发上不去时最先该看的一行。</p>
+    <p>在图 1 的分页模式下把块大小在 1、4、8、16 之间切换，观察条纹格子（最后一块里永远写不到的部分）的数量变化。</p>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>块大小设成 1 就完全没有浪费了，为什么 vLLM 不这么做？</summary>
+    <div class="ans">
+      <p>因为浪费本来就很小，而块太小有实际代价。每条序列最多浪费 15 个 token 的空间，相对几千上万 token 的序列可以忽略。</p>
+      <p>块大小为 1 时，块表长 16 倍，每个 token 都要单独寻址，算子读到的数据在显存里完全不连续。另外第 3 课会讲到，前缀缓存是以「写满的块」为单位做哈希和共享的，块太小管理开销大，块太大又难以命中。论文的消融实验里，块大小在 16 到 128 之间表现最好。</p>
+      <p>SGLang 走了另一条路：分配粒度可以细到单个 token，每个请求直接记录它每个 token 在池子里的下标。两种设计的对比见第 6 节。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">4 · 共享</div>
+    <h2>块表是间接的，所以两条序列可以指向同一块</h2>
+    <p>有了块表这层间接，一个物理块可以同时出现在多条序列的块表里。只要给每个物理块加一个<span class="term">引用计数</span>（有几条序列在用它），就能安全地共享。论文用它解决「同一个 prompt 采样多个回答」的场景：prompt 的 KV 只算一次、只存一份。</p>
+    <p>共享的块如果有人要往里写怎么办？和操作系统 fork 之后一样，<span class="term">写时复制</span>（copy-on-write）。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 3</span><h3>两条序列共享 prompt，写入时才分开</h3></div>
+    <div class="btns">
+      <button id="cw-reset">重置</button>
+      <button id="cw-prev">◀ 上一步</button>
+      <button id="cw-next">下一步 ▶</button>
+      <span class="stepno" id="cw-stepno"></span>
+    </div>
+    <p class="narr" id="cw-narr" aria-live="polite"></p>
+    <div class="scroll-x"><div id="cw-svg" style="min-width:760px;color:var(--ink)"></div></div>
+    <figcaption>中间是物理块，两侧是两条序列各自的块表。ref 是引用计数。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>这是论文里的机制。当前 vLLM（V1 引擎）的做法更简单：只共享<strong>写满的块</strong>，靠内容哈希来识别相同的块；块表只追加、不修改。写满的块不会再被写入，也就不需要复制；最后那个没写满的块不共享，由各条序列自己算。共享的收益几乎都在写满的块上，省掉复制逻辑换来实现简单。这套基于哈希的共享就是前缀缓存，第 3 课的主题。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">5 · 用完了怎么办</div>
+    <h2>抢占：乐观接纳的代价</h2>
+    <p>按需分配意味着调度器接纳请求时是乐观的：只要够放下 prompt 就让它进来，不管它之后会长到多长。这让并发数高了很多，但也意味着可能出现所有请求都还在长、池子却空了的时刻。</p>
+    <p>这时必须有人让路，叫<span class="term">抢占</span>（preemption）。vLLM 默认的做法是：</p>
+    <ul>
+      <li>选<strong>最后进来的</strong>那个在跑的请求作为牺牲者（默认的先来先服务策略下）。</li>
+      <li>释放它的全部物理块，把它放回等待队列的<strong>队首</strong>。</li>
+      <li>它已经生成的文本不丢，丢的是 KV cache。等它重新进来时，要把 prompt 加上已生成的部分重新 prefill 一遍。这叫 <code>RECOMPUTE</code>。</li>
+      <li>发生抢占的这一轮不再接纳新请求，避免刚腾出的空间立刻又被占满。</li>
+    </ul>
+    <p>论文里还描述了另一种做法：把被抢占请求的块换出到主机内存，之后再换回来（swap）。它省了重算，但要在 GPU 和 CPU 之间搬数据。当前 vLLM 默认用重算。</p>
+    <p>在图 1 的分页模式下播放，事件栏里带红色标记和 ✕ 的事件就是抢占。表格里「需重算的 token」是它的代价。</p>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>为什么牺牲最后进来的请求，而不是占显存最多的那个？</summary>
+    <div class="ans">
+      <p>占显存最多的往往是跑得最久、快要结束的请求。踢掉它，丢掉的 KV 最多，重算最贵，而它本来马上就会自己释放空间。</p>
+      <p>最后进来的请求做过的工作通常最少，重算代价最小。而且先来的请求永远不会被后来的挤掉，保证了先来先完成，不会有请求被反复抢占而饿死。</p>
+      <p>SGLang 的选择标准略有不同：优先撤回已生成 token 最少的请求，思路一样，都是让丢掉的工作最少。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <p>抢占是安全网，频繁触发说明并发设得太高。vLLM 文档给的处理办法是：调高 <code>--gpu-memory-utilization</code> 给 KV 池更多空间，或者调低 <code>--max-num-seqs</code>、<code>--max-num-batched-tokens</code> 减少同时在跑的请求。</p>
+  </div>
+
+  <div class="callout">
+    <b>和 Agent 的关系。</b>Agent 的一个会话，上下文常有几万到几十万 token，按每 token 128 KiB 算就是几 GB 到几十 GB 的 KV。更麻烦的是，会话在等工具返回的那段时间里，这些块不属于任何在跑的请求。留着它们，下一步可以直接接着用；让出去，别的请求能进来，但下一步要整段重算。分页、引用计数、空闲队列的顺序，正是回答这个问题的基础设施：一个请求结束后，它的块可以先留在空闲队列里不清空，直到真的被别人取走。这是第 3 课的起点。
+  </div>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">6 · 对应到真实系统</div>
+    <h2>两个引擎里的内存管理</h2>
+    <p>两个引擎都不要求 KV cache 连续，都有一张从「请求里的位置」到「池子里的位置」的映射表，差别在粒度和数据结构。文件路径以当前 main 分支为准。</p>
+  </div>
+  <div class="sys">
+    <div>
+      <h3>vLLM</h3>
+      <ul>
+        <li>块管理在 <code>vllm/v1/core/</code> 下：<code>kv_cache_manager.py</code> 是调度器调用的入口（<code>allocate_slots()</code>、<code>free()</code>），<code>block_pool.py</code> 管全部物理块，<code>kv_cache_utils.py</code> 里是数据结构。</li>
+        <li>每个物理块是一个 <code>KVCacheBlock</code>，带 <code>block_id</code>、<code>ref_cnt</code>（引用计数）、<code>block_hash</code>（写满后才有，第 3 课）。全部块在启动时一次建好。</li>
+        <li>空闲队列 <code>FreeKVCacheBlockQueue</code> 是一条双向链表，从队头取、还到队尾，能 O(1) 地从中间摘走一块。</li>
+        <li>抢占逻辑在 <code>sched/scheduler.py</code> 的 <code>schedule()</code> 里：<code>allocate_slots()</code> 返回空时，取 <code>self.running[-1]</code> 调 <code>_preempt_request()</code>。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>SGLang</h3>
+      <ul>
+        <li>内存池在 <code>python/sglang/srt/mem_cache/</code> 下。<code>memory_pool.py</code> 里的 <code>ReqToTokenPool</code> 是映射表：一个二维整数张量，每个请求一行，第 i 列是它第 i 个 token 在 KV 池里的下标。</li>
+        <li>相当于块大小可以小到 1 的块表。没有内部碎片，代价是表更大、寻址更细。下标的分配器在 <code>mem_cache/allocator/</code> 目录下。</li>
+        <li>按 token 寻址和它的前缀缓存结构（radix tree，可以在任意 token 处分叉）是配套的，第 3 课会看到。</li>
+        <li>显存不够时的对应机制叫 retract：<code>schedule_batch.py</code> 里的 <code>retract_decode()</code> 把一部分请求撤回等待队列。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="prose">
+    <h3>原始论文</h3>
+    <ul>
+      <li>Kwon et al., <em>Efficient Memory Management for Large Language Model Serving with PagedAttention</em>, SOSP 2023。第 3 节讲三种浪费，第 4 节讲分页、共享和抢占，图 2 是本页多次引用的显存占比数据。</li>
+      <li>vLLM 文档的 Design → Automatic Prefix Caching 一页，有当前块结构和空闲队列的权威描述。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="prose">
+    <div class="sec-no">路线图</div>
+    <h2>进度</h2>
+  </div>
+  <ol class="road">
+    <li><span>01</span><div>推理基础与 continuous batching<em>已完成</em></div></li>
+    <li class="here"><span>02</span><div>显存管理：PagedAttention<em>本页</em></div></li>
+    <li><span>03</span><div>前缀缓存<em>vLLM 的 block hash 与 SGLang 的 RadixAttention，缓存感知的调度</em></div></li>
+    <li><span>04</span><div>引擎架构<em>一个请求从 HTTP 到 token 流出，在两个引擎里各经过哪些进程和队列</em></div></li>
+    <li><span>05</span><div>结构化输出与工具调用<em>语法约束如何变成 logit mask，开销在哪</em></div></li>
+    <li><span>06</span><div>加速手段<em>量化、speculative decoding、编译与算子优化各自省在哪</em></div></li>
+    <li><span>07</span><div>分布式部署<em>多卡并行、prefill/decode 分离、缓存感知路由、多 LoRA</em></div></li>
+    <li><span>08</span><div>Agent 负载对推理 infra 的新要求<em>长前缀多轮次、工具调用间隙的缓存保留、子 agent 并发、按任务而非按请求度量</em></div></li>
+    <li><span>09</span><div>压测与实操<em>在真实 GPU 上跑一次，读懂延迟和吞吐曲线</em></div></li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function press(ids,on){ids.forEach(id=>$(id).setAttribute('aria-pressed',id===on?'true':'false'));}
+
+/*SIM-START*/
+const SLOTS=256,COLS=32,MAXLEN=64;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function makeMemWorkload(seed,n){
+  const r=mulberry32(seed),a=[];
+  for(let i=0;i<n;i++){
+    const long=r()<0.25;
+    const prompt=long?20+Math.floor(r()*11):4+Math.floor(r()*12);
+    let gen=long?22+Math.floor(r()*13):3+Math.floor(r()*16);
+    if(prompt+gen>MAXLEN)gen=MAXLEN-prompt;
+    a.push({id:i+1,arrival:i,prompt,gen});
+  }
+  return a;
+}
+function simMem(reqs,mode,bs){
+  const paged=mode==='paged';
+  const owner=new Array(SLOTS).fill(0),freeQ=[];
+  if(paged)for(let b=0;b<SLOTS/bs;b++)freeQ.push(b);
+  const st=reqs.map(r=>({...r,final:r.prompt+r.gen,tokens:0,start:-1,reserve:0,blocks:[],admitted:false}));
+  const waiting=[],snaps=[];let running=[],next=0,tick=0,done=0,preempts=0,recomputed=0,sumUsed=0,sumRun=0,peak=0;
+  const findRun=need=>{let run=0;for(let i=0;i<SLOTS;i++){if(owner[i]===0){run++;if(run>=need)return i-need+1;}else run=0;}return -1;};
+  const maxRun=()=>{let run=0,m=0;for(let i=0;i<SLOTS;i++){if(owner[i]===0){run++;if(run>m)m=run;}else run=0;}return m;};
+  const needOf=r=>paged?Math.ceil(Math.max(r.tokens,r.prompt)/bs):(mode==='max'?MAXLEN:r.final);
+  const release=r=>{
+    if(paged){for(let i=r.blocks.length-1;i>=0;i--)freeQ.push(r.blocks[i]);r.blocks=[];}
+    else{for(let i=r.start;i<r.start+r.reserve;i++)owner[i]=0;r.start=-1;r.reserve=0;}
+  };
+  for(;;){
+    const ev=[];
+    running=running.filter(r=>{if(r.tokens>=r.final){const n=paged?r.blocks.length:r.reserve;release(r);done++;ev.push({t:'done',id:r.id,n});return false;}return true;});
+    while(next<st.length&&st[next].arrival<=tick){waiting.push(st[next]);ev.push({t:'arrive',id:st[next].id});next++;}
+    let pre=false;
+    for(let i=0;i<running.length;i++){
+      const r=running[i];
+      if(paged&&r.tokens+1>r.blocks.length*bs){
+        let self=false;
+        while(!freeQ.length){
+          const v=running.pop(),n=v.blocks.length;release(v);preempts++;recomputed+=v.tokens;waiting.unshift(v);pre=true;
+          ev.push({t:'preempt',id:v.id,n,tokens:v.tokens,by:r.id});
+          if(v===r){self=true;break;}
+        }
+        if(self)break;
+        const b=freeQ.shift();r.blocks.push(b);ev.push({t:'grow',id:r.id,b});
+      }
+      r.tokens++;
+    }
+    if(!pre){
+      while(waiting.length){
+        const r=waiting[0],need=needOf(r);
+        if(paged){if(freeQ.length<need)break;for(let k=0;k<need;k++)r.blocks.push(freeQ.shift());}
+        else{const s=findRun(need);if(s<0)break;r.start=s;r.reserve=need;for(let i=s;i<s+need;i++)owner[i]=r.id;}
+        waiting.shift();const re=r.admitted;if(!re){r.tokens=r.prompt;r.admitted=true;}
+        running.push(r);ev.push({t:re?'readmit':'admit',id:r.id,n:need,tokens:r.tokens});
+      }
+    }
+    const own=new Array(SLOTS).fill(0),state=new Array(SLOTS).fill(0);let used=0,will=0,never=0;
+    for(const r of running){
+      const mark=(slot,k)=>{own[slot]=r.id;const s=k<r.tokens?1:k<r.final?2:3;state[slot]=s;if(s===1)used++;else if(s===2)will++;else never++;};
+      if(paged)r.blocks.forEach((b,bi)=>{for(let j=0;j<bs;j++)mark(b*bs+j,bi*bs+j);});
+      else for(let k=0;k<r.reserve;k++)mark(r.start+k,k);
+    }
+    const free=SLOTS-used-will-never;
+    let blocked=null;
+    if(waiting.length){const h=waiting[0],need=needOf(h);blocked=paged?{id:h.id,need,have:freeQ.length}:{id:h.id,need,have:free,maxRun:maxRun()};}
+    snaps.push({tick,own,state,used,will,never,free,ev,pre,blocked,running:running.map(r=>({id:r.id,tokens:r.tokens,final:r.final})),waiting:waiting.map(r=>r.id)});
+    if(done===st.length)break;
+    sumUsed+=used;sumRun+=running.length;if(running.length>peak)peak=running.length;
+    tick++;if(tick>4000)break;
+  }
+  const T=Math.max(1,snaps.length-1);
+  return {snaps,ticks:snaps.length-1,avgRun:sumRun/T,peak,util:sumUsed/(T*SLOTS),preempts,recomputed};
+}
+
+/* block-table walkthrough (fig 2) */
+const BTREQ={
+  A:{prompt:['今天','北京','的','天气','怎么','样','？'],gen:['北京','今天','晴','，']},
+  B:{prompt:['写','一首','关于','秋天','的','诗'],gen:['秋风','起','，','落叶','黄']},
+  C:{prompt:['一','加','一','等于','几'],gen:['等于','二']}
+};
+const BTSCRIPT=[{}, {arrive:'A'}, {iter:['A']}, {arrive:'B'}, {iter:['A','B']}, {iter:['A','B']}, {iter:['A','B']}, {release:'A',iter:['B']}, {arrive:'C',iter:['B']}, {release:'B',iter:['C']}];
+function buildBT(){
+  const BS=4,free=[7,1,3,5,9,0,10,2,11,4,6,8],phys=new Array(12).fill(null),tables={},gi={A:0,B:0,C:0},snaps=[];
+  for(const step of BTSCRIPT){
+    const fresh=[];
+    const write=(r,tok,kind)=>{
+      const tb=tables[r];let p=tb.length?tb[tb.length-1]:-1;
+      if(p<0||phys[p].cells.length===BS){p=free.shift();phys[p]={req:r,li:tb.length,cells:[]};tb.push(p);}
+      phys[p].cells.push({t:tok,k:kind});fresh.push(p+':'+(phys[p].cells.length-1));
+    };
+    if(step.release){const tb=tables[step.release];for(let i=tb.length-1;i>=0;i--){phys[tb[i]]=null;free.push(tb[i]);}delete tables[step.release];}
+    if(step.arrive){tables[step.arrive]=[];BTREQ[step.arrive].prompt.forEach(t=>write(step.arrive,t,'p'));}
+    (step.iter||[]).forEach(r=>write(r,BTREQ[r].gen[gi[r]++],'d'));
+    snaps.push(JSON.parse(JSON.stringify({free,phys,tables,fresh})));
+  }
+  return snaps;
+}
+/*SIM-END*/
+
+/* ───────────── Fig 1: allocation simulator ───────────── */
+const AL={mode:'max',seed:5,base:null,sims:null,k:14,sel:0,timer:null};
+const AL_MODES=[['max','连续 · 按最大长度预留'],['oracle','连续 · 预知真实长度'],['paged','分页 · 按需分配']];
+const pct=v=>(v*100).toFixed(0)+'%';
+function alRecompute(){
+  if(!AL.base)AL.base=makeMemWorkload(AL.seed,18);
+  const bs=+$('al-bs').value;
+  AL.sims={max:simMem(AL.base,'max',1),oracle:simMem(AL.base,'oracle',1),paged:simMem(AL.base,'paged',bs)};
+  $('al-bs').disabled=AL.mode!=='paged';
+  press(AL_MODES.map(m=>'al-m-'+m[0]),'al-m-'+AL.mode);
+  $('al-table').tBodies[0].innerHTML=AL_MODES.map(m=>{const s=AL.sims[m[0]];
+    return '<tr'+(m[0]===AL.mode?' class="is-on"':'')+'><td>'+m[1]+(m[0]==='paged'?'（每块 '+bs+'）':'')+'</td><td>'+s.ticks+' 轮</td><td>'+s.avgRun.toFixed(1)+' 个</td><td>'+s.peak+' 个</td><td>'+pct(s.util)+'</td><td>'+s.preempts+'</td><td>'+s.recomputed+'</td></tr>';}).join('');
+  alDraw();
+}
+function alDraw(){
+  const sim=AL.sims[AL.mode],N=sim.snaps.length-1;
+  AL.k=Math.max(0,Math.min(N,AL.k));
+  const sn=sim.snaps[AL.k],paged=AL.mode==='paged',bs=paged?+$('al-bs').value:0;
+  const P=28,RP=32,x0=12,y0=12,cw=26,ch=24,rows=SLOTS/COLS,W=x0*2+COLS*P-2,H=y0*2+rows*RP-8;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="KV 池第 '+AL.k+' 轮的占用情况">';
+  s+='<defs><pattern id="alHatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="5"/></pattern></defs>';
+  const names=['空闲','已写入','占着，之后会写到','占着，永远写不到'];
+  for(let i=0;i<SLOTS;i++){
+    const x=x0+(i%COLS)*P,y=y0+Math.floor(i/COLS)*RP,st=sn.state[i],o=sn.own[i];
+    const cls=['m-free','m-used','m-will','m-never'][st];
+    s+='<rect class="'+cls+'"'+(st===3?' fill="url(#alHatch)"':'')+(o?' data-r="'+o+'"':'')+' x="'+x+'" y="'+y+'" width="'+cw+'" height="'+ch+'" rx="2"><title>地址 '+i+(paged?' · 物理块 #'+Math.floor(i/bs):'')+' · '+(o?'R'+o+' · ':'')+names[st]+'</title></rect>';
+  }
+  for(let i=0;i<SLOTS;){
+    const o=sn.own[i];if(!o){i++;continue;}
+    let j=i+1;
+    while(j<SLOTS&&j%COLS!==0&&sn.own[j]===o&&!(paged&&j%bs===0))j++;
+    const x=x0+(i%COLS)*P,y=y0+Math.floor(i/COLS)*RP,w=(j-i)*P-2;
+    s+='<rect class="seg-o'+(AL.sel===o?' sel':'')+'" x="'+(x-1.5)+'" y="'+(y-1.5)+'" width="'+(w+3)+'" height="'+(ch+3)+'" rx="3"/>';
+    s+='<text class="lbl mono'+(sn.state[i]===1?' on-cache':'')+'" x="'+(x+3)+'" y="'+(y+16)+'" font-weight="600">R'+o+'</text>';
+    i=j;
+  }
+  s+='</svg>';
+  $('al-svg').innerHTML=s;
+  // composition bar
+  const w=v=>'calc('+(v/SLOTS*100).toFixed(3)+'% - 2px)';
+  $('al-bar').innerHTML=(sn.used?'<div class="b-used" style="width:'+w(sn.used)+'"></div>':'')+(sn.will?'<div class="b-will" style="width:'+w(sn.will)+'"></div>':'')+(sn.never?'<div class="b-never" style="width:'+w(sn.never)+'"></div>':'');
+  $('al-n1').textContent=sn.used;$('al-n2').textContent=sn.will;$('al-n3').textContent=sn.never;$('al-n4').textContent=sn.free;
+  // detail
+  const unit=paged?'块':'格';
+  const evs=sn.ev.filter(e=>e.t!=='grow').map(e=>{
+    if(e.t==='arrive')return '<span class="chip">R'+e.id+' 到达</span>';
+    if(e.t==='admit')return '<span class="chip">R'+e.id+' 进入：占 '+e.n+' '+unit+'，prefill '+e.tokens+' token</span>';
+    if(e.t==='readmit')return '<span class="chip">R'+e.id+' 重新进入：重算 '+e.tokens+' token 的 KV</span>';
+    if(e.t==='done')return '<span class="chip">R'+e.id+' 完成，释放 '+e.n+' '+unit+'</span>';
+    return '<span class="chip bad">✕ R'+e.id+' 被抢占'+(e.by===e.id?'（自己要新块，但池子空了）':'（R'+e.by+' 要新块，池子空了）')+'：释放 '+e.n+' 块，丢掉 '+e.tokens+' token 的 KV</span>';
+  }).join('');
+  const grows=sn.ev.filter(e=>e.t==='grow');
+  let blocked='';
+  if(sn.blocked){
+    const b=sn.blocked;
+    if(paged)blocked=sn.pre?'本轮发生了抢占，不接纳新请求。':'队首的 R'+b.id+' 需要 '+b.need+' 块，空闲只有 '+b.have+' 块。';
+    else if(b.have>=b.need)blocked='<strong>外部碎片：</strong>空闲共 '+b.have+' 格，够队首的 R'+b.id+' 需要的 '+b.need+' 格，但最大的连续空闲段只有 '+b.maxRun+' 格，进不来。';
+    else blocked='队首的 R'+b.id+' 需要连续 '+b.need+' 格，空闲一共只有 '+b.have+' 格。';
+  }
+  const done=AL.k===N;
+  $('al-detail').innerHTML='<div class="detail-head">第 '+AL.k+' / '+N+' 轮 · 在跑 '+sn.running.length+' 个 · 排队 '+sn.waiting.length+' 个</div>'+
+    (done?'<div>全部请求完成。</div>':'')+
+    (evs?'<div class="chips"><span class="k">本轮事件</span>'+evs+'</div>':'')+
+    (grows.length?'<div class="note">按需分配：'+grows.map(e=>'R'+e.id+' 拿到块 #'+e.b).join('，')+'</div>':'')+
+    (sn.running.length?'<div class="chips"><span class="k">在跑</span>'+sn.running.map(r=>'<button class="chip'+(AL.sel===r.id?' on':'')+'" data-r="'+r.id+'">R'+r.id+' '+r.tokens+'/'+r.final+'</button>').join('')+'</div>':'')+
+    (sn.waiting.length?'<div class="note">排队：'+sn.waiting.map(i=>'R'+i).join('、')+'。'+blocked+'</div>':'');
+  $('al-scrub').max=N;$('al-scrub').value=AL.k;
+  $('al-stepno').textContent=AL.k+' / '+N;
+  $('al-prev').disabled=AL.k===0;$('al-first').disabled=AL.k===0;$('al-next').disabled=AL.k===N;
+}
+function alStop(){if(AL.timer){clearInterval(AL.timer);AL.timer=null;}$('al-play').textContent='▶ 播放';}
+AL_MODES.forEach(m=>{$('al-m-'+m[0]).onclick=()=>{alStop();AL.mode=m[0];alRecompute();};});
+$('al-bs').addEventListener('input',()=>{alStop();alRecompute();});
+$('al-reseed').onclick=()=>{alStop();AL.seed=(AL.seed*31+11)%9973;AL.base=null;AL.sel=0;alRecompute();};
+$('al-first').onclick=()=>{alStop();AL.k=0;alDraw();};
+$('al-prev').onclick=()=>{alStop();AL.k--;alDraw();};
+$('al-next').onclick=()=>{alStop();AL.k++;alDraw();};
+$('al-scrub').addEventListener('input',e=>{alStop();AL.k=+e.target.value;alDraw();});
+$('al-play').onclick=()=>{
+  if(AL.timer){alStop();return;}
+  if(AL.k>=AL.sims[AL.mode].snaps.length-1)AL.k=0;
+  $('al-play').textContent='⏸ 暂停';
+  AL.timer=setInterval(()=>{if(AL.k>=AL.sims[AL.mode].snaps.length-1){alStop();return;}AL.k++;alDraw();},260);
+};
+function alPick(e){const t=e.target.closest('[data-r]');const id=t?+t.getAttribute('data-r'):0;AL.sel=id===AL.sel?0:id;alDraw();}
+$('al-svg').addEventListener('click',alPick);
+$('al-detail').addEventListener('click',e=>{if(e.target.closest('[data-r]'))alPick(e);});
+
+/* ───────────── Fig 2: block table walkthrough ───────────── */
+const BT={snaps:buildBT(),k:5,sel:'A'};
+const BT_NARR=[
+  'KV 池在启动时被切成大小相同的物理块，这里是 12 块，每块放 4 个 token 的 K、V（vLLM 默认每块 16 个）。假设系统已经跑过一阵，空闲队列里块的顺序是乱的。此刻没有请求。',
+  '<strong>请求 A 到达</strong>，prompt 有 7 个 token，需要 ⌈7 / 4⌉ = 2 块。从空闲队列头部取出 #7 和 #1，记进 A 的块表。Prefill 把 7 个 token 的 K、V 写进去，#1 还空着一格。',
+  'A 的第一步 decode。新 token 的 K、V 写进逻辑块 1 的最后一格，也就是物理块 #1。没有发生任何分配。',
+  '<strong>请求 B 到达</strong>，prompt 有 6 个 token，取走 #3 和 #5。A 和 B 的块在物理上不相邻，也不需要相邻。',
+  'A 的逻辑块 1 已经写满，这一步才向空闲队列要一个新块，拿到 #9。这就是按需分配。B 写进 #5 的第 3 格。',
+  '又一轮迭代。A 写进 #9，B 把 #5 写满。在 A 自己看来，它的 KV cache 是连续的 10 个位置；实际上散落在 #7、#1、#9 三处，靠块表把逻辑位置翻译成物理位置。',
+  'B 的块写满了，拿到 #0。A 写完最后一个 token，生成结束。此刻 A 浪费的空间只有 #9 里没写的那 1 格。',
+  '<strong>A 的三个块归还</strong>到空闲队列尾部，立刻可以给任何请求用。因为所有块一样大，归还后不存在「空洞太小、谁也用不了」的问题。B 继续写 #0。',
+  '<strong>请求 C 到达</strong>，取走队头的 #10 和 #2。B 写完最后一个 token。',
+  'B 的块归还。物理块就这样在请求之间不断换手，全程没有任何请求需要一段连续的大空间。'
+];
+function btDraw(){
+  const sn=BT.snaps[BT.k],present=Object.keys(sn.tables);
+  if(!present.includes(BT.sel)&&present.length)BT.sel=present[0];
+  const sel=BT.sel,tb=sn.tables[sel]||[];
+  const W=1000,H=466,Y=i=>44+i*34,CW=44,LX=84,TX=300,PX=620,QX=880;
+  const cell=(x,y,c,fresh,dim)=>{
+    if(!c)return '<rect class="t-empty'+(dim?' dim':'')+'" x="'+x+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/>';
+    return '<g'+(dim?' class="dim"':'')+'><rect class="'+(c.k==='p'?'t-prefill':'t-decode')+(fresh?' c-ring':'')+'" x="'+x+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/><text x="'+(x+CW/2-1)+'" y="'+(y+18.5)+'" text-anchor="middle" font-size="11.5">'+esc(c.t)+'</text></g>';
+  };
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="请求 '+sel+' 的逻辑块、块表与物理 KV 池">';
+  s+='<defs><marker id="btAh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>';
+  s+='<g font-size="12.5" font-weight="600"><text x="20" y="24">'+(present.includes(sel)?'请求 '+sel+' 眼里的 KV cache':'逻辑视图')+'</text><text x="'+TX+'" y="24">'+(present.includes(sel)?sel+' 的块表':'块表')+'</text><text x="'+PX+'" y="24">物理 KV 池</text><text x="'+(QX-24)+'" y="24">空闲队列 ↓</text></g>';
+  if(!tb.length)s+='<text x="20" y="'+(Y(0)+19)+'" font-size="12.5" class="f-muted">此刻系统里没有请求</text>';
+  tb.forEach((p,li)=>{
+    const y=Y(li),blk=sn.phys[p];
+    s+='<text x="20" y="'+(y+18.5)+'" font-size="11.5" class="f-muted">逻辑块 '+li+'</text>';
+    for(let j=0;j<4;j++)s+=cell(LX+j*CW,y,blk.cells[j],sn.fresh.includes(p+':'+j),false);
+    s+='<rect class="t-row" x="'+TX+'" y="'+y+'" width="150" height="28" rx="2"/>';
+    s+='<text x="'+(TX+10)+'" y="'+(y+18.5)+'" font-size="12" class="mono">'+li+' → #'+p+'</text><text x="'+(TX+140)+'" y="'+(y+18.5)+'" font-size="11.5" text-anchor="end" class="mono f-muted">'+blk.cells.length+'/4</text>';
+    s+='<line class="g-ink" x1="'+(TX+153)+'" y1="'+(y+14)+'" x2="'+(PX-34)+'" y2="'+(Y(p)+14)+'" stroke-width="1.3" marker-end="url(#btAh)"/>';
+  });
+  for(let p=0;p<12;p++){
+    const y=Y(p),blk=sn.phys[p];
+    s+='<text x="'+(PX-8)+'" y="'+(y+18.5)+'" text-anchor="end" font-size="12" class="mono'+(blk?'':' f-muted')+'">#'+p+'</text>';
+    if(!blk){for(let j=0;j<4;j++)s+='<rect class="t-free" x="'+(PX+j*CW)+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/>';continue;}
+    const dim=blk.req!==sel;
+    for(let j=0;j<4;j++)s+=cell(PX+j*CW,y,blk.cells[j],sn.fresh.includes(p+':'+j),dim);
+    if(!dim)s+='<rect class="o-sel" x="'+(PX-3)+'" y="'+(y-3)+'" width="'+(4*CW+4)+'" height="34" rx="4"/>';
+    s+='<text x="'+(PX+4*CW+8)+'" y="'+(y+18.5)+'" font-size="11.5" class="mono'+(dim?' f-muted':'')+'" font-weight="'+(dim?400:600)+'">'+blk.req+' · '+blk.li+'</text>';
+  }
+  sn.free.forEach((p,i)=>{const y=44+i*26;
+    s+='<rect class="t-free" x="'+(QX-24)+'" y="'+y+'" width="52" height="21" rx="2"/><text x="'+(QX+2)+'" y="'+(y+15)+'" text-anchor="middle" font-size="11.5" class="mono">#'+p+'</text>';
+    if(i===0)s+='<text x="'+(QX+36)+'" y="'+(y+15)+'" font-size="11" class="f-muted">队头</text>';
+  });
+  s+='</svg>';
+  $('bt-svg').innerHTML=s;
+  $('bt-narr').innerHTML=BT_NARR[BT.k];
+  $('bt-stepno').textContent='第 '+(BT.k+1)+' / '+BT.snaps.length+' 步';
+  $('bt-prev').disabled=BT.k===0;$('bt-next').disabled=BT.k===BT.snaps.length-1;
+  ['A','B','C'].forEach(r=>{$('bt-r-'+r).disabled=!present.includes(r);$('bt-r-'+r).setAttribute('aria-pressed',r===sel&&present.includes(r)?'true':'false');});
+}
+$('bt-prev').onclick=()=>{if(BT.k>0){BT.k--;btDraw();}};
+$('bt-next').onclick=()=>{if(BT.k<BT.snaps.length-1){BT.k++;btDraw();}};
+$('bt-reset').onclick=()=>{BT.k=0;BT.sel='A';btDraw();};
+['A','B','C'].forEach(r=>{$('bt-r-'+r).onclick=()=>{BT.sel=r;btDraw();};});
+
+/* ───────────── Fig 3: copy-on-write ───────────── */
+const PR=['给','我','讲','个','笑话','：'].map(t=>({t,k:'p'}));
+const d=t=>({t,k:'d'});
+const CWS=[
+  {a1:[1,2],a2:[1,2],blocks:{1:{c:PR.slice(0,4),ref:2},2:{c:PR.slice(4),ref:2}},fresh:[],copy:false,
+   narr:'同一个 prompt 要采样两个不同的回答（请求参数 n = 2）。prompt 的 6 个 token 只 prefill 一次，两条序列的块表指向同一批物理块。每个物理块带一个引用计数 ref，现在都是 2。'},
+  {a1:[1,3],a2:[1,2],blocks:{1:{c:PR.slice(0,4),ref:2},2:{c:PR.slice(4),ref:1},3:{c:[...PR.slice(4),d('从前')],ref:1}},fresh:['3:2'],copy:true,
+   narr:'<strong>A1 要写入</strong>它的逻辑块 1，对应物理块 #2。#2 的 ref 是 2，还有别人在用，不能原地写。于是分配新块 #3，把 #2 已有的内容复制过去，A1 的块表改指 #3，#2 的 ref 减到 1，然后才写入新 token。这就是写时复制。'},
+  {a1:[1,3],a2:[1,2],blocks:{1:{c:PR.slice(0,4),ref:2},2:{c:[...PR.slice(4),d('有')],ref:1},3:{c:[...PR.slice(4),d('从前')],ref:1}},fresh:['2:2'],copy:false,
+   narr:'<strong>轮到 A2 写入</strong>它的逻辑块 1，还是物理块 #2。现在 ref 是 1，只有它自己在用，直接原地写。'},
+  {a1:[1,3],a2:[1,2],blocks:{1:{c:PR.slice(0,4),ref:2},2:{c:[...PR.slice(4),d('有'),d('一天')],ref:1},3:{c:[...PR.slice(4),d('从前'),d('有')],ref:1}},fresh:['2:3','3:3'],copy:false,
+   narr:'之后两条序列各写各的。写满的块 #1 自始至终只有一份，被两条序列共享。需要复制的永远只是最后那个没写满的块，代价不超过一个块。'}
+];
+const CWST={k:0};
+function cwDraw(){
+  const sn=CWS[CWST.k],W=1000,H=236,CW=44,PX=412,Y=p=>44+(p-1)*46;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="写时复制第 '+(CWST.k+1)+' 步">';
+  s+='<defs><marker id="cwAh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>';
+  s+='<g font-size="12.5" font-weight="600"><text x="130" y="24">序列 A1 的块表</text><text x="'+PX+'" y="24">物理块</text><text x="720" y="24">序列 A2 的块表</text></g>';
+  for(let p=1;p<=4;p++){
+    const y=Y(p),b=sn.blocks[p];
+    s+='<text x="'+(PX-8)+'" y="'+(y+18.5)+'" text-anchor="end" font-size="12" class="mono'+(b?'':' f-muted')+'">#'+p+'</text>';
+    for(let j=0;j<4;j++){
+      const x=PX+j*CW,c=b&&b.c[j];
+      if(!b)s+='<rect class="t-free" x="'+x+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/>';
+      else if(!c)s+='<rect class="t-empty" x="'+x+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/>';
+      else s+='<rect class="'+(c.k==='p'?'t-prefill':'t-decode')+(sn.fresh.includes(p+':'+j)?' c-ring':'')+'" x="'+x+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/><text x="'+(x+CW/2-1)+'" y="'+(y+18.5)+'" text-anchor="middle" font-size="11.5">'+esc(c.t)+'</text>';
+    }
+    s+='<text x="'+(PX+4*CW+8)+'" y="'+(y+18.5)+'" font-size="12" class="mono'+(b?'':' f-muted')+'" font-weight="600">'+(b?'ref '+b.ref:'空闲')+'</text>';
+  }
+  if(sn.copy)s+='<text x="'+(PX+2*CW)+'" y="'+(Y(3)-5)+'" text-anchor="middle" font-size="11.5" font-weight="600">↓ 先复制，再写</text>';
+  const table=(x,tb,left)=>tb.forEach((p,li)=>{
+    const y=67+li*46;
+    s+='<rect class="t-row" x="'+x+'" y="'+y+'" width="150" height="28" rx="2"/><text x="'+(x+12)+'" y="'+(y+18.5)+'" font-size="12" class="mono">逻辑 '+li+' → #'+p+'</text>';
+    if(left)s+='<line class="g-ink" x1="'+(x+153)+'" y1="'+(y+14)+'" x2="'+(PX-34)+'" y2="'+(Y(p)+14)+'" stroke-width="1.3" marker-end="url(#cwAh)"/>';
+    else s+='<line class="g-ink" x1="'+(x-3)+'" y1="'+(y+14)+'" x2="'+(PX+4*CW+52)+'" y2="'+(Y(p)+14)+'" stroke-width="1.3" marker-end="url(#cwAh)"/>';
+  });
+  table(130,sn.a1,true);table(720,sn.a2,false);
+  s+='</svg>';
+  $('cw-svg').innerHTML=s;
+  $('cw-narr').innerHTML=sn.narr;
+  $('cw-stepno').textContent='第 '+(CWST.k+1)+' / '+CWS.length+' 步';
+  $('cw-prev').disabled=CWST.k===0;$('cw-next').disabled=CWST.k===CWS.length-1;
+}
+$('cw-prev').onclick=()=>{if(CWST.k>0){CWST.k--;cwDraw();}};
+$('cw-next').onclick=()=>{if(CWST.k<CWS.length-1){CWST.k++;cwDraw();}};
+$('cw-reset').onclick=()=>{CWST.k=0;cwDraw();};
+
+alRecompute();btDraw();cwDraw();
+})();
+</script>

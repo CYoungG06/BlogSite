@@ -124,6 +124,47 @@ async function researchDocs() {
   return docs;
 }
 
+/** HTML 课件 → 纯文本(去掉脚本、样式、图) */
+const htmlText = (html) =>
+  html
+    .replace(/<(script|style|svg|title)\b[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** 专题:每一课一条(课件只有中文,两种语言的索引都收) */
+async function seriesDocs(locale) {
+  const dir = path.join(contentRoot, "series");
+  if (!existsSync(dir)) return [];
+  const docs = [];
+  for (const slug of (await readdir(dir)).sort()) {
+    const metaFile = path.join(dir, slug, "series.json");
+    if (!existsSync(metaFile)) continue;
+    const meta = JSON.parse(await readFile(metaFile, "utf8"));
+    const seriesTitle = meta.title[locale] ?? meta.title.zh;
+    for (const lesson of meta.lessons) {
+      const html = await readFile(path.join(dir, slug, "lessons", `${lesson.slug}.html`), "utf8");
+      const h1 = htmlText(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? lesson.slug);
+      const lede = htmlText(html.match(/<\/h1>\s*<p[^>]*>([\s\S]*?)<\/p>/i)?.[1] ?? "");
+      docs.push({
+        id: `series/${slug}/${lesson.slug}`,
+        type: "series",
+        slug: `${slug}/${lesson.slug}`,
+        href: `/series/${slug}/${lesson.slug}/`,
+        title: `${seriesTitle} · ${h1}`,
+        description: lede,
+        content: htmlText(html),
+        tags: (meta.tags ?? []).join(" "),
+      });
+    }
+  }
+  return docs;
+}
+
 /** 项目:单文件双语;有详情页的链到详情,否则链到项目列表 */
 async function projectDocs(locale) {
   const dir = path.join(contentRoot, "projects");
@@ -154,6 +195,7 @@ for (const locale of LOCALES) {
     ...(await insightDocs()),
     ...(await researchDocs()),
     ...(await projectDocs(locale)),
+    ...(await seriesDocs(locale)),
   ];
   const index = new MiniSearch({
     fields: ["title", "description", "content", "tags"],

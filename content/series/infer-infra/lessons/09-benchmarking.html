@@ -1,0 +1,584 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>压测与实操</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose; each figure is a wider "instrument panel"
+   with its controls on top and its readout beside or below the drawing. */
+:root{
+  --bg:#f2f5f5; --surface:#fbfcfc; --surface-2:#e6ecec;
+  --ink:#101b1c; --ink-2:#44565a; --ink-3:#6f8186; --line:#cfd9d9;
+  --prefill:#2a78d6; --decode:#eb6834; --cache:#1baf7a; --waste:#aab7b9; --crit:#c93535;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-display:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+    --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+    --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+  --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+  --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:72px}
+.prose{max-width:43rem;display:flex;flex-direction:column;gap:16px}
+.prose p,.prose ul,.prose ol,.prose dl{margin:0}
+.prose ul,.prose ol{padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-0.01em}
+h2{font-size:25px}
+h3{font-size:17px}
+.eyebrow,.fig-no,.sec-no{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.lede{font-size:18px;color:var(--ink-2)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .38em;border-radius:3px;overflow-wrap:anywhere}
+strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid var(--line)}
+.note{font-size:14px;color:var(--ink-2);line-height:1.7}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.fig-head h3{flex:1 1 16rem}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.7;max-width:46rem}
+.scroll-x{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:currentColor}
+svg .mono{font-family:var(--font-mono)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);min-width:150px;flex:1 1 150px;max-width:260px}
+.ctl output{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.ctl .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink-3);border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--ink-3)}
+.seg button:last-child{border-right:0}
+button{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink-3);border-radius:5px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--surface-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--prefill);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepno{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.sw-tc{background:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.sw-tp{background:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.sw-td{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.sw-old{background:var(--surface-2);border:1px solid var(--line)}
+.sw-ring{border:2px solid var(--ink)}
+.sw-hit{background:var(--cache)} .sw-comp{background:var(--prefill)}
+
+/* svg classes */
+.t-cache{fill:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.t-prefill{fill:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.t-decode{fill:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.t-old{fill:var(--surface-2)}
+.t-empty{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+.t-free{fill:none;stroke:var(--line);stroke-width:1}
+.t-row{fill:var(--surface-2)}
+.c-ring{stroke:var(--ink);stroke-width:2}
+.o-sel{fill:none;stroke:var(--ink);stroke-width:1.5}
+.o-ghost{fill:none;stroke:var(--crit);stroke-width:1.5;stroke-dasharray:4 3}
+.g-ink{stroke:var(--ink)} .g-muted{stroke:var(--ink-3)}
+.g-grid{stroke:var(--line);stroke-width:1}
+.g-axis{fill:var(--ink-3);font-size:11px}
+.f-muted{fill:var(--ink-3)} .f-crit{fill:var(--crit)} .f-cache{fill:var(--cache)} .f-prefill{fill:var(--prefill)}
+.dim{opacity:.38}
+
+.narr{font-size:15px;line-height:1.75;min-height:5.4em;margin:0;max-width:52rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 22px}
+.stat{display:flex;flex-direction:column}
+.stat span{font-size:12.5px;color:var(--ink-2)}
+.stat b{font-family:var(--font-mono);font-weight:500;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.4}
+.stat small{font-size:12px;color:var(--ink-3);font-family:var(--font-mono)}
+.status{font-size:14.5px;padding:8px 12px;border-radius:4px;background:var(--surface-2)}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-weight:500;color:var(--ink-2);font-size:13px}
+td:first-child{color:var(--ink-2);white-space:nowrap}
+table.cmp{max-width:56rem}
+
+details.quiz{border:1px dashed var(--ink-3);border-radius:6px;padding:12px 16px;max-width:43rem}
+details.quiz summary{cursor:pointer;font-weight:500;list-style-position:outside;margin-left:1.1em}
+details.quiz summary .tag{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-right:8px}
+details.quiz .ans{margin-top:10px;color:var(--ink-2);font-size:15px;display:flex;flex-direction:column;gap:8px}
+details.quiz .ans p{margin:0}
+
+.callout{border-left:4px solid var(--cache);padding:4px 0 4px 16px;max-width:43rem;font-size:15px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.sys>div{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.sys ul{margin:0;padding-left:1.2em;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-width:43rem}
+.road li{display:grid;grid-template-columns:2.4em 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.road li span:first-child{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.road li em{font-style:normal;color:var(--ink-2);font-size:14px;display:block}
+.road li.here{font-weight:600}
+.road li.here em{font-weight:400}
+header{display:flex;flex-direction:column;gap:18px}
+/* lesson 9 additions */
+td.num,th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+pre.cmd{margin:0;font-family:var(--font-mono);font-size:13px;line-height:1.65;background:var(--surface-2);padding:12px 14px;border-radius:4px;overflow-x:auto;max-width:56rem}
+.src{display:flex;flex-direction:column;gap:12px;border:1px solid var(--line);border-radius:6px;padding:16px 20px;background:var(--surface)}
+.src-now{font-size:15px}
+.src-now b{font-weight:600}
+.badge{display:inline-block;font-family:var(--font-mono);font-size:12px;padding:1px 8px;border-radius:3px;background:var(--surface-2);margin-right:8px}
+.badge.real{background:var(--cache);color:#fff}
+textarea{width:100%;min-height:92px;font-family:var(--font-mono);font-size:12.5px;line-height:1.5;color:var(--ink);background:var(--bg);border:1px solid var(--ink-3);border-radius:4px;padding:8px 10px;resize:vertical}
+.err{color:var(--crit);font-size:14px}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:18px 28px}
+.pair>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pair h4{margin:0;font-size:14px;font-weight:500;color:var(--ink-2)}
+.c0{stroke:var(--decode)} .c1{stroke:var(--ink)} .c2{stroke:var(--prefill)} .c3{stroke:var(--cache)}
+.f0{fill:var(--decode)} .f1{fill:var(--ink)} .f2{fill:var(--prefill)} .f3{fill:var(--cache)}
+.ln{fill:none;stroke-width:2}
+.ln.dash{stroke-dasharray:6 4;stroke-width:1.5}
+.ln.ref{stroke:var(--ink-3);stroke-dasharray:3 4;stroke-width:1.2}
+.pt{stroke:var(--surface);stroke-width:1.5}
+.sw0{background:var(--decode)} .sw1{background:var(--ink)} .sw2{background:var(--prefill)} .sw3{background:var(--cache)}
+.read{font-size:15px;line-height:1.75;margin:0;max-width:52rem}
+.read b{font-weight:600}
+.empty{font-size:14.5px;color:var(--ink-2);padding:10px 0}
+#v1,#v2,#v3,#v4{display:flex;flex-direction:column;gap:16px}
+ul.check{list-style:none;padding-left:0}
+ul.check li{padding-left:1.5em;position:relative}
+ul.check li::before{content:"□";position:absolute;left:0;color:var(--ink-3)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">推理 Infra · 第 9 课 / 共 9 课</div>
+  <h1>跑一次，读懂曲线</h1>
+  <p class="lede prose">前八课里所有的图都来自一个示意的成本模型：每轮固定 20 ms，每个序列 0.4 ms，每个 prefill token 0.1 ms。这一课把它换成你自己机器上的真实数字。配套有一套压测脚本，五组实验各对应前面的一课；跑完得到一个结果文件，贴进这个页面，就能看到你的曲线和对它的解读。</p>
+  <p class="note prose">页面默认显示的是示例数据，来自一个按课程成本模型工作的假服务端，只用来说明曲线该怎么读，不代表任何真实硬件。压测脚本在这个假服务端上测通过，还没有在真实的 vLLM 或 SGLang 上跑过。</p>
+</header>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">1 · 先想清楚</div>
+    <h2>压测要回答的是哪个问题</h2>
+    <p>「这台机器的性能怎么样」不是一个能回答的问题，因为答案随负载变。能回答的是下面三个，问法不同，做法也不同：</p>
+    <ul>
+      <li><strong>最多能扛多少？</strong>不停地加压，直到吞吐不再上涨。得到的是容量。</li>
+      <li><strong>在某个流量下，用户感受到的延迟是多少？</strong>按固定的速率发请求，看延迟的分布。得到的是服务质量。</li>
+      <li><strong>改了一个配置，是变好还是变坏？</strong>同样的负载跑两遍，只改一个变量。</li>
+    </ul>
+    <p>三个问题都要先<strong>定下负载的形状</strong>：prompt 多长、输出多长、请求之间有没有可复用的前缀、是均匀到达还是一批一批来。前八课反复出现的结论是，同一台机器在不同形状的负载下表现可以差一个量级。一个 512 进 128 出、互不相关的请求测出来的吞吐，对 agent 负载几乎没有参考价值。</p>
+
+    <h3>闭环和开环</h3>
+    <p>发请求有两种方式，测出来的东西不一样。</p>
+    <ul>
+      <li><span class="term">闭环</span>：固定 N 个并发，每个并发发完一个请求、等它完全返回，再发下一个。服务端变慢时，客户端发得也跟着变慢。它适合测容量：N 从小加到大，画出吞吐随并发的变化。</li>
+      <li><span class="term">开环</span>：按固定的速率发请求（通常用泊松过程模拟随机到达），不管前面的有没有返回。服务端处理不过来时，请求会积压。它适合测某个流量下的真实延迟。</li>
+    </ul>
+    <p>闭环有一个著名的陷阱：它测出的延迟偏乐观。线上的用户不会因为服务变慢就少来，闭环的客户端却会自动降速，于是排队的那部分时间永远测不到。所以容量用闭环测，延迟用开环测。</p>
+    <p>Agent 负载两者兼有：一个任务内部是闭环的（上一步返回了才有下一步），任务和任务之间是开环的（新任务随时到来）。脚本里的 agent 回放就是这样做的。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">2 · 动手</div>
+    <h2>在你的 GPU 上跑</h2>
+    <p>脚本在本课同目录的 <code>bench/</code> 下，说明见其中的 <code>README.md</code>。压测机只需要 Python 和 aiohttp。最短的流程是三步：</p>
+  </div>
+  <pre class="cmd"># 1. 启动服务端（以 vLLM 为例；--enable-prompt-tokens-details 让响应里带上缓存命中的 token 数）
+vllm serve Qwen/Qwen2.5-7B-Instruct --port 8000 --max-model-len 32768 --enable-prompt-tokens-details
+
+# 2. 跑完所有实验，约 15 到 20 分钟
+cd bench
+NOTE="vLLM, Qwen2.5-7B, 1x 80G" BASE_URL=http://localhost:8000 ./run_experiments.sh
+
+# 3. 把 results/results.json 的内容贴到下面的框里</pre>
+  <div class="prose">
+    <p>SGLang 对应的开关是 <code>--enable-cache-report</code>。有两张卡时，每张卡各起一个服务端，再设上 <code>BASE_URL2</code>，会多跑一组路由实验。</p>
+  </div>
+  <div class="scroll-x">
+  <table class="cmp">
+    <thead><tr><th>实验</th><th>做法</th><th>要看什么</th><th>对应的课</th></tr></thead>
+    <tbody>
+      <tr><td>1 并发扫描</td><td>闭环。并发从 1 加到 256，每个请求 512 进、128 出，prompt 互不相同</td><td>吞吐随并发怎么涨、在哪里涨不动；每个 token 的间隔随并发怎么变</td><td>1、6</td></tr>
+      <tr><td>2 到达率扫描</td><td>开环。速率取实验 1 最高吞吐的 20% 到 110%</td><td>延迟从哪个速率开始陡增；P99 和中位数差多少</td><td>1</td></tr>
+      <tr><td>3 prompt 长度</td><td>一次一个请求，prompt 从 1K 到 24K；每个长度把同一个 prompt 再发一遍</td><td>prefill 每个 token 多少毫秒；缓存命中后 TTFT 剩多少</td><td>1、3</td></tr>
+      <tr><td>4 agent 回放</td><td>16 个会话各 12 步，系统提示 4K，每步新增 1.5K。跑两遍：历史原样重发；每步在最开头放一个时间戳</td><td>命中率、重算的 token、任务总耗时差多少</td><td>3、8</td></tr>
+      <tr><td>5 路由</td><td>两个服务端，32 个会话。跑两遍：轮询；同一个会话固定发给同一个服务端</td><td>同上</td><td>7</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">3 · 结果</div>
+    <h2>看你自己的结果</h2>
+  </div>
+  <div class="src">
+    <div class="src-now" id="src-now"></div>
+    <label for="src-text" class="note">把 <code>results/results.json</code> 的全部内容贴在这里，然后点「载入」。数据只在你的浏览器里处理。</label>
+    <textarea id="src-text" spellcheck="false" placeholder='{"format": "infer-infra-bench-v1", ...}'></textarea>
+    <div class="btns">
+      <button id="src-load">载入</button>
+      <button id="src-reset">恢复示例数据</button>
+      <span class="err" id="src-err" role="alert"></span>
+    </div>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 1</span><h3>实验 1：并发扫描</h3></div>
+    <div id="v1"></div>
+    <figcaption>左图横轴是对数刻度。右图的虚线是对各点做的直线拟合：截距是「一步前向的固定开销」，斜率是「每多一个序列多花的时间」，就是课程成本模型里的那两个数。这个实验里 prompt 互不相同，每个新请求进来时的 prefill 也混在各轮里，所以拟合出的斜率比纯 decode 的大。示例数据里斜率是 0.79 ms 而不是模型里的 0.4 ms，多出来的正好是每个请求 512 个 prefill token 摊到 128 步里的那一份。</figcaption>
+  </figure>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 2</span><h3>实验 2：到达率扫描</h3></div>
+    <div id="v2"></div>
+    <figcaption>左图的虚线是「来多少完成多少」，实线掉到它下面说明请求在积压。右图的虚线是最轻一档延迟的 2 倍。引擎在负载升高时通常不让新请求排队，而是把它们都收进 batch，于是每个请求都变慢：首 token 延迟涨得不多，整个请求的耗时和在途请求数涨得明显。所以这里用端到端延迟来判断，并在表里列出在途请求数。到达速率是按闭环最高吞吐的 20% 到 110% 取的。</figcaption>
+  </figure>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 3</span><h3>实验 3：prompt 长度和前缀缓存</h3></div>
+    <div id="v3"></div>
+    <figcaption>「冷」是第一次见到这个 prompt，「热」是把完全相同的 prompt 再发一遍。虚线是对冷请求的直线拟合，斜率就是每个 prefill token 的耗时。</figcaption>
+  </figure>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 4</span><h3>实验 4 和 5：agent 会话回放</h3></div>
+    <div id="v4"></div>
+    <figcaption>每条线是一次运行，横轴是会话里的第几步，纵轴是这一步的平均 TTFT。前缀稳定时它应该基本是平的（每步只算新增的部分）；前缀被破坏时它随步数线性上涨（每步都从头算）。表里的 TTFT 不含每个会话的第 1 步。</figcaption>
+  </figure>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">4 · 读图</div>
+    <h2>几种典型的形状</h2>
+    <ul>
+      <li><strong>吞吐随并发先快后慢地涨，最后变平。</strong>快涨的那段是在摊薄每步的固定开销（第 1 课、第 6 课图 1）。变平说明每步的时间已经主要花在每个序列自己的计算上，再加并发只会让每个人更慢。变平之前突然掉头向下，通常是显存不够开始抢占了（第 2 课）。</li>
+      <li><strong>每个 token 的间隔随并发近似一条直线。</strong>截距和斜率就是你这台机器、这个模型的成本模型。截距大、斜率小，说明固定开销占主导，适合开大 batch；反过来说明已经接近计算上限。</li>
+      <li><strong>开环延迟随到达速率先缓后陡地涨。</strong>闭环测出的最高吞吐是在每个请求都很慢的状态下达到的，不能直接当容量用。给延迟定一个上限（比如不超过空载的 2 倍），对应的到达速率才是这种负载下可用的容量，通常明显低于最高吞吐。线上的目标流量留在它左边。</li>
+      <li><strong>冷请求的 TTFT 随 prompt 长度是一条直线，热请求的几乎是平的。</strong>两条线之间的距离就是前缀缓存省下的时间。热请求的线不平，说明缓存没有命中，先查服务端有没有开缓存、响应里的 <code>cached_tokens</code> 是多少。</li>
+      <li><strong>agent 回放里，每一步的 TTFT 不随步数增长。</strong>这是前缀缓存在正常工作的标志。它一旦随步数上涨，回到第 8 课第 4 节查是什么改动了前缀。</li>
+    </ul>
+
+    <h3>常见的坑</h3>
+    <ul>
+      <li><strong>没有预热。</strong>服务端刚启动后的头几个请求会慢（缓存是空的、各种惰性初始化）。脚本每一档都丢掉了前 5 秒。</li>
+      <li><strong>所有并发同时起跑。</strong>大家一起 prefill、再一起 decode，步调一致，测出来的是这种人为同步的节奏。脚本让各个并发在预热期内错开启动。</li>
+      <li><strong>统计窗口比一个请求还短。</strong>高并发下一个请求要跑十几秒，窗口里可能一个完整的请求都没有。脚本会把每一档自动延长，直到有足够多的请求完成。</li>
+      <li><strong>prompt 重复，意外命中缓存。</strong>用同一个 prompt 反复压测，测出来的是缓存的速度。脚本给每个 prompt 开头加了随机串。反过来，测 agent 负载时又必须让前缀真的能复用，否则测不出实际情况。</li>
+      <li><strong>输出长度不固定。</strong>模型自己决定什么时候停，每次长度不一样，吞吐就没法比。脚本用 <code>max_tokens</code> 加 <code>ignore_eos</code> 固定住。</li>
+      <li><strong>请求很长时按「完成了几个」算吞吐。</strong>高并发下一个请求要跑十几秒，统计窗口两头各切掉半个，结果严重偏低。脚本按每个请求在窗口内实际生成的 token 数算。</li>
+      <li><strong>压测客户端自己成了瓶颈。</strong>单进程的 Python 客户端每秒能处理的流式 chunk 是有限的。吞吐很高时换更高效的工具，或者开多个客户端进程。</li>
+      <li><strong>只看平均值。</strong>第 8 课讲过，对 agent 来说单步的 P99 就是任务的日常。</li>
+      <li><strong>一次改了两个变量。</strong>每次运行把启动命令记在 <code>NOTE</code> 里，结果文件会带上它。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">5 · 继续</div>
+    <h2>接下来可以自己验证的事</h2>
+    <p>有了基线数据，前面每一课的结论都可以在你的机器上验证一遍。每一项都是「同样的负载跑两遍，只改一个开关」。</p>
+    <ul class="check">
+      <li><strong>工具间隙里缓存留不留得住（第 8 课）。</strong><code>python bench.py agent --gap 30 --bg-rate 2 --label lru</code>，看命中率掉了多少。SGLang 上再加 <code>--enable-session-radix-cache</code> 启动服务端，压测加 <code>--send-session-id</code>，对比。</li>
+      <li><strong>量化（第 6 课）。</strong>换一个量化过的同款模型重跑实验 1。预期：低并发下每个 token 的间隔变短，高并发下差别不大；启动日志里的 KV cache 容量变大。</li>
+      <li><strong>Speculative decoding（第 6 课）。</strong>加上 n-gram 推测重跑实验 1。预期：低并发有收益，高并发收益消失甚至变负。注意脚本用的是随机单词，输出几乎没有重复，n-gram 的接受率会很低；想看到真实的收益要换成有重复结构的 prompt。</li>
+      <li><strong>CUDA graph 和编译（第 6 课）。</strong>vLLM 用 <code>-O0</code> 启动重跑实验 1，看低并发下截距变大了多少。</li>
+      <li><strong>chunked prefill 和 token 预算（第 1 课）。</strong>调 <code>--max-num-batched-tokens</code>，一边跑实验 1 维持 decode 负载，一边发长 prompt，看 token 间隔的 P99。</li>
+      <li><strong>两个引擎对比。</strong>同一张卡、同一个模型，各跑一遍全套实验，用 <code>OUT</code> 分开存，分别贴进来看。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">6 · 回顾</div>
+    <h2>九课连起来</h2>
+    <p>这门课从「一个 token 是怎么生成出来的」开始，一路讲到「几十步的 agent 任务对整套系统提出了什么要求」。中间每一课都在回答同一类问题：<strong>时间和显存花在了哪里，哪些是可以省的</strong>。</p>
+    <ul>
+      <li>第 1 课建立了成本模型和四个基本指标，说明了为什么要把请求合成 batch。</li>
+      <li>第 2、3 课讲 KV cache：怎么分页存放，怎么跨请求复用。这是后面所有内容的地基。</li>
+      <li>第 4 课把视野放大到整个服务进程，看 CPU 上的开销怎么拖累 GPU。</li>
+      <li>第 5 课讲输出的正确性怎么保证，第 6 课讲几种加速手段各自动了成本的哪一项。</li>
+      <li>第 7 课扩展到多卡多副本，问题变成了缓存在哪、请求该去哪。</li>
+      <li>第 8 课把前面分散的 agent 视角收拢成四条要求。</li>
+      <li>这一课把示意的数字换成真实的。</li>
+    </ul>
+    <p>两个项目都在快速变化，这门课里的参数名和默认值会过时，机制本身过时得慢得多。以后看到一个新功能，可以先问它动的是成本模型里的哪一项、对缓存有什么影响、在什么负载下有效，大多数时候就能判断它值不值得用。</p>
+  </div>
+  <ol class="road">
+    <li><span>01</span><div>推理基础与 continuous batching<em>已完成</em></div></li>
+    <li><span>02</span><div>显存管理：PagedAttention<em>已完成</em></div></li>
+    <li><span>03</span><div>前缀缓存<em>已完成</em></div></li>
+    <li><span>04</span><div>引擎架构<em>已完成</em></div></li>
+    <li><span>05</span><div>结构化输出与工具调用<em>已完成</em></div></li>
+    <li><span>06</span><div>加速手段<em>已完成</em></div></li>
+    <li><span>07</span><div>分布式部署<em>已完成</em></div></li>
+    <li><span>08</span><div>Agent 负载对推理 infra 的新要求<em>已完成</em></div></li>
+    <li class="here"><span>09</span><div>压测与实操<em>本页</em></div></li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmtInt=n=>Math.round(n).toLocaleString('en-US');
+const fmtK=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1000?(n/1000).toFixed(n>=1e5?0:1)+'K':String(Math.round(n));
+const fmtMs=v=>v==null?'—':v>=10000?(v/1000).toFixed(1)+' s':v>=1000?(v/1000).toFixed(2)+' s':v>=100?Math.round(v)+' ms':v.toFixed(1)+' ms';
+const num=v=>typeof v==='number'&&isFinite(v);
+
+/*SIM-START*/
+function ols(xs,ys){
+  const n=xs.length;if(n<2)return null;
+  const mx=xs.reduce((a,b)=>a+b,0)/n,my=ys.reduce((a,b)=>a+b,0)/n;
+  let sxx=0,sxy=0,syy=0;
+  for(let i=0;i<n;i++){sxx+=(xs[i]-mx)*(xs[i]-mx);sxy+=(xs[i]-mx)*(ys[i]-my);syy+=(ys[i]-my)*(ys[i]-my);}
+  if(sxx===0)return null;
+  const b=sxy/sxx,a=my-b*mx;
+  return {a,b,r2:syy===0?1:sxy*sxy/(sxx*syy)};
+}
+function niceMax(v){
+  if(!(v>0))return 1;
+  const p=Math.pow(10,Math.floor(Math.log10(v))),m=v/p;
+  for(const k of [1,1.2,1.5,2,2.5,3,4,5,6,8,10])if(m<=k)return k*p;
+  return 10*p;
+}
+function validate(d){
+  if(!d||typeof d!=='object'||!Array.isArray(d.runs))return '这不是 bench.py merge 输出的格式：缺少 runs。';
+  if(d.format!=='infer-infra-bench-v1')return '格式标记不对：需要 infer-infra-bench-v1，收到的是 '+String(d.format).slice(0,40)+'。';
+  if(!d.runs.length)return '结果里没有任何实验。';
+  return null;
+}
+function analyzeSweep(run){
+  const L=run.levels.filter(l=>num(l.out_tok_per_s)&&l.concurrency>0);
+  if(!L.length)return null;
+  const best=L.reduce((a,b)=>b.out_tok_per_s>a.out_tok_per_s?b:a);
+  const tp=L.filter(l=>l.tpot_ms&&num(l.tpot_ms.p50));
+  const fit=ols(tp.map(l=>l.concurrency),tp.map(l=>l.tpot_ms.p50));
+  const knee=L.find(l=>l.out_tok_per_s>=0.9*best.out_tok_per_s);
+  return {L,best,fit,knee,first:L[0]};
+}
+function analyzeRate(run){
+  const L=run.levels.filter(l=>num(l.offered_req_per_s)&&l.e2e_ms&&num(l.e2e_ms.p50));
+  if(!L.length)return null;
+  // Engines rarely queue under overload; they admit everyone and each request slows down.
+  // So judge by end-to-end latency against the lightest load, not by a queueing signal.
+  const base=L[0].e2e_ms.p50;
+  const over=l=>l.unfinished>0||l.req_per_s<0.8*l.offered_req_per_s;
+  let knee=null,sat=null;
+  for(const l of L){
+    if(l.e2e_ms.p50<=2*base&&!over(l)){if(!sat)knee=l;}
+    else if(!sat)sat=l;
+  }
+  return {L,base,knee,sat,over};
+}
+function analyzePrefill(run){
+  const R=run.rows.filter(r=>num(r.prompt_tokens)&&num(r.ttft_cold_ms));
+  if(!R.length)return null;
+  const fit=ols(R.map(r=>r.prompt_tokens),R.map(r=>r.ttft_cold_ms));
+  const last=R[R.length-1];
+  return {R,fit,last,hasCached:R.every(r=>num(r.cached_tokens))};
+}
+/*SIM-END*/
+
+// generic line chart
+function chart(o){
+  const W=o.w||500,H=o.h||250,L=58,R=o.right||18,T=14,B=38;
+  const xmin=o.x.min,xmax=o.x.max,ymax=o.y.max;
+  const fx=o.x.log?v=>Math.log2(v):v=>v;
+  const X=v=>L+(xmax===xmin?0.5:(fx(v)-fx(xmin))/(fx(xmax)-fx(xmin)))*(W-L-R),Y=v=>T+(1-Math.min(v,ymax)/ymax)*(H-T-B);
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(o.label)+'">';
+  for(let i=0;i<=4;i++){
+    const v=ymax*i/4;
+    s+='<line class="g-grid" x1="'+L+'" y1="'+Y(v)+'" x2="'+(W-R)+'" y2="'+Y(v)+'"/>';
+    s+='<text class="g-axis mono" x="'+(L-7)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+esc(o.y.fmt(v))+'</text>';
+  }
+  let lastX=-1e9;
+  o.x.ticks.forEach(v=>{const x=X(v);if(x-lastX<32)return;lastX=x;s+='<text class="g-axis mono" x="'+x+'" y="'+(H-20)+'" text-anchor="middle">'+esc(o.x.fmt(v))+'</text>';});
+  s+='<text class="g-axis" x="'+(W-R)+'" y="'+(H-4)+'" text-anchor="end">'+esc(o.x.title)+'</text>';
+  (o.refs||[]).forEach(r=>{s+='<path class="ln '+r.cls+'" d="'+r.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join('')+'"/>';});
+  o.series.forEach(sr=>{
+    if(!sr.pts.length)return;
+    s+='<path class="ln c'+sr.c+'" d="'+sr.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join('')+'"/>';
+    sr.pts.forEach(p=>{s+='<circle class="pt f'+sr.c+'" cx="'+X(p[0]).toFixed(1)+'" cy="'+Y(p[1]).toFixed(1)+'" r="3.6"><title>'+esc(sr.name+'：'+o.x.fmt(p[0])+' → '+o.y.fmt(p[1]))+'</title></circle>';});
+  });
+  return s+'</svg>';
+}
+const legend=items=>'<div class="legend">'+items.map(it=>'<span><i class="sw sw'+it[0]+'"></i>'+esc(it[1])+'</span>').join('')+'</div>';
+const stat=(label,value,small)=>'<div class="stat"><span>'+esc(label)+'</span><b>'+esc(value)+'</b>'+(small?'<small>'+esc(small)+'</small>':'')+'</div>';
+const empty=msg=>'<p class="empty">'+esc(msg)+'</p>';
+
+function drawSweep(run){
+  const a=run&&analyzeSweep(run);
+  if(!a){$('v1').innerHTML=empty('结果里没有并发扫描（sweep）的数据。');return;}
+  const cs=a.L.map(l=>l.concurrency),cmax=Math.max(...cs),cmin=Math.min(...cs);
+  const tput=chart({label:'输出吞吐随并发数的变化',x:{min:cmin,max:cmax,log:cmax/cmin>4,ticks:cs,fmt:v=>String(v),title:'并发数'},
+    y:{max:niceMax(a.best.out_tok_per_s*1.05),fmt:v=>fmtK(v)},series:[{c:0,name:'输出吞吐',pts:a.L.map(l=>[l.concurrency,l.out_tok_per_s])}]});
+  const tp=a.L.filter(l=>l.tpot_ms&&num(l.tpot_ms.p50));
+  const ty=niceMax(Math.max(...tp.map(l=>l.tpot_ms.p50),1)*1.08);
+  const refs=a.fit?[{cls:'ref',pts:[[0,Math.max(a.fit.a,0)],[cmax,a.fit.a+a.fit.b*cmax]]}]:[];
+  const tpot=chart({label:'每个 token 的间隔随并发数的变化',x:{min:0,max:cmax,ticks:[0,cmax/4,cmax/2,cmax*3/4,cmax].map(Math.round),fmt:v=>String(v),title:'并发数'},
+    y:{max:ty,fmt:v=>v.toFixed(v<10?1:0)+' ms'},refs,series:[{c:1,name:'TPOT 中位数',pts:tp.map(l=>[l.concurrency,l.tpot_ms.p50])}]});
+  let h='<div class="pair"><div><h4>输出吞吐（token/秒）</h4>'+tput+'</div><div><h4>每个 token 的间隔，中位数</h4>'+tpot+'</div></div>';
+  h+='<div class="stats">'+stat('最高吞吐',fmtInt(a.best.out_tok_per_s)+' tok/s','在并发 '+a.best.concurrency+' 时')+
+    (a.fit?stat('每步固定开销（拟合截距）',a.fit.a.toFixed(1)+' ms','课程里用的是 20 ms')+stat('每多一个序列（拟合斜率）',a.fit.b.toFixed(3)+' ms','课程里用的是 0.4 ms'):'')+
+    stat('并发 '+a.first.concurrency+' 时的生成速度',a.first.tpot_ms&&num(a.first.tpot_ms.p50)?(1000/a.first.tpot_ms.p50).toFixed(0)+' tok/s':'—','单个用户感受到的速度')+'</div>';
+  let r='';
+  if(a.fit){
+    const half=a.fit.b>0?a.fit.a/a.fit.b:null;
+    r+='按拟合结果，一步前向大约是 <b>'+a.fit.a.toFixed(1)+' ms + '+a.fit.b.toFixed(3)+' ms × 并发数</b>（R² = '+a.fit.r2.toFixed(3)+'）。';
+    if(half&&half>0)r+='并发到 '+Math.round(half)+' 左右时，每个序列自己的计算和固定开销各占一半；低于它时加并发几乎是白赚吞吐，高于它时每个用户会明显变慢。';
+    if(a.fit.r2<0.9)r+='拟合得不太好，说明间隔随并发不是直线关系，常见原因是高并发下出现了排队或抢占，建议只看低并发的那几个点。';
+  }
+  if(a.knee)r+=' 吞吐在并发 '+a.knee.concurrency+' 时已经达到最高值的 90%，再往上加并发收益很小。';
+  const errs=a.L.reduce((x,l)=>x+(l.errors||0),0);
+  if(errs)r+=' 有 '+errs+' 个请求出错，结果要打折扣，先看服务端日志。';
+  $('v1').innerHTML=h+'<p class="read">'+r+'</p>';
+}
+
+function drawRate(run,peak){
+  const a=run&&analyzeRate(run);
+  if(!a){$('v2').innerHTML=empty('结果里没有到达率扫描（rate）的数据。');return;}
+  const xs=a.L.map(l=>l.offered_req_per_s),xmax=Math.max(...xs);
+  const rf=v=>v>=10?v.toFixed(0):v.toFixed(1);
+  const xt={min:0,max:xmax,ticks:xs,fmt:rf,title:'到达速率（请求/秒）'};
+  const done=chart({label:'完成速率和到达速率的对比',x:xt,y:{max:niceMax(xmax),fmt:rf},
+    refs:[{cls:'ref',pts:[[0,0],[xmax,xmax]]}],series:[{c:0,name:'完成速率',pts:a.L.map(l=>[l.offered_req_per_s,l.req_per_s])}]});
+  const p95=a.L.filter(l=>num(l.e2e_ms.p95));
+  const lat=chart({label:'端到端延迟随到达速率的变化',x:xt,y:{max:niceMax(Math.max(...p95.map(l=>l.e2e_ms.p95),1)*1.05),fmt:v=>fmtMs(v)},
+    refs:[{cls:'ref',pts:[[0,2*a.base],[xmax,2*a.base]]}],
+    series:[{c:1,name:'中位数',pts:a.L.map(l=>[l.offered_req_per_s,l.e2e_ms.p50])},{c:0,name:'P95',pts:p95.map(l=>[l.offered_req_per_s,l.e2e_ms.p95])}]});
+  let h='<div class="pair"><div><h4>完成速率（请求/秒）</h4>'+done+'</div><div><h4>一个请求从发出到收完的时间</h4>'+legend([[1,'中位数'],[0,'P95']])+lat+'</div></div>';
+  h+='<div class="scroll-x"><table><thead><tr><th class="num">到达速率</th><th class="num">完成速率</th><th class="num">TTFT 中位数</th><th class="num">TTFT P99</th><th class="num">端到端 中位数</th><th class="num">在途请求数（前半段 → 后半段）</th></tr></thead><tbody>';
+  a.L.forEach(l=>{
+    h+='<tr><td class="num">'+rf(l.offered_req_per_s)+' req/s</td><td class="num">'+(num(l.req_per_s)?rf(l.req_per_s)+' req/s':'—')+'</td><td class="num">'+fmtMs(l.ttft_ms&&l.ttft_ms.p50)+'</td><td class="num">'+fmtMs(l.ttft_ms&&l.ttft_ms.p99)+'</td><td class="num">'+fmtMs(l.e2e_ms.p50)+
+      '</td><td class="num">'+(num(l.inflight_first_half)&&num(l.inflight_second_half)?Math.round(l.inflight_first_half)+' → '+Math.round(l.inflight_second_half):'—')+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  let r='最轻的一档（'+rf(a.L[0].offered_req_per_s)+' req/s）下，一个请求从发出到收完的中位数是 '+fmtMs(a.base)+'。';
+  if(a.knee&&a.sat)r+='以「不超过它的 2 倍」为界，能承受的到达速率在 <b>'+rf(a.knee.offered_req_per_s)+' 到 '+rf(a.sat.offered_req_per_s)+' req/s</b> 之间'+(num(peak)&&peak>0?'，下限是闭环测出的最高吞吐（'+rf(peak)+' req/s）的 '+Math.round(a.knee.offered_req_per_s/peak*100)+'%':'')+'。';
+  else if(a.sat)r+='从第二档起延迟就超过了它的 2 倍，这组速率整体偏高，用 <code>--rates</code> 指定更低的速率再跑一次。';
+  else r+='测试的速率范围内延迟都没有超过它的 2 倍。想找到拐点，用 <code>--rates</code> 指定更高的速率再跑一次。';
+  const ov=a.L.find(a.over);
+  if(ov)r+=' 到 '+rf(ov.offered_req_per_s)+' req/s 时完成速率已经明显低于到达速率，这是真正的过载：请求来的比走的快，测得再久也稳定不下来。';
+  $('v2').innerHTML=h+'<p class="read">'+r+'</p>';
+}
+
+function drawPrefill(run){
+  const a=run&&analyzePrefill(run);
+  if(!a){$('v3').innerHTML=empty('结果里没有 prompt 长度扫描（prefill）的数据。');return;}
+  const xs=a.R.map(r=>r.prompt_tokens),xmax=Math.max(...xs);
+  const refs=a.fit?[{cls:'ref',pts:[[0,Math.max(a.fit.a,0)],[xmax,a.fit.a+a.fit.b*xmax]]}]:[];
+  const c=chart({w:1000,h:270,label:'冷请求和热请求的首 token 延迟随 prompt 长度的变化',x:{min:0,max:xmax,ticks:xs,fmt:v=>fmtK(v),title:'prompt 长度（token）'},
+    y:{max:niceMax(Math.max(...a.R.map(r=>r.ttft_cold_ms))*1.05),fmt:v=>fmtMs(v)},refs,
+    series:[{c:2,name:'冷',pts:a.R.map(r=>[r.prompt_tokens,r.ttft_cold_ms])},{c:3,name:'热',pts:a.R.filter(r=>num(r.ttft_warm_ms)).map(r=>[r.prompt_tokens,r.ttft_warm_ms])}]});
+  let h=legend([[2,'冷：第一次见到这个 prompt'],[3,'热：同一个 prompt 再发一遍']])+'<div class="scroll-x">'+c.replace('<svg ','<svg style="min-width:640px" ')+'</div>';
+  const warm=a.R.filter(r=>num(r.ttft_warm_ms));
+  h+='<div class="stats">'+(a.fit?stat('每个 prefill token（拟合斜率）',a.fit.b.toFixed(4)+' ms','课程里用的是 0.1 ms；相当于每秒 '+fmtK(1000/a.fit.b)+' token'):'')+
+    stat(fmtK(a.last.prompt_tokens)+' token 的冷 TTFT',fmtMs(a.last.ttft_cold_ms))+
+    (num(a.last.ttft_warm_ms)?stat('同一个 prompt 的热 TTFT',fmtMs(a.last.ttft_warm_ms),'是冷的 '+(a.last.ttft_warm_ms/a.last.ttft_cold_ms*100).toFixed(1)+'%'):'')+
+    (a.hasCached?stat('最长那档命中的 token',fmtInt(a.last.cached_tokens),'共 '+fmtInt(a.last.prompt_tokens)):'')+'</div>';
+  let r='';
+  if(a.fit)r+='prefill 的速度是每个 token <b>'+a.fit.b.toFixed(4)+' ms</b>（R² = '+a.fit.r2.toFixed(3)+'）。一个 30K token 的冷 prompt 大约要 '+fmtMs(a.fit.a+a.fit.b*30000)+' 才出第一个 token。';
+  if(!a.hasCached)r+=' 服务端没有返回 <code>cached_tokens</code>，无法确认命中量；检查启动时有没有加 <code>--enable-prompt-tokens-details</code>（vLLM）或 <code>--enable-cache-report</code>（SGLang）。';
+  else if(warm.length&&a.last.ttft_warm_ms>0.5*a.last.ttft_cold_ms)r+=' 热请求没有明显变快，前缀缓存可能没有生效。';
+  else r+=' 第二遍发同一个 prompt 时几乎全部命中，TTFT 基本不随长度变化，剩下的是固定开销和第 4 课讲的分词、排队等 CPU 上的时间。';
+  $('v3').innerHTML=h+'<p class="read">'+r+'</p>';
+}
+
+const LABELS={append:'历史原样重发',timestamp:'每步开头放时间戳',rr:'两个副本 · 轮询',session:'两个副本 · 按会话固定'};
+function drawAgent(runs){
+  runs=runs.filter(r=>r.summary&&Array.isArray(r.by_step));
+  if(!runs.length){$('v4').innerHTML=empty('结果里没有 agent 回放的数据。');return;}
+  const show=runs.slice(0,4),name=r=>LABELS[r.label]||r.label||r.file||'运行';
+  const steps=Math.max(...show.map(r=>r.by_step.length));
+  const ymax=niceMax(Math.max(...show.map(r=>Math.max(...r.by_step.map(b=>b.ttft_ms))))*1.05);
+  const c=chart({w:1000,h:270,right:20,label:'各次运行里每一步的平均首 token 延迟',x:{min:1,max:Math.max(steps,2),ticks:Array.from({length:steps},(_,i)=>i+1),fmt:v=>String(v),title:'会话里的第几步'},
+    y:{max:ymax,fmt:v=>fmtMs(v)},series:show.map((r,i)=>({c:i,name:name(r),pts:r.by_step.map(b=>[b.step,b.ttft_ms])}))});
+  let h=legend(show.map((r,i)=>[i,name(r)]))+'<div class="scroll-x">'+c.replace('<svg ','<svg style="min-width:640px" ')+'</div>';
+  h+='<div class="scroll-x"><table><thead><tr><th>运行</th><th class="num">会话 × 步</th><th class="num">缓存命中率</th><th class="num">重算的 token</th><th class="num">TTFT 均值</th><th class="num">TTFT P95</th><th class="num">任务耗时均值</th><th class="num">任务耗时 P95</th><th class="num">各服务端请求数</th></tr></thead><tbody>';
+  runs.forEach(r=>{
+    const s=r.summary,n=s.sessions?Math.round(s.steps/s.sessions):'—';
+    h+='<tr><td>'+esc(name(r))+'</td><td class="num">'+esc(s.sessions)+' × '+esc(n)+'</td><td class="num">'+(num(s.cached_ratio)?(s.cached_ratio*100).toFixed(1)+'%':'未返回')+'</td><td class="num">'+(num(s.computed_tokens)?fmtK(s.computed_tokens):'—')+
+      '</td><td class="num">'+fmtMs(s.ttft_ms.mean)+'</td><td class="num">'+fmtMs(s.ttft_ms.p95)+'</td><td class="num">'+(num(s.task_time_s.mean)?s.task_time_s.mean.toFixed(1)+' s':'—')+'</td><td class="num">'+(num(s.task_time_s.p95)?s.task_time_s.p95.toFixed(1)+' s':'—')+
+      '</td><td class="num">'+esc((s.per_endpoint||[]).join(' / '))+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  const by=l=>runs.find(r=>r.label===l);
+  let r='';
+  const ap=by('append'),ts=by('timestamp'),rr=by('rr'),ss=by('session');
+  const cmp=(good,bad,what)=>{
+    let t='';
+    if(num(good.summary.computed_tokens)&&num(bad.summary.computed_tokens)&&good.summary.computed_tokens>0)
+      t+=what+'要重算的 token 是 <b>'+(bad.summary.computed_tokens/good.summary.computed_tokens).toFixed(1)+' 倍</b>（'+fmtK(bad.summary.computed_tokens)+' 对 '+fmtK(good.summary.computed_tokens)+'），';
+    t+='平均 TTFT 是 '+(bad.summary.ttft_ms.mean/good.summary.ttft_ms.mean).toFixed(1)+' 倍，任务耗时多 '+Math.round((bad.summary.task_time_s.mean/good.summary.task_time_s.mean-1)*100)+'%。';
+    return t;
+  };
+  if(ap&&ts)r+='<b>前缀稳定与否：</b>在最开头放一个时间戳之后，'+cmp(ap,ts,'')+' ';
+  if(rr&&ss)r+='<b>路由：</b>和按会话固定相比，轮询'+cmp(ss,rr,'')+' ';
+  if(ap&&num(ap.summary.cached_ratio)&&ap.summary.cached_ratio<0.6)r+='「历史原样重发」的命中率偏低。常见原因：会话同时开始，公共的系统提示还没算完就被多个请求各算了一遍（第 8 课图 3）；或者 KV 池不够大，间隙里被淘汰了。';
+  if(!r)r='把标签为 append 和 timestamp（或 rr 和 session）的两次运行放在一起，这里会给出对比。';
+  $('v4').innerHTML=h+'<p class="read">'+r+'</p>';
+}
+
+const SAMPLE={"format":"infer-infra-bench-v1","meta":{"created":"2026-11-16 20:16:19","model":"mock-model","engine":"mock","base_urls":["http://localhost:8131"],"tokens_per_word":1.0,"note":"mock_server.py，按课程成本模型模拟，不是真实硬件"},"runs":[{"kind":"sweep","config":{"prompt_tokens":512,"max_tokens":128,"duration":15.0,"warmup":5},"levels":[{"requests":20,"errors":0,"out_tok_per_s":45.491,"req_per_s":0.355,"ttft_ms":{"p50":76.522,"p95":79.408,"p99":82.146,"mean":76.825},"tpot_ms":{"p50":21.534,"p95":21.701,"p99":22.17,"mean":21.539},"e2e_ms":{"p50":2809.482,"p95":2838.424,"p99":2895.11,"mean":2812.295},"concurrency":1,"window_s":55.73},{"requests":20,"errors":0,"out_tok_per_s":87.286,"req_per_s":0.682,"ttft_ms":{"p50":95.662,"p95":98.455,"p99":103.082,"mean":94.49},"tpot_ms":{"p50":22.252,"p95":22.322,"p99":22.368,"mean":22.257},"e2e_ms":{"p50":2921.339,"p95":2933.596,"p99":2938.086,"mean":2921.142},"concurrency":2,"window_s":26.852},{"requests":20,"errors":0,"out_tok_per_s":163.098,"req_per_s":1.274,"ttft_ms":{"p50":97.596,"p95":99.382,"p99":100.222,"mean":97.279},"tpot_ms":{"p50":23.925,"p95":23.975,"p99":24.088,"mean":23.921},"e2e_ms":{"p50":3136.37,"p95":3143.549,"p99":3155.357,"mean":3135.319},"concurrency":4,"window_s":15.074},{"requests":34,"errors":0,"out_tok_per_s":289.007,"req_per_s":2.258,"ttft_ms":{"p50":101.049,"p95":153.326,"p99":153.444,"mean":106.427},"tpot_ms":{"p50":27.2,"p95":27.295,"p99":27.328,"mean":27.135},"e2e_ms":{"p50":3557.087,"p95":3567.608,"p99":3570.787,"mean":3552.617},"concurrency":8,"window_s":15.068},{"requests":53,"errors":0,"out_tok_per_s":473.684,"req_per_s":3.701,"ttft_ms":{"p50":109.279,"p95":213.516,"p99":214.72,"mean":135.398},"tpot_ms":{"p50":33.377,"p95":33.785,"p99":33.791,"mean":33.324},"e2e_ms":{"p50":4394.118,"p95":4400.29,"p99":4400.82,"mean":4367.572},"concurrency":16,"window_s":15.072},{"requests":80,"errors":0,"out_tok_per_s":689.135,"req_per_s":5.384,"ttft_ms":{"p50":209.326,"p95":499.491,"p99":544.139,"mean":240.507},"tpot_ms":{"p50":45.365,"p95":46.987,"p99":47.001,"mean":45.193},"e2e_ms":{"p50":6088.376,"p95":6093.816,"p99":6095.265,"mean":5980.149},"concurrency":32,"window_s":15.076},{"requests":82,"errors":0,"out_tok_per_s":916.541,"req_per_s":7.16,"ttft_ms":{"p50":385.321,"p95":647.776,"p99":691.786,"mean":379.086},"tpot_ms":{"p50":70.789,"p95":73.645,"p99":74.106,"mean":70.897},"e2e_ms":{"p50":9376.271,"p95":9564.941,"p99":9566.26,"mean":9383.093},"concurrency":64,"window_s":15.091},{"requests":128,"errors":0,"out_tok_per_s":989.461,"req_per_s":7.73,"ttft_ms":{"p50":2193.799,"p95":3581.541,"p99":3801.179,"mean":2080.369},"tpot_ms":{"p50":115.454,"p95":124.773,"p99":125.629,"mean":116.999},"e2e_ms":{"p50":16810.292,"p95":18455.84,"p99":18859.802,"mean":16939.319},"concurrency":128,"window_s":17.856},{"requests":256,"errors":0,"out_tok_per_s":1005.17,"req_per_s":7.853,"ttft_ms":{"p50":5963.042,"p95":10811.597,"p99":11273.394,"mean":5891.573},"tpot_ms":{"p50":225.907,"p95":230.004,"p99":232.496,"mean":225.834},"e2e_ms":{"p50":34605.954,"p95":39710.048,"p99":40485.254,"mean":34572.453},"concurrency":256,"window_s":39.519}],"file":"e1_sweep.json"},{"kind":"rate","config":{"prompt_tokens":512,"max_tokens":128,"duration":30.0,"warmup":5},"levels":[{"requests":51,"errors":0,"out_tok_per_s":205.114,"req_per_s":1.602,"ttft_ms":{"p50":99.646,"p95":149.534,"p99":166.781,"mean":103.563},"tpot_ms":{"p50":26.794,"p95":29.795,"p99":30.196,"mean":26.54},"e2e_ms":{"p50":3505.173,"p95":3880.624,"p99":3929.647,"mean":3474.25},"offered_req_per_s":1.571,"backlog_at_end":5,"max_inflight":13,"unfinished":0,"inflight_first_half":5.633,"inflight_second_half":5.5},{"requests":98,"errors":0,"out_tok_per_s":408.744,"req_per_s":3.193,"ttft_ms":{"p50":109.572,"p95":171.837,"p99":206.019,"mean":120.737},"tpot_ms":{"p50":33.708,"p95":37.244,"p99":38.165,"mean":32.83},"e2e_ms":{"p50":4384.217,"p95":4896.508,"p99":4982.525,"mean":4290.185},"offered_req_per_s":3.141,"backlog_at_end":14,"max_inflight":24,"unfinished":0,"inflight_first_half":10.933,"inflight_second_half":16.226},{"requests":158,"errors":0,"out_tok_per_s":662.916,"req_per_s":5.179,"ttft_ms":{"p50":130.373,"p95":244.755,"p99":281.543,"mean":152.118},"tpot_ms":{"p50":46.805,"p95":55.407,"p99":56.103,"mean":47.413},"e2e_ms":{"p50":6089.94,"p95":7214.791,"p99":7315.253,"mean":6173.673},"offered_req_per_s":4.712,"backlog_at_end":37,"max_inflight":45,"unfinished":0,"inflight_first_half":27.4,"inflight_second_half":37.333},{"requests":181,"errors":0,"out_tok_per_s":747.317,"req_per_s":5.838,"ttft_ms":{"p50":148.004,"p95":297.294,"p99":390.382,"mean":166.536},"tpot_ms":{"p50":59.247,"p95":68.445,"p99":69.656,"mean":57.734},"e2e_ms":{"p50":7700.418,"p95":8867.932,"p99":8987.644,"mean":7498.881},"offered_req_per_s":6.282,"backlog_at_end":39,"max_inflight":66,"unfinished":0,"inflight_first_half":38.133,"inflight_second_half":50.516},{"requests":216,"errors":0,"out_tok_per_s":876.903,"req_per_s":6.851,"ttft_ms":{"p50":207.626,"p95":366.504,"p99":420.293,"mean":220.086},"tpot_ms":{"p50":86.876,"p95":96.927,"p99":98.463,"mean":82.075},"e2e_ms":{"p50":11226.6,"p95":12559.357,"p99":12729.402,"mean":10643.652},"offered_req_per_s":7.068,"backlog_at_end":86,"max_inflight":99,"unfinished":0,"inflight_first_half":61.2,"inflight_second_half":86.833},{"requests":256,"errors":0,"out_tok_per_s":864.305,"req_per_s":6.752,"ttft_ms":{"p50":234.075,"p95":441.795,"p99":527.368,"mean":253.366},"tpot_ms":{"p50":98.408,"p95":129.369,"p99":130.212,"mean":99.429},"e2e_ms":{"p50":12723.597,"p95":16590.753,"p99":16692.424,"mean":12880.967},"offered_req_per_s":7.853,"backlog_at_end":151,"max_inflight":151,"unfinished":0,"inflight_first_half":70.0,"inflight_second_half":103.333},{"requests":250,"errors":0,"out_tok_per_s":954.055,"req_per_s":7.454,"ttft_ms":{"p50":261.763,"p95":480.163,"p99":709.052,"mean":286.221},"tpot_ms":{"p50":116.188,"p95":140.252,"p99":142.853,"mean":112.684},"e2e_ms":{"p50":14927.449,"p95":18247.249,"p99":18370.005,"mean":14597.106},"offered_req_per_s":8.638,"backlog_at_end":154,"max_inflight":160,"unfinished":0,"inflight_first_half":89.0,"inflight_second_half":133.935}],"file":"e2_rate.json"},{"kind":"prefill","config":{"repeats":3},"rows":[{"target_tokens":1000,"prompt_tokens":1015,"ttft_cold_ms":127.627,"ttft_warm_ms":27.805,"cached_tokens":1008},{"target_tokens":2000,"prompt_tokens":2015,"ttft_cold_ms":227.525,"ttft_warm_ms":26.283,"cached_tokens":2000},{"target_tokens":4000,"prompt_tokens":4015,"ttft_cold_ms":427.911,"ttft_warm_ms":30.325,"cached_tokens":4000},{"target_tokens":8000,"prompt_tokens":8015,"ttft_cold_ms":829.024,"ttft_warm_ms":29.003,"cached_tokens":8000},{"target_tokens":16000,"prompt_tokens":16015,"ttft_cold_ms":1649.699,"ttft_warm_ms":31.644,"cached_tokens":16000},{"target_tokens":24000,"prompt_tokens":24015,"ttft_cold_ms":2470.343,"ttft_warm_ms":32.796,"cached_tokens":24000}],"file":"e3_prefill.json"},{"kind":"agent","label":"append","config":{"sessions":8,"steps":12,"system_tokens":4000,"step_tokens":1500,"max_tokens":150,"gap":2.0,"gap_dist":"exp","mode":"append","route":"rr","bg_rate":0,"bg_tokens":6000,"send_session_id":false,"seed":1,"endpoints":1},"summary":{"sessions":8,"steps":96,"errors":0,"wall_s":88.534,"task_time_s":{"mean":83.8,"p50":84.768,"p95":87.01},"ttft_ms":{"mean":259.951,"p50":238.673,"p95":437.759,"p99":561.614},"prompt_tokens":1403472,"cached_tokens":1213056,"cached_ratio":0.864,"computed_tokens":190416,"per_endpoint":[96],"server_metrics_delta":{}},"by_step":[{"step":1,"ttft_ms":1193.734,"prompt_tokens":5517.0,"cached_tokens":0.0},{"step":2,"ttft_ms":391.413,"prompt_tokens":7172.0,"cached_tokens":5504.0},{"step":3,"ttft_ms":252.806,"prompt_tokens":8827.0,"cached_tokens":7168.0},{"step":4,"ttft_ms":228.351,"prompt_tokens":10482.0,"cached_tokens":8816.0},{"step":5,"ttft_ms":230.141,"prompt_tokens":12137.0,"cached_tokens":10480.0},{"step":6,"ttft_ms":246.96,"prompt_tokens":13792.0,"cached_tokens":12128.0},{"step":7,"ttft_ms":255.613,"prompt_tokens":15447.0,"cached_tokens":13792.0},{"step":8,"ttft_ms":244.932,"prompt_tokens":17102.0,"cached_tokens":15440.0},{"step":9,"ttft_ms":254.314,"prompt_tokens":18757.0,"cached_tokens":17088.0},{"step":10,"ttft_ms":234.312,"prompt_tokens":20412.0,"cached_tokens":18752.0},{"step":11,"ttft_ms":265.018,"prompt_tokens":22067.0,"cached_tokens":20400.0},{"step":12,"ttft_ms":255.606,"prompt_tokens":23722.0,"cached_tokens":22064.0}],"file":"e4_agent_append.json"},{"kind":"agent","label":"timestamp","config":{"sessions":8,"steps":12,"system_tokens":4000,"step_tokens":1500,"max_tokens":150,"gap":2.0,"gap_dist":"exp","mode":"timestamp","route":"rr","bg_rate":0,"bg_tokens":6000,"send_session_id":false,"seed":2,"endpoints":1},"summary":{"sessions":8,"steps":96,"errors":0,"wall_s":196.246,"task_time_s":{"mean":186.077,"p50":185.662,"p95":194.608},"ttft_ms":{"mean":4573.788,"p50":3826.155,"p95":9403.964,"p99":10752.948},"prompt_tokens":1403568,"cached_tokens":0,"cached_ratio":0.0,"computed_tokens":1403568,"per_endpoint":[96],"server_metrics_delta":{}},"by_step":[{"step":1,"ttft_ms":895.327,"prompt_tokens":5518.0,"cached_tokens":0.0},{"step":2,"ttft_ms":1846.873,"prompt_tokens":7173.0,"cached_tokens":0.0},{"step":3,"ttft_ms":2791.801,"prompt_tokens":8828.0,"cached_tokens":0.0},{"step":4,"ttft_ms":3456.139,"prompt_tokens":10483.0,"cached_tokens":0.0},{"step":5,"ttft_ms":2928.946,"prompt_tokens":12138.0,"cached_tokens":0.0},{"step":6,"ttft_ms":3915.414,"prompt_tokens":13793.0,"cached_tokens":0.0},{"step":7,"ttft_ms":6171.044,"prompt_tokens":15448.0,"cached_tokens":0.0},{"step":8,"ttft_ms":6000.588,"prompt_tokens":17103.0,"cached_tokens":0.0},{"step":9,"ttft_ms":5731.197,"prompt_tokens":18758.0,"cached_tokens":0.0},{"step":10,"ttft_ms":7088.522,"prompt_tokens":20413.0,"cached_tokens":0.0},{"step":11,"ttft_ms":5443.142,"prompt_tokens":22068.0,"cached_tokens":0.0},{"step":12,"ttft_ms":4938.003,"prompt_tokens":23723.0,"cached_tokens":0.0}],"file":"e4_agent_timestamp.json"},{"kind":"agent","label":"rr","config":{"sessions":16,"steps":12,"system_tokens":4000,"step_tokens":1500,"max_tokens":150,"gap":2.0,"gap_dist":"exp","mode":"append","route":"rr","bg_rate":0,"bg_tokens":6000,"send_session_id":false,"seed":3,"endpoints":2},"summary":{"sessions":16,"steps":192,"errors":0,"wall_s":109.311,"task_time_s":{"mean":96.94,"p50":96.956,"p95":104.04},"ttft_ms":{"mean":507.7,"p50":391.798,"p95":1591.133,"p99":2113.783},"prompt_tokens":2806944,"cached_tokens":2118512,"cached_ratio":0.755,"computed_tokens":688432,"per_endpoint":[96,96],"server_metrics_delta":{}},"by_step":[{"step":1,"ttft_ms":801.544,"prompt_tokens":5517.0,"cached_tokens":0.0},{"step":2,"ttft_ms":310.863,"prompt_tokens":7172.0,"cached_tokens":4667.0},{"step":3,"ttft_ms":413.76,"prompt_tokens":8827.0,"cached_tokens":5849.0},{"step":4,"ttft_ms":416.916,"prompt_tokens":10482.0,"cached_tokens":7588.0},{"step":5,"ttft_ms":487.586,"prompt_tokens":12137.0,"cached_tokens":8832.0},{"step":6,"ttft_ms":551.519,"prompt_tokens":13792.0,"cached_tokens":11199.0},{"step":7,"ttft_ms":581.852,"prompt_tokens":15447.0,"cached_tokens":11014.0},{"step":8,"ttft_ms":370.33,"prompt_tokens":17102.0,"cached_tokens":14511.0},{"step":9,"ttft_ms":524.736,"prompt_tokens":18757.0,"cached_tokens":14424.0},{"step":10,"ttft_ms":822.142,"prompt_tokens":20412.0,"cached_tokens":16081.0},{"step":11,"ttft_ms":549.153,"prompt_tokens":22067.0,"cached_tokens":18343.0},{"step":12,"ttft_ms":555.847,"prompt_tokens":23722.0,"cached_tokens":19899.0}],"file":"e5_route_rr.json"},{"kind":"agent","label":"session","config":{"sessions":16,"steps":12,"system_tokens":4000,"step_tokens":1500,"max_tokens":150,"gap":2.0,"gap_dist":"exp","mode":"append","route":"session","bg_rate":0,"bg_tokens":6000,"send_session_id":false,"seed":4,"endpoints":2},"summary":{"sessions":16,"steps":192,"errors":0,"wall_s":107.87,"task_time_s":{"mean":86.725,"p50":83.875,"p95":98.048},"ttft_ms":{"mean":265.151,"p50":240.581,"p95":431.261,"p99":587.478},"prompt_tokens":2806944,"cached_tokens":2426112,"cached_ratio":0.864,"computed_tokens":380832,"per_endpoint":[96,96],"server_metrics_delta":{}},"by_step":[{"step":1,"ttft_ms":1166.144,"prompt_tokens":5517.0,"cached_tokens":0.0},{"step":2,"ttft_ms":222.414,"prompt_tokens":7172.0,"cached_tokens":5504.0},{"step":3,"ttft_ms":252.454,"prompt_tokens":8827.0,"cached_tokens":7168.0},{"step":4,"ttft_ms":236.212,"prompt_tokens":10482.0,"cached_tokens":8816.0},{"step":5,"ttft_ms":265.673,"prompt_tokens":12137.0,"cached_tokens":10480.0},{"step":6,"ttft_ms":311.371,"prompt_tokens":13792.0,"cached_tokens":12128.0},{"step":7,"ttft_ms":338.647,"prompt_tokens":15447.0,"cached_tokens":13792.0},{"step":8,"ttft_ms":255.053,"prompt_tokens":17102.0,"cached_tokens":15440.0},{"step":9,"ttft_ms":286.174,"prompt_tokens":18757.0,"cached_tokens":17088.0},{"step":10,"ttft_ms":257.774,"prompt_tokens":20412.0,"cached_tokens":18752.0},{"step":11,"ttft_ms":254.247,"prompt_tokens":22067.0,"cached_tokens":20400.0},{"step":12,"ttft_ms":236.637,"prompt_tokens":23722.0,"cached_tokens":22064.0}],"file":"e5_route_session.json"}]};
+function render(d,isSample){
+  const m=d.meta||{};
+  $('src-now').innerHTML=(isSample?'<span class="badge">示例数据</span>来自假服务端，按课程的成本模型模拟，不是真实硬件。'
+    :'<span class="badge real">你的数据</span><b>'+esc(m.model||'未知模型')+'</b> · 服务端 '+esc(m.engine||'未知')+(m.note?' · '+esc(m.note):'')+(m.created?' · '+esc(m.created):''));
+  const one=k=>d.runs.find(r=>r.kind===k);
+  const safe=(fn,id)=>{try{fn();}catch(e){$(id).innerHTML=empty('这部分数据的格式和预期不一致，没法画出来：'+e.message);}};
+  safe(()=>drawSweep(one('sweep')),'v1');
+  safe(()=>{const sw=one('sweep');const pk=sw&&Array.isArray(sw.levels)?Math.max(...sw.levels.map(l=>l.req_per_s).filter(num)):null;drawRate(one('rate'),pk);},'v2');
+  safe(()=>drawPrefill(one('prefill')),'v3');
+  safe(()=>drawAgent(d.runs.filter(r=>r.kind==='agent')),'v4');
+}
+const KEY='infer-infra-bench-results';
+$('src-load').onclick=()=>{
+  const txt=$('src-text').value.trim();
+  $('src-err').textContent='';
+  if(!txt){$('src-err').textContent='先把 results.json 的内容贴进来。';return;}
+  let d;
+  try{d=JSON.parse(txt);}catch(e){$('src-err').textContent='不是合法的 JSON：'+e.message;return;}
+  const bad=validate(d);
+  if(bad){$('src-err').textContent=bad;return;}
+  render(d,false);
+  try{localStorage.setItem(KEY,txt);}catch(e){/* storage unavailable: nothing to remember */}
+};
+$('src-reset').onclick=()=>{
+  $('src-err').textContent='';$('src-text').value='';
+  try{localStorage.removeItem(KEY);}catch(e){/* ignore */}
+  render(SAMPLE,true);
+};
+let boot=null;
+try{const t=localStorage.getItem(KEY);if(t){const d=JSON.parse(t);if(!validate(d)){boot=d;$('src-text').value=t;}}}catch(e){boot=null;}
+render(boot||SAMPLE,!boot);
+})();
+</script>

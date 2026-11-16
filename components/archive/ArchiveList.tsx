@@ -19,6 +19,7 @@ export const KIND_LABEL_KEY: Record<ArchiveKind, string> = {
   reading: "archive.kindReading",
   notes: "archive.kindNotes",
   insight: "archive.kindInsight",
+  series: "archive.kindSeries",
 };
 
 /** 类型列宽:中文两个字,英文最长 Distilled */

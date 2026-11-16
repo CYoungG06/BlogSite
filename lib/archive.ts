@@ -2,13 +2,14 @@ import type { Locale } from "@/i18n/routing";
 import { getCollectionItems, type CollectionItem } from "./collection";
 import type { Collection } from "./content-loader";
 import { getAllInsights } from "./insights";
+import { getAllSeries } from "./series";
 
 /**
- * 全站可归档内容的统一视图:文章 / 蒸馏 / 精读 / 笔记 / 论文深度解读。
+ * 全站可归档内容的统一视图:文章 / 蒸馏 / 精读 / 笔记 / 论文深度解读 / 专题的每一课。
  * 归档页(按年 + 标签筛选)、文章页的「相关内容」与「上一篇 / 下一篇」共用。
  */
 
-export type ArchiveKind = "blog" | "distilled" | "reading" | "notes" | "insight";
+export type ArchiveKind = "blog" | "distilled" | "reading" | "notes" | "insight" | "series";
 
 export interface ArchiveEntry {
   kind: ArchiveKind;
@@ -22,7 +23,7 @@ export interface ArchiveEntry {
   href: string;
 }
 
-const COLLECTIONS: Exclude<ArchiveKind, "insight">[] = [
+const COLLECTIONS: Exclude<ArchiveKind, "insight" | "series">[] = [
   "blog",
   "distilled",
   "reading",
@@ -67,6 +68,19 @@ export function getArchiveEntries(locale: Locale): ArchiveEntry[] {
       tags: insight.tags,
       href: `/papers/insights/${insight.paperId}/`,
     });
+  }
+  for (const series of getAllSeries(locale)) {
+    for (const lesson of series.lessons) {
+      entries.push({
+        kind: "series",
+        slug: `${series.slug}/${lesson.slug}`,
+        title: `${series.title} · ${lesson.title}`,
+        date: lesson.date,
+        description: lesson.lede,
+        tags: series.tags,
+        href: `/series/${series.slug}/${lesson.slug}/`,
+      });
+    }
   }
   entries.sort(byDateDesc);
   if (process.env.NODE_ENV === "production") cache.set(locale, entries);

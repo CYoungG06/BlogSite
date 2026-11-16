@@ -1,0 +1,939 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>从 Token 到 Batch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose; each figure is a wider "instrument panel"
+   with its controls on top and its readout beside or below the drawing. */
+:root{
+  --bg:#f2f5f5; --surface:#fbfcfc; --surface-2:#e6ecec;
+  --ink:#101b1c; --ink-2:#44565a; --ink-3:#6f8186; --line:#cfd9d9;
+  --prefill:#2a78d6; --decode:#eb6834; --cache:#1baf7a; --waste:#aab7b9; --crit:#c93535;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-display:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+    --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+    --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+  --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+  --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:72px}
+.prose{max-width:43rem;display:flex;flex-direction:column;gap:16px}
+.prose p,.prose ul,.prose ol,.prose dl{margin:0}
+.prose ul,.prose ol{padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-0.01em}
+h2{font-size:25px}
+h3{font-size:17px}
+.eyebrow,.fig-no,.sec-no{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.lede{font-size:18px;color:var(--ink-2)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .38em;border-radius:3px;overflow-wrap:anywhere}
+a{color:inherit;text-underline-offset:3px}
+strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid var(--line)}
+.note{font-size:14px;color:var(--ink-2);line-height:1.7}
+.formula{font-family:var(--font-mono);font-size:13.5px;line-height:1.9;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 16px;overflow-x:auto;white-space:pre}
+
+/* definition rows */
+.defs{display:grid;grid-template-columns:max-content 1fr;gap:10px 20px;font-size:15px}
+.defs dt{font-family:var(--font-mono);font-size:13.5px;font-weight:500;padding-top:2px}
+.defs dd{margin:0;color:var(--ink-2)}
+@media (max-width:520px){.defs{grid-template-columns:1fr;gap:2px 0}.defs dd{margin-bottom:10px}}
+
+/* figures */
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.fig-head h3{flex:1 1 16rem}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.7;max-width:46rem}
+.scroll-x{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:currentColor}
+svg .mono{font-family:var(--font-mono)}
+
+/* controls */
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);min-width:150px;flex:1 1 150px;max-width:260px}
+.ctl output,.ctl b{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.ctl .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.ctl small{font-family:var(--font-mono);font-size:11px;color:var(--ink-3)}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0}
+select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:5px 8px}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink-3);border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--ink-3)}
+.seg button:last-child{border-right:0}
+button{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink-3);border-radius:5px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--surface-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--prefill);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepno{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.sw-prefill{background:var(--prefill)} .sw-decode{background:var(--decode)} .sw-cache{background:var(--cache)}
+.sw-old{background:var(--surface-2);border:1px solid var(--line)}
+.sw-weights{background:var(--ink-3)}
+.sw-idle{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px);border:1px solid var(--waste)}
+.sw-queue{height:0;border-top:2px dashed var(--ink-3);width:16px;border-radius:0}
+.sw-dot{width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.sw-reserve{background:repeating-linear-gradient(45deg,var(--line) 0 2px,transparent 2px 5px);border:1px solid var(--line)}
+
+/* svg classes */
+.c-prefill{fill:var(--prefill)} .c-decode{fill:var(--decode)} .c-cache{fill:var(--cache)}
+.c-old{fill:var(--surface-2);stroke:var(--line);stroke-width:1}
+.c-empty{fill:none;stroke:var(--line);stroke-width:1}
+.c-kvempty{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+.c-ring{stroke:var(--ink);stroke-width:2}
+.g-grid{stroke:var(--line);stroke-width:1}
+.g-axis{fill:var(--ink-3);font-size:11px}
+.g-ink{stroke:var(--ink)} .g-muted{stroke:var(--ink-3)}
+.f-ink{fill:var(--ink)} .f-surface{fill:var(--surface)} .f-band{fill:var(--ink);opacity:.09}
+.f-muted{fill:var(--ink-3)}
+.hatch-line{stroke:var(--waste);stroke-width:1.6}
+.idle-box{stroke:var(--waste);stroke-width:1}
+
+/* fig 2 */
+.kv-layout{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.kv-layout{grid-template-columns:1fr}}
+.tokens{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tok{font-size:14px;padding:3px 9px;border-radius:4px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);line-height:1.5}
+.tok.is-fed{border:2px solid var(--ink);color:var(--ink);background:var(--surface);padding:2px 8px}
+.tok.is-new{border:2px dashed var(--decode);color:var(--ink);background:var(--surface);padding:2px 8px}
+.tok-sep{width:1px;align-self:stretch;background:var(--ink-3);margin:0 4px}
+.narr{font-size:15px;line-height:1.75;min-height:6.2em}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+thead th{font-weight:500;color:var(--ink-2);font-size:13px;white-space:nowrap}
+td{font-family:var(--font-mono);font-size:13.5px}
+td:first-child{font-family:var(--font-body);font-size:14px}
+.is-on{background:var(--surface-2)}
+tr.is-on td:first-child{font-weight:600}
+
+/* bars (fig 3, 4) */
+.bar{display:flex;gap:2px;height:30px;border-radius:4px;overflow:hidden;background:var(--surface-2)}
+.bar>div{height:100%;min-width:0;flex:none;transition:width .15s}
+@media (prefers-reduced-motion:reduce){.bar>div{transition:none}}
+.b-weights{background:var(--ink-3)} .b-kv{background:var(--cache)} .b-prefill{background:var(--prefill)} .b-decode{background:var(--decode)}
+.b-reserve{background:repeating-linear-gradient(45deg,var(--line) 0 2px,transparent 2px 5px)}
+.b-free{background:transparent}
+.bar-label{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:12px;color:var(--ink-3)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px 22px}
+.stat{display:flex;flex-direction:column;gap:0}
+.stat span{font-size:12.5px;color:var(--ink-2)}
+.stat b{font-family:var(--font-mono);font-weight:500;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.4}
+.stat small{font-size:12px;color:var(--ink-3);font-family:var(--font-mono)}
+.status{font-size:14.5px;padding:8px 12px;border-radius:4px;background:var(--surface-2)}
+.status.bad{border-left:4px solid var(--crit)}
+.stack{display:flex;flex-direction:column;gap:6px}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+
+/* fig 6 */
+.detail{background:var(--surface-2);border-radius:4px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:14px;min-height:5.6em}
+.detail-head{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12.5px;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:2px 8px}
+.scrub{flex:1 1 200px;min-width:160px}
+
+/* quiz */
+details.quiz{border:1px dashed var(--ink-3);border-radius:6px;padding:12px 16px;max-width:43rem}
+details.quiz summary{cursor:pointer;font-weight:500;list-style-position:outside;margin-left:1.1em}
+details.quiz summary .tag{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-right:8px}
+details.quiz .ans{margin-top:10px;color:var(--ink-2);font-size:15px;display:flex;flex-direction:column;gap:8px}
+details.quiz .ans p{margin:0}
+
+/* callout, real-systems grid, roadmap */
+.callout{border-left:4px solid var(--cache);padding:4px 0 4px 16px;max-width:43rem;font-size:15px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.sys>div{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.sys ul{margin:0;padding-left:1.2em;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-width:43rem}
+.road li{display:grid;grid-template-columns:2.4em 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.road li span:first-child{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.road li em{font-style:normal;color:var(--ink-2);font-size:14px;display:block}
+.road li.here{font-weight:600}
+.road li.here em{font-weight:400}
+header{display:flex;flex-direction:column;gap:18px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">推理 Infra · 第 1 课 / 共 9 课</div>
+  <h1>从一个 token 到一个 batch</h1>
+  <p class="lede prose">一个 LLM 请求在 GPU 上经历了什么：为什么要有 KV cache，prefill 和 decode 为什么是两种不同的负载，vLLM 和 SGLang 为什么都用 continuous batching。后面讲显存分页、前缀缓存、调度器时要用的概念，这一页先备齐。</p>
+  <p class="note prose">每张图都可以操作。标着「预测题」的地方请先自己想一个答案再展开。页面里的耗时来自一个简化的成本模型，数量级合理，但不是任何硬件上的实测值。</p>
+</header>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">1 · 生成是一个循环</div>
+    <h2>模型一次只回答一个问题：下一个 token 是什么</h2>
+    <p>LLM 的一次 <span class="term">forward</span>（前向计算）输入一串 token，输出一个概率分布，表示「下一个 token 是词表里每个词的可能性」。这个分布归一化之前的原始分数叫 <span class="term">logits</span>。从分布里选出一个 token 的动作叫<span class="term">采样</span>。</p>
+    <p>要生成一段话，就把采样出的 token 接到序列末尾，再 forward 一次，如此反复，直到采样出结束符 <code>&lt;EOS&gt;</code> 或达到长度上限。这叫<span class="term">自回归</span>（autoregressive）生成。所以一个请求在 GPU 上是 1 次处理整段 prompt 的 forward，加上 N 次各产出 1 个 token 的 forward。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 1</span><h3>一个请求走过的路径</h3></div>
+    <div class="scroll-x">
+      <svg viewBox="0 0 1040 200" role="img" aria-label="请求路径：prompt 经 tokenizer 变成 token ids，进入模型得到 logits，采样出新 token；新 token 一路经 detokenizer 流式输出，另一路接回模型输入开始下一轮" style="min-width:720px;color:var(--ink)">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="90" y="70" width="120" height="48" rx="4"/>
+          <rect x="290" y="70" width="220" height="48" rx="4"/>
+          <rect x="590" y="70" width="100" height="48" rx="4"/>
+          <rect x="770" y="70" width="130" height="48" rx="4"/>
+          <line x1="56" y1="94" x2="88" y2="94" marker-end="url(#ah)"/>
+          <line x1="210" y1="94" x2="288" y2="94" marker-end="url(#ah)"/>
+          <line x1="510" y1="94" x2="588" y2="94" marker-end="url(#ah)"/>
+          <line x1="690" y1="94" x2="768" y2="94" marker-end="url(#ah)"/>
+          <line x1="900" y1="94" x2="958" y2="94" marker-end="url(#ah)"/>
+          <path d="M730 94V158H250V98" stroke="var(--decode)" stroke-width="2" marker-end="url(#ahd)"/>
+          <g stroke-width="1" opacity=".6">
+            <path d="M90 50V44H210V50"/><path d="M290 50V44H690V50"/><path d="M770 50V44H900V50"/>
+          </g>
+        </g>
+        <defs><marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--decode)"/></marker></defs>
+        <g font-size="14" text-anchor="middle" font-weight="600">
+          <text x="150" y="99">Tokenizer</text>
+          <text x="400" y="91">模型 forward</text>
+          <text x="640" y="99">采样</text>
+          <text x="835" y="99">Detokenizer</text>
+        </g>
+        <g font-size="12" text-anchor="middle" opacity=".7">
+          <text x="400" y="109">L 层 Transformer</text>
+          <text x="26" y="98">prompt</text>
+          <text x="249" y="86">token ids</text>
+          <text x="549" y="86">logits</text>
+          <text x="729" y="86">新 token</text>
+          <text x="995" y="98">流式输出</text>
+          <text x="150" y="36" class="mono">CPU</text>
+          <text x="490" y="36" class="mono">GPU</text>
+          <text x="835" y="36" class="mono">CPU</text>
+          <text x="490" y="178">接到序列末尾，进入下一轮 decode</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>橙色回路每走一圈产出一个 token。分词和反分词在 CPU 上，中间的 forward 和采样在 GPU 上。推理引擎的大部分设计，都是在让这个回路对很多请求同时转得又快又省。</figcaption>
+  </figure>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">2 · KV cache</div>
+    <h2>每一步只算新的那一行</h2>
+    <p>Transformer 每一层的核心是注意力。每个位置的 token 在这一层会算出三个向量：<span class="term">Query</span>、<span class="term">Key</span>、<span class="term">Value</span>。位置 i 的输出，是拿它的 Query 和各个位置的 Key 做点积得到一组权重，再用这组权重对各位置的 Value 加权求和。</p>
+    <p>生成式模型有一条硬规则，叫<span class="term">因果掩码</span>（causal mask）：位置 i 只能看到 i 自己和它前面的位置。由此得到一个关键推论：<strong>前面位置的 Key 和 Value 不受后面 token 的影响</strong>。序列再往后接多少 token，它们的值都不变。</p>
+    <p>既然不变，就没必要每一步重算。把每一层、每个位置的 K 和 V 存起来，这就是 <span class="term">KV cache</span>。新 token 进来时只算它自己的 Q、K、V，再用 Q 去读缓存里所有位置的 K、V。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 2</span><h3>有无 KV cache 时，每一步实际计算了什么</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="是否使用 KV cache">
+        <button id="kv-mode-cache" aria-pressed="true">有 KV cache</button>
+        <button id="kv-mode-nocache" aria-pressed="false">无 KV cache</button>
+      </div>
+      <div class="btns">
+        <button id="kv-reset">重置</button>
+        <button id="kv-prev">◀ 上一步</button>
+        <button id="kv-next">下一步 ▶</button>
+        <span class="stepno" id="kv-stepno"></span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="tokens" id="kv-tokens" aria-label="当前序列"></div>
+      <div class="legend">
+        <span><span class="tok is-fed" style="font-size:12px">粗框</span>本步送进模型</span>
+        <span><span class="tok is-new" style="font-size:12px">虚线</span>本步刚采样出，还没进过模型</span>
+      </div>
+    </div>
+    <div class="kv-layout">
+      <div>
+        <div id="kv-grid" style="color:var(--ink)"></div>
+      </div>
+      <div class="stack" style="gap:16px">
+        <p class="narr" id="kv-narr" aria-live="polite" style="margin:0"></p>
+        <div class="scroll-x">
+          <table id="kv-table">
+            <thead><tr><th></th><th id="kv-th-cache">有 KV cache</th><th id="kv-th-nocache">无 KV cache</th></tr></thead>
+            <tbody>
+              <tr><td>本步送进模型的 token</td><td id="kv-a1"></td><td id="kv-b1"></td></tr>
+              <tr><td>累计 token 前向次数</td><td id="kv-a2"></td><td id="kv-b2"></td></tr>
+              <tr><td>本步注意力打分次数</td><td id="kv-a3"></td><td id="kv-b3"></td></tr>
+              <tr><td>累计注意力打分次数</td><td id="kv-a4"></td><td id="kv-b4"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="legend">
+          <span><i class="sw sw-prefill"></i>本步计算（prefill）</span>
+          <span><i class="sw sw-decode"></i>本步计算（decode）</span>
+          <span><i class="sw sw-old"></i>之前算过，本步不碰</span>
+          <span><i class="sw sw-cache"></i>K、V 存在缓存里</span>
+        </div>
+      </div>
+    </div>
+    <figcaption>方格第 i 行第 j 列表示「位置 i 的 Query 对位置 j 的 Key 打分」。右上三角被因果掩码挡住，永远不算。表格里的次数是单层的，真实模型每个 token 要过全部 L 层，所以都要再乘以 L。token 切分是示意，真实分词器的切法不同。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>图里只有 11 个 token，差距还不明显。换成 2000 token 的 prompt 加 500 token 的输出：有缓存时模型总共处理 2500 个 token；无缓存时是 2000 + 2001 + … + 2499，约 112 万个，相差约 450 倍。所以没有任何一个实用的推理引擎不带 KV cache，它是默认前提。</p>
+    <p>注意图 2 里第一步和后面各步的颜色不同。第一步一次处理整段 prompt，叫 <span class="term">prefill</span>；之后每步只处理一个 token，叫 <span class="term">decode</span>。这两个阶段的性质差别很大，第 4 节细讲。</p>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>有了 KV cache，decode 每一步的耗时还会随序列变长而增加吗？</summary>
+    <div class="ans">
+      <p>会，但增长很慢。新 token 的 Query 要和缓存里全部 t 个位置的 Key 打分，这部分随 t 线性增长（图 2 里橙色的那一行越来越长）。</p>
+      <p>而每层里的 MLP 和各种投影只针对这 1 个 token，与 t 无关，并且在常见长度下占大头。所以每步耗时近似常数，到上下文有几万 token 时，读缓存的开销才变得明显。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">3 · 代价是显存</div>
+    <h2>KV cache 用显存换计算，而显存是有限的</h2>
+    <p>缓存要占地方。每个 token 在每一层都要存一份 K 和一份 V：</p>
+    <div class="formula">每 token 的 KV 字节数 = 2 × 层数 × KV 头数 × 每头维度 × 每个数的字节数
+
+Llama-3.1-8B (fp16)    = 2 × 32 × 8 × 128 × 2 B = 131,072 B = 128 KiB</div>
+    <p>每个 token 128 KiB，8K 上下文的一条序列就是 1 GB。公式里的「KV 头数」值得留意：早期模型每个注意力头各有一组 K、V（Llama-2-7B 是 32 组）；现在的主流模型用 <span class="term">GQA</span>（grouped-query attention），让多个 Query 头共用一组 K、V（Llama-3.1-8B 是 32 个 Query 头共用 8 组），KV cache 直接缩小到四分之一。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 3</span><h3>一块 GPU 能同时放下多少条序列</h3></div>
+    <div class="controls">
+      <label class="ctl" for="mem-model">模型（fp16 权重）
+        <select id="mem-model"></select>
+      </label>
+      <label class="ctl" for="mem-gpu">GPU 显存
+        <select id="mem-gpu"><option value="24">24 GB</option><option value="48" selected>48 GB</option><option value="80">80 GB</option></select>
+      </label>
+      <label class="ctl" for="mem-ctx"><span class="row">每条序列的长度 <output id="mem-ctx-o"></output></span>
+        <input type="range" id="mem-ctx" min="0" max="7" step="1" value="3">
+      </label>
+      <label class="ctl" for="mem-conc"><span class="row">同时在跑的序列数 <output id="mem-conc-o"></output></span>
+        <input type="range" id="mem-conc" min="1" max="64" step="1" value="16">
+      </label>
+    </div>
+    <div class="stack">
+      <div class="bar" id="mem-bar" role="img" aria-label="显存占用条"></div>
+      <div class="bar-label"><span>0</span><span id="mem-cap"></span></div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-weights"></i>模型权重</span>
+      <span><i class="sw sw-cache"></i>KV cache</span>
+      <span><i class="sw sw-old"></i>还能用</span>
+      <span><i class="sw sw-reserve"></i>预留 10%</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>每 token 的 KV</span><b id="mem-s1"></b><small id="mem-s1b"></small></div>
+      <div class="stat"><span>每条序列的 KV</span><b id="mem-s2"></b></div>
+      <div class="stat"><span>全部序列合计</span><b id="mem-s3"></b></div>
+      <div class="stat"><span>这个长度下最多放</span><b id="mem-s4"></b></div>
+    </div>
+    <div class="status" id="mem-status" aria-live="polite"></div>
+    <figcaption>估算口径：可用显存按总量的 90% 计（vLLM 的 <code>--gpu-memory-utilization</code> 默认 0.9，启动时一次性预留，权重之外的部分基本都划给 KV cache 池）；GB 按 1024³ 字节；没算中间激活值等其他开销，实际能放的会再少一点。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>权重放进去之后，剩下的显存几乎全是 KV cache 的地盘。「并发数 × 上下文长度」被这块空间卡死，它直接决定一台机器能同时服务多少请求。把模型切到 Llama-2-7B 可以看到没有 GQA 时这个上限缩水多少。</p>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>为什么不给每个请求按「最大上下文长度」预留一整块连续的 KV 空间？</summary>
+    <div class="ans">
+      <p>因为请求最终会生成多长，事先不知道，而大多数请求远远用不满上限。按上限预留，大部分空间是空的，能同时服务的请求数被白白压低。</p>
+      <p>vLLM 论文测过当时的系统：KV 显存里真正存着 token 状态的只有 20%–38%。解决办法是像操作系统管内存那样分页、按需分配，这就是 PagedAttention，第 2 课的内容。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">4 · 两种负载</div>
+    <h2>Prefill 吃算力，decode 吃带宽</h2>
+    <p><strong>Prefill</strong> 把 prompt 的所有 token 放在一次 forward 里并行算。矩阵很大，GPU 的算力被吃满，耗时大致随 prompt 长度线性增长。它结束时产出第一个输出 token。</p>
+    <p><strong>Decode</strong> 每步只算 1 个 token，计算量很小，但仍然要把全部权重从显存里读一遍。瓶颈变成了显存带宽，GPU 的算力大量闲着。8B 模型的 fp16 权重约 16 GB，高端 GPU 的显存带宽在每秒 2–3 TB 的量级，光读一遍就要 5–8 ms，这是单个请求 decode 每步耗时的下限量级。</p>
+    <p>衡量一个请求快慢的指标，就对应这两个阶段：</p>
+    <dl class="defs">
+      <dt>TTFT</dt><dd>Time To First Token。从请求到达到第一个 token 返回，等于排队时间加 prefill 时间。用户感受到的「反应快不快」。</dd>
+      <dt>TPOT / ITL</dt><dd>Time Per Output Token / Inter-Token Latency。相邻两个输出 token 的间隔。用户感受到的「吐字快不快」。TPOT 一般指平均值，ITL 指每一个间隔。</dd>
+      <dt>E2E 延迟</dt><dd>端到端耗时 ≈ TTFT + (输出 token 数 − 1) × TPOT。</dd>
+      <dt>吞吐</dt><dd>整个服务每秒产出的 token 数（所有请求加起来）。运营方关心的成本指标，和上面三个用户侧指标经常要互相交换。</dd>
+    </dl>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 4</span><h3>不同类型的请求，时间花在哪</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="请求类型预设">
+        <button id="rq-p-chat" aria-pressed="false">聊天</button>
+        <button id="rq-p-rag" aria-pressed="false">RAG 问答</button>
+        <button id="rq-p-agent" aria-pressed="true">Agent 的一步</button>
+        <button id="rq-p-long" aria-pressed="false">长文生成</button>
+      </div>
+    </div>
+    <div class="controls">
+      <label class="ctl" for="rq-in"><span class="row">输入 token <output id="rq-in-o"></output></span>
+        <input type="range" id="rq-in" min="0" max="100" step="1" value="87">
+      </label>
+      <label class="ctl" for="rq-out"><span class="row">输出 token <output id="rq-out-o"></output></span>
+        <input type="range" id="rq-out" min="10" max="4000" step="10" value="150">
+      </label>
+      <label class="ctl" for="rq-hit"><span class="row">输入里命中前缀缓存的比例 <output id="rq-hit-o"></output></span>
+        <input type="range" id="rq-hit" min="0" max="100" step="5" value="0">
+      </label>
+    </div>
+    <div class="pair">
+      <div class="stack">
+        <div class="note">时间</div>
+        <div class="bar" id="rq-tbar" role="img" aria-label="时间构成"></div>
+        <div class="legend"><span><i class="sw sw-prefill"></i>prefill <b id="rq-t1" style="font-family:var(--font-mono);font-weight:500"></b></span><span><i class="sw sw-decode"></i>decode <b id="rq-t2" style="font-family:var(--font-mono);font-weight:500"></b></span></div>
+      </div>
+      <div class="stack">
+        <div class="note">Token</div>
+        <div class="bar" id="rq-kbar" role="img" aria-label="token 构成"></div>
+        <div class="legend"><span><i class="sw sw-cache"></i>输入 · 命中缓存，跳过计算</span><span><i class="sw sw-prefill"></i>输入 · 需要 prefill</span><span><i class="sw sw-decode"></i>输出</span></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>TTFT</span><b id="rq-s1"></b></div>
+      <div class="stat"><span>TPOT</span><b id="rq-s2"></b></div>
+      <div class="stat"><span>端到端</span><b id="rq-s3"></b></div>
+      <div class="stat"><span>prefill 占总时间</span><b id="rq-s4"></b></div>
+      <div class="stat"><span>输入 : 输出</span><b id="rq-s5"></b></div>
+    </div>
+    <figcaption>单个请求独占 GPU 时的示意。成本模型：每次 forward 固定开销 20 ms，prefill 每个 token 0.1 ms，decode 每步每条序列 0.4 ms。本页后面的图都用这同一组数。</figcaption>
+  </figure>
+
+  <div class="callout">
+    <b>和 Agent 的关系。</b>Agent 每走一步，都把越来越长的历史（系统提示、工具定义、之前所有的调用和结果）整段重发，而输出常常只是一个简短的工具调用，输入输出比经常超过 100 : 1。时间和成本都压在 prefill 上。把「Agent 的一步」预设的缓存命中比例拖到 95% 看看 TTFT 的变化：让相邻两步共享前缀的 KV cache，是这类负载下最重要的一项优化。本页讲的 KV cache 只在一个请求内部复用，跨请求复用是第 3 课的前缀缓存。
+  </div>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">5 · 为什么要攒批</div>
+    <h2>Decode 时多带几条序列，几乎不要钱</h2>
+    <p>上一节说 decode 每步的大头是「把权重读一遍」。这次读取可以被很多条序列共用：一个 batch 里放 B 条序列，权重还是只读一遍，每条序列各自多出的计算很少。所以 batch 从 1 加到几十，每步耗时只涨一点，总吞吐接近成倍增长。继续加大，每条序列自己的计算和读 KV cache 的开销逐渐成为主导，收益开始递减。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 5</span><h3>Batch 大小对吞吐和单请求速度的影响</h3></div>
+    <div class="controls">
+      <label class="ctl" for="bt-b" style="max-width:420px"><span class="row">同一个 batch 里的序列数 B <output id="bt-b-o"></output></span>
+        <input type="range" id="bt-b" min="1" max="128" step="1" value="32">
+      </label>
+    </div>
+    <div class="pair">
+      <div class="stack"><div class="note">总吞吐（token / 秒）</div><div id="bt-c1" style="color:var(--ink)"></div></div>
+      <div class="stack"><div class="note">每个请求看到的 TPOT（ms）</div><div id="bt-c2" style="color:var(--ink)"></div></div>
+    </div>
+    <div class="status" id="bt-status" aria-live="polite"></div>
+    <figcaption>吞吐和单请求延迟是一对交换。引擎里限制并发序列数的参数（vLLM 的 <code>--max-num-seqs</code>，SGLang 的 <code>--max-running-requests</code>）就是在这条曲线上选一个点。</figcaption>
+  </figure>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">6 · 调度的粒度</div>
+    <h2>从「一批请求」到「一轮迭代」</h2>
+    <p>攒批划算，问题是怎么攒。请求不会整整齐齐同时到达，每条要生成多长也各不相同。</p>
+    <p><strong>静态批处理</strong>是传统模型服务的做法：等凑够一批，或者等到超时，一起送进 GPU，一起跑到最长的那条结束，再接下一批。放到 LLM 上有三个问题：短请求早早结束，它的槽位却要空转到整批结束；新来的请求必须等当前这批跑完；请求稀疏时，凑批本身就在浪费时间。</p>
+    <p><strong>Continuous batching</strong>（也叫 iteration-level scheduling，出自 Orca 论文）把调度的粒度从「一个请求」缩小到「一次 forward」。每一轮迭代开始前，调度器重新决定这一轮的 batch 里有谁：结束的请求立刻离开，排队的请求立刻补进来。</p>
+    <p>它带来一个新问题。一个长 prompt 的 prefill 混进 batch，这一轮迭代就会变得很长，同一个 batch 里正在 decode 的请求全都跟着卡一下。解法是 <strong>chunked prefill</strong>：给每轮迭代设一个 token 预算，decode 请求优先占用（每条只占 1 个），剩下的预算才分给 prefill，长 prompt 被切成几轮做完。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 6</span><h3>同一组请求，三种调度方式</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="调度方式">
+        <button id="sim-m-static" aria-pressed="false">静态批处理</button>
+        <button id="sim-m-cont" aria-pressed="true">Continuous batching</button>
+        <button id="sim-m-chunk" aria-pressed="false">+ chunked prefill</button>
+      </div>
+      <button id="sim-reseed">换一组请求</button>
+    </div>
+    <div class="controls">
+      <label class="ctl" for="sim-b"><span class="row">并发槽位 <output id="sim-b-o"></output></span>
+        <input type="range" id="sim-b" min="2" max="8" step="1" value="4"><small>max_num_seqs</small>
+      </label>
+      <label class="ctl" for="sim-gap"><span class="row">平均到达间隔 <output id="sim-gap-o"></output></span>
+        <input type="range" id="sim-gap" min="20" max="400" step="10" value="120"><small>越小负载越重</small>
+      </label>
+      <label class="ctl" for="sim-budget"><span class="row">每轮 token 预算 <output id="sim-budget-o"></output></span>
+        <input type="range" id="sim-budget" min="128" max="2048" step="64" value="512"><small>max_num_batched_tokens · 仅 chunked 模式</small>
+      </label>
+    </div>
+    <div class="scroll-x"><div id="sim-svg" style="min-width:760px;color:var(--ink)"></div></div>
+    <div class="legend">
+      <span><i class="sw sw-prefill"></i>prefill</span>
+      <span><i class="sw sw-decode"></i>decode（每格产出 1 个 token）</span>
+      <span><i class="sw sw-idle"></i>空转：占着槽位但没在干活</span>
+      <span><i class="sw sw-queue"></i>排队等待</span>
+      <span><i class="sw sw-dot"></i>请求到达</span>
+    </div>
+    <div class="btns">
+      <button id="sim-first">⏮ 从头</button>
+      <button id="sim-prev">◀ 上一轮</button>
+      <button id="sim-next">下一轮 ▶</button>
+      <button id="sim-play">▶ 播放</button>
+      <input type="range" id="sim-scrub" class="scrub" min="0" max="1" step="1" value="1" aria-label="迭代进度">
+      <button id="sim-last">全部 ⏭</button>
+    </div>
+    <div class="detail" id="sim-detail" aria-live="polite"></div>
+    <div class="scroll-x">
+      <table id="sim-table">
+        <thead><tr><th>同一组请求</th><th>平均 TTFT</th><th>最差 TTFT</th><th>最长 token 间隔</th><th>平均端到端</th><th>全部完成</th><th>吞吐</th><th>空转格数</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <figcaption>每一行是一个请求，横轴是时间，每个小格是一轮迭代，格子的宽度就是这轮迭代的耗时。行首的数字是「输入 token / 输出 token」，为了能在一屏里看清，输出长度比真实请求短得多。三种方式共用一个时间刻度，可以直接比长短。鼠标悬停在格子上能看到这一格的细节。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>几个值得自己动手验证的现象：</p>
+    <ul>
+      <li>在 Continuous 模式下找一个输入 1500 以上的请求，看它 prefill 那一轮：同一列里其他请求的橙色格子被拉得很宽，这就是 prefill 对 decode 的干扰。切到 chunked 模式，宽格子变成几个中等宽度的格子。</li>
+      <li>静态模式下，条纹格子是纯浪费。把并发槽位调大，浪费通常会更多，因为一批里长短差异更大。</li>
+      <li>把 token 预算从 128 拖到 2048，观察表格里「最长 token 间隔」和「平均 TTFT」朝相反方向变化。</li>
+    </ul>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>把到达间隔拖到 300 ms 以上（请求很稀疏），静态批处理的 TTFT 和 Continuous 相比差距变大还是变小？</summary>
+    <div class="ans">
+      <p>静态批处理仍然明显更差，而且原因变了。请求稀疏时凑不满一批，每个请求都要等到超时（这里设的是 100 ms）才开跑；如果到达时前一批还没结束，还要再等它跑完。</p>
+      <p>Continuous 模式下，只要槽位有空，请求到达后等当前这一轮迭代结束（20 ms 左右）就能进 batch。</p>
+    </div>
+  </details>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>开启 chunked prefill 后，谁受益，谁受损？</summary>
+    <div class="ans">
+      <p>正在 decode 的请求受益。它们的最长 token 间隔从「一整段 prefill 的时长」降到「一个 chunk 的时长」，输出更平滑。</p>
+      <p>长 prompt 自己受损。prefill 被切成多轮，每轮都要多付一次固定开销，TTFT 变晚。vLLM 文档对这个旋钮的描述也是如此：预算小，ITL 好；预算大，TTFT 好；追求吞吐时建议设到 8192 以上。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 7 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">7 · 对应到真实系统</div>
+    <h2>这些概念在 vLLM 和 SGLang 里叫什么</h2>
+    <p>图 6 的模拟器是按 vLLM 的方式写的：prefill 和 decode 混在同一个 batch 里做一次 forward。两个引擎的调度循环结构不完全一样，读源码时可以从下面的入口开始。两个项目迭代很快，文件和参数以当前 main 分支为准。</p>
+  </div>
+  <div class="sys">
+    <div>
+      <h3>vLLM</h3>
+      <ul>
+        <li>调度入口是 <code>vllm/v1/core/sched/scheduler.py</code> 里的 <code>Scheduler.schedule()</code>，每调用一次，决定一轮迭代的内容。</li>
+        <li>先安排所有正在 decode 的请求，预算有剩才安排 prefill。预算是 <code>--max-num-batched-tokens</code>，并发上限是 <code>--max-num-seqs</code>。</li>
+        <li>当前版本（V1 引擎）默认启用 chunked prefill。</li>
+        <li>KV 显存不够时会抢占：把某个请求踢出去，默认做法是丢掉它的 KV cache，之后重新计算（<code>RECOMPUTE</code>）。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>SGLang</h3>
+      <ul>
+        <li>调度入口是 <code>python/sglang/srt/managers/scheduler.py</code> 里的 <code>get_next_batch_to_run()</code>。</li>
+        <li>prefill batch 和 decode batch 是分开的两次 forward：每轮先尝试从等待队列里组一个新的 prefill batch（逻辑在 <code>schedule_policy.py</code> 的 <code>PrefillAdder</code>），跑完后并入正在 decode 的 batch；没有新请求时就对现有 batch 跑一步 decode。</li>
+        <li>相关参数：<code>--max-running-requests</code>、<code>--chunked-prefill-size</code>、<code>--max-prefill-tokens</code>、<code>--mem-fraction-static</code>。</li>
+        <li>等待队列的排序策略可选（<code>--schedule-policy</code>）：当前默认是先来先服务，也可以选按「和缓存的最长公共前缀」排序的 <code>lpm</code>，第 3 课会讲。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="prose">
+    <h3>原始论文</h3>
+    <ul>
+      <li>Yu et al., <em>Orca: A Distributed Serving System for Transformer-Based Generative Models</em>, OSDI 2022。iteration-level scheduling 的出处。</li>
+      <li>Kwon et al., <em>Efficient Memory Management for Large Language Model Serving with PagedAttention</em>, SOSP 2023。vLLM 的论文，前两节把本页的背景讲得很清楚。</li>
+      <li>Zheng et al., <em>SGLang: Efficient Execution of Structured Language Model Programs</em>, NeurIPS 2024。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────────────────── roadmap ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">路线图</div>
+    <h2>接下来的八课</h2>
+  </div>
+  <ol class="road">
+    <li class="here"><span>01</span><div>推理基础与 continuous batching<em>本页</em></div></li>
+    <li><span>02</span><div>显存管理：PagedAttention<em>KV cache 怎么分页，碎片怎么消除，抢占时发生什么</em></div></li>
+    <li><span>03</span><div>前缀缓存<em>vLLM 的 block hash 与 SGLang 的 RadixAttention，缓存感知的调度</em></div></li>
+    <li><span>04</span><div>引擎架构<em>一个请求从 HTTP 到 token 流出，在两个引擎里各经过哪些进程和队列</em></div></li>
+    <li><span>05</span><div>结构化输出与工具调用<em>语法约束如何变成 logit mask，开销在哪</em></div></li>
+    <li><span>06</span><div>加速手段<em>量化、speculative decoding、编译与算子优化各自省在哪</em></div></li>
+    <li><span>07</span><div>分布式部署<em>多卡并行、prefill/decode 分离、缓存感知路由、多 LoRA</em></div></li>
+    <li><span>08</span><div>Agent 负载对推理 infra 的新要求<em>长前缀多轮次、工具调用间隙的缓存保留、子 agent 并发、按任务而非按请求度量</em></div></li>
+    <li><span>09</span><div>压测与实操<em>在真实 GPU 上跑一次，读懂延迟和吞吐曲线</em></div></li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtInt=n=>Math.round(n).toLocaleString('en-US');
+const fmtMs=v=>v>=1000?(v/1000).toFixed(2)+' s':Math.round(v)+' ms';
+const fmtGB=v=>(v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2))+' GB';
+function press(ids,on){ids.forEach(id=>$(id).setAttribute('aria-pressed',id===on?'true':'false'));}
+
+/*SIM-START*/
+const COST={base:20,perPrefillTok:0.1,perSeq:0.4};
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function makeWorkload(seed,n){
+  const r=mulberry32(seed),reqs=[];
+  for(let i=0;i<n;i++){
+    const gapUnit=i===0?0:Math.min(3,-Math.log(1-r()));
+    const long=r()<0.3;
+    const prompt=long?1500+Math.round(r()*15)*100:100+Math.round(r()*10)*50;
+    const out=4+Math.round(r()*26);
+    reqs.push({id:i+1,gapUnit,prompt,out});
+  }
+  return reqs;
+}
+function withArrivals(base,meanGap){let t=0;return base.map(r=>{t+=r.gapUnit*meanGap;return {id:r.id,prompt:r.prompt,out:r.out,arrival:Math.round(t)};});}
+function simContinuous(reqs,B,budget){
+  const st=reqs.map(r=>({...r,done:0,gen:0,tokTimes:[],admit:null,finish:null}));
+  const waiting=[],iters=[];let running=[],next=0,t=0;
+  while(next<st.length||waiting.length||running.length){
+    while(next<st.length&&st[next].arrival<=t+1e-9)waiting.push(st[next++]);
+    if(!running.length&&!waiting.length){t=st[next].arrival;continue;}
+    const decs=running.filter(r=>r.done>=r.prompt);
+    let left=budget-decs.length;const pres=[];
+    for(const r of running)if(r.done<r.prompt&&left>0){const take=Math.min(r.prompt-r.done,left);pres.push([r,take]);left-=take;}
+    while(running.length<B&&waiting.length&&left>0){const r=waiting.shift();r.admit=t;running.push(r);const take=Math.min(r.prompt,left);pres.push([r,take]);left-=take;}
+    let preTok=0;pres.forEach(p=>preTok+=p[1]);
+    const dur=COST.base+COST.perPrefillTok*preTok+COST.perSeq*decs.length,end=t+dur,items=[];
+    for(const r of decs){r.gen++;r.tokTimes.push(end);items.push({id:r.id,kind:'decode',gen:r.gen,out:r.out});}
+    for(const [r,take] of pres){r.done+=take;const first=r.done>=r.prompt;if(first){r.gen=1;r.tokTimes.push(end);}items.push({id:r.id,kind:'prefill',tok:take,done:r.done,prompt:r.prompt,first});}
+    iters.push({start:t,dur,end,items,queue:waiting.map(r=>r.id)});
+    running=running.filter(r=>{if(r.gen>=r.out){r.finish=end;return false;}return true;});
+    t=end;
+  }
+  return {iters,reqs:st,end:t};
+}
+function simStatic(reqs,B,timeout){
+  const st=reqs.map(r=>({...r,gen:0,tokTimes:[],admit:null,finish:null}));
+  const waiting=[],iters=[];let next=0,t=0;
+  const pull=()=>{while(next<st.length&&st[next].arrival<=t+1e-9)waiting.push(st[next++]);};
+  while(next<st.length||waiting.length){
+    pull();
+    if(!waiting.length){t=st[next].arrival;continue;}
+    const deadline=waiting[0].arrival+timeout;
+    if(waiting.length<B&&t<deadline-1e-9){t=Math.min(deadline,next<st.length?st[next].arrival:deadline);continue;}
+    const batch=waiting.splice(0,B);let sum=0;
+    batch.forEach(r=>{r.admit=t;sum+=r.prompt;});
+    let dur=COST.base+COST.perPrefillTok*sum,end=t+dur;
+    iters.push({start:t,dur,end,items:batch.map(r=>({id:r.id,kind:'prefill',tok:r.prompt,done:r.prompt,prompt:r.prompt,first:true})),queue:waiting.map(r=>r.id)});
+    batch.forEach(r=>{r.gen=1;r.tokTimes.push(end);});
+    t=end;
+    const maxOut=Math.max(...batch.map(r=>r.out));
+    for(let k=2;k<=maxOut;k++){
+      pull();
+      dur=COST.base+COST.perSeq*batch.length;end=t+dur;
+      const items=batch.map(r=>{if(r.gen<r.out){r.gen++;r.tokTimes.push(end);if(r.gen>=r.out)r.finish=end;return {id:r.id,kind:'decode',gen:r.gen,out:r.out};}return {id:r.id,kind:'idle'};});
+      iters.push({start:t,dur,end,items,queue:waiting.map(r=>r.id)});
+      t=end;
+    }
+  }
+  return {iters,reqs:st,end:t};
+}
+function metrics(sim){
+  let ttft=0,maxTtft=0,e2e=0,maxGap=0,outTok=0,idle=0,lastFinish=0;
+  for(const r of sim.reqs){
+    const f=r.tokTimes[0]-r.arrival;ttft+=f;maxTtft=Math.max(maxTtft,f);
+    e2e+=r.finish-r.arrival;outTok+=r.out;lastFinish=Math.max(lastFinish,r.finish);
+    for(let i=1;i<r.tokTimes.length;i++)maxGap=Math.max(maxGap,r.tokTimes[i]-r.tokTimes[i-1]);
+  }
+  for(const it of sim.iters)for(const x of it.items)if(x.kind==='idle')idle++;
+  const n=sim.reqs.length;
+  return {ttft:ttft/n,maxTtft,e2e:e2e/n,maxGap,makespan:lastFinish,tput:outTok/lastFinish*1000,idle};
+}
+/*SIM-END*/
+
+/* ───────────── Fig 2: KV cache stepper ───────────── */
+const P=['法国','的','首都','是'],G=['巴黎','，','一座','浪漫','的','城市','。','<EOS>'];
+const NSEQ=P.length+G.length-1,LAST=G.length-1;
+const tri=n=>n*(n+1)/2;
+const KV={mode:'cache',s:3};
+function kvStats(mode,s){
+  const T=4+s;
+  if(mode==='cache')return {fed:s===0?4:1,cumFed:T,pairs:s===0?tri(4):T,cumPairs:tri(T)};
+  let cf=0,cp=0;for(let i=0;i<=s;i++){cf+=4+i;cp+=tri(4+i);}
+  return {fed:T,cumFed:cf,pairs:tri(T),cumPairs:cp};
+}
+function renderKV(){
+  const s=KV.s,T=4+s,cache=KV.mode==='cache';
+  const tokAt=i=>i<4?P[i]:G[i-4];
+  const fed=i=>cache?(s===0?i<4:i===3+s):i<T;
+  // token strip
+  let h='';
+  for(let i=0;i<=T;i++){
+    if(i===4)h+='<span class="tok-sep" aria-hidden="true"></span>';
+    const cls=i===T?'tok is-new':fed(i)?'tok is-fed':'tok';
+    h+='<span class="'+cls+'">'+esc(tokAt(i))+'</span>';
+  }
+  $('kv-tokens').innerHTML=h;
+  // grid
+  const x0=58,y0=40,c=30,n=NSEQ,W=x0+n*c+12,H=y0+n*c+48;
+  let g='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="注意力打分方格，第 '+(s+1)+' 步">';
+  g+='<text x="'+(x0+n*c)+'" y="14" text-anchor="end" font-size="11" opacity=".65">被读取的位置（Key / Value）→</text>';
+  for(let j=0;j<n;j++)g+='<text x="'+(x0+j*c+c/2)+'" y="'+(y0-7)+'" text-anchor="middle" font-size="11" opacity="'+(j<T?1:.35)+'">'+esc(tokAt(j))+'</text>';
+  for(let i=0;i<n;i++){
+    g+='<text x="'+(x0-8)+'" y="'+(y0+i*c+19)+'" text-anchor="end" font-size="11" opacity="'+(i<T?1:.35)+'">'+esc(tokAt(i))+'</text>';
+    for(let j=0;j<=i;j++){
+      let cls='c-empty';
+      if(i<T)cls=fed(i)?(s===0?'c-prefill':'c-decode'):'c-old';
+      g+='<rect class="'+cls+'" x="'+(x0+j*c+1)+'" y="'+(y0+i*c+1)+'" width="'+(c-2)+'" height="'+(c-2)+'" rx="3"/>';
+    }
+  }
+  g+='<text x="'+(x0+n*c-4)+'" y="'+(y0+52)+'" text-anchor="end" font-size="11" opacity=".65">因果掩码：这片区域永远不计算</text>';
+  const ky=y0+n*c+14;
+  g+='<text x="'+(x0-8)+'" y="'+(ky+14)+'" text-anchor="end" font-size="11" class="mono">KV</text>';
+  for(let j=0;j<n;j++){
+    let cls='c-kvempty';
+    if(cache&&j<T)cls=fed(j)?'c-cache c-ring':'c-cache';
+    g+='<rect class="'+cls+'" x="'+(x0+j*c+2)+'" y="'+ky+'" width="'+(c-4)+'" height="20" rx="3"/>';
+  }
+  g+='</svg>';
+  $('kv-grid').innerHTML=g;
+  // narration
+  const outTok='「'+esc(G[s])+'」',end=s===LAST?' 采样出结束符，生成完成。':'';
+  let t;
+  if(s===0){
+    t='<strong>Prefill。</strong>4 个 prompt token 一次并行送进模型，算出左上角 10 个打分。只取最后一个位置的 logits，采样出'+outTok+'。'+
+      (cache?'每层为这 4 个位置算出的 K、V 写进缓存（下方绿色，粗框是本步新写入的）。':'没有缓存，这 4 个位置的 K、V 用完就丢。');
+  }else if(cache){
+    t='<strong>Decode 第 '+s+' 步。</strong>只把上一步采样出的「'+esc(tokAt(3+s))+'」送进模型。它的 Query 读缓存里前 '+(T-1)+' 个位置的 K、V，再加上自己，共 '+T+' 次打分（橙色这一行）。它自己的 K、V 追加进缓存，输出'+outTok+'。'+end;
+  }else{
+    t='<strong>Decode 第 '+s+' 步。</strong>没有缓存，只能把全部 '+T+' 个 token 重新送进模型，整个三角 '+tri(T)+' 次打分全部重算。其中前 '+(T-1)+' 行的结果和上一步一模一样，纯属重复。输出'+outTok+'。'+end;
+  }
+  $('kv-narr').innerHTML=t;
+  const a=kvStats('cache',s),b=kvStats('nocache',s);
+  $('kv-a1').textContent=a.fed;$('kv-b1').textContent=b.fed;
+  $('kv-a2').textContent=a.cumFed;$('kv-b2').textContent=b.cumFed;
+  $('kv-a3').textContent=a.pairs;$('kv-b3').textContent=b.pairs;
+  $('kv-a4').textContent=a.cumPairs;$('kv-b4').textContent=b.cumPairs;
+  ['a','b'].forEach(k=>{const on=(k==='a')===cache;for(let i=1;i<=4;i++)$('kv-'+k+i).classList.toggle('is-on',on);});
+  $('kv-th-cache').classList.toggle('is-on',cache);$('kv-th-nocache').classList.toggle('is-on',!cache);
+  $('kv-stepno').textContent='第 '+(s+1)+' / '+(LAST+1)+' 步';
+  $('kv-prev').disabled=s===0;$('kv-next').disabled=s===LAST;
+  press(['kv-mode-cache','kv-mode-nocache'],'kv-mode-'+KV.mode);
+}
+$('kv-mode-cache').onclick=()=>{KV.mode='cache';renderKV();};
+$('kv-mode-nocache').onclick=()=>{KV.mode='nocache';renderKV();};
+$('kv-prev').onclick=()=>{if(KV.s>0){KV.s--;renderKV();}};
+$('kv-next').onclick=()=>{if(KV.s<LAST){KV.s++;renderKV();}};
+$('kv-reset').onclick=()=>{KV.s=0;renderKV();};
+
+/* ───────────── Fig 3: KV memory ───────────── */
+const MODELS=[
+  {id:'llama31-8b',name:'Llama-3.1-8B',L:32,kvh:8,qh:32,hd:128,params:8.03e9},
+  {id:'llama2-7b',name:'Llama-2-7B（无 GQA）',L:32,kvh:32,qh:32,hd:128,params:6.74e9},
+  {id:'qwen25-7b',name:'Qwen2.5-7B',L:28,kvh:4,qh:28,hd:128,params:7.62e9},
+  {id:'qwen25-32b',name:'Qwen2.5-32B',L:64,kvh:8,qh:40,hd:128,params:32.8e9}
+];
+const CTX=[1,2,4,8,16,32,64,128],GIB=1073741824;
+$('mem-model').innerHTML=MODELS.map(m=>'<option value="'+m.id+'">'+esc(m.name)+'</option>').join('');
+function renderMem(){
+  const m=MODELS.find(x=>x.id===$('mem-model').value)||MODELS[0];
+  const gpu=+$('mem-gpu').value,ctxK=CTX[+$('mem-ctx').value],conc=+$('mem-conc').value;
+  const perTok=2*m.L*m.kvh*m.hd*2,perSeq=perTok*ctxK*1024/GIB,total=perSeq*conc;
+  const weights=m.params*2/GIB,usable=gpu*0.9,room=usable-weights;
+  const maxSeq=room>0?Math.floor(room/perSeq):0;
+  $('mem-ctx-o').textContent=ctxK+'K token';$('mem-conc-o').textContent=conc+' 条';
+  $('mem-cap').textContent=gpu+' GB';
+  $('mem-s1').textContent=(perTok/1024)+' KiB';
+  $('mem-s1b').textContent='2×'+m.L+'×'+m.kvh+'×'+m.hd+'×2 B';
+  $('mem-s2').textContent=fmtGB(perSeq);$('mem-s3').textContent=fmtGB(total);
+  $('mem-s4').textContent=maxSeq+' 条';
+  const wShow=Math.min(weights,usable),kvShow=Math.max(0,Math.min(total,room)),free=Math.max(0,room-kvShow);
+  const pct=v=>'calc('+(v/gpu*100).toFixed(3)+'% - 2px)';
+  $('mem-bar').innerHTML=
+    '<div class="b-weights" style="width:'+pct(wShow)+'" title="模型权重 '+fmtGB(weights)+'"></div>'+
+    (kvShow>0?'<div class="b-kv" style="width:'+pct(kvShow)+'" title="KV cache '+fmtGB(kvShow)+'"></div>':'')+
+    (free>0?'<div class="b-free" style="width:'+pct(free)+'" title="还能用 '+fmtGB(free)+'"></div>':'')+
+    '<div class="b-reserve" style="flex:1 1 0" title="预留 '+fmtGB(gpu*0.1)+'"></div>';
+  const st=$('mem-status');
+  if(room<=0){st.className='status bad';st.textContent='✕ 放不下：光是权重就要 '+fmtGB(weights)+'，超过了可用的 '+fmtGB(usable)+'。需要更大的 GPU、多卡或者量化。';}
+  else if(total>room){st.className='status bad';st.textContent='✕ 放不下：KV cache 需要 '+fmtGB(total)+'，权重之外只剩 '+fmtGB(room)+'，超出 '+fmtGB(total-room)+'。这个长度下最多 '+maxSeq+' 条。';}
+  else{st.className='status';st.textContent='✓ 放得下：权重 '+fmtGB(weights)+'，KV cache '+fmtGB(total)+'，还剩 '+fmtGB(room-total)+'。';}
+}
+['mem-model','mem-gpu','mem-ctx','mem-conc'].forEach(id=>$(id).addEventListener('input',renderMem));
+
+/* ───────────── Fig 4: one request ───────────── */
+const RQ_PRE={chat:[400,500,0],rag:[8000,400,0],agent:[40000,150,0],long:[300,3000,0]};
+const tokFromSlider=v=>{const x=100*Math.pow(1000,v/100),p=Math.pow(10,Math.floor(Math.log10(x))-1);return Math.round(x/p)*p;};
+const sliderFromTok=t=>Math.round(100*Math.log10(t/100)/3);
+function renderRq(){
+  const inTok=tokFromSlider(+$('rq-in').value),out=+$('rq-out').value,hit=+$('rq-hit').value/100;
+  const cached=Math.round(inTok*hit),comp=inTok-cached;
+  const tpot=COST.base+COST.perSeq,ttft=COST.base+COST.perPrefillTok*comp,dec=(out-1)*tpot,e2e=ttft+dec;
+  $('rq-in-o').textContent=fmtInt(inTok);$('rq-out-o').textContent=fmtInt(out);$('rq-hit-o').textContent=Math.round(hit*100)+'%';
+  const w=(v,tot)=>'calc('+Math.max(0.4,v/tot*100).toFixed(3)+'% - 2px)';
+  $('rq-tbar').innerHTML='<div class="b-prefill" style="width:'+w(ttft,e2e)+'"></div><div class="b-decode" style="flex:1 1 0"></div>';
+  const tot=inTok+out;
+  $('rq-kbar').innerHTML=(cached>0?'<div class="b-kv" style="width:'+w(cached,tot)+'"></div>':'')+(comp>0?'<div class="b-prefill" style="width:'+w(comp,tot)+'"></div>':'')+'<div class="b-decode" style="flex:1 1 0;min-width:3px"></div>';
+  $('rq-t1').textContent=fmtMs(ttft);$('rq-t2').textContent=fmtMs(dec);
+  $('rq-s1').textContent=fmtMs(ttft);$('rq-s2').textContent=tpot.toFixed(1)+' ms';$('rq-s3').textContent=fmtMs(e2e);
+  $('rq-s4').textContent=Math.round(ttft/e2e*100)+'%';
+  const ratio=inTok/out;$('rq-s5').textContent=(ratio>=10?Math.round(ratio):ratio.toFixed(1))+' : 1';
+}
+function rqPreset(k){const p=RQ_PRE[k];$('rq-in').value=sliderFromTok(p[0]);$('rq-out').value=p[1];$('rq-hit').value=p[2];press(['rq-p-chat','rq-p-rag','rq-p-agent','rq-p-long'],'rq-p-'+k);renderRq();}
+Object.keys(RQ_PRE).forEach(k=>{$('rq-p-'+k).onclick=()=>rqPreset(k);});
+['rq-in','rq-out'].forEach(id=>$(id).addEventListener('input',()=>{press(['rq-p-chat','rq-p-rag','rq-p-agent','rq-p-long'],'');renderRq();}));
+$('rq-hit').addEventListener('input',renderRq);
+
+/* ───────────── Fig 5: batch size ───────────── */
+function lineChart(el,fn,yTicks,B,label){
+  const W=440,H=210,l=46,r=16,t=14,b=30,yMax=yTicks[yTicks.length-1];
+  const X=v=>l+(v-1)/127*(W-l-r),Y=v=>H-b-v/yMax*(H-t-b);
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+label+'">';
+  yTicks.forEach(v=>{s+='<line class="g-grid" x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text class="g-axis mono" x="'+(l-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v+'</text>';});
+  [1,32,64,96,128].forEach(v=>{s+='<text class="g-axis mono" x="'+X(v)+'" y="'+(H-b+17)+'" text-anchor="middle">'+v+'</text>';});
+  let pts='';for(let v=1;v<=128;v++)pts+=X(v).toFixed(1)+','+Y(fn(v)).toFixed(1)+' ';
+  s+='<polyline points="'+pts+'" fill="none" stroke="var(--decode)" stroke-width="2" stroke-linejoin="round"/>';
+  const cx=X(B),cy=Y(fn(B));
+  s+='<line class="g-muted" x1="'+cx+'" x2="'+cx+'" y1="'+cy+'" y2="'+(H-b)+'" stroke-dasharray="3 3" stroke-width="1"/>';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="5.5" fill="var(--decode)" stroke="var(--surface)" stroke-width="2"/>';
+  const right=B>96;
+  s+='<text x="'+(cx+(right?-10:10))+'" y="'+(cy+(right?-10:20))+'" text-anchor="'+(right?'end':'start')+'" font-size="13" font-weight="600" class="mono">'+(fn(B)>=100?Math.round(fn(B)):fn(B).toFixed(1))+'</text>';
+  s+='</svg>';el.innerHTML=s;
+}
+function renderBt(){
+  const B=+$('bt-b').value,step=v=>COST.base+COST.perSeq*v,tput=v=>v/step(v)*1000;
+  $('bt-b-o').textContent=B;
+  lineChart($('bt-c1'),tput,[0,500,1000,1500,2000],B,'总吞吐随 batch 大小的变化');
+  lineChart($('bt-c2'),step,[0,20,40,60,80],B,'每步耗时随 batch 大小的变化');
+  $('bt-status').textContent='B = '+B+'：每步 '+step(B).toFixed(1)+' ms，总吞吐 '+fmtInt(tput(B))+' token/s，是单条的 '+(tput(B)/tput(1)).toFixed(1)+' 倍；每个请求自己的速度从 '+(1000/step(1)).toFixed(0)+' 降到 '+(1000/step(B)).toFixed(0)+' token/s。';
+}
+$('bt-b').addEventListener('input',renderBt);
+
+/* ───────────── Fig 6: scheduling simulator ───────────── */
+const S={mode:'cont',seed:7,base:null,sims:null,reqs:null,k:null,timer:null,xmax:1};
+const MODES=[['static','静态批处理'],['cont','Continuous batching'],['chunk','+ chunked prefill']];
+const STATIC_TIMEOUT=100,NREQ=12;
+function recompute(keepCursor){
+  if(!S.base)S.base=makeWorkload(S.seed,NREQ);
+  const B=+$('sim-b').value,gap=+$('sim-gap').value,budget=+$('sim-budget').value;
+  $('sim-b-o').textContent=B;$('sim-gap-o').textContent=gap+' ms';$('sim-budget-o').textContent=budget;
+  $('sim-budget').disabled=S.mode!=='chunk';
+  S.reqs=withArrivals(S.base,gap);
+  S.sims={static:simStatic(S.reqs,B,STATIC_TIMEOUT),cont:simContinuous(S.reqs,B,Infinity),chunk:simContinuous(S.reqs,B,budget)};
+  const mx=Math.max(S.sims.static.end,S.sims.cont.end,S.sims.chunk.end);
+  S.xmax=Math.ceil(mx/500)*500;
+  const n=S.sims[S.mode].iters.length;
+  if(!keepCursor||S.k==null||S.k>n)S.k=n;
+  $('sim-scrub').max=n;
+  press(MODES.map(m=>'sim-m-'+m[0]),'sim-m-'+S.mode);
+  // table
+  $('sim-table').tBodies[0].innerHTML=MODES.map(m=>{const x=metrics(S.sims[m[0]]);
+    return '<tr'+(m[0]===S.mode?' class="is-on"':'')+'><td>'+m[1]+'</td><td>'+fmtMs(x.ttft)+'</td><td>'+fmtMs(x.maxTtft)+'</td><td>'+fmtMs(x.maxGap)+'</td><td>'+fmtMs(x.e2e)+'</td><td>'+fmtMs(x.makespan)+'</td><td>'+Math.round(x.tput)+' tok/s</td><td>'+x.idle+'</td></tr>';}).join('');
+  drawSim();
+}
+function drawSim(){
+  const sim=S.sims[S.mode],reqs=sim.reqs,n=reqs.length,k=S.k;
+  const W=1000,GL=104,GR=16,TOP=30,RH=24,H=TOP+n*RH+8,xmax=S.xmax;
+  const X=t=>GL+t/xmax*(W-GL-GR),rowY=id=>TOP+(id-1)*RH;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="请求时间线，'+MODES.find(m=>m[0]===S.mode)[1]+'">';
+  s+='<defs><pattern id="simHatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="5"/></pattern></defs>';
+  const tick=xmax<=3000?500:xmax<=7000?1000:2000;
+  for(let t=0;t<=xmax+1;t+=tick){s+='<line class="g-grid" x1="'+X(t)+'" x2="'+X(t)+'" y1="'+(TOP-6)+'" y2="'+(H-4)+'"/><text class="g-axis mono" x="'+X(t)+'" y="14" text-anchor="middle">'+(t/1000).toFixed(1)+' s</text>';}
+  s+='<text class="g-axis" x="34" y="14" font-size="10">输入/输出</text>';
+  if(k>0){const it=sim.iters[k-1];s+='<rect class="f-band" x="'+X(it.start)+'" y="'+(TOP-6)+'" width="'+Math.max(2,X(it.end)-X(it.start))+'" height="'+(H-TOP+2)+'"/>';}
+  for(const r of reqs){
+    const y=rowY(r.id);
+    s+='<text x="4" y="'+(y+15)+'" font-size="12" font-weight="600" class="mono">R'+r.id+'</text><text class="g-axis mono" x="34" y="'+(y+15)+'">'+r.prompt+'/'+r.out+'</text>';
+    if(r.admit>r.arrival+0.5)s+='<line class="g-muted" x1="'+X(r.arrival)+'" x2="'+X(r.admit)+'" y1="'+(y+10)+'" y2="'+(y+10)+'" stroke-width="2" stroke-dasharray="4 3"/>';
+  }
+  sim.iters.forEach((it,idx)=>{
+    const x=X(it.start),w=Math.max(1,X(it.end)-x-1);
+    for(const m of it.items){
+      const y=rowY(m.id)+2;let cls,tip;
+      if(m.kind==='prefill'){cls='c-prefill';tip='R'+m.id+' · prefill '+m.tok+' token（累计 '+m.done+'/'+m.prompt+'）'+(m.first?' · 本轮结束时产出第 1 个 token':'');}
+      else if(m.kind==='decode'){cls='c-decode';tip='R'+m.id+' · decode · 第 '+m.gen+'/'+m.out+' 个 token';}
+      else{cls='idle-box';tip='R'+m.id+' · 已结束，槽位空转到整批结束';}
+      s+='<rect '+(m.kind==='idle'?'fill="url(#simHatch)" ':'')+'class="'+cls+'" x="'+x.toFixed(2)+'" y="'+y+'" width="'+w.toFixed(2)+'" height="16" rx="1.5"><title>'+tip+' · 第 '+(idx+1)+' 轮 · '+it.dur.toFixed(1)+' ms</title></rect>';
+    }
+  });
+  for(const r of reqs)s+='<circle class="f-ink" cx="'+X(r.arrival)+'" cy="'+(rowY(r.id)+10)+'" r="3.5" stroke="var(--surface)" stroke-width="1.5"><title>R'+r.id+' 到达于 '+r.arrival+' ms</title></circle>';
+  const ct=k===0?0:sim.iters[k-1].end;
+  if(k<sim.iters.length){
+    s+='<rect class="f-surface" opacity=".8" x="'+X(ct)+'" y="'+(TOP-6)+'" width="'+(W-X(ct))+'" height="'+(H-TOP+6)+'" pointer-events="none"/>';
+    s+='<line class="g-ink" x1="'+X(ct)+'" x2="'+X(ct)+'" y1="'+(TOP-8)+'" y2="'+(H-2)+'" stroke-width="1.5"/>';
+  }
+  s+='</svg>';
+  $('sim-svg').innerHTML=s;
+  // detail
+  const d=$('sim-detail'),N=sim.iters.length;
+  if(k===0){d.innerHTML='<div class="detail-head">第 0 / '+N+' 轮</div><div>还没开始。按「下一轮」单步执行，或者按「播放」。</div>';}
+  else{
+    const it=sim.iters[k-1];let pre=0,dec=0;
+    const chips=it.items.map(m=>{
+      if(m.kind==='prefill'){pre+=m.tok;return '<span class="chip"><i class="sw sw-prefill"></i>R'+m.id+' prefill '+m.tok+' tok'+(m.first?' → 出第 1 个 token':'（'+m.done+'/'+m.prompt+'）')+'</span>';}
+      if(m.kind==='decode'){dec++;return '<span class="chip"><i class="sw sw-decode"></i>R'+m.id+' decode '+m.gen+'/'+m.out+(m.gen>=m.out?' ✓ 完成':'')+'</span>';}
+      return '<span class="chip"><i class="sw sw-idle"></i>R'+m.id+' 空转</span>';
+    }).join('');
+    d.innerHTML='<div class="detail-head">第 '+k+' / '+N+' 轮 · 开始于 '+Math.round(it.start)+' ms · 耗时 '+it.dur.toFixed(1)+' ms = 固定 20 + prefill '+pre+' tok × 0.1 + decode '+dec+' 条 × 0.4</div>'+
+      '<div class="chips">'+chips+'</div>'+
+      '<div class="note">排队中：'+(it.queue.length?it.queue.map(i=>'R'+i).join('、'):'无')+'</div>';
+  }
+  $('sim-scrub').value=k;
+  $('sim-prev').disabled=k===0;$('sim-first').disabled=k===0;
+  $('sim-next').disabled=k===N;$('sim-last').disabled=k===N;
+}
+function stopPlay(){if(S.timer){clearInterval(S.timer);S.timer=null;}$('sim-play').textContent='▶ 播放';}
+function setK(k){S.k=Math.max(0,Math.min(S.sims[S.mode].iters.length,k));drawSim();}
+MODES.forEach(m=>{$('sim-m-'+m[0]).onclick=()=>{stopPlay();S.mode=m[0];S.k=null;recompute(false);};});
+['sim-b','sim-gap','sim-budget'].forEach(id=>$(id).addEventListener('input',()=>{stopPlay();recompute(false);}));
+$('sim-reseed').onclick=()=>{stopPlay();S.seed=(S.seed*31+11)%9973;S.base=null;recompute(false);};
+$('sim-first').onclick=()=>{stopPlay();setK(0);};
+$('sim-last').onclick=()=>{stopPlay();setK(1e9);};
+$('sim-prev').onclick=()=>{stopPlay();setK(S.k-1);};
+$('sim-next').onclick=()=>{stopPlay();setK(S.k+1);};
+$('sim-scrub').addEventListener('input',e=>{stopPlay();setK(+e.target.value);});
+$('sim-play').onclick=()=>{
+  if(S.timer){stopPlay();return;}
+  if(S.k>=S.sims[S.mode].iters.length)setK(0);
+  $('sim-play').textContent='⏸ 暂停';
+  S.timer=setInterval(()=>{if(S.k>=S.sims[S.mode].iters.length){stopPlay();return;}setK(S.k+1);},90);
+};
+
+renderKV();renderMem();renderRq();renderBt();recompute(false);
+})();
+</script>

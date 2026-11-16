@@ -16,6 +16,7 @@ auto-generated paper digest. Built with Next.js static export and deployed to Gi
 | 精读 | `/reading/` | 论文精读 |
 | 论文速递 | `/papers/` | 每日 arXiv 新论文 + Hugging Face 热门,附 AI 中文导读与兴趣评分;另有深度解读 |
 | 研究 / 项目 | `/research/` `/projects/` | |
+| 专题 | `/series/` | 成系列的交互课件,如「推理 Infra 可视化课程」(9 课,可单步执行的模拟器) |
 | 归档 | `/archive/` | 全站内容按年分组,可按标签筛选 |
 | 其他 | `/about/` `/friends/` `/music/` `/search/` | |
 

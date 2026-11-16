@@ -137,6 +137,7 @@ npm run preview         # npx serve out -l 3000,本地看生产产物
 
 | 脚本 | 产物 | 用途 |
 |---|---|---|
+| `series` | `public/series/` | 专题课件(注入站点配色与深浅色同步后的副本) |
 | `search:index` | `public/search-index/` | 站内搜索索引 |
 | `feed` | `public/feed.xml` / `public/rss.xml` | 论文速递 RSS / 全站文章 RSS |
 | `api` | `public/api/papers/` | 论文速递静态 JSON API(含 AI 助手用的 `all.json`,和速递归档页论文搜索用的 `titles/<YYYY-MM>.json`) |
@@ -201,7 +202,23 @@ HF 热门不做筛选,只把 ≤4 分的折叠。所以 **`main` 上每天都有
 或任何入口调用 `openAgent()` / `preloadAgent()`(`lib/agent/bus.ts`)时才加载;
 加载完成前的打开请求会排队补发。新增入口时照着 `HeroAsk` / `AskAcaneButtons` 调这两个函数即可。
 
-### 2.11 站内链接、元数据与分享卡片
+### 2.11 专题(交互课件系列)
+
+专题放在 `content/series/<slug>/`:`series.json`(标题、简介、标签、各课顺序与日期)+
+`lessons/*.html`(独立的单文件交互课件,原样保存)+ 可选的附件目录(如 `bench/` 压测脚本)。
+页面在 `/[locale]/series/`(列表)、`/series/<slug>/`(目录)、`/series/<slug>/<lesson>/`(一课)。
+
+- 课件用 iframe 通栏嵌入,高度跟随内容(`components/series/LessonFrame.tsx`),整页只有一个滚动条。
+- `npm run series`(build / dev 前置)把课件复制到 `public/series/`(已 gitignore),复制时注入:
+  站点配色(中性色换成站点 token,prefill 蓝换成 accent,其余数据配色保留)、跟随站点的深浅色切换、
+  正文里「第 N 课」→ 课间链接、`<code>bench/</code>` → 脚本目录链接。规则都在 `scripts/build-series.mjs`。
+- **更新课件:直接用新文件覆盖 `lessons/` 里的同名文件**,不要手改(注入是构建时做的)。
+  新增一课时在 `series.json` 的 `lessons` 里加一项。
+- 课件文字进站内搜索(类型「专题」)和归档;课件只有中文,英文站同路径显示中文课件,canonical 指向中文页。
+- 课件里的样式全局生效于 iframe 内部,和站点样式互不影响。注入新内容前先看课件 CSS:
+  课件给单个段落也加了 `.prose`(纵向 flex),往段落里插元素会被拆成上下几块,注入的样式已把 `p.prose` 改回块级。
+
+### 2.12 站内链接、元数据与分享卡片
 
 - **站内链接一律用 `@/i18n/navigation` 的 `Link`**,不要直接用 `next/link`:它只在悬停 / 聚焦 /
   触摸时才预取目标页(`components/IntentLink.tsx`)。默认的视口预取会让列表页一次拉几十个请求。
@@ -321,6 +338,7 @@ BlogSite/
 │       ├── papers/          # 速递归档 + [date] 单日 + insights/[id] 深度解读
 │       ├── research/ projects/          # 列表 + [slug] 详情
 │       ├── archive/         # 归档:全站内容按年分组 + 标签筛选(?tag=)
+│       ├── series/          # 专题:列表 / [series] 目录 / [series]/[lesson] 一课(iframe 嵌入课件)
 │       └── about/ friends/ music/ search/
 │   └── sitemap.ts           # 构建期生成 sitemap.xml
 │
@@ -329,6 +347,7 @@ BlogSite/
 │   ├── agent/               # AI 助手:悬浮窗、对话渲染、划词提问、每日简报
 │   ├── papers/              # PaperCard / DigestToc / PaperSearch(速递归档页的论文搜索)
 │   ├── archive/             # ArchiveList / ArchiveFilter
+│   ├── series/              # LessonFrame(课件 iframe,高度自适应)
 │   ├── blog/ notes/ projects/           # 各集合的卡片
 │   ├── mdx/                 # BlogImage / MDXComponents / MDXContent / CodeBlock / Lightbox / TableOfContents
 │   ├── search/              # use-search hook / HeaderSearch / SearchClient
@@ -339,6 +358,7 @@ BlogSite/
 │   ├── posts.ts / notes.ts / distilled.ts / reading.ts / projects.ts / research.ts
 │   ├── papers.ts / insights.ts          # 论文速递与深度解读数据层
 │   ├── archive.ts           # 全站内容统一视图:归档、相关内容、上一篇 / 下一篇
+│   ├── series.ts            # 专题:读 series.json 与课件里的标题、导语、正文文本
 │   ├── metadata.ts / site.ts            # 页面元数据(canonical / hreflang / 分享卡片)与站点地址
 │   ├── agent/               # chat.ts(对话循环)/ tools.ts(工具执行)/ tool-schemas.ts / system.ts(后两者被 Worker 引用)
 │   ├── analytics/pv.ts      # PV 打点
@@ -352,6 +372,7 @@ BlogSite/
 │   ├── blog/ notes/ distilled/ reading/   # {zh,en}/*.md(x)
 │   ├── papers/*.json        # 每日速递(bot 生成)
 │   ├── insights/*.md        # 论文深度解读,文件名 = arXiv id
+│   ├── series/<slug>/       # 专题:series.json + lessons/*.html(交互课件)+ 附件
 │   ├── projects/*.mdx  research/  about/{zh,en}.mdx
 │   └── friends.json  music.json
 │

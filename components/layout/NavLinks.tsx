@@ -12,6 +12,7 @@ export const navItems = [
   { href: "/distilled", key: "distilled" },
   { href: "/reading", key: "reading" },
   { href: "/papers", key: "papers" },
+  { href: "/series", key: "series" },
   { href: "/notes", key: "notes" },
   { href: "/projects", key: "projects" },
   { href: "/music", key: "music" },

@@ -132,6 +132,22 @@ async function articlesFeed() {
       });
     }
   }
+  // 专题整体算一条(9 课一次性进 feed 会刷屏)
+  const seriesDir = path.join(root, "content", "series");
+  if (existsSync(seriesDir)) {
+    for (const slug of await readdir(seriesDir)) {
+      const metaFile = path.join(seriesDir, slug, "series.json");
+      if (!existsSync(metaFile)) continue;
+      const meta = JSON.parse(await readFile(metaFile, "utf8"));
+      items.push({
+        title: `专题:${meta.title.zh}`,
+        url: `${SITE}/zh/series/${slug}/`,
+        date: meta.date,
+        description: meta.description.zh,
+        categories: ["专题", ...(meta.tags ?? [])],
+      });
+    }
+  }
   items.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.url.localeCompare(b.url)));
   const latest = items.slice(0, MAX_ARTICLES);
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

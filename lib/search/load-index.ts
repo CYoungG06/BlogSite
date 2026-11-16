@@ -18,7 +18,8 @@ export type SearchType =
   | "reading"
   | "insight"
   | "research"
-  | "project";
+  | "project"
+  | "series";
 
 /** 结果类型 → 标签文案的 key(search 命名空间) */
 export const SEARCH_TYPE_KEY: Record<SearchType, string> = {
@@ -29,6 +30,7 @@ export const SEARCH_TYPE_KEY: Record<SearchType, string> = {
   insight: "typeInsight",
   research: "typeResearch",
   project: "typeProject",
+  series: "typeSeries",
 };
 
 export interface SearchDocument {

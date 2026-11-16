@@ -10,6 +10,7 @@ export default async function Footer() {
 
   const navItems = [
     { href: "/blog", label: t("nav.blog") },
+    { href: "/series", label: t("nav.series") },
     { href: "/notes", label: t("nav.notes") },
     { href: "/projects", label: t("nav.projects") },
     { href: "/music", label: t("nav.music") },

@@ -1,0 +1,777 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>前缀缓存</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose; each figure is a wider "instrument panel"
+   with its controls on top and its readout beside or below the drawing. */
+:root{
+  --bg:#f2f5f5; --surface:#fbfcfc; --surface-2:#e6ecec;
+  --ink:#101b1c; --ink-2:#44565a; --ink-3:#6f8186; --line:#cfd9d9;
+  --prefill:#2a78d6; --decode:#eb6834; --cache:#1baf7a; --waste:#aab7b9; --crit:#c93535;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-display:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+    --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+    --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+  --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+  --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:72px}
+.prose{max-width:43rem;display:flex;flex-direction:column;gap:16px}
+.prose p,.prose ul,.prose ol,.prose dl{margin:0}
+.prose ul,.prose ol{padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-0.01em}
+h2{font-size:25px}
+h3{font-size:17px}
+.eyebrow,.fig-no,.sec-no{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.lede{font-size:18px;color:var(--ink-2)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .38em;border-radius:3px;overflow-wrap:anywhere}
+strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid var(--line)}
+.note{font-size:14px;color:var(--ink-2);line-height:1.7}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.fig-head h3{flex:1 1 16rem}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.7;max-width:46rem}
+.scroll-x{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:currentColor}
+svg .mono{font-family:var(--font-mono)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);min-width:150px;flex:1 1 150px;max-width:260px}
+.ctl output{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.ctl .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink-3);border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--ink-3)}
+.seg button:last-child{border-right:0}
+button{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink-3);border-radius:5px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--surface-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--prefill);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepno{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.sw-tc{background:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.sw-tp{background:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.sw-td{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.sw-old{background:var(--surface-2);border:1px solid var(--line)}
+.sw-ring{border:2px solid var(--ink)}
+.sw-hit{background:var(--cache)} .sw-comp{background:var(--prefill)}
+
+/* svg classes */
+.t-cache{fill:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.t-prefill{fill:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.t-decode{fill:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.t-old{fill:var(--surface-2)}
+.t-empty{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+.t-free{fill:none;stroke:var(--line);stroke-width:1}
+.t-row{fill:var(--surface-2)}
+.c-ring{stroke:var(--ink);stroke-width:2}
+.o-sel{fill:none;stroke:var(--ink);stroke-width:1.5}
+.o-ghost{fill:none;stroke:var(--crit);stroke-width:1.5;stroke-dasharray:4 3}
+.g-ink{stroke:var(--ink)} .g-muted{stroke:var(--ink-3)}
+.g-grid{stroke:var(--line);stroke-width:1}
+.g-axis{fill:var(--ink-3);font-size:11px}
+.f-muted{fill:var(--ink-3)} .f-crit{fill:var(--crit)} .f-cache{fill:var(--cache)} .f-prefill{fill:var(--prefill)}
+.dim{opacity:.38}
+
+.narr{font-size:15px;line-height:1.75;min-height:5.4em;margin:0;max-width:52rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 22px}
+.stat{display:flex;flex-direction:column}
+.stat span{font-size:12.5px;color:var(--ink-2)}
+.stat b{font-family:var(--font-mono);font-weight:500;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.4}
+.stat small{font-size:12px;color:var(--ink-3);font-family:var(--font-mono)}
+.status{font-size:14.5px;padding:8px 12px;border-radius:4px;background:var(--surface-2)}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-weight:500;color:var(--ink-2);font-size:13px}
+td:first-child{color:var(--ink-2);white-space:nowrap}
+table.cmp{max-width:56rem}
+
+details.quiz{border:1px dashed var(--ink-3);border-radius:6px;padding:12px 16px;max-width:43rem}
+details.quiz summary{cursor:pointer;font-weight:500;list-style-position:outside;margin-left:1.1em}
+details.quiz summary .tag{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-right:8px}
+details.quiz .ans{margin-top:10px;color:var(--ink-2);font-size:15px;display:flex;flex-direction:column;gap:8px}
+details.quiz .ans p{margin:0}
+
+.callout{border-left:4px solid var(--cache);padding:4px 0 4px 16px;max-width:43rem;font-size:15px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.sys>div{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.sys ul{margin:0;padding-left:1.2em;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-width:43rem}
+.road li{display:grid;grid-template-columns:2.4em 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.road li span:first-child{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.road li em{font-style:normal;color:var(--ink-2);font-size:14px;display:block}
+.road li.here{font-weight:600}
+.road li.here em{font-weight:400}
+header{display:flex;flex-direction:column;gap:18px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">推理 Infra · 第 3 课 / 共 9 课</div>
+  <h1>算过的前缀不再算第二遍</h1>
+  <p class="lede prose">第 1 课的 KV cache 只在一个请求内部复用。这一课把它推广到请求之间：两个请求开头相同的部分，KV 只算一次。对聊天这是一项优化，对 Agent 这是决定成本和延迟的头号因素。vLLM 和 SGLang 用两种不同的数据结构实现同一件事。</p>
+  <p class="note prose">图里的块大小都用 4 个 token，方便看清。vLLM 默认是 16。</p>
+</header>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">1 · 能复用的只有前缀</div>
+    <h2>一个位置的 KV，取决于它之前的所有 token</h2>
+    <p>回忆第 1 课的因果掩码：位置 i 的 K、V 是由第 0 到第 i 个 token 共同决定的，和后面的 token 无关。把这句话反过来读就是本课的全部依据：<strong>两个请求只要前 k 个 token 完全相同，它们前 k 个位置的 KV 就完全相同</strong>，第二个请求可以直接用第一个请求算好的结果，跳过这部分的 prefill。</p>
+    <p>这个性质有一个严格的限制：只对<span class="term">前缀</span>成立。从第一个不同的 token 开始，后面每个位置的 KV 都变了，哪怕后面的文字一模一样。「两个请求里有一大段相同的内容」不够，这段内容必须从最开头起就相同。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 1</span><h3>新请求能复用多少</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="场景">
+        <button id="px-p-a" aria-pressed="true">同一个系统提示，不同的问题</button>
+        <button id="px-p-b" aria-pressed="false">多轮对话的下一轮</button>
+        <button id="px-p-c" aria-pressed="false">开头的时间戳变了</button>
+        <button id="px-p-d" aria-pressed="false">中间改了一个词</button>
+      </div>
+      <div class="seg" role="group" aria-label="复用粒度">
+        <button id="px-g-tok" aria-pressed="true">按 token 复用</button>
+        <button id="px-g-blk" aria-pressed="false">按块复用（每块 4）</button>
+      </div>
+    </div>
+    <div class="scroll-x"><div id="px-svg" style="min-width:820px;color:var(--ink)"></div></div>
+    <div class="legend">
+      <span><i class="sw sw-tc"></i>命中缓存，直接复用</span>
+      <span><i class="sw sw-tp"></i>需要 prefill</span>
+      <span><i class="sw sw-old"></i>不在缓存里</span>
+      <span><b style="font-weight:600;color:var(--ink)">＝</b> 和上一个请求同位置的 token 相同，但前缀已经不同，不能复用</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>相同前缀长度</span><b id="px-s1"></b></div>
+      <div class="stat"><span>命中</span><b id="px-s2"></b></div>
+      <div class="stat"><span>需要 prefill</span><b id="px-s3"></b></div>
+      <div class="stat"><span>命中率</span><b id="px-s4"></b></div>
+    </div>
+    <figcaption>上一行是已经处理过、KV 还留在缓存里的请求，下一行是新到的请求。按块复用时，只有写满的整块才能被复用，这是 vLLM 的做法；按 token 复用是 SGLang 的做法。两者的差别最多是一个块。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>两个请求只有最开头的时间戳不同，后面一字不差。能命中多少？</summary>
+    <div class="ans">
+      <p>零。选上面的「开头的时间戳变了」可以看到：后面每个 token 都标着 ＝，文字完全相同，但它们的 KV 是在「前面是 10:31」的条件下算出来的，对「前面是 10:32」的请求无效。</p>
+      <p>这是实际系统里最常见的缓存失效原因。系统提示里的当前时间、请求 ID、随机生成的示例顺序，只要出现在靠前的位置，就会让它后面的全部内容无法复用。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">2 · vLLM 的做法</div>
+    <h2>给每个写满的块算一个哈希</h2>
+    <p>第 2 课里，KV 池被切成了物理块，每个块有引用计数。vLLM 的前缀缓存（Automatic Prefix Caching）在这个基础上只加了一样东西：<span class="term">块哈希</span>。</p>
+    <ul>
+      <li>一个块写满后，算一个哈希值：<code>hash(上一块的哈希, 本块的 token)</code>。因为把上一块的哈希也算了进去，这个值实际上代表从序列开头到本块末尾的<strong>整段前缀</strong>。</li>
+      <li>引擎维护一张表：哈希值 → 物理块。</li>
+      <li>新请求到达时，先对 prompt 逐块算哈希，从第一块开始查表。命中就把那个物理块直接写进自己的块表、引用计数加 1；遇到第一个没命中的就停。</li>
+      <li>请求结束后，它的块回到空闲队列，但<strong>哈希不清除</strong>。块处于「空闲，同时可被命中」的状态，直到它被重新分配给别人的那一刻才失效。</li>
+    </ul>
+    <p>最后一条是关键设计：缓存不占用额外的显存预算。显存宽裕时缓存留得久，显存紧张时自动让位。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 2</span><h3>块哈希：命中、共享、保留、淘汰</h3></div>
+    <div class="controls">
+      <div class="btns">
+        <button id="hc-reset">重置</button>
+        <button id="hc-prev">◀ 上一步</button>
+        <button id="hc-next">下一步 ▶</button>
+        <span class="stepno" id="hc-stepno"></span>
+      </div>
+      <div class="btns"><span class="note">查看请求</span>
+        <div class="seg" role="group" aria-label="查看哪个请求">
+          <button id="hc-r-A" aria-pressed="false">A</button>
+          <button id="hc-r-B" aria-pressed="false">B</button>
+          <button id="hc-r-C" aria-pressed="false">C</button>
+          <button id="hc-r-D" aria-pressed="false">D</button>
+        </div>
+      </div>
+    </div>
+    <p class="narr" id="hc-narr" aria-live="polite"></p>
+    <div class="scroll-x"><div id="hc-svg" style="min-width:860px;color:var(--ink)"></div></div>
+    <div class="legend">
+      <span><i class="sw sw-tc"></i>这个请求命中的</span>
+      <span><i class="sw sw-tp"></i>prefill 时写入</span>
+      <span><i class="sw sw-td"></i>decode 时写入</span>
+      <span><i class="sw sw-ring"></i>这一步刚写的</span>
+    </div>
+    <figcaption>左边是所选请求的视角：它的每个逻辑块对应哪个物理块、哈希是什么、是命中的还是新算的。右边是物理块的真实状态。物理块右侧标着引用计数和哈希；三位十六进制数是示意，真实的哈希是 SHA-256 这一类。淡色的块是「空闲但仍可命中」。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>实现上还有两个细节值得知道：</p>
+    <ul>
+      <li>即使 prompt 的每一块都命中，引擎也要重算最后一个 token。命中只是拿到了 KV，而要采样下一个 token 需要最后一个位置的 logits，这必须真的跑一次 forward。</li>
+      <li>哈希里除了 token，还会混入其他会影响 KV 的东西：用的是哪个 LoRA、多模态输入的内容，以及用户可以指定的 <code>cache_salt</code>。同样的文字在不同的 LoRA 下 KV 不同，不能混用。<code>cache_salt</code> 用来在租户之间隔离缓存，防止有人通过「我的请求是不是变快了」来探测别人发过什么。</li>
+    </ul>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>vLLM 的缓存块有没有过期时间？一个不再被使用的块能留多久？</summary>
+    <div class="ans">
+      <p>没有过期时间。一个块能留多久，取决于它在空闲队列里前面还排着多少块，以及新请求消耗空闲块的速度。显存大、负载轻，可以留很久；负载一重，几秒内就被取走。</p>
+      <p>这对 Agent 的含义是：一步和下一步之间隔着工具执行的时间，这段时间里缓存能不能活下来，取决于同一台机器上别的请求有多忙，harness 自己控制不了。第 6 节的模拟器里有这个场景。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">3 · SGLang 的做法</div>
+    <h2>把所有见过的序列组织成一棵树</h2>
+    <p>SGLang 的方案叫 RadixAttention。它不给块算哈希，而是把缓存里所有的 token 序列放进一棵 <span class="term">radix tree</span>（基数树，一种压缩过的前缀树）：</p>
+    <ul>
+      <li>每个节点存一段 token，以及这段 token 的 KV 在池子里的位置。从根走到某个节点，路径上的 token 连起来就是一段被缓存的前缀。</li>
+      <li>有共同前缀的序列共用同一段路径，到分叉点才分成不同的子节点。</li>
+      <li>新请求到达时，从根开始沿着树逐个 token 比对。如果匹配停在某个节点的中间，就把这个节点<strong>分裂</strong>成两段，让分叉点正好落在节点边界上。</li>
+      <li>正在运行的请求会给它路径上的每个节点加锁（引用计数）。淘汰时只能删没有被锁、也没有子节点的<strong>叶子</strong>，默认删最久没被访问的。</li>
+    </ul>
+    <p>因为第 2 课讲过的按 token 寻址，树可以在任意一个 token 处分叉，复用不受块边界的限制。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 3</span><h3>Radix tree：匹配、分裂、淘汰</h3></div>
+    <div class="btns">
+      <button id="rx-reset">重置</button>
+      <button id="rx-prev">◀ 上一步</button>
+      <button id="rx-next">下一步 ▶</button>
+      <span class="stepno" id="rx-stepno"></span>
+    </div>
+    <p class="narr" id="rx-narr" aria-live="polite"></p>
+    <div class="scroll-x"><div id="rx-svg" style="min-width:860px;color:var(--ink)"></div></div>
+    <div class="status" id="rx-status" aria-live="polite"></div>
+    <div class="legend">
+      <span><i class="sw sw-tc"></i>这一步的请求命中的</span>
+      <span><i class="sw sw-tp"></i>这一步新算的 prompt</span>
+      <span><i class="sw sw-td"></i>这一步生成的</span>
+      <span><i class="sw sw-old"></i>之前就在树里</span>
+    </div>
+    <figcaption>每一步展示一个请求完成后树的样子。节点下方是它的 token 数和最近一次被访问是在第几步。请求和图 2 用的是同一组对话，可以对比两种结构在同样输入下的命中数。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>缓存感知的调度</h3>
+    <p>有了这棵树，调度器可以在请求还在排队时就知道它能命中多少。SGLang 提供了一组利用这个信息的排队策略，用 <code>--schedule-policy</code> 选择：</p>
+    <ul>
+      <li><code>lpm</code>（longest prefix match）：排队的请求按「能命中的前缀长度」从长到短处理。直觉是趁缓存还在，先把能用上它的请求跑完，免得缓存被无关请求挤掉后再回头重算。SGLang 论文证明了在一批请求离线处理的设定下，这个顺序等价于按树的深度优先顺序访问，命中率最优。</li>
+      <li>当前的默认值是 <code>fcfs</code>（先来先服务）。<code>lpm</code> 需要对队列里每个请求做一次前缀匹配，队列超过 128 个请求时会自动退回先来先服务。</li>
+    </ul>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>队列里有三个请求：两个共享一段很长、但还没被缓存的前缀，第三个与它们无关。把三个一起送进同一批 prefill 有什么浪费？</summary>
+    <div class="ans">
+      <p>那两个共享前缀的请求会同时 prefill，各自把相同的前缀完整算一遍。它们谁也用不上对方的结果，因为结果还没算出来。</p>
+      <p>更好的做法是先只放其中一个进去，另一个多等一轮，等前缀进了缓存再进，就只需要算它独有的部分。SGLang 的调度器里有这个逻辑：如果发现排队的请求之间共享着足够长的未缓存前缀，会把后来者暂时往后排。</p>
+      <p>这个场景在 Agent 里很常见：主 agent 同时派出几个子 agent，它们的 prompt 开头是同一份长长的上下文。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">4 · 两种结构的对比</div>
+    <h2>同一个性质，两种工程取舍</h2>
+  </div>
+  <div class="scroll-x">
+    <table class="cmp">
+      <thead><tr><th></th><th>vLLM：块哈希</th><th>SGLang：radix tree</th></tr></thead>
+      <tbody>
+        <tr><td>复用粒度</td><td>写满的整块，默认 16 个 token</td><td>可以细到单个 token</td></tr>
+        <tr><td>查找方式</td><td>对 prompt 逐块算链式哈希，查哈希表</td><td>从根沿着树逐段比对 token</td></tr>
+        <tr><td>分叉点落在中间</td><td>那一块不命中，整块重算</td><td>节点分裂，命中到分叉点为止</td></tr>
+        <tr><td>没人用的缓存放哪</td><td>留在空闲队列里，带着哈希</td><td>留在树上，锁计数为 0</td></tr>
+        <tr><td>什么时候失效</td><td>块被重新分配的那一刻</td><td>显存不够时，淘汰最久未访问的叶子</td></tr>
+        <tr><td>调度是否感知缓存</td><td>不感知，按到达顺序或优先级</td><td>可选 <code>lpm</code> 等缓存感知策略</td></tr>
+        <tr><td>实现复杂度</td><td>低，复用现有的块管理</td><td>较高，需要维护树、锁和分裂</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>两者命中数的差别最多是一个块，对几千上万 token 的 prompt 来说通常可以忽略。真正拉开差距的是调度和淘汰策略：负载重、请求之间共享结构复杂（比如很多 agent 会话交错）时，谁的缓存先被淘汰、排队的请求按什么顺序进，对命中率的影响比粒度大得多。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">5 · Agent 循环</div>
+    <h2>没有前缀缓存，Agent 的成本按步数的平方增长</h2>
+    <p>Agent 每走一步，发给模型的 prompt 都是「上一步的 prompt + 模型上一步的输出 + 工具返回的结果」。上下文只增不减，而且每一步都以上一步的全部内容为前缀。这是前缀缓存最理想的使用场景，也是最依赖它的场景：</p>
+    <ul>
+      <li>没有缓存：第 n 步要 prefill 全部 n 步的内容，N 步累计下来与 N² 成正比。</li>
+      <li>缓存全部命中：每一步只 prefill 新增的那一小段，累计与 N 成正比。</li>
+    </ul>
+    <p>下面的模拟器里，每根柱子是一步，高度是这一步的上下文长度，绿色是命中的部分，蓝色是真正要算的部分。试试几种会破坏缓存的情况。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 4</span><h3>一次 Agent 任务里，每一步要 prefill 多少</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="场景">
+        <button id="ag-s-ideal" aria-pressed="true">只追加，缓存一直在</button>
+        <button id="ag-s-ts" aria-pressed="false">系统提示开头有时间戳</button>
+        <button id="ag-s-evict" aria-pressed="false">每 5 步缓存被淘汰一次</button>
+        <button id="ag-s-compact" aria-pressed="false">每 10 步压缩一次历史</button>
+      </div>
+    </div>
+    <div class="controls">
+      <label class="ctl" for="ag-s"><span class="row">系统提示 + 工具定义 <output id="ag-s-o"></output></span>
+        <input type="range" id="ag-s" min="2000" max="30000" step="1000" value="10000">
+      </label>
+      <label class="ctl" for="ag-d"><span class="row">每步新增（输出 + 工具结果）<output id="ag-d-o"></output></span>
+        <input type="range" id="ag-d" min="500" max="8000" step="500" value="3000">
+      </label>
+      <label class="ctl" for="ag-n"><span class="row">步数 <output id="ag-n-o"></output></span>
+        <input type="range" id="ag-n" min="5" max="60" step="1" value="30">
+      </label>
+    </div>
+    <div class="scroll-x"><div id="ag-svg" style="min-width:720px;color:var(--ink)"></div></div>
+    <div class="legend">
+      <span><i class="sw sw-hit"></i>命中缓存，跳过</span>
+      <span><i class="sw sw-comp"></i>需要 prefill</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>无缓存，累计 prefill</span><b id="ag-t1"></b><small id="ag-t1b"></small></div>
+      <div class="stat"><span>这个场景，累计 prefill</span><b id="ag-t2"></b><small id="ag-t2b"></small></div>
+      <div class="stat"><span>相差</span><b id="ag-t3"></b></div>
+      <div class="stat"><span>整体命中率</span><b id="ag-t4"></b></div>
+    </div>
+    <div class="status" id="ag-status" aria-live="polite"></div>
+    <figcaption>时间按第 1 课的成本模型估算（prefill 每个 token 0.1 ms），只算 prefill，不含 decode 和工具执行。鼠标悬停在柱子上看每一步的数字。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>Harness 这一侧该做什么</h3>
+    <p>推理引擎只能复用相同的前缀，前缀是否相同由 harness 决定。几条通用的做法：</p>
+    <ul>
+      <li><strong>稳定的放前面，易变的放后面。</strong>系统提示、工具定义在最前，然后是历史，最后是最新的输入。任何会变的东西（时间、用户状态）往后放，或者放进最新一条消息里。</li>
+      <li><strong>只追加，不改写历史。</strong>修改任何一条旧消息，它后面的全部内容都要重算。</li>
+      <li><strong>序列化要确定。</strong>工具定义的顺序、JSON 里 key 的顺序、空格和换行，两次请求之间必须逐字节一致。很多缓存不命中是因为一个字典的遍历顺序不固定。</li>
+      <li><strong>压缩历史是一次有代价的操作。</strong>压缩后系统提示部分仍然命中，但历史部分要重算。好处是上下文变短了。什么时候压缩是一个需要权衡的决定，不要每一步都做。</li>
+      <li><strong>看反馈。</strong>两个引擎都可以在返回的 usage 里报告这次命中了多少 token（<code>cached_tokens</code>）。调 harness 时盯着这个数最直接。</li>
+    </ul>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测题</span>Agent 跑到第 20 步，harness 为了省 token，从工具列表里删掉了一个用不上的工具。这一步的 prefill 量会怎样？</summary>
+    <div class="ans">
+      <p>会暴涨到接近整个上下文。工具定义通常在 prompt 的最前面，改动它，后面的全部历史都失效。为了省几百个 token，重算了几万个。</p>
+      <p>想在中途限制模型能用哪些工具，更好的办法是保持工具定义不动，在后面追加一条说明，或者用下一课要讲的约束解码在输出端屏蔽它。</p>
+    </div>
+  </details>
+
+  <div class="callout">
+    <b>还没解决的问题。</b>这一课默认所有请求都落在同一台机器上。生产环境通常有很多个副本，如果下一步请求被负载均衡器随机分到另一台机器，那台机器上没有这个会话的缓存，一切从头算起。所以多副本部署下，路由必须知道缓存在哪，这是第 7 课的内容。商业 API 提供的 prompt caching 也是同一个机制，把「命中的 token 更便宜」直接体现在计费上。
+  </div>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">6 · 对应到真实系统</div>
+    <h2>源码入口和开关</h2>
+    <p>文件路径和默认值以当前 main 分支为准。</p>
+  </div>
+  <div class="sys">
+    <div>
+      <h3>vLLM</h3>
+      <ul>
+        <li>V1 引擎里前缀缓存默认开启，可以用 <code>--no-enable-prefix-caching</code> 关掉。</li>
+        <li>查找入口是 <code>vllm/v1/core/kv_cache_manager.py</code> 的 <code>get_computed_blocks()</code>，它调用 <code>find_longest_cache_hit()</code> 沿着请求的块哈希找最长的连续命中。</li>
+        <li>命中长度上限是 prompt 长度减 1，对应「最后一个 token 必须重算」。</li>
+        <li>块的 <code>block_hash</code> 字段、空闲队列里保留哈希的行为，在 <code>kv_cache_utils.py</code> 和 <code>block_pool.py</code> 里。</li>
+        <li>文档里明确写着：它只减少 prefill 时间，不影响 decode。输出很长、输入很短的负载基本没有收益。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>SGLang</h3>
+      <ul>
+        <li>树在 <code>python/sglang/srt/mem_cache/radix_cache.py</code>：<code>RadixCache</code> 和 <code>TreeNode</code>。节点上有 <code>key</code>（token 段）、<code>value</code>（KV 下标）、<code>lock_ref</code>、<code>last_access_time</code>。</li>
+        <li><code>match_prefix()</code> 做匹配，匹配停在节点中间时调 <code>_split_node()</code>。<code>inc_lock_ref()</code> / <code>dec_lock_ref()</code> 沿路径加锁和解锁。<code>evict()</code> 从可淘汰的叶子里按策略取，默认 LRU。</li>
+        <li>排队策略在 <code>managers/schedule_policy.py</code>，缓存感知的有 <code>lpm</code>、<code>dfs-weight</code> 等，默认是 <code>fcfs</code>。</li>
+        <li>page size 大于 1 时，匹配长度会向下取整到 page 的整数倍，行为向 vLLM 的按块复用靠拢。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="prose">
+    <h3>原始资料</h3>
+    <ul>
+      <li>Zheng et al., <em>SGLang: Efficient Execution of Structured Language Model Programs</em>, NeurIPS 2024。第 3 节是 RadixAttention 和缓存感知调度。</li>
+      <li>vLLM 文档：Features → Automatic Prefix Caching 讲适用场景，Design → Automatic Prefix Caching 讲块哈希和空闲队列的实现。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="prose">
+    <div class="sec-no">路线图</div>
+    <h2>进度</h2>
+  </div>
+  <ol class="road">
+    <li><span>01</span><div>推理基础与 continuous batching<em>已完成</em></div></li>
+    <li><span>02</span><div>显存管理：PagedAttention<em>已完成</em></div></li>
+    <li class="here"><span>03</span><div>前缀缓存<em>本页</em></div></li>
+    <li><span>04</span><div>引擎架构<em>一个请求从 HTTP 到 token 流出，在两个引擎里各经过哪些进程和队列</em></div></li>
+    <li><span>05</span><div>结构化输出与工具调用<em>语法约束如何变成 logit mask，开销在哪</em></div></li>
+    <li><span>06</span><div>加速手段<em>量化、speculative decoding、编译与算子优化各自省在哪</em></div></li>
+    <li><span>07</span><div>分布式部署<em>多卡并行、prefill/decode 分离、缓存感知路由、多 LoRA</em></div></li>
+    <li><span>08</span><div>Agent 负载对推理 infra 的新要求<em>长前缀多轮次、工具调用间隙的缓存保留、子 agent 并发、按任务而非按请求度量</em></div></li>
+    <li><span>09</span><div>压测与实操<em>在真实 GPU 上跑一次，读懂延迟和吞吐曲线</em></div></li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtInt=n=>Math.round(n).toLocaleString('en-US');
+const fmtK=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1000?(n/1000).toFixed(n>=1e5?0:1)+'K':String(n);
+const fmtS=ms=>ms>=60000?(ms/60000).toFixed(1)+' 分钟':(ms/1000).toFixed(1)+' 秒';
+function press(ids,on){ids.forEach(id=>$(id).setAttribute('aria-pressed',id===on?'true':'false'));}
+
+/*SIM-START*/
+const SYS=['你','是','一个','天气','助手','，','回答','简短'];
+const A_USER=['北京','今天','天气','如何','？'],A_GEN=['晴','，','25','度'];
+const B_USER=['上海','明天','会','下雨','吗','？'],B_GEN=['会','。'];
+const C_EXTRA=['那','后天','呢','？'],C_GEN=['多云','。'];
+const E_USER=['北京','今天','会','下雨','吗','？'],E_GEN=['不','会','。'];
+const D_ALL=['把','下面','这','段','话','翻译','成','英文','：','今天','天气','很','好','，','我们','去','公园','散步','吧','。','谢谢'];
+const BS=4;
+function lcp(a,b){let i=0;while(i<a.length&&i<b.length&&a[i]===b[i])i++;return i;}
+function shortHash(parent,toks){let h=2166136261;const s=parent+'|'+toks.join('\u0001');for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return ('00'+((h>>>0)%4096).toString(16)).slice(-3);}
+
+/* fig 2: block-hash prefix cache on a 12-block pool */
+function buildHC(){
+  const NB=12,blocks=[];for(let i=0;i<NB;i++)blocks.push({ref:0,hash:null,cells:[]});
+  let free=[];for(let i=0;i<NB;i++)free.push(i);
+  const map={},reqs={},snaps=[];let fresh=[],evicted=[];
+  const write=(name,t,k)=>{
+    const r=reqs[name],bi=Math.floor(r.toks.length/BS);
+    if(bi>=r.table.length){
+      const p=free.shift(),b=blocks[p];
+      if(b.hash){delete map[b.hash];evicted.push({p,hash:b.hash});b.hash=null;}
+      b.cells=[];b.ref=1;r.table.push({p,hit:false});
+    }
+    const p=r.table[bi].p,b=blocks[p];
+    b.cells.push({t,k});fresh.push(p+':'+(b.cells.length-1));r.toks.push({t,k});
+    if(b.cells.length===BS){const parent=bi>0?blocks[r.table[bi-1].p].hash:'';b.hash=shortHash(parent,b.cells.map(c=>c.t));if(map[b.hash]==null)map[b.hash]=p;}
+  };
+  const arrive=(name,tokens)=>{
+    const table=[];let parent='',hit=0;
+    for(let i=0;i+BS<=tokens.length;i+=BS){
+      if(i+BS>tokens.length-1)break;
+      parent=shortHash(parent,tokens.slice(i,i+BS));
+      const p=map[parent];if(p==null)break;
+      if(blocks[p].ref===0)free.splice(free.indexOf(p),1);
+      blocks[p].ref++;table.push({p,hit:true});hit+=BS;
+    }
+    reqs[name]={toks:tokens.slice(0,hit).map(t=>({t,k:'c'})),table,hit,n:tokens.length};
+    tokens.slice(hit).forEach(t=>write(name,t,'p'));
+  };
+  const finish=name=>{
+    const r=reqs[name];
+    for(let i=r.table.length-1;i>=0;i--){const p=r.table[i].p,b=blocks[p];b.ref--;if(b.ref===0){free.push(p);if(!b.hash)b.cells=[];}}
+    delete reqs[name];
+  };
+  const snap=()=>{snaps.push(JSON.parse(JSON.stringify({blocks,free,reqs,fresh,evicted})));fresh=[];evicted=[];};
+  snap();
+  arrive('A',[...SYS,...A_USER]);snap();
+  A_GEN.slice(0,3).forEach(t=>write('A',t,'d'));snap();
+  arrive('B',[...SYS,...B_USER]);snap();
+  write('A',A_GEN[3],'d');finish('A');snap();
+  arrive('C',[...SYS,...A_USER,...A_GEN,...C_EXTRA]);snap();
+  B_GEN.forEach(t=>write('B',t,'d'));finish('B');snap();
+  arrive('D',D_ALL);snap();
+  return snaps;
+}
+
+/* fig 3: radix tree */
+function buildRadix(){
+  const root={id:0,toks:[],children:[],last:0};let nid=1;const snaps=[];
+  const hitLen=seq=>{let node=root,i=0;for(;;){const c=node.children.find(c=>i<seq.length&&c.toks[0].t===seq[i]);if(!c)break;let j=0;while(j<c.toks.length&&i+j<seq.length&&c.toks[j].t===seq[i+j])j++;i+=j;if(j<c.toks.length)break;node=c;}return i;};
+  const insert=(seq,nPrompt,step)=>{
+    let node=root,i=0,split=null;const path=[];
+    for(;;){
+      const c=node.children.find(c=>i<seq.length&&c.toks[0].t===seq[i]);if(!c)break;
+      let j=0;while(j<c.toks.length&&i+j<seq.length&&c.toks[j].t===seq[i+j])j++;
+      if(j<c.toks.length){const tail={id:nid++,toks:c.toks.slice(j),children:c.children,last:c.last};c.toks=c.toks.slice(0,j);c.children=[tail];split=c.id;}
+      c.last=step;path.push(c.id);i+=j;node=c;
+      if(split!==null)break;
+    }
+    let created=null;
+    if(i<seq.length){const n={id:nid++,toks:seq.slice(i).map((t,k)=>({t,k:i+k<nPrompt?'p':'d'})),children:[],last:step};node.children.push(n);created=n.id;}
+    return {path,split,created};
+  };
+  const snap=x=>snaps.push(JSON.parse(JSON.stringify(Object.assign({root},x))));
+  const run=(name,prompt,gen,step)=>{
+    const hit=Math.min(hitLen(prompt),prompt.length-1);
+    const r=insert([...prompt,...gen],prompt.length,step);
+    snap({name,n:prompt.length,hit,hb:Math.floor(hit/BS)*BS,path:r.path,split:r.split,created:r.created,ghost:null});
+  };
+  snap({name:null,path:[],split:null,created:null,ghost:null});
+  run('A',[...SYS,...A_USER],A_GEN,1);
+  run('B',[...SYS,...B_USER],B_GEN,2);
+  run('C',[...SYS,...A_USER,...A_GEN,...C_EXTRA],C_GEN,3);
+  run('E',[...SYS,...E_USER],E_GEN,4);
+  // evict the least-recently-used leaf
+  let best=null,bestParent=null;
+  (function walk(n){n.children.forEach(c=>{if(!c.children.length){if(!best||c.last<best.last){best=c;bestParent=n;}}walk(c);});})(root);
+  snap({name:null,path:[],split:null,created:null,ghost:best.id});
+  bestParent.children=bestParent.children.filter(c=>c!==best);
+  return snaps;
+}
+
+/* fig 4: agent loop */
+function agentSeries(S,D,N,scn){
+  const a=[];let hist=0,prevL=0;
+  for(let i=1;i<=N;i++){
+    let compacted=false;
+    if(scn==='compact'&&i>1&&(i-1)%10===0){hist=D;compacted=true;}
+    const L=S+hist;let hit=i===1?0:(compacted?S:prevL);
+    if(scn==='ts')hit=0;
+    if(scn==='evict'&&i>1&&(i-1)%5===0)hit=0;
+    a.push({i,L,hit,comp:L-hit,compacted});prevL=L;hist+=D;
+  }
+  return a;
+}
+/*SIM-END*/
+
+/* ───────────── Fig 1: prefix explorer ───────────── */
+const PXP={
+  a:{r1:[...SYS,...A_USER],r2:[...SYS,...B_USER]},
+  b:{r1:[...SYS,...A_USER,...A_GEN],r2:[...SYS,...A_USER,...A_GEN,...C_EXTRA]},
+  c:{r1:['10:31',...SYS,...A_USER],r2:['10:32',...SYS,...A_USER]},
+  d:{r1:[...SYS,...A_USER],r2:[...SYS.slice(0,3),'旅游',...SYS.slice(4),...A_USER]}
+};
+const PX={p:'a',g:'tok'};
+function pxDraw(){
+  const {r1,r2}=PXP[PX.p],blk=PX.g==='blk',L=lcp(r1,r2);
+  let hit=Math.min(L,r2.length-1);if(blk)hit=Math.floor(hit/BS)*BS;
+  const cached1=blk?Math.floor(r1.length/BS)*BS:r1.length;
+  const W=1000,LX=84,CW=42,Y1=44,Y2=132,H=blk?222:196;
+  const X=i=>LX+i*CW;
+  const cell=(x,y,t,cls)=>'<rect class="'+cls+'" x="'+x+'" y="'+y+'" width="'+(CW-2)+'" height="30" rx="2"/><text x="'+(x+CW/2-1)+'" y="'+(y+19.5)+'" text-anchor="middle" font-size="12">'+esc(t)+'</text>';
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="新请求与缓存中请求的逐 token 对比">';
+  s+='<text x="8" y="'+(Y1+19.5)+'" font-size="12.5" font-weight="600">缓存里的</text><text x="8" y="'+(Y2+19.5)+'" font-size="12.5" font-weight="600">新请求</text>';
+  for(let i=0;i<Math.max(r1.length,r2.length);i++)s+='<text class="g-axis mono" x="'+(X(i)+CW/2-1)+'" y="'+(Y1-10)+'" text-anchor="middle">'+i+'</text>';
+  r1.forEach((t,i)=>{s+=cell(X(i),Y1,t,i<cached1?'t-cache':'t-old');});
+  r2.forEach((t,i)=>{s+=cell(X(i),Y2,t,i<hit?'t-cache':'t-prefill');
+    if(i>=L&&r1[i]===t)s+='<text x="'+(X(i)+CW/2-1)+'" y="'+(Y2-8)+'" text-anchor="middle" font-size="13" font-weight="600">＝</text>';});
+  if(L<r2.length&&L<r1.length){
+    s+='<line class="g-ink" x1="'+(X(L)+CW/2-1)+'" y1="'+(Y1+34)+'" x2="'+(X(L)+CW/2-1)+'" y2="'+(Y2-26)+'" stroke-width="1.5" stroke-dasharray="3 3"/>';
+    s+='<text class="f-crit" x="'+(X(L)+CW/2+6)+'" y="'+(Y1+56)+'" font-size="12" font-weight="600">✕ 第一个不同的 token</text>';
+  }else if(L===r1.length&&r2.length>r1.length){
+    s+='<text x="'+(X(L)+4)+'" y="'+(Y1+19.5)+'" font-size="12" class="f-muted">← 缓存里的请求到这里结束，之前完全相同</text>';
+  }
+  if(blk){
+    for(let b=0;b*BS<r2.length;b++){
+      const end=Math.min((b+1)*BS,r2.length),full=end-b*BS===BS,ok=(b+1)*BS<=hit;
+      s+='<path class="'+(ok?'g-ink':'g-muted')+'" d="M'+(X(b*BS)+1)+' '+(Y2+38)+'v6H'+(X(end)-3)+'v-6" fill="none" stroke-width="1.3"/>';
+      s+='<text x="'+((X(b*BS)+X(end))/2-1)+'" y="'+(Y2+60)+'" text-anchor="middle" font-size="11.5" class="'+(ok?'':'f-muted')+'">块 '+b+' · '+(ok?'命中':full?'重算':'没写满')+'</text>';
+    }
+  }
+  s+='</svg>';
+  $('px-svg').innerHTML=s;
+  $('px-s1').textContent=L+' token';$('px-s2').textContent=hit+' token';$('px-s3').textContent=(r2.length-hit)+' token';$('px-s4').textContent=Math.round(hit/r2.length*100)+'%';
+  press(['px-p-a','px-p-b','px-p-c','px-p-d'],'px-p-'+PX.p);press(['px-g-tok','px-g-blk'],'px-g-'+PX.g);
+}
+['a','b','c','d'].forEach(k=>{$('px-p-'+k).onclick=()=>{PX.p=k;pxDraw();};});
+['tok','blk'].forEach(k=>{$('px-g-'+k).onclick=()=>{PX.g=k;pxDraw();};});
+
+/* ───────────── Fig 2: block hash walkthrough ───────────── */
+const HC={snaps:buildHC(),k:3,sel:'B'};
+const HC_FOCUS=[null,'A','A','B','B','C','C','D'];
+const HC_NARR=[
+  'KV 池有 12 个物理块，每块 4 个 token，全部空闲。引擎里另有一张「哈希 → 物理块」的表，现在是空的。图里把哈希直接标在物理块右侧。',
+  '<strong>A 到达</strong>：8 个 token 的系统提示加 5 个 token 的问题。引擎先给 prompt 里每个完整的块算哈希去查表，全部没命中。分配 4 个块，prefill 13 个 token。写满的 #0、#1、#2 各自登记哈希；#3 只写了 1 格，还没有哈希。',
+  'A 生成 3 个 token，把 #3 写满，#3 也登记了哈希。每个块的哈希由「上一块的哈希 + 本块的 4 个 token」算出，所以它代表的是从开头到这一块末尾的整段前缀。',
+  '<strong>B 到达</strong>：同一个系统提示，不同的问题。前两块的哈希和 A 的一样，命中 #0、#1，直接写进 B 的块表，引用计数变成 2。第三块内容不同，哈希不同，查找到此为止。B 只需要 prefill 6 个 token，而不是 14 个。',
+  'A 生成最后一个 token 后结束，归还它的块。#0、#1 还被 B 用着，只是引用计数减 1。#2、#3 没人用了，回到空闲队列尾部，但<strong>哈希保留</strong>：它们是空闲的，同时仍然可以被命中。#6 没写满，没有哈希，直接变回空块。',
+  '<strong>C 到达</strong>：它是 A 那轮对话的下一轮，prompt 是 A 的全部内容再加一句新问题，共 21 个 token。前 4 块全部命中：#0、#1 引用计数加 1，#2、#3 从空闲队列里被捞回来。命中 16 个 token，只需 prefill 5 个。A 的第 17 个 token「度」当时所在的块没写满、没有哈希，所以 C 要重算它。',
+  'B 生成 2 个 token 后结束。它独有的 #4、#5 进入空闲队列，同样保留哈希。归还是逆序的，#5 排在 #4 前面：一条序列越靠后的块越不可能被别人复用，让它先被淘汰。',
+  '<strong>D 到达</strong>：一个不相关的长请求，需要 6 个块。它从空闲队列头部依次取块，取到 #5、#4 时，这两块的哈希从表里删除，内容被覆盖。这就是淘汰：缓存块不会被主动清理，只在被重新分配的那一刻失效。C 还在用的 #0–#3 不受影响。'
+];
+function hcDraw(){
+  const sn=HC.snaps[HC.k],present=Object.keys(sn.reqs);
+  if(!present.includes(HC.sel))HC.sel=present.includes(HC_FOCUS[HC.k])?HC_FOCUS[HC.k]:(present[0]||null);
+  const sel=HC.sel,r=sel?sn.reqs[sel]:null;
+  const W=1000,H=466,Y=i=>44+i*34,CW=44,LX=64,TX=262,TW=196,PX0=560,QX=872;
+  const cell=(x,y,c,fresh,dim)=>{
+    if(!c)return '<rect class="t-empty'+(dim?' dim':'')+'" x="'+x+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/>';
+    const cls=c.k==='c'?'t-cache':c.k==='p'?'t-prefill':'t-decode';
+    return '<g'+(dim?' class="dim"':'')+'><rect class="'+cls+(fresh?' c-ring':'')+'" x="'+x+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/><text x="'+(x+CW/2-1)+'" y="'+(y+18.5)+'" text-anchor="middle" font-size="11.5">'+esc(c.t)+'</text></g>';
+  };
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="请求 '+(sel||'')+' 的块表与物理 KV 池，第 '+(HC.k+1)+' 步">';
+  s+='<defs><marker id="hcAh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>';
+  s+='<g font-size="12.5" font-weight="600"><text x="12" y="24">'+(r?'请求 '+sel+' 的序列':'请求的序列')+'</text><text x="'+TX+'" y="24">'+(r?sel+' 的块表 · 哈希':'块表 · 哈希')+'</text><text x="'+PX0+'" y="24">物理 KV 池</text><text x="'+QX+'" y="24">空闲队列 ↓</text></g>';
+  if(!r)s+='<text x="12" y="'+(Y(0)+19)+'" font-size="12.5" class="f-muted">此刻系统里没有请求</text>';
+  else r.table.forEach((e,li)=>{
+    const y=Y(li),b=sn.blocks[e.p];
+    s+='<text x="12" y="'+(y+18.5)+'" font-size="11.5" class="f-muted mono">块 '+li+'</text>';
+    for(let j=0;j<BS;j++){const tk=r.toks[li*BS+j];s+=cell(LX+j*CW,y,tk,tk&&tk.k!=='c'&&sn.fresh.includes(e.p+':'+j),false);}
+    s+='<rect class="t-row" x="'+TX+'" y="'+y+'" width="'+TW+'" height="28" rx="2"/>';
+    s+='<text x="'+(TX+8)+'" y="'+(y+18.5)+'" font-size="12" class="mono">'+li+' → #'+e.p+'</text>';
+    s+='<text x="'+(TX+92)+'" y="'+(y+18.5)+'" font-size="11.5" class="mono f-muted">'+(b.hash||'未满')+'</text>';
+    s+='<text x="'+(TX+TW-8)+'" y="'+(y+18.5)+'" font-size="11.5" text-anchor="end" font-weight="600" class="'+(e.hit?'f-cache':'f-prefill')+'">'+(e.hit?'✓ 命中':'新算')+'</text>';
+    s+='<line class="g-ink" x1="'+(TX+TW+3)+'" y1="'+(y+14)+'" x2="'+(PX0-36)+'" y2="'+(Y(e.p)+14)+'" stroke-width="1.3" marker-end="url(#hcAh)"/>';
+  });
+  const mine=r?r.table.map(e=>e.p):[];
+  sn.blocks.forEach((b,p)=>{
+    const y=Y(p),used=b.ref>0,cachedFree=!used&&b.hash;
+    s+='<text x="'+(PX0-8)+'" y="'+(y+18.5)+'" text-anchor="end" font-size="12" class="mono'+(used||cachedFree?'':' f-muted')+'">#'+p+'</text>';
+    if(!used&&!cachedFree){for(let j=0;j<BS;j++)s+='<rect class="t-free" x="'+(PX0+j*CW)+'" y="'+y+'" width="'+(CW-2)+'" height="28" rx="2"/>';return;}
+    for(let j=0;j<BS;j++)s+=cell(PX0+j*CW,y,b.cells[j],sn.fresh.includes(p+':'+j),cachedFree);
+    if(mine.includes(p))s+='<rect class="o-sel" x="'+(PX0-3)+'" y="'+(y-3)+'" width="'+(BS*CW+4)+'" height="34" rx="4"/>';
+    s+='<text x="'+(PX0+BS*CW+8)+'" y="'+(y+18.5)+'" font-size="11.5" class="mono'+(used?'':' f-muted')+'">'+(used?'ref '+b.ref:'空闲')+(b.hash?' · '+b.hash:'')+'</text>';
+  });
+  sn.evicted.forEach(e=>{s+='<text class="f-crit" x="'+(PX0+BS*CW+8)+'" y="'+(Y(e.p)+32)+'" font-size="10.5" font-weight="600">✕ 淘汰了 '+e.hash+'</text>';});
+  sn.free.forEach((p,i)=>{const y=44+i*26,h=sn.blocks[p].hash;
+    s+='<rect class="t-free" x="'+QX+'" y="'+y+'" width="'+(h?86:44)+'" height="21" rx="2"/><text x="'+(QX+8)+'" y="'+(y+15)+'" font-size="11.5" class="mono">#'+p+(h?' · '+h:'')+'</text>';
+    if(i===0)s+='<text x="'+(QX+(h?92:50))+'" y="'+(y+15)+'" font-size="11" class="f-muted">队头</text>';
+  });
+  if(!sn.free.length)s+='<text x="'+QX+'" y="59" font-size="11.5" class="f-muted">（空）</text>';
+  s+='</svg>';
+  $('hc-svg').innerHTML=s;
+  $('hc-narr').innerHTML=HC_NARR[HC.k]+(r?' <span class="note">'+sel+'：共 '+r.toks.length+' 个 token，命中 '+r.hit+' 个。</span>':'');
+  $('hc-stepno').textContent='第 '+(HC.k+1)+' / '+HC.snaps.length+' 步';
+  $('hc-prev').disabled=HC.k===0;$('hc-next').disabled=HC.k===HC.snaps.length-1;
+  ['A','B','C','D'].forEach(q=>{$('hc-r-'+q).disabled=!present.includes(q);$('hc-r-'+q).setAttribute('aria-pressed',q===sel?'true':'false');});
+}
+function hcGo(k){HC.k=k;const f=HC_FOCUS[k];if(f&&HC.snaps[k].reqs[f])HC.sel=f;hcDraw();}
+$('hc-prev').onclick=()=>{if(HC.k>0)hcGo(HC.k-1);};
+$('hc-next').onclick=()=>{if(HC.k<HC.snaps.length-1)hcGo(HC.k+1);};
+$('hc-reset').onclick=()=>hcGo(0);
+['A','B','C','D'].forEach(q=>{$('hc-r-'+q).onclick=()=>{HC.sel=q;hcDraw();};});
+
+/* ───────────── Fig 3: radix tree ───────────── */
+const RX={snaps:buildRadix(),k:2};
+const RX_NARR=[
+  '树是空的，只有根节点。',
+  '<strong>A 完成后</strong>，它的整条序列（prompt 加输出，共 17 个 token）作为一个节点挂在根下面。节点里存的是这段 token，以及它们的 KV 在池子里的位置。',
+  '<strong>B 到达</strong>，从根开始往下比对：前 8 个 token 相同，第 9 个不同。匹配停在节点中间，于是这个节点在这里分裂成两段，前 8 个 token 成为公共的父节点。B 完成后，它独有的部分挂成一个新的子节点。',
+  '<strong>C 是 A 的下一轮。</strong>匹配走完两个节点，A 的 17 个 token 全部命中，只有新增的 4 个 token 需要 prefill。C 完成后，新内容接在 A 那一支的后面。',
+  '<strong>E 到达</strong>，它的 prompt 和 A 的前 10 个 token 相同。匹配在第二个节点的第 2 个 token 之后停下，节点再次分裂。块哈希在这里只能命中 8 个，因为第三个块不是完全相同。',
+  '<strong>显存紧张，需要淘汰。</strong>只有叶子节点能被淘汰：内部节点是别人的前缀，删了它，它后面的全部失效。在没有被运行中请求锁住的叶子里，选最久没被访问的，这里是 B 的那一支。'
+];
+function rxDraw(){
+  const sn=RX.snaps[RX.k],CELL=34,GAP=36,RH=66,W=1000;
+  let rows=0;
+  (function lay(n,x){n.x=x;const w=n.toks.length*CELL;if(!n.children.length){n.row=rows++;}else{n.children.forEach(c=>lay(c,x+w+(n.id===0?40:GAP)));n.row=n.children[0].row;}})(sn.root,30);
+  const H=34+Math.max(1,rows)*RH,Yr=r=>26+r*RH;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="radix tree 第 '+(RX.k+1)+' 步">';
+  s+='<circle class="f-ink" cx="30" cy="'+(Yr(0)+14)+'" r="6" fill="currentColor"/><text x="30" y="'+(Yr(0)+40)+'" text-anchor="middle" font-size="11" class="f-muted">根</text>';
+  (function draw(n,parent){
+    if(n.id!==0){
+      const y=Yr(n.row),w=n.toks.length*CELL,py=Yr(parent.row)+14,px=parent.id===0?36:parent.x+parent.toks.length*CELL;
+      s+='<path class="g-muted" d="M'+px+' '+py+'H'+(n.x-14)+'V'+(y+14)+'H'+(n.x-3)+'" fill="none" stroke-width="1.3"/>';
+      const matched=sn.path.includes(n.id),created=sn.created===n.id,ghost=sn.ghost===n.id;
+      s+='<g'+(ghost?' class="dim"':'')+'>';
+      n.toks.forEach((t,j)=>{const cls=matched?'t-cache':created?(t.k==='p'?'t-prefill':'t-decode'):'t-old';
+        s+='<rect class="'+cls+'" x="'+(n.x+j*CELL)+'" y="'+y+'" width="'+(CELL-2)+'" height="28" rx="2"/><text x="'+(n.x+j*CELL+CELL/2-1)+'" y="'+(y+18.5)+'" text-anchor="middle" font-size="11">'+esc(t.t)+'</text>';});
+      s+='</g>';
+      if(ghost){s+='<rect class="o-ghost" x="'+(n.x-3)+'" y="'+(y-3)+'" width="'+(w+4)+'" height="34" rx="4"/><text class="f-crit" x="'+(n.x+w+8)+'" y="'+(y+18.5)+'" font-size="12" font-weight="600">✕ 淘汰</text>';}
+      s+='<text x="'+n.x+'" y="'+(y+43)+'" font-size="10.5" class="mono f-muted">'+n.toks.length+' tok · 第'+(n.last+1)+'步</text>';
+      if(sn.split===n.id)s+='<text x="'+(n.x+w+GAP/2-1)+'" y="'+(y-7)+'" text-anchor="middle" font-size="11.5" font-weight="600">✂ 在这里分裂</text>';
+    }
+    n.children.forEach(c=>draw(c,n));
+  })(sn.root,null);
+  if(!sn.root.children.length)s+='<text x="60" y="'+(Yr(0)+18.5)+'" font-size="12.5" class="f-muted">还没有任何缓存</text>';
+  s+='</svg>';
+  $('rx-svg').innerHTML=s;
+  $('rx-narr').innerHTML=RX_NARR[RX.k];
+  const st=$('rx-status');
+  if(sn.name){st.hidden=false;st.textContent='请求 '+sn.name+'：prompt '+sn.n+' 个 token，树里命中 '+sn.hit+' 个，需要 prefill '+(sn.n-sn.hit)+' 个。同样的请求按块哈希（每块 4）会命中 '+sn.hb+' 个。';}
+  else st.hidden=true;
+  $('rx-stepno').textContent='第 '+(RX.k+1)+' / '+RX.snaps.length+' 步';
+  $('rx-prev').disabled=RX.k===0;$('rx-next').disabled=RX.k===RX.snaps.length-1;
+}
+$('rx-prev').onclick=()=>{if(RX.k>0){RX.k--;rxDraw();}};
+$('rx-next').onclick=()=>{if(RX.k<RX.snaps.length-1){RX.k++;rxDraw();}};
+$('rx-reset').onclick=()=>{RX.k=0;rxDraw();};
+
+/* ───────────── Fig 4: agent loop ───────────── */
+const AG={scn:'ideal'};
+const AG_SC=['ideal','ts','evict','compact'];
+const AG_NOTE={
+  ideal:'每一步只需要 prefill 新增的那一段。柱子越来越高，但蓝色部分始终一样大。',
+  ts:'时间戳在最前面，每一步都变，后面全部失效。虽然开了前缀缓存，效果和没开一样。',
+  evict:'每隔几步，工具执行期间缓存被别的请求挤掉，回来时整个上下文从头算。步数越靠后，丢一次的代价越大。',
+  compact:'压缩那一步，历史被换成一段摘要：系统提示部分仍然命中，摘要要重新算，上下文也变短了。'
+};
+function agDraw(){
+  const S=+$('ag-s').value,D=+$('ag-d').value,N=+$('ag-n').value;
+  $('ag-s-o').textContent=fmtK(S);$('ag-d-o').textContent=fmtK(D);$('ag-n-o').textContent=N+' 步';
+  const a=agentSeries(S,D,N,AG.scn);
+  let sumL=0,sumC=0,maxL=0;a.forEach(x=>{sumL+=x.L;sumC+=x.comp;if(x.L>maxL)maxL=x.L;});
+  const W=1000,H=312,l=58,r=14,t=30,b=34,pw=W-l-r,ph=H-t-b;
+  const raw=maxL/4,p10=Math.pow(10,Math.floor(Math.log10(raw))),step=[1,2,2.5,5,10].map(m=>m*p10).find(v=>v>=raw),yMax=Math.ceil(maxL/step)*step;
+  const Yv=v=>t+ph-v/yMax*ph,bw=pw/N,gap=Math.min(3,bw*0.2);
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="每一步的上下文长度，分为命中缓存和需要 prefill 两部分">';
+  for(let v=0;v<=yMax+1;v+=step)s+='<line class="g-grid" x1="'+l+'" x2="'+(W-r)+'" y1="'+Yv(v)+'" y2="'+Yv(v)+'"/><text class="g-axis mono" x="'+(l-8)+'" y="'+(Yv(v)+4)+'" text-anchor="end">'+fmtK(v)+'</text>';
+  const tickEvery=N<=12?1:N<=30?5:10;
+  a.forEach(x=>{
+    const bx=l+(x.i-1)*bw+gap/2,w=bw-gap,yh=Yv(x.hit),yt=Yv(x.L);
+    const tip='第 '+x.i+' 步 · 上下文 '+fmtInt(x.L)+' token · 命中 '+fmtInt(x.hit)+' · 需 prefill '+fmtInt(x.comp)+(x.compacted?' · 这一步压缩了历史':'');
+    if(x.hit>0)s+='<rect class="f-cache" x="'+bx.toFixed(2)+'" y="'+yh.toFixed(2)+'" width="'+w.toFixed(2)+'" height="'+(t+ph-yh).toFixed(2)+'"><title>'+tip+'</title></rect>';
+    const ch=Math.max(1,yh-yt-(x.hit>0?1.5:0));
+    s+='<rect class="f-prefill" x="'+bx.toFixed(2)+'" y="'+yt.toFixed(2)+'" width="'+w.toFixed(2)+'" height="'+ch.toFixed(2)+'"><title>'+tip+'</title></rect>';
+    if(x.i===1||x.i%tickEvery===0)s+='<text class="g-axis mono" x="'+(bx+w/2)+'" y="'+(H-b+16)+'" text-anchor="middle">'+x.i+'</text>';
+  });
+  s+='<text class="g-axis" x="'+(W-r)+'" y="'+(H-4)+'" text-anchor="end">步</text><text class="g-axis" x="'+(l-8)+'" y="12" text-anchor="end">token</text>';
+  s+='</svg>';
+  $('ag-svg').innerHTML=s;
+  $('ag-t1').textContent=fmtK(sumL);$('ag-t1b').textContent='prefill 约 '+fmtS(sumL*0.1);
+  $('ag-t2').textContent=fmtK(sumC);$('ag-t2b').textContent='prefill 约 '+fmtS(sumC*0.1);
+  $('ag-t3').textContent=(sumL/sumC).toFixed(1)+' 倍';
+  $('ag-t4').textContent=Math.round((1-sumC/sumL)*100)+'%';
+  $('ag-status').textContent=AG_NOTE[AG.scn];
+  press(AG_SC.map(k=>'ag-s-'+k),'ag-s-'+AG.scn);
+}
+AG_SC.forEach(k=>{$('ag-s-'+k).onclick=()=>{AG.scn=k;agDraw();};});
+['ag-s','ag-d','ag-n'].forEach(id=>$(id).addEventListener('input',agDraw));
+
+pxDraw();hcDraw();rxDraw();agDraw();
+})();
+</script>

@@ -1,0 +1,854 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>引擎架构</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose; each figure is a wider "instrument panel"
+   with its controls on top and its readout beside or below the drawing. */
+:root{
+  --bg:#f2f5f5; --surface:#fbfcfc; --surface-2:#e6ecec;
+  --ink:#101b1c; --ink-2:#44565a; --ink-3:#6f8186; --line:#cfd9d9;
+  --prefill:#2a78d6; --decode:#eb6834; --cache:#1baf7a; --waste:#aab7b9; --crit:#c93535;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-display:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+    --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+    --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1415; --surface:#151d1e; --surface-2:#202b2c;
+  --ink:#e7eded; --ink-2:#a8b7b9; --ink-3:#7d8e91; --line:#2b393a;
+  --prefill:#3987e5; --decode:#d95926; --cache:#199e70; --waste:#4d5b5d; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:72px}
+.prose{max-width:43rem;display:flex;flex-direction:column;gap:16px}
+.prose p,.prose ul,.prose ol,.prose dl{margin:0}
+.prose ul,.prose ol{padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-0.01em}
+h2{font-size:25px}
+h3{font-size:17px}
+.eyebrow,.fig-no,.sec-no{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.lede{font-size:18px;color:var(--ink-2)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .38em;border-radius:3px;overflow-wrap:anywhere}
+strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid var(--line)}
+.note{font-size:14px;color:var(--ink-2);line-height:1.7}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.fig-head h3{flex:1 1 16rem}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.7;max-width:46rem}
+.scroll-x{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:currentColor}
+svg .mono{font-family:var(--font-mono)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);min-width:150px;flex:1 1 150px;max-width:260px}
+.ctl output{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.ctl .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink-3);border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--ink-3)}
+.seg button:last-child{border-right:0}
+button{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink-3);border-radius:5px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--surface-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--prefill);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stepno{font-family:var(--font-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.sw-tc{background:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.sw-tp{background:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.sw-td{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.sw-old{background:var(--surface-2);border:1px solid var(--line)}
+.sw-ring{border:2px solid var(--ink)}
+.sw-hit{background:var(--cache)} .sw-comp{background:var(--prefill)}
+
+/* svg classes */
+.t-cache{fill:color-mix(in srgb,var(--cache) 34%,var(--surface))}
+.t-prefill{fill:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.t-decode{fill:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.t-old{fill:var(--surface-2)}
+.t-empty{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+.t-free{fill:none;stroke:var(--line);stroke-width:1}
+.t-row{fill:var(--surface-2)}
+.c-ring{stroke:var(--ink);stroke-width:2}
+.o-sel{fill:none;stroke:var(--ink);stroke-width:1.5}
+.o-ghost{fill:none;stroke:var(--crit);stroke-width:1.5;stroke-dasharray:4 3}
+.g-ink{stroke:var(--ink)} .g-muted{stroke:var(--ink-3)}
+.g-grid{stroke:var(--line);stroke-width:1}
+.g-axis{fill:var(--ink-3);font-size:11px}
+.f-muted{fill:var(--ink-3)} .f-crit{fill:var(--crit)} .f-cache{fill:var(--cache)} .f-prefill{fill:var(--prefill)}
+.dim{opacity:.38}
+
+.narr{font-size:15px;line-height:1.75;min-height:5.4em;margin:0;max-width:52rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 22px}
+.stat{display:flex;flex-direction:column}
+.stat span{font-size:12.5px;color:var(--ink-2)}
+.stat b{font-family:var(--font-mono);font-weight:500;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.4}
+.stat small{font-size:12px;color:var(--ink-3);font-family:var(--font-mono)}
+.status{font-size:14.5px;padding:8px 12px;border-radius:4px;background:var(--surface-2)}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-weight:500;color:var(--ink-2);font-size:13px}
+td:first-child{color:var(--ink-2);white-space:nowrap}
+table.cmp{max-width:56rem}
+
+details.quiz{border:1px dashed var(--ink-3);border-radius:6px;padding:12px 16px;max-width:43rem}
+details.quiz summary{cursor:pointer;font-weight:500;list-style-position:outside;margin-left:1.1em}
+details.quiz summary .tag{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-right:8px}
+details.quiz .ans{margin-top:10px;color:var(--ink-2);font-size:15px;display:flex;flex-direction:column;gap:8px}
+details.quiz .ans p{margin:0}
+
+.callout{border-left:4px solid var(--cache);padding:4px 0 4px 16px;max-width:43rem;font-size:15px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.sys>div{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.sys ul{margin:0;padding-left:1.2em;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-width:43rem}
+.road li{display:grid;grid-template-columns:2.4em 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.road li span:first-child{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.road li em{font-style:normal;color:var(--ink-2);font-size:14px;display:block}
+.road li.here{font-weight:600}
+.road li.here em{font-weight:400}
+header{display:flex;flex-direction:column;gap:18px}
+/* lesson 4 additions */
+.t-rowcur{fill:var(--surface-2)}
+.a-in{stroke:var(--prefill);fill:none} .a-out{stroke:var(--decode);fill:none}
+.f-decode{fill:var(--decode)}
+.halo{paint-order:stroke;stroke:var(--surface);stroke-width:5px;stroke-linejoin:round}
+.hit{fill:transparent;cursor:pointer}
+.fut{opacity:.62}
+.ctl .seg{align-self:flex-start}
+.sw-in{background:color-mix(in srgb,var(--prefill) 32%,var(--surface))}
+.sw-out{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.detail{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px 28px;min-height:12.5em}
+.detail h4{margin:0 0 6px;font-size:16px;font-weight:600}
+.detail p{margin:0;font-size:15px;line-height:1.75}
+.detail .note{margin-top:8px}
+.lbl{font-size:12.5px;color:var(--ink-2);margin-bottom:4px}
+pre.data{margin:0;font-family:var(--font-mono);font-size:12.5px;line-height:1.6;background:var(--surface-2);padding:10px 12px;border-radius:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+.b-gpu{fill:var(--decode)} .b-sched{fill:var(--ink)} .b-front{fill:var(--ink-3)}
+.hatch-line{stroke:var(--waste);stroke-width:2}
+.sw-gpu{background:var(--decode)} .sw-sched{background:var(--ink)} .sw-front{background:var(--ink-3)}
+.sw-idle{background:repeating-linear-gradient(45deg,var(--waste) 0 2px,transparent 2px 5px);border:1px solid var(--line)}
+td.num,th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dt{display:grid;grid-template-columns:minmax(7em,auto) 1fr;gap:12px 18px;align-items:baseline}
+.dt>span{font-size:13px;color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:13px;padding:2px 8px;border-radius:3px;border:1px solid var(--line);background:var(--surface-2);white-space:pre}
+.chip.cur{outline:2px solid var(--ink);outline-offset:1px}
+.chip.fut{opacity:.35}
+.dt-text{font-family:var(--font-mono);font-size:15px;min-height:1.8em;white-space:pre-wrap;overflow-wrap:anywhere}
+.dt-text .held{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--waste) 55%,transparent) 0 2px,transparent 2px 5px);border-bottom:2px dashed var(--ink-3)}
+.dt-text .new{background:color-mix(in srgb,var(--decode) 36%,var(--surface))}
+.dt-text .none{color:var(--ink-3);font-family:var(--font-body);font-size:14px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">推理 Infra · 第 4 课 / 共 9 课</div>
+  <h1>一个请求经过的进程和队列</h1>
+  <p class="lede prose">前三课讲的调度、分页、前缀缓存，都发生在引擎最里面的那个循环里。这一课往外退一步看整台服务：请求怎样从 HTTP 进来，变成 token id，排进调度器，再变回文字流出去。重点有两个：两个引擎各把这些工作分给了哪些进程，以及 CPU 上的开销怎样让 GPU 空等。</p>
+  <p class="note prose">函数名和文件路径都对照了两个项目当前的 main 分支。图里的耗时数字是示意，沿用第 1 课的成本模型。</p>
+</header>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">1 · 请求的一生</div>
+    <h2>从 JSON 到张量，再回到文字</h2>
+    <p>客户端发来的是一段 JSON，GPU 要的是整数张量，客户端最后收到的又是文字。中间要做四次转换，全部在 CPU 上：</p>
+    <ul>
+      <li><span class="term">渲染 chat template</span>：模型自带一段模板，把 <code>messages</code> 列表（还有工具定义）拼成它训练时见过的那种带特殊标记的字符串。</li>
+      <li><span class="term">分词</span>（tokenize）：把字符串切成 token id 序列。</li>
+      <li><span class="term">反分词</span>（detokenize）：把模型吐出的 token id 变回文字。</li>
+      <li><span class="term">流式写出</span>：用 SSE（Server-Sent Events）发给客户端。SSE 就是一个不关闭的 HTTP 响应，服务器每有一点新内容就往里写一行 <code>data: {...}</code>。</li>
+    </ul>
+    <p>夹在中间的才是调度和前向计算。下图把一个流式聊天请求走过的每一站按顺序画出来：竖线是进程，横向箭头是跨进程的消息，方块是在某个进程里做的一件事。可以切换两个引擎对比。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 1</span><h3>一个流式请求经过的每一站</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="引擎">
+        <button id="sq-vllm" aria-pressed="true">vLLM</button>
+        <button id="sq-sgl" aria-pressed="false">SGLang</button>
+      </div>
+      <div class="btns">
+        <button id="sq-prev">上一步</button>
+        <button id="sq-next">下一步</button>
+        <button id="sq-reset">回到开头</button>
+        <span class="stepno" id="sq-no"></span>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-in"></i>输入方向：请求走向 GPU</span>
+      <span><i class="sw sw-out"></i>输出方向：token 走向客户端</span>
+      <span><i class="sw sw-ring"></i>当前这一步</span>
+      <span>点任意一行可以直接跳过去</span>
+    </div>
+    <div class="scroll-x" id="sq-svg"></div>
+    <div class="detail">
+      <div>
+        <h4 id="sq-title"></h4>
+        <p id="sq-body"></p>
+        <p class="note" id="sq-src"></p>
+      </div>
+      <div>
+        <div class="lbl">此刻的数据长这样</div>
+        <pre class="data" id="sq-data"></pre>
+      </div>
+    </div>
+    <figcaption>右侧括号里的步骤每生成一个 token 重复一次。示例数据里的 token id、请求 id 是为了说明形态编的。</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>两个引擎怎么分工</h3>
+    <p>事情是同一批，分法不同。最显眼的两处差别：反分词放在哪，以及前向计算由谁发起。</p>
+  </div>
+  <div class="scroll-x">
+  <table class="cmp">
+    <thead><tr><th></th><th>vLLM</th><th>SGLang</th></tr></thead>
+    <tbody>
+      <tr><td>HTTP、模板、分词</td><td>API server 进程</td><td>主进程（<code>TokenizerManager</code>）</td></tr>
+      <tr><td>调度、KV 管理</td><td>EngineCore 进程</td><td>Scheduler 进程</td></tr>
+      <tr><td>前向计算</td><td>GPU worker。单卡时就在 EngineCore 进程内；多卡时每张卡一个 worker 进程，EngineCore 通过共享内存消息队列向它们广播指令</td><td>就在 Scheduler 进程内。多卡张量并行时每张卡一个 Scheduler 进程</td></tr>
+      <tr><td>反分词</td><td>API server 进程（<code>OutputProcessor</code>）</td><td>单独的 Detokenizer 进程</td></tr>
+      <tr><td>进程间通道</td><td>ZMQ，msgpack 编码</td><td>ZMQ（本机 IPC socket）</td></tr>
+      <tr><td>单卡默认进程数</td><td>2</td><td>3</td></tr>
+      <tr><td>前端不够用时</td><td><code>--api-server-count</code> 加 API server 进程</td><td><code>--tokenizer-worker-num</code>、<code>--detokenizer-worker-num</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <p class="note">ZMQ 是一个消息队列库，这里只用来在同一台机器的进程之间传消息。跨进程就得把对象序列化成字节再还原，所以两个引擎在进程之间传的都是 token id 这类紧凑的数据，文本只在最外层出现。</p>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>第 3 课里，Agent 第 30 步的请求有 99% 的 prompt 命中前缀缓存。图 1 的哪些步骤没有因此变快？</summary>
+    <div class="ans">
+      <p>GPU 之前的所有步骤。模板渲染和分词每次都对整个 prompt 做一遍，全部 token id 都要序列化后送进引擎，调度器查前缀缓存也要把整个 prompt 走一遍（vLLM 逐块算哈希，SGLang 沿 radix tree 逐段比对）。</p>
+      <p>前缀缓存省的是 GPU 上的 prefill。CPU 上这些和上下文长度成正比的开销还在，GPU 那边省下来之后，它们在首 token 延迟里的占比反而上升。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">2 · 引擎主循环</div>
+    <h2>前三课的内容都在这个循环里</h2>
+    <p>图 1 括号里靠 GPU 的那几步，是引擎进程里一个永不退出的循环（busy loop），每转一圈就是第 1 课说的一次迭代。两个引擎的循环体可以逐行对上：</p>
+  </div>
+  <div class="scroll-x">
+  <table class="cmp">
+    <thead><tr><th>每一轮做的事</th><th>vLLM <span class="note">core.py · <code>EngineCore.step()</code></span></th><th>SGLang <span class="note">scheduler.py · <code>event_loop_normal()</code></span></th></tr></thead>
+    <tbody>
+      <tr><td>收新请求和取消</td><td><code>_process_input_queue()</code></td><td><code>ingest_requests()</code></td></tr>
+      <tr><td>决定这一轮跑谁</td><td><code>scheduler.schedule()</code><br>产出 <code>SchedulerOutput</code></td><td><code>get_next_batch_to_run()</code><br>产出 <code>ScheduleBatch</code></td></tr>
+      <tr><td>前向 + 采样</td><td><code>model_executor.execute_model()</code></td><td><code>run_batch()</code></td></tr>
+      <tr><td>记账、判断结束、释放 KV</td><td><code>scheduler.update_from_output()</code></td><td><code>process_batch_result()</code></td></tr>
+      <tr><td>把输出送走</td><td>放进 <code>output_queue</code>，由输出线程发出</td><td>发给 Detokenizer 进程</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <p>第 1 课的等待队列和 token 预算、第 2 课的块分配和抢占、第 3 课的前缀查找，全部发生在「决定这一轮跑谁」这一行里。第 2 课说的「请求结束时归还块」发生在「记账」这一行。</p>
+    <p>有一处行为不同。vLLM 的一轮里 prefill 和 decode 的 token 混在同一个 batch 中，受同一个 token 预算约束。SGLang 默认每轮只跑一种：<code>get_next_batch_to_run()</code> 先看能不能从等待队列组出一批新请求做 prefill，组得出就跑这批，组不出才让正在运行的请求做一轮 decode；上一轮 prefill 完的请求会并入运行中的 batch。想让两种混跑，要加 <code>--enable-mixed-chunk</code>。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">3 · 为什么要拆进程</div>
+    <h2>CPU 忙的时候，GPU 在空等</h2>
+    <p>两个引擎都是 Python 写的。标准的 Python 解释器有一把<span class="term">全局解释器锁</span>（GIL）：一个进程里不管开多少线程，同一时刻只有一个线程在执行 Python 代码。所以只要分词、反分词、拼 JSON、写 SSE 和调度循环待在同一个进程里，它们就得轮流用 CPU。</p>
+    <p>GPU 的前向计算本身不占这把锁，但<strong>发起</strong>下一次前向要靠调度循环。循环被别的 Python 代码占着，下一轮就发不出去，GPU 就闲着。一块几万美元的卡在等一段字符串拼接。</p>
+    <p>解决办法分两步。第一步把和请求数成正比的前端工作搬到别的进程，那里有自己的 GIL。第二步让调度和前向重叠：GPU 算第 N 轮的时候，CPU 已经在排第 N+1 轮。下图把三种做法放在同一条时间轴上。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 2</span><h3>三种架构下，GPU 有多少时间在干活</h3></div>
+    <div class="controls">
+      <label class="ctl"><span class="row"><span>decode 序列数</span><output id="tl-B-o"></output></span><input type="range" id="tl-B" min="8" max="512" step="8" value="128"></label>
+      <label class="ctl"><span class="row"><span>每轮调度耗时</span><output id="tl-s-o"></output></span><input type="range" id="tl-s" min="0.5" max="10" step="0.5" value="3"></label>
+      <label class="ctl"><span class="row"><span>前端每 token 耗时</span><output id="tl-f-o"></output></span><input type="range" id="tl-f" min="0.02" max="0.3" step="0.01" value="0.1"></label>
+      <div class="ctl"><span>模型速度</span>
+        <div class="seg" role="group" aria-label="模型速度">
+          <button id="tl-m-std" aria-pressed="true">标准</button>
+          <button id="tl-m-fast" aria-pressed="false">快 4 倍的小模型</button>
+        </div>
+      </div>
+      <div class="ctl"><span>前端进程数（B、C 两种）</span>
+        <div class="seg" role="group" aria-label="前端进程数">
+          <button id="tl-k1" aria-pressed="true">1</button>
+          <button id="tl-k2" aria-pressed="false">2</button>
+          <button id="tl-k4" aria-pressed="false">4</button>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw sw-gpu"></i>GPU 前向</span>
+      <span><i class="sw sw-idle"></i>GPU 空闲</span>
+      <span><i class="sw sw-sched"></i>调度</span>
+      <span><i class="sw sw-front"></i>前端处理（反分词、组包、写 SSE）</span>
+    </div>
+    <div class="scroll-x" id="tl-svg"></div>
+    <div class="scroll-x">
+    <table id="tl-table">
+      <thead><tr><th>架构</th><th class="num">每轮周期</th><th class="num">GPU 利用率</th><th class="num">GPU 产出</th><th class="num">前端负载</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <div class="status" id="tl-status"></div>
+    <figcaption>示意模型，不是实测。GPU 每轮耗时沿用第 1 课的 20 ms + 每序列 0.4 ms；调度和前端的耗时由滑块设定，实际大小取决于 CPU、分词器和并发数。前端负载指前端处理一轮输出所需的时间占一轮周期的比例，超过 100% 就是跟不上。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>保持默认参数，把模型换成「快 4 倍的小模型」。A 和 C 的 GPU 利用率差距会变大还是变小？</summary>
+    <div class="ans">
+      <p>变大很多。标准速度下 A 是 82%，C 是 100%。换成小模型后 A 掉到 53%，C 还是 100%。</p>
+      <p>CPU 上的开销和模型大小无关：调度还是 3 ms，前端还是每轮 12.8 ms。GPU 每轮从 71 ms 缩到 18 ms，CPU 那部分的占比就从不到两成涨到接近一半。模型越快、GPU 越强，CPU 侧的架构越重要。两个项目这几年在这上面的重构，动机都在这里。</p>
+      <p>再看小模型下 C 的前端负载：72%。把并发拉到 512、前端每 token 耗时调到 0.12 ms，它会超过 100%，这时该加前端进程了。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>这三种架构对应什么</h3>
+    <ul>
+      <li><strong>B 是两个引擎现在的基本形态。</strong>vLLM 的 API server 和 EngineCore 是两个进程；SGLang 更进一步，把反分词也单独拆了出去。</li>
+      <li><strong>C 在两边都是默认开启的。</strong>SGLang 叫 overlap schedule，对应 <code>event_loop_overlap()</code>：发起第 N 批的前向后不等结果，回头去处理第 N−1 批的结果。可以用 <code>--disable-overlap-schedule</code> 关掉。vLLM 叫 async scheduling，文档的说法是 GPU 跑第 N 步时 CPU 调度第 N+1 步，对应 <code>AsyncScheduler</code>，可以用 <code>--no-async-scheduling</code> 关掉。</li>
+      <li><strong>重叠有代价。</strong>排第 N+1 轮时，第 N 轮的结果还没出来，调度器只能先假设每个请求都会继续。刚好在第 N 轮结束的请求会在下一轮多占一个位置，多算的那个 token 被丢掉。语法约束看起来和重叠冲突，因为下一步的掩码要等上一个 token。两个引擎的办法是把前向和采样拆开：前向照常提前发起，只有采样等掩码算好再做，第 5 课细讲。</li>
+    </ul>
+    <p>前端跟不上时，后果在 A 和 B/C 里完全不同。A 里前端的活直接挡住下一轮前向。B/C 里 GPU 照常跑，输出在前端排队：vLLM 的 <code>RequestOutputCollector</code> 会把同一个请求积压的多个输出合并成一个再交出去，客户端看到的流变成一顿一顿的，延迟变差，吞吐不受影响。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">4 · 输出这一侧</div>
+    <h2>token 不能一个一个单独变回文字</h2>
+    <p>反分词看起来是查表，其实要带状态，原因有两个。</p>
+    <p>第一，一个字符可能被切成几个 token。表情符号和生僻字在词表里没有整块的条目，会被拆成字节级的 token，只拿到前一半时解码出来是乱码字符 <code>&#xFFFD;</code>。所以反分词器要记住每个请求「已经解码到哪、已经发出到哪」，遇到不完整的字符先扣住。</p>
+    <p>第二，<span class="term">stop 字符串</span>。客户端可以指定一些字符串，输出里一出现就停止生成。它是按文字匹配的，可能横跨好几个 token，模型吐出前半截时还不能确定是不是它。已经发给客户端的字收不回来，所以只能先扣住一段。</p>
+  </div>
+
+  <figure>
+    <div class="fig-head"><span class="fig-no">图 3</span><h3>增量反分词：哪些字被扣住了</h3></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="stop 字符串">
+        <button id="dt-off" aria-pressed="true">不设 stop</button>
+        <button id="dt-on" aria-pressed="false">stop = "\n\nUser:"</button>
+      </div>
+      <div class="btns">
+        <button id="dt-prev">上一步</button>
+        <button id="dt-next">下一步</button>
+        <button id="dt-reset">回到开头</button>
+        <span class="stepno" id="dt-no"></span>
+      </div>
+    </div>
+    <div class="dt">
+      <span>模型吐出的 token</span><div class="chips" id="dt-chips"></div>
+      <span>反分词器里的文本</span><div class="dt-text" id="dt-full"></div>
+      <span>这一步发给客户端</span><div class="dt-text" id="dt-delta"></div>
+      <span>客户端累计收到</span><div class="dt-text" id="dt-sent"></div>
+    </div>
+    <p class="narr" id="dt-narr"></p>
+    <figcaption>斜纹底的部分已经解码出来但还扣着没发。↵ 代表换行符。token 的切分方式是为了演示编的；扣住末尾「最长 stop 串长度减 1」个字符是 vLLM 的做法。</figcaption>
+  </figure>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>不设 stop 时，句号在第 5 步发出。设了 <code>"\n\nUser:"</code> 之后，它在第几步发出？</summary>
+    <div class="ans">
+      <p>第 7 步，晚了两个 token。这个 stop 串有 7 个字符，vLLM 始终扣住末尾 6 个。第 5 步文本一共才 5 个字符，一个都发不出去；第 6 步有 7 个字符，放行 1 个；第 7 步有 11 个字符，放行到第 5 个，句号才出去。</p>
+      <p>所以 stop 串越长，流式输出滞后得越多。滞后的只是「发出」，生成速度没有变。</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>在真实系统里</h3>
+    <ul>
+      <li><strong>vLLM</strong> 的反分词和 stop 匹配都在 API server 进程的 <code>OutputProcessor</code> 里。stop 串匹配成功时，引擎那边并不知道，要由 API server 再发一条中止消息回去（代码里的 <code>reqs_to_abort</code>）。这条消息到达之前引擎可能已经又跑了一两轮，多出来的 token 被丢弃。EOS 和 <code>max_tokens</code> 不同，它们按 token 判断，调度器在记账时当场就知道。</li>
+      <li><strong>SGLang</strong> 的 stop 串检查放在 Scheduler 进程里（<code>Req</code> 对象解码输出的末尾一小段来比对），所以引擎自己就能停，不需要绕一圈。Detokenizer 进程用 <code>DetokenizeState</code> 记每个请求的偏移量，负责扣住不完整的字符，并用 <code>trim_matched_stop()</code> 把 stop 串裁掉。</li>
+      <li><strong>两边都有 <code>--stream-interval</code></strong>，默认是 1，即每个 token 发一次。调大后攒够几个 token 才发一次，流没那么顺滑，换来前端开销下降。它直接对应图 2 里「前端每 token 耗时」那个滑块。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">5 · 取消</div>
+    <h2>客户端走了，GPU 要尽快知道</h2>
+    <p>请求在三个进程里都留了状态：前端有连接和输出队列，引擎有调度状态和 KV 块。客户端中途断开时，这些都要清掉，否则 GPU 会继续为一个没人看的请求生成，占着 batch 位置和显存。取消消息走的是图 1 的输入方向。</p>
+    <ul>
+      <li><strong>vLLM</strong>：连接断开时，处理这个请求的协程被取消，<code>AsyncLLM.generate()</code> 捕获到 <code>asyncio.CancelledError</code>，调 <code>abort()</code>，先清前端的状态，再给 EngineCore 发一条 <code>ABORT</code>。EngineCore 把它放进单独的 <code>aborts_queue</code>，在每轮 <code>update_from_output()</code> 之前处理，等前向结果的间隙里也会处理。最终落到 <code>scheduler.finish_requests()</code>，把请求标成 <code>FINISHED_ABORTED</code> 并归还 KV 块。</li>
+      <li><strong>SGLang</strong>：主进程在每发完一个 chunk 后、以及等输出超时的时候检查 <code>request.is_disconnected()</code>，发现断开就调 <code>abort_request()</code>，给 Scheduler 发一条 <code>AbortReq</code>。Scheduler 把还在排队的请求直接删掉；正在运行的请求被标记为结束，按源码注释，它还会再跑一次 decode 前向，然后走正常的结束流程释放 KV。</li>
+    </ul>
+  </div>
+
+  <details class="quiz">
+    <summary><span class="tag">预测</span>取消一个正在 decode 的请求，它占的 KV 块最快什么时候能给别人用？</summary>
+    <div class="ans">
+      <p>最快也要等当前这一轮前向结束。取消消息到达引擎时，这一轮的 batch 已经在 GPU 上算了，里面有这个请求的一行，没法中途抽走。这一轮结束后调度器处理取消、归还块，下一轮别的请求才能用。</p>
+      <p>再加上发现断开和跨进程传消息的时间，实际延迟是一到几轮。一轮几十毫秒，对单个请求无所谓；但如果取消很频繁、每次又都占着几万 token 的 KV，这段延迟里的显存就不能忽略了。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">6 · Agent 视角</div>
+    <h2>Agent 负载让哪几站变重</h2>
+    <p>聊天负载下，图 1 里 CPU 上的那些步骤基本可以忽略。Agent 负载把其中几项放大了。</p>
+  </div>
+  <div class="callout">
+    <p><b>分词和模板渲染不吃前缀缓存。</b>Agent 每一步都把完整的历史再发一遍，几十个工具的 JSON schema 也每次都要拼进 prompt。前缀缓存让 GPU 只算新增的部分，CPU 上这两步默认仍是对全文做。上下文到十万 token 时，单次分词粗略估计在百毫秒量级，这段时间直接计入首 token 延迟，而且占着前端进程的 CPU。</p>
+  </div>
+  <div class="callout">
+    <p><b>取消是常态。</b>用户打断、harness 给工具调用设超时、并行跑几个子 agent 后只留一个结果，都会产生取消。每个被取消的请求背后是几万 token 的 KV，第 5 节的那条路径走得快不快，决定这些显存多久能回到池子里。</p>
+  </div>
+  <div class="callout">
+    <p><b>工具调用的输出不一定要逐 token 流式。</b>harness 要等参数 JSON 完整了才能执行工具，中间的每个 token 对它没有用。这类请求可以不开流式，或者把 <code>--stream-interval</code> 调大，省掉前端按 token 计的开销。面向人的最终回答再用逐 token 流式。</p>
+  </div>
+  <div class="callout">
+    <p><b>子 agent 并发让前端先到瓶颈。</b>一个任务同时开十几个子 agent，每个都带长上下文，前端要同时做十几份长 prompt 的分词。图 2 里的「前端负载」会先于 GPU 打满。这时该调的是 <code>--api-server-count</code> 或 <code>--tokenizer-worker-num</code>，加 GPU 没有用。</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── 7 ───────────────────────── -->
+<section>
+  <div class="prose">
+    <div class="sec-no">7 · 对应到真实系统</div>
+    <h2>源码入口和开关</h2>
+    <p>顺着图 1 的顺序列出。两个项目重构都很频繁，路径以当前 main 分支为准。</p>
+  </div>
+  <div class="sys">
+    <div>
+      <h3>vLLM</h3>
+      <ul>
+        <li>HTTP 入口：<code>vllm/entrypoints/openai/api_server.py</code>。聊天接口的处理在 <code>entrypoints/openai/chat_completion/serving.py</code> 的 <code>OpenAIServingChat</code>。</li>
+        <li>前端和引擎的接口：<code>vllm/v1/engine/async_llm.py</code> 的 <code>AsyncLLM</code>，看 <code>add_request()</code>、<code>generate()</code> 和 <code>output_handler</code>。</li>
+        <li>输入输出处理：同目录的 <code>input_processor.py</code>、<code>output_processor.py</code>、<code>detokenizer.py</code>。</li>
+        <li>跨进程通道：<code>core_client.py</code> 的 <code>AsyncMPClient</code>。</li>
+        <li>引擎主循环：<code>core.py</code> 的 <code>EngineCoreProc.run_busy_loop()</code> 和 <code>EngineCore.step()</code>。</li>
+        <li>执行器：<code>vllm/v1/executor/</code> 下的 <code>uniproc_executor.py</code>（单卡）和 <code>multiproc_executor.py</code>（多卡）。前向在 <code>vllm/v1/worker/gpu/model_runner.py</code> 的 <code>GPUModelRunner</code>。</li>
+        <li>文档 Design → Architecture Overview 给了进程数的算法：API server 数 + 引擎数 + GPU worker 数。例子是 4 卡张量并行共 6 个进程。</li>
+        <li>开关：<code>--api-server-count</code>、<code>--stream-interval</code>（默认 1）、<code>--no-async-scheduling</code>。环境变量 <code>VLLM_V1_OUTPUT_PROC_CHUNK_SIZE</code>（默认 128）控制输出处理每处理多少个请求让出一次事件循环。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>SGLang</h3>
+      <ul>
+        <li>HTTP 入口：<code>python/sglang/srt/entrypoints/http_server.py</code>。聊天接口在 <code>entrypoints/openai/serving_chat.py</code> 的 <code>OpenAIServingChat</code>。</li>
+        <li>进程是怎么拉起来的：<code>entrypoints/engine.py</code> 的 <code>_launch_subprocesses()</code>。</li>
+        <li>主进程一侧：<code>managers/tokenizer_manager.py</code> 的 <code>TokenizerManager</code>，看 <code>generate_request()</code>、<code>handle_loop()</code>、<code>abort_request()</code>。</li>
+        <li>引擎主循环：<code>managers/scheduler.py</code> 的 <code>event_loop_normal()</code> 和 <code>event_loop_overlap()</code>，两个函数都只有几十行，适合对照着读。</li>
+        <li>前向：Scheduler 持有 <code>managers/tp_worker.py</code> 的 <code>TpModelWorker</code>，它再调 <code>model_executor/model_runner.py</code>。</li>
+        <li>反分词：<code>managers/detokenizer_manager.py</code> 和 <code>managers/incremental_detokenize.py</code>。</li>
+        <li>开关：<code>--disable-overlap-schedule</code>、<code>--stream-interval</code>（默认 1）、<code>--tokenizer-worker-num</code>、<code>--detokenizer-worker-num</code>（默认都是 1）、<code>--enable-mixed-chunk</code>。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="prose">
+    <div class="sec-no">路线图</div>
+    <h2>进度</h2>
+  </div>
+  <ol class="road">
+    <li><span>01</span><div>推理基础与 continuous batching<em>已完成</em></div></li>
+    <li><span>02</span><div>显存管理：PagedAttention<em>已完成</em></div></li>
+    <li><span>03</span><div>前缀缓存<em>已完成</em></div></li>
+    <li class="here"><span>04</span><div>引擎架构<em>本页</em></div></li>
+    <li><span>05</span><div>结构化输出与工具调用<em>语法约束如何变成 logit mask，开销在哪</em></div></li>
+    <li><span>06</span><div>加速手段<em>量化、speculative decoding、编译与算子优化各自省在哪</em></div></li>
+    <li><span>07</span><div>分布式部署<em>多卡并行、prefill/decode 分离、缓存感知路由、多 LoRA</em></div></li>
+    <li><span>08</span><div>Agent 负载对推理 infra 的新要求<em>长前缀多轮次、工具调用间隙的缓存保留、子 agent 并发、按任务而非按请求度量</em></div></li>
+    <li><span>09</span><div>压测与实操<em>在真实 GPU 上跑一次，读懂延迟和吞吐曲线</em></div></li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtInt=n=>Math.round(n).toLocaleString('en-US');
+function press(ids,on){ids.forEach(id=>$(id).setAttribute('aria-pressed',id===on?'true':'false'));}
+
+/*SIM-START*/
+// ── Fig 2: one decode iteration under three process layouts ──
+function gpuMs(B,fast){return (fast?0.25:1)*(20+0.4*B);}
+function archSim(arch,p,T){
+  const G=gpuMs(p.B,p.fast), F=p.f*p.B, s=p.s, k=p.k;
+  const front=[],eng=[],gpu=[];
+  let period, fe=0;
+  if(arch==='A'){
+    period=s+G+F;
+    for(let t=0;t<T;t+=period){eng.push([t,t+s]);gpu.push([t+s,t+s+G]);front.push([t+s+G,t+period]);}
+  }else if(arch==='B'){
+    period=s+G;
+    for(let t=0;t<T;t+=period){
+      eng.push([t,t+s]);gpu.push([t+s,t+period]);
+      const st=Math.max(t+period,fe);fe=st+F/k;front.push([st,fe]);
+    }
+  }else{
+    period=Math.max(G,s);
+    for(let t=0;t<T;t+=period){
+      eng.push([t,t+s]);gpu.push([t,t+G]);
+      const st=Math.max(t+G,fe);fe=st+F/k;front.push([st,fe]);
+    }
+  }
+  return {period,G,F,util:G/period,tps:p.B/period*1000,
+          frontLoad:arch==='A'?null:(F/k)/period,front,eng,gpu};
+}
+function niceStep(span){
+  const raw=span/6,pow=Math.pow(10,Math.floor(Math.log10(raw)));
+  const m=raw/pow;return (m<=1?1:m<=2?2:m<=5?5:10)*pow;
+}
+
+// ── Fig 3: incremental detokenization with a hold-back buffer ──
+const DT=[
+  {l:'天气',t:'天气'},{l:'晴',t:'晴'},
+  {l:'<F0 9F>',t:'',part:true},{l:'<99 82>',t:'🙂',done:true},
+  {l:'。',t:'。'},{l:'\\n\\n',t:'\n\n'},{l:'User',t:'User'},{l:':',t:':'}
+];
+const STOP=Array.from('\n\nUser:');
+function findSeq(arr,seq){
+  for(let i=0;i+seq.length<=arr.length;i++){
+    let ok=true;
+    for(let j=0;j<seq.length;j++)if(arr[i+j]!==seq[j]){ok=false;break;}
+    if(ok)return i;
+  }
+  return -1;
+}
+function detokStates(useStop){
+  const out=[{text:[],sent:0,delta:'',fin:false}];
+  let text=[],sent=0,fin=false;
+  const buf=useStop?STOP.length-1:0;
+  for(let i=0;i<DT.length;i++){
+    if(fin){out.push({text:text.slice(),sent,delta:'',fin:true,after:true});continue;}
+    text=text.concat(Array.from(DT[i].t));
+    let stopHit=false,ns;
+    const at=useStop?findSeq(text,STOP):-1;
+    if(at>=0){text=text.slice(0,at);fin=true;stopHit=true;ns=Math.max(sent,text.length);}
+    else ns=Math.max(sent,text.length-buf);
+    const delta=text.slice(sent,ns).join('');
+    sent=ns;
+    out.push({text:text.slice(),sent,delta,fin,stopHit,part:!!DT[i].part,done:!!DT[i].done});
+  }
+  return out;
+}
+/*SIM-END*/
+
+// ───────────── Fig 1: sequence diagram ─────────────
+const ENG={
+vllm:{
+  lanes:[{id:'c',name:'客户端 / harness',sub:'HTTP 连接'},{id:'api',name:'API server 进程',sub:'asyncio 事件循环'},{id:'core',name:'EngineCore 进程',sub:'主循环 + 收发线程'},{id:'gpu',name:'GPU worker',sub:'单卡时在 EngineCore 进程内'}],
+  loop:[5,12],
+  steps:[
+   {k:'msg',from:'c',to:'api',dir:'in',label:'POST /v1/chat/completions',title:'请求到达 API server',
+    body:'FastAPI 路由收到请求，按 OpenAI 协议校验字段。API server 跑在 asyncio 事件循环上：一个线程轮流照看所有连接，哪个连接在等网络，就先去处理别的。',
+    data:'{"model": "llama-3.1-8b", "stream": true,\n "messages": [\n   {"role": "system", "content": "你是一个天气助手"},\n   {"role": "user", "content": "北京天气？"}]}',
+    src:'<code>vllm/entrypoints/openai/api_server.py</code>'},
+   {k:'box',at:'api',dir:'in',label:'模板渲染 + 分词',title:'消息列表变成 token id',
+    body:'先套 chat template 得到一整段字符串，再由分词器切成 token id。工具定义也是在这一步被拼进 prompt 的。这两步的耗时和 prompt 长度成正比，全在 CPU 上。',
+    data:'"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\\n\\n你是一个天气助手<|eot_id|>…"\n→ [128000, 128006, 9125, 128007, 271, …]   共 37 个',
+    src:'<code>chat_completion/serving.py</code> · <code>OpenAIServingChat.render_chat_request()</code>；<code>v1/engine/input_processor.py</code>'},
+   {k:'box',at:'api',dir:'in',label:'AsyncLLM.add_request()',title:'登记这个请求',
+    body:'给请求建一个 <code>RequestOutputCollector</code>，它是这个请求专属的出口，之后的输出都放进这里。同时在 <code>OutputProcessor</code> 里登记反分词状态。交给引擎的 <code>EngineCoreRequest</code> 只有 token id 和采样参数，不带文本。',
+    data:'EngineCoreRequest(\n  request_id="chatcmpl-7f3a",\n  prompt_token_ids=[128000, 128006, …],\n  sampling_params=SamplingParams(temperature=0.7, max_tokens=256))',
+    src:'<code>v1/engine/async_llm.py</code> · <code>AsyncLLM.add_request()</code>'},
+   {k:'msg',from:'api',to:'core',dir:'in',label:'ZMQ · msgpack',title:'跨进程送进引擎',
+    body:'请求被 msgpack 编码成二进制，通过 ZMQ 发给 EngineCore 进程。msgpack 是一种紧凑的二进制序列化格式。序列化和反序列化是拆进程必须付的固定成本。',
+    data:'[ 请求类型 = ADD ][ msgpack 编码的 EngineCoreRequest ]',
+    src:'<code>v1/engine/core_client.py</code> · <code>AsyncMPClient</code>'},
+   {k:'box',at:'core',dir:'in',label:'input_queue → 等待队列',title:'进入调度器的等待队列',
+    body:'EngineCore 进程里有一个专门收消息的线程，解码后把请求放进 <code>input_queue</code>。主循环每轮开头调 <code>_process_input_queue()</code>，把新请求交给调度器。从这里起就是第 1 课的等待队列。',
+    data:'Request(status=WAITING, num_prompt_tokens=37, num_computed_tokens=0)',
+    src:'<code>v1/engine/core.py</code> · <code>process_input_sockets()</code>、<code>_process_input_queue()</code>'},
+   {k:'box',at:'core',dir:'in',label:'scheduler.schedule()',title:'决定这一轮算哪些 token',
+    body:'前三课的内容集中在这一个函数里：查前缀缓存，分配 KV 块，在 token 预算内把 prefill 和 decode 排进同一个 batch。产出的 <code>SchedulerOutput</code> 写明这一轮每个请求算多少个 token。',
+    data:'SchedulerOutput(\n  scheduled_new_reqs=["chatcmpl-7f3a"],\n  num_scheduled_tokens={"chatcmpl-7f3a": 21, "chatcmpl-55c1": 1, …})\n# 37 个 prompt token 里前 16 个（一个块）命中前缀缓存，这一轮算剩下的 21 个',
+    src:'<code>v1/core/sched/scheduler.py</code> · <code>Scheduler.schedule()</code>'},
+   {k:'msg',from:'core',to:'gpu',dir:'in',label:'execute_model()',title:'把这一轮的安排交给执行器',
+    body:'单卡时 worker 就在 EngineCore 进程里，这是一次普通的函数调用。多卡时执行器通过共享内存消息队列把同一份 <code>SchedulerOutput</code> 广播给每张卡上的 worker 进程。',
+    data:'collective_rpc("execute_model", args=(scheduler_output,))',
+    src:'<code>v1/executor/uniproc_executor.py</code>、<code>multiproc_executor.py</code>'},
+   {k:'box',at:'gpu',dir:'out',label:'前向 + 采样',title:'GPU 上的一次前向',
+    body:'<code>GPUModelRunner</code> 把这一轮所有请求的 token id、位置、块表拼成张量，跑一次前向得到每个序列的 logits，再采样出下一个 token。第 1 课成本模型里的 20 ms 固定开销和每序列 0.4 ms 花在这里。',
+    data:'input_ids: int64[28]        # 21 个 prefill token + 7 个 decode 序列各 1 个\nlogits:    float[8, 128256]  # 8 个序列各一行\n→ sampled_token_ids = [[6744], [220], …]',
+    src:'<code>v1/worker/gpu/model_runner.py</code> · <code>GPUModelRunner</code>'},
+   {k:'msg',from:'gpu',to:'core',dir:'out',label:'ModelRunnerOutput',title:'只有 token id 回到主循环',
+    body:'回来的只是每个序列采样出的那一个整数，logits 留在 GPU 上。跨进程、跨设备传的数据越小越好。',
+    data:'ModelRunnerOutput(\n  req_ids=["chatcmpl-7f3a", "chatcmpl-55c1", …],\n  sampled_token_ids=[[6744], [220], …])',
+    src:'<code>v1/engine/core.py</code> · <code>EngineCore.step()</code>'},
+   {k:'box',at:'core',dir:'out',label:'update_from_output()',title:'记账',
+    body:'调度器把新 token 记到各个请求上，检查是否结束（采到 EOS、达到 max_tokens），结束的请求当场归还 KV 块。这里只能按 token id 判断；stop 字符串要等变回文字才能判断，在第 12 步。',
+    data:'EngineCoreOutput(\n  request_id="chatcmpl-7f3a",\n  new_token_ids=[6744], finish_reason=None)',
+    src:'<code>v1/core/sched/scheduler.py</code> · <code>Scheduler.update_from_output()</code>'},
+   {k:'msg',from:'core',to:'api',dir:'out',label:'output_queue → ZMQ',title:'这一轮的输出发回前端',
+    body:'一轮里所有请求的输出打成一包，放进 <code>output_queue</code>，由输出线程编码后发走。主循环不等发送完成，直接回到第 6 步开始下一轮。',
+    data:'EngineCoreOutputs(outputs=[ …这一轮 8 个请求各一条… ])',
+    src:'<code>v1/engine/core.py</code> · <code>_process_engine_step()</code>、<code>process_output_sockets()</code>'},
+   {k:'box',at:'api',dir:'out',label:'反分词 + stop 匹配',title:'token id 变回文字',
+    body:'<code>output_handler</code> 是 API server 里一个常驻的 asyncio 任务，不停地从引擎取输出，交给 <code>OutputProcessor.process_outputs()</code>：增量反分词、匹配 stop 字符串，结果放进各请求的 collector。每处理 128 条就让出一次事件循环，免得其他连接被卡住。',
+    data:'RequestOutput(\n  request_id="chatcmpl-7f3a", finished=False,\n  outputs=[CompletionOutput(text="晴", token_ids=[6744])])',
+    src:'<code>async_llm.py</code> · <code>output_handler</code>；<code>output_processor.py</code>；<code>detokenizer.py</code>'},
+   {k:'msg',from:'api',to:'c',dir:'out',label:'SSE delta',title:'写给客户端',
+    body:'处理这个请求的协程 <code>generate()</code> 从 collector 里取到输出，包成 OpenAI 格式的一个 chunk 写进 SSE 响应。然后引擎那边继续第 6 步，直到请求结束。',
+    data:'data: {"id":"chatcmpl-7f3a","choices":[{"index":0,"delta":{"content":"晴"}}]}',
+    src:'<code>chat_completion/serving.py</code> · <code>chat_completion_stream_generator()</code>'}
+  ]},
+sgl:{
+  lanes:[{id:'c',name:'客户端 / harness',sub:'HTTP 连接'},{id:'main',name:'主进程',sub:'HTTP + TokenizerManager'},{id:'detok',name:'Detokenizer 进程',sub:'只做反分词'},{id:'sched',name:'Scheduler 进程',sub:'调度 + 持有模型'},{id:'gpu',name:'GPU',sub:'由 Scheduler 进程直接驱动'}],
+  loop:[5,14],
+  steps:[
+   {k:'msg',from:'c',to:'main',dir:'in',label:'POST /v1/chat/completions',title:'请求到达主进程',
+    body:'FastAPI 路由在主进程里，事件循环用的是 uvloop（asyncio 的一个更快的实现）。和 vLLM 的 API server 一样，一个线程轮流照看所有连接。',
+    data:'{"model": "llama-3.1-8b", "stream": true,\n "messages": [\n   {"role": "system", "content": "你是一个天气助手"},\n   {"role": "user", "content": "北京天气？"}]}',
+    src:'<code>sglang/srt/entrypoints/http_server.py</code>'},
+   {k:'box',at:'main',dir:'in',label:'模板渲染',title:'消息列表变成 prompt',
+    body:'<code>OpenAIServingChat</code> 套 chat template，把 OpenAI 格式的请求转成 SGLang 内部的 <code>GenerateReqInput</code>。工具定义在这一步被拼进 prompt。',
+    data:'GenerateReqInput(\n  text="<|begin_of_text|><|start_header_id|>system<|end_header_id|>\\n\\n你是一个天气助手<|eot_id|>…",\n  sampling_params={"temperature": 0.7, "max_new_tokens": 256}, stream=True)',
+    src:'<code>entrypoints/openai/serving_chat.py</code> · <code>OpenAIServingChat</code>'},
+   {k:'box',at:'main',dir:'in',label:'分词 + 建 ReqState',title:'分词，并给请求建一个收件箱',
+    body:'<code>TokenizerManager.generate_request()</code> 调 <code>_tokenize_one_request()</code> 得到 token id，并建一个 <code>ReqState</code>：里面有一个 <code>out_list</code> 和一个 <code>asyncio.Event</code>，之后的输出靠它们交回给处理这个请求的协程。',
+    data:'input_ids = [128000, 128006, 9125, 128007, 271, …]   共 37 个\nrid_to_state["a3f9"] = ReqState(out_list=[], finished=False, event=Event())',
+    src:'<code>managers/tokenizer_manager.py</code> · <code>generate_request()</code>'},
+   {k:'msg',from:'main',to:'sched',dir:'in',label:'ZMQ PUSH',title:'跨进程送进 Scheduler',
+    body:'分好词的请求通过 ZMQ 的 PUSH/PULL 通道发给 Scheduler 进程。图上这条线越过了 Detokenizer：输入不经过它，它只在回程上。',
+    data:'[ 序列化后的请求：rid、input_ids、采样参数 ]',
+    src:'<code>tokenizer_manager.py</code> · <code>_send_one_request()</code>'},
+   {k:'box',at:'sched',dir:'in',label:'ingest → waiting_queue',title:'进入等待队列',
+    body:'主循环每轮开头调 <code>ingest_requests()</code> 收消息，<code>handle_generate_request()</code> 为它建一个 <code>Req</code> 对象，放进 <code>waiting_queue</code>。',
+    data:'Req(rid="a3f9", origin_input_ids=[…37 个…], output_ids=[])',
+    src:'<code>managers/scheduler.py</code> · <code>ingest_requests()</code>、<code>handle_generate_request()</code>'},
+   {k:'box',at:'sched',dir:'in',label:'get_next_batch_to_run()',title:'决定这一轮跑哪一批',
+    body:'在 radix tree 里做前缀匹配，分配 KV 位置，组出这一轮的 batch。SGLang 默认每轮只跑一种：有新请求能进就跑一批 prefill（代码里叫 extend），否则让运行中的请求做一轮 decode。',
+    data:'ScheduleBatch(forward_mode=EXTEND, reqs=[Req("a3f9")])\n# 37 个 prompt token 里 18 个在 radix tree 里匹配到，这一轮算剩下的 19 个',
+    src:'<code>scheduler.py</code> · <code>get_next_batch_to_run()</code>、<code>get_new_batch_prefill()</code>'},
+   {k:'msg',from:'sched',to:'gpu',dir:'in',label:'run_batch()',title:'Scheduler 自己发起前向',
+    body:'模型就加载在 Scheduler 进程里（<code>TpModelWorker</code> → <code>ModelRunner</code>），发起前向不用再跨一次进程。这是和 vLLM 多卡形态不同的地方。',
+    data:'self.model_worker.forward_batch_generation(batch)',
+    src:'<code>scheduler.py</code> · <code>run_batch()</code>；<code>managers/tp_worker.py</code>'},
+   {k:'box',at:'gpu',dir:'out',label:'前向 + 采样',title:'GPU 上的一次前向',
+    body:'和 vLLM 做的是同一件事：拼张量、前向、得到 logits、采样出每个序列的下一个 token。',
+    data:'input_ids: int64[19]\nlogits:    float[1, 128256]\n→ next_token_ids = [6744]',
+    src:'<code>model_executor/model_runner.py</code>'},
+   {k:'msg',from:'gpu',to:'sched',dir:'out',label:'next_token_ids',title:'结果回到主循环',
+    body:'开着 overlap 时，主循环不在这里等：它先去准备下一批，这一批的结果放进 <code>result_queue</code>，晚一轮再处理。第 3 节会讲。',
+    data:'result_queue.append((batch, batch_result))',
+    src:'<code>scheduler.py</code> · <code>event_loop_overlap()</code>'},
+   {k:'box',at:'sched',dir:'out',label:'process_batch_result()',title:'记账',
+    body:'把新 token 追加到各请求上，检查是否结束。EOS、长度上限、stop 字符串都在这里查。结束的请求释放 KV 引用，算过的前缀留在 radix tree 里给后来的请求用。',
+    data:'req.output_ids = [6744]\nreq.finished() → False',
+    src:'<code>scheduler.py</code> · <code>process_batch_result()</code>；<code>managers/schedule_batch.py</code>'},
+   {k:'msg',from:'sched',to:'detok',dir:'out',label:'ZMQ · token id',title:'新 token 发给 Detokenizer',
+    body:'这一轮所有请求的新 token id 打成一批发出去。Scheduler 不做反分词，把这份按 token 计的 CPU 开销留在循环之外。',
+    data:'BatchTokenIDOutput(rids=["a3f9", …],\n  output_ids_flat=[6744, …], output_ids_offsets=[0, 1, …],\n  finished_reasons=[None, …])',
+    src:'<code>managers/detokenizer_manager.py</code> · <code>handle_batch_token_id_out()</code>'},
+   {k:'box',at:'detok',dir:'out',label:'增量反分词',title:'token id 变回文字',
+    body:'<code>DetokenizerManager.event_loop()</code> 是一个只做这一件事的循环。它为每个请求留着一份 <code>DetokenizeState</code>，记录解码到哪、发出到哪；请求结束时用 <code>trim_matched_stop()</code> 裁掉 stop 串。',
+    data:'DetokenizeState(decode_ids=[…, 6744], surr_offset=5, read_offset=6, sent_offset=0)\n→ 新增文本 "晴"',
+    src:'<code>managers/detokenizer_manager.py</code>；<code>managers/incremental_detokenize.py</code>'},
+   {k:'msg',from:'detok',to:'main',dir:'out',label:'BatchStrOutput',title:'文字发回主进程',
+    body:'一批请求的新增文本一起发回。三个进程之间的消息是单向转圈的：主进程 → Scheduler → Detokenizer → 主进程。',
+    data:'BatchStrOutput(rids=["a3f9", …], output_strs=["晴", …], finished_reasons=[None, …])',
+    src:'<code>detokenizer_manager.py</code> · <code>event_loop()</code>'},
+   {k:'box',at:'main',dir:'out',label:'handle_loop() 唤醒协程',title:'把输出交回给对应的请求',
+    body:'主进程里常驻的 <code>handle_loop()</code> 按 rid 找到 <code>ReqState</code>，把输出放进 <code>out_list</code>，再 <code>event.set()</code> 唤醒正在等的那个协程。',
+    data:'state = rid_to_state["a3f9"]\nstate.out_list.append({"text": "晴", …})\nstate.event.set()',
+    src:'<code>tokenizer_manager.py</code> · <code>handle_loop()</code>、<code>_handle_batch_output()</code>'},
+   {k:'msg',from:'main',to:'c',dir:'out',label:'SSE delta',title:'写给客户端',
+    body:'被唤醒的协程取走输出，包成 OpenAI 格式的 chunk 写进 SSE 响应，顺便检查一下客户端是否还连着。Scheduler 那边继续第 6 步。',
+    data:'data: {"id":"a3f9","choices":[{"index":0,"delta":{"content":"晴"}}]}',
+    src:'<code>tokenizer_manager.py</code> · <code>_wait_one_response()</code>；<code>serving_chat.py</code>'}
+  ]}
+};
+const sq={eng:'vllm',cur:0};
+function drawSeq(){
+  const e=ENG[sq.eng],n=e.lanes.length,W=1040,x0=125,x1=905,y0=70,rh=31;
+  const gap=(x1-x0)/(n-1),bw=Math.min(214,gap-14);
+  const lx=id=>x0+gap*e.lanes.findIndex(L=>L.id===id);
+  const H=y0+e.steps.length*rh+12;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="min-width:800px" role="img" aria-label="'+(sq.eng==='vllm'?'vLLM':'SGLang')+' 中一个流式请求依次经过的进程和步骤">';
+  e.lanes.forEach(L=>{
+    const x=lx(L.id);
+    s+='<line class="g-grid" x1="'+x+'" y1="54" x2="'+x+'" y2="'+(H-6)+'"/>';
+    s+='<rect class="t-row" x="'+(x-bw/2)+'" y="8" width="'+bw+'" height="46" rx="4"/>';
+    s+='<text x="'+x+'" y="28" text-anchor="middle" font-size="13" font-weight="600">'+esc(L.name)+'</text>';
+    s+='<text class="f-muted" x="'+x+'" y="45" text-anchor="middle" font-size="11">'+esc(L.sub)+'</text>';
+  });
+  const ya=y0+e.loop[0]*rh+3,yb=y0+(e.loop[1]+1)*rh-5,bx=1014;
+  s+='<path class="g-muted" fill="none" stroke-width="1.5" d="M'+(bx-9)+' '+ya+'H'+bx+'V'+yb+'H'+(bx-9)+'"/>';
+  s+='<text class="f-muted" font-size="11.5" text-anchor="middle" transform="translate('+(bx+14)+' '+((ya+yb)/2)+') rotate(90)">每生成一个 token 重复一次</text>';
+  e.steps.forEach((st,i)=>{
+    const y=y0+i*rh,cur=i===sq.cur,fut=i>sq.cur;
+    if(cur)s+='<rect class="t-rowcur" x="30" y="'+(y+1)+'" width="'+(bx-48)+'" height="'+(rh-2)+'" rx="3"/>';
+    s+='<g'+(fut?' class="fut"':'')+'>';
+    s+='<text class="mono'+(cur?'':' f-muted')+'" x="16" y="'+(y+20)+'" text-anchor="middle" font-size="11.5"'+(cur?' font-weight="600"':'')+'>'+(i+1)+'</text>';
+    if(st.k==='box'){
+      const x=lx(st.at);
+      s+='<rect class="'+(st.dir==='in'?'t-prefill':'t-decode')+(cur?' c-ring':'')+'" x="'+(x-bw/2)+'" y="'+(y+4)+'" width="'+bw+'" height="23" rx="3"/>';
+      s+='<text x="'+x+'" y="'+(y+20)+'" text-anchor="middle" font-size="11.5"'+(cur?' font-weight="600"':'')+'>'+esc(st.label)+'</text>';
+    }else{
+      const xa=lx(st.from),xb=lx(st.to),d=xb>xa?1:-1,xs=xa+d*5,xe=xb-d*5,ly=y+22;
+      const cls=st.dir==='in'?'a-in':'a-out',fc=st.dir==='in'?'f-prefill':'f-decode';
+      s+='<line class="'+cls+'" x1="'+xs+'" y1="'+ly+'" x2="'+(xe-d*7)+'" y2="'+ly+'" stroke-width="'+(cur?3:1.8)+'"/>';
+      s+='<polygon class="'+fc+'" points="'+xe+','+ly+' '+(xe-d*9)+','+(ly-5)+' '+(xe-d*9)+','+(ly+5)+'"/>';
+      s+='<circle class="'+fc+'" cx="'+xa+'" cy="'+ly+'" r="3.5"/>';
+      s+='<text class="halo" x="'+((xa+xb)/2)+'" y="'+(y+15)+'" text-anchor="middle" font-size="11.5"'+(cur?' font-weight="600"':'')+'>'+esc(st.label)+'</text>';
+    }
+    s+='</g>';
+    s+='<rect class="hit" data-i="'+i+'" x="0" y="'+y+'" width="'+W+'" height="'+rh+'"><title>第 '+(i+1)+' 步：'+esc(st.title)+'</title></rect>';
+  });
+  s+='</svg>';
+  $('sq-svg').innerHTML=s;
+  const st=e.steps[sq.cur];
+  $('sq-title').textContent=(sq.cur+1)+'. '+st.title;
+  $('sq-body').innerHTML=st.body;
+  $('sq-src').innerHTML='位置：'+st.src;
+  $('sq-data').textContent=st.data;
+  $('sq-no').textContent='第 '+(sq.cur+1)+' / '+e.steps.length+' 步';
+  $('sq-prev').disabled=sq.cur===0;
+  $('sq-next').disabled=sq.cur===e.steps.length-1;
+}
+$('sq-vllm').onclick=()=>{sq.eng='vllm';sq.cur=Math.min(sq.cur,ENG.vllm.steps.length-1);press(['sq-vllm','sq-sgl'],'sq-vllm');drawSeq();};
+$('sq-sgl').onclick=()=>{sq.eng='sgl';press(['sq-vllm','sq-sgl'],'sq-sgl');drawSeq();};
+$('sq-prev').onclick=()=>{if(sq.cur>0){sq.cur--;drawSeq();}};
+$('sq-next').onclick=()=>{if(sq.cur<ENG[sq.eng].steps.length-1){sq.cur++;drawSeq();}};
+$('sq-reset').onclick=()=>{sq.cur=0;drawSeq();};
+$('sq-svg').addEventListener('click',ev=>{
+  const t=ev.target.closest('.hit');
+  if(t){sq.cur=+t.getAttribute('data-i');drawSeq();}
+});
+
+// ───────────── Fig 2: timeline ─────────────
+const tl={fast:false,k:1};
+const ARCH=[['A','A · 全在一个进程','调度、前向、前端处理轮流用同一个解释器'],
+            ['B','B · 前端拆到另一个进程','引擎进程只剩调度和前向'],
+            ['C','C · 调度和前向重叠','GPU 算这一轮时，CPU 在排下一轮']];
+function drawTL(){
+  const p={B:+$('tl-B').value,s:+$('tl-s').value,f:+$('tl-f').value,fast:tl.fast,k:tl.k};
+  $('tl-B-o').textContent=p.B+' 个';
+  $('tl-s-o').textContent=p.s.toFixed(1)+' ms';
+  $('tl-f-o').textContent=p.f.toFixed(2)+' ms';
+  const pA=archSim('A',p,1).period;
+  const T=pA*3.15;
+  const sims=ARCH.map(a=>archSim(a[0],p,T));
+  const W=1040,L=128,R=16,pw=W-L-R,lh=15,lg=3,gh=20+3*lh+2*lg,gg=16;
+  const H=sims.length*gh+(sims.length-1)*gg+34;
+  const X=t=>L+Math.min(t,T)/T*pw;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="min-width:760px" role="img" aria-label="三种架构在同一条时间轴上的 CPU 和 GPU 占用">';
+  s+='<defs><pattern id="tl-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="6"/></pattern></defs>';
+  const step=niceStep(T);
+  for(let t=0;t<=T;t+=step){
+    s+='<line class="g-grid" x1="'+X(t)+'" y1="14" x2="'+X(t)+'" y2="'+(H-26)+'"/>';
+    s+='<text class="g-axis mono" x="'+X(t)+'" y="'+(H-10)+'" text-anchor="middle">'+(t===0?'0':Math.round(t)+' ms')+'</text>';
+  }
+  const lanes=[['front','前端 CPU','b-front'],['eng','引擎 CPU','b-sched'],['gpu','GPU','b-gpu']];
+  const tip={front:'前端处理',eng:'调度',gpu:'GPU 前向'};
+  sims.forEach((sim,gi)=>{
+    const gy=gi*(gh+gg);
+    s+='<text x="0" y="'+(gy+13)+'" font-size="13" font-weight="600">'+esc(ARCH[gi][1])+'</text>';
+    s+='<text class="f-muted" x="'+(L+pw)+'" y="'+(gy+13)+'" font-size="11.5" text-anchor="end">'+esc(ARCH[gi][2])+'</text>';
+    lanes.forEach((ln,li)=>{
+      const y=gy+20+li*(lh+lg);
+      s+='<text class="f-muted" x="'+(L-10)+'" y="'+(y+11.5)+'" font-size="11.5" text-anchor="end">'+ln[1]+'</text>';
+      if(ln[0]==='gpu')s+='<rect x="'+L+'" y="'+y+'" width="'+pw+'" height="'+lh+'" fill="url(#tl-hatch)"><title>GPU 空闲</title></rect>';
+      else s+='<rect class="t-row" x="'+L+'" y="'+y+'" width="'+pw+'" height="'+lh+'" opacity=".55"/>';
+      sim[ln[0]].forEach(b=>{
+        if(b[0]>=T)return;
+        const xa=X(b[0]),xb=X(b[1]),w=Math.max(xb-xa-1.5,1);
+        s+='<rect class="'+ln[2]+'" x="'+xa+'" y="'+y+'" width="'+w+'" height="'+lh+'" rx="2"><title>'+tip[ln[0]]+' '+(b[1]-b[0]).toFixed(1)+' ms</title></rect>';
+      });
+    });
+  });
+  s+='</svg>';
+  $('tl-svg').innerHTML=s;
+  let rows='';
+  sims.forEach((sim,i)=>{
+    const fl=sim.frontLoad;
+    rows+='<tr><td>'+esc(ARCH[i][1])+'</td><td class="num">'+sim.period.toFixed(1)+' ms</td><td class="num">'+Math.round(sim.util*100)+'%</td><td class="num">'+fmtInt(sim.tps)+' tok/s</td><td class="num">'+(fl===null?'和引擎共用一个进程':Math.round(fl*100)+'%')+'</td></tr>';
+  });
+  $('tl-table').tBodies[0].innerHTML=rows;
+  const a=sims[0],c=sims[2],over=c.frontLoad>1||sims[1].frontLoad>1;
+  let msg='A 架构下 GPU 每轮有 '+(a.period-a.G).toFixed(1)+' ms 在等 CPU，占一轮的 '+Math.round((1-a.util)*100)+'%。C 的吞吐是 A 的 '+(c.tps/a.tps).toFixed(2)+' 倍。';
+  if(c.s>c.G)msg+=' 调度耗时已经超过 GPU 一轮的时间，C 也出现了空闲。';
+  if(over)msg+=' 前端负载超过 100%：GPU 照常产出，但输出在前端积压，客户端看到的流会成批到达。加前端进程，或者调大 stream interval。';
+  $('tl-status').textContent=msg;
+}
+['tl-B','tl-s','tl-f'].forEach(id=>$(id).addEventListener('input',drawTL));
+$('tl-m-std').onclick=()=>{tl.fast=false;press(['tl-m-std','tl-m-fast'],'tl-m-std');drawTL();};
+$('tl-m-fast').onclick=()=>{tl.fast=true;press(['tl-m-std','tl-m-fast'],'tl-m-fast');drawTL();};
+[1,2,4].forEach(k=>{$('tl-k'+k).onclick=()=>{tl.k=k;press(['tl-k1','tl-k2','tl-k4'],'tl-k'+k);drawTL();};});
+
+// ───────────── Fig 3: detokenizer ─────────────
+const dt={stop:false,cur:4};
+const vis=s=>esc(s).replace(/\n/g,'↵');
+function drawDT(){
+  const states=detokStates(dt.stop),st=states[dt.cur],i=dt.cur;
+  $('dt-chips').innerHTML=DT.map((t,j)=>'<span class="chip'+(j===i-1?' cur':j>i-1?' fut':'')+'">'+esc(t.l)+'</span>').join('');
+  const sentTxt=st.text.slice(0,st.sent).join(''),heldTxt=st.text.slice(st.sent).join('');
+  let full=vis(sentTxt);
+  if(heldTxt)full+='<span class="held">'+vis(heldTxt)+'</span>';
+  if(st.part)full+='<span class="held">〈2 个字节，字符不完整〉</span>';
+  $('dt-full').innerHTML=full||'<span class="none">（空）</span>';
+  $('dt-delta').innerHTML=st.delta?'<span class="new">'+vis(st.delta)+'</span>':'<span class="none">（这一步没有发出任何内容）</span>';
+  $('dt-sent').innerHTML=sentTxt?vis(sentTxt):'<span class="none">（空）</span>';
+  let n;
+  const len=st.text.length;
+  if(i===0)n='模型还没有输出。每按一次「下一步」来一个 token。';
+  else if(st.stopHit)n='文本里出现了完整的 stop 串。请求到此结束，stop 串默认从输出里裁掉，不会发给客户端。在 vLLM 里，API server 接着给 EngineCore 发一条中止消息。';
+  else if(st.part)n='这个 token 只带了 🙂 的 4 个 UTF-8 字节里的前 2 个。单独解码会得到乱码字符 \uFFFD，所以反分词器先扣住，文本不变。';
+  else if(dt.stop){
+    const lead=st.done?'后 2 个字节到了，🙂 完整了。':'';
+    n=lead+(st.delta
+      ?'文本增长到 '+len+' 个字符。末尾 6 个仍然扣着，前面的可以放行。'
+      :'设了 stop 之后，末尾 6 个字符（stop 串长 7，减 1）始终扣着不发，因为它们可能是 stop 串的开头。现在文本一共 '+len+' 个字符，还不够发。');
+  }else if(st.done)n='后 2 个字节到了，🙂 完整了，作为一个字符发出。客户端看到的效果是这个表情比别的字晚了一步。';
+  else if(i>=7)n='没有设 stop，模型写完回答后开始替用户写下一轮了。这就是需要 stop 串的场景：切到「stop = "\\n\\nUser:"」再走一遍。';
+  else n='完整的字符，没有需要等的东西，直接发出。';
+  $('dt-narr').textContent=n;
+  $('dt-no').textContent='第 '+i+' / '+DT.length+' 步';
+  $('dt-prev').disabled=i===0;
+  $('dt-next').disabled=i===DT.length;
+}
+$('dt-off').onclick=()=>{dt.stop=false;press(['dt-off','dt-on'],'dt-off');drawDT();};
+$('dt-on').onclick=()=>{dt.stop=true;press(['dt-off','dt-on'],'dt-on');drawDT();};
+$('dt-prev').onclick=()=>{if(dt.cur>0){dt.cur--;drawDT();}};
+$('dt-next').onclick=()=>{if(dt.cur<DT.length){dt.cur++;drawDT();}};
+$('dt-reset').onclick=()=>{dt.cur=0;drawDT();};
+
+drawSeq();drawTL();drawDT();
+})();
+</script>
