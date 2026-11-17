@@ -810,8 +810,29 @@
     }
   ],
   "arxivStatus": "complete",
-  "generatedAt": "2026-11-16T10:05:42.546601+00:00",
+  "generatedAt": "2026-11-17T10:05:26.345931+00:00",
   "arxiv": [
+    {
+      "id": "2611.18974",
+      "title": "Bilateral Log-Linear Attention",
+      "authors": [
+        "Kazi Ashik Islam",
+        "Guojing Cong"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Sequence models represent past context at different resolutions, using token-level keys and values, fixed-size recurrent states, or hierarchies of compressed summaries. Full attention supports strong associative recall but requires quadratic work during training and prefill and a linearly growing key-value cache during inference. Linear attention and state-space models reduce these costs through fixed-size recurrent memory, but this compression can limit recall. Log-linear attention offers a middle ground by maintaining logarithmically many state matrices. However, its hierarchy favors finer resolution near the current query while compressing earlier context into coarser summaries. To complement this allocation of resolution, we introduce bilateral log-linear attention, which pairs the existing hierarchy with a second hierarchy anchored at the sequence origin. By combining their reads, the two branches provide finer access to both early and recent context while remaining causal. We derive recurrent and chunkwise parallel formulations for the added branch, preserving log-linear training and prefill work, logarithmic decoding work per token, and logarithmic persistent state storage at fixed feature dimensions and chunk size. In multi-query associative recall, this design raises mean overall test accuracy from 76.37% to 96.12% over forward log-linear attention across multiple training seeds. For pretrained language models under approximate parameter matching, it raises the mean score on six selected RULER needle-in-a-haystack tasks from 26.97% to 50.03% at a context length of 6144 tokens. In the same setting, bilateral attention also outperforms forward log-linear attention on seven of eight downstream retrieval tasks, including question answering and information extraction.",
+      "published": "2026-11-13T22:07:20Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18974",
+        "pdf": "https://arxiv.org/pdf/2611.18974"
+      },
+      "titleZh": "双边对数线性注意力",
+      "summaryZh": "现有 log-linear attention 的层级结构只按查询位置分配分辨率，近期上下文细、早期上下文粗，导致对序列开头的关联召回受限。为此在原有前向层级之外并联一条以序列起点为锚的第二层级，读取时融合两支结果，并给出递归与分块并行公式，在固定特征维度和块大小下保持训练与前填的对数线性开销、逐 token 对数级解码与对数级状态存储。多查询联想召回平均准确率从 76.37% 提升到 96.12%，在 6144 token 上下文的六个 RULER 大海捞针任务上平均分从 26.97% 升至 50.03%，八项下游检索任务中七项优于前向版本。",
+      "score": 9,
+      "reason": "注意力新架构，长上下文与 KV cache 效率直接命中高分方向",
+      "deepDive": true
+    },
     {
       "id": "2611.18533",
       "title": "ModHarness-RL: Recasting Harnesses as Learnable and Evolving Programs for Agentic RL",
@@ -911,6 +932,79 @@
       "score": 9,
       "reason": "多智能体自主 RL 训练闭环，直接命中 Agentic RL 与自进化方向",
       "deepDive": true
+    },
+    {
+      "id": "2611.18963",
+      "title": "SpecRelay: Amortize or Avoid the Round Trip in Edge-Cloud Speculative Decoding",
+      "authors": [
+        "Jai Jain",
+        "Chihyo Ahn",
+        "Yong Liu",
+        "Charles Chen",
+        "Duc N. M Hoang",
+        "Ajay Kumar Jaiswal"
+      ],
+      "authorsTotal": 13,
+      "abstract": "Edge-cloud speculative decoding moves autoregressive drafting to an edge device while a larger cloud model verifies draft tokens in parallel, so that edge drafting and cloud verification overlap under a synchronous draft-verify schedule. Beyond low-latency local networks, however, the next verification request of that schedule can be sent only after the previous reply arrives, so every round still waits out a full round trip, and throughput falls as the network RTT grows. To recover this loss, we present SpecRelay, an edge-cloud LLM inference system that addresses this cost at two levels: it amortizes round trips when cloud verification is necessary and avoids them when local reasoning suffices. For cloud-bound queries, an asynchronous verification pipeline keeps fixed-budget draft trees in flight while earlier replies are still outstanding, and the cloud rejects stale requests before the target-model forward pass (the asynchronous schedule). At the query level, an RTT-conditioned router (the Latency-Aware Router) estimates quality and completion latency for three on-device modes (direct generation, Chain-of-Draft, and full reasoning) and cloud speculative decoding, selecting among them under a configurable accuracy-latency objective without adding latency during inference, since the router runs concurrently with the draft-model prefill. The asynchronous schedule alone improves decoding throughput by up to 50% over a reproduced synchronous baseline across multiple benchmarks. At matched target-model accuracy and 250 ms of added round-trip latency, the full system with the router delivers 1.95x and 1.55x the throughput of the same baseline on SPROUT and OlympiadBench, respectively, while sending only 47% and 39% of the queries to the cloud.",
+      "published": "2026-11-13T21:40:06Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18963",
+        "pdf": "https://arxiv.org/pdf/2611.18963"
+      },
+      "titleZh": "SpecRelay：在端云投机解码中摊销或规避往返延迟",
+      "summaryZh": "端云投机解码在同步草稿—验证调度下，每一轮都必须等网络往返完成，RTT 增大时吞吐随之下降。SpecRelay 从两个层面应对：对必须上云的查询，用异步验证流水线让固定预算的草稿树在上一轮回复未到时就持续在途，云端在目标模型前向之前丢弃过期请求；对查询本身，Latency-Aware Router 依据 RTT 估计三种端侧模式（直接生成、Chain-of-Draft、完整推理）与云端投机解码的质量和完成时延，在可配置的精度—延迟目标下选路，且路由器与草稿模型 prefill 并行，不增加推理时延。仅异步调度即在多个基准上把吞吐相对复现的同步基线提升至多 50%；在目标模型精度对齐、额外 250 ms RTT 条件下，完整系统在 SPROUT 与 OlympiadBench 上吞吐分别为基线的 1.95 倍和 1.55 倍，仅 47% 与 39% 的查询发往云端。",
+      "score": 8,
+      "reason": "端云投机解码系统优化，异步验证与延迟感知路由，命中推理效率方向"
+    },
+    {
+      "id": "2611.18916",
+      "title": "Simplify, Agree, Distill: Label-Free Self-Distillation with Stepping Stones",
+      "authors": [
+        "Dingyang Chen",
+        "Jinfeng Xiao",
+        "Zhenyu Zhang",
+        "William Hu",
+        "Ziyu Wang",
+        "Yang Liu"
+      ],
+      "authorsTotal": 11,
+      "abstract": "Can a language model teach itself to reason without labels? On-policy self-distillation (OPSD) uses the model as its own teacher, but strengthens that teacher with a ground-truth solution. The natural label-free substitute, voting over the model's attempts, fails precisely on hard problems: attempts disagree, and their most common answer is often wrong. We propose STONE, a label-free alternative that moves agreement to easier related problems. The model writes these stepping stones, keeps those it solves consistently, and shows the teacher their worked solutions, with final answers removed; the student sees only the original problem. No step reads a label, and inference needs no extra context or model calls. Across five math benchmarks, the proposed method achieves the highest average accuracy for Qwen3-4B and Qwen3-8B in thinking mode. Without thinking mode, it gains 13.2 and 22.7 points, 2.5 and 2.7 times the gains of OPSD with ground-truth solutions.",
+      "published": "2026-11-13T20:19:20Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18916",
+        "pdf": "https://arxiv.org/pdf/2611.18916"
+      },
+      "comment": "8 pages",
+      "titleZh": "化简、一致、蒸馏:以垫脚石实现无标签自蒸馏",
+      "summaryZh": "针对无标签自蒸馏中「对模型多次尝试投票」在难题上失效的问题(尝试彼此不一致，多数答案常错)，提出 STONE:把一致性检验转移到更容易的相关问题上——模型自行写出「垫脚石」问题，只保留能稳定解出的那些，把其解题过程去掉最终答案后喂给教师模型，学生模型仍只看到原题。全流程不读取任何标签，推理时也不需要额外上下文或额外模型调用。在五个数学基准上，Qwen3-4B 与 Qwen3-8B 在 thinking 模式下取得最高平均准确率;非 thinking 模式下分别提升 13.2 与 22.7 分，为使用真实答案的 OPSD 的 2.5 与 2.7 倍。",
+      "score": 8,
+      "reason": "无标签自蒸馏新机制，命中后训练与自我改进方向"
+    },
+    {
+      "id": "2611.18856",
+      "title": "Self-Improvement Memory Enables Continual Recursive Self-Improvement",
+      "authors": [
+        "Xin Yu",
+        "Fei Xia",
+        "Jiaqi Pan",
+        "Youbao Tang",
+        "Chengzhi Liu",
+        "Adams Yu"
+      ],
+      "authorsTotal": 10,
+      "abstract": "Harness optimization is often studied with a fixed policy model and benchmark. When either changes, the optimizer must decide which parts of an evolved harness to reuse or revise, but the harness alone may not explain why earlier edits were made or how they performed. In this work, we study Continual Recursive Self-Improvement (CRSI), a setting for continuing existing harness-optimization methods across compatible benchmarks or policy models. We propose Self-Improvement Memory (SIM) for the harness optimizer, rather than the task-solving policy. SIM groups edits by recurring harness problem and records their rationale, predicted and observed outcomes, and evaluation context. New attempts extend this history as optimization continues. In our experiments across four domains, SIM achieves higher final scores than harness-only and root-cause-only continuation in cross-dataset and pairwise cross-model comparisons. Across ten independent source runs in coding, paired continuations with SIM improve final scores by an average of 2.36 points over harness-only continuation ($p=0.003$).",
+      "published": "2026-11-13T19:08:56Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18856",
+        "pdf": "https://arxiv.org/pdf/2611.18856"
+      },
+      "titleZh": "自我改进记忆实现持续递归式自我改进",
+      "summaryZh": "针对 harness 优化在策略模型或基准变化时难以延续的问题，提出持续递归自我改进（CRSI）设定，让已有的 harness 优化方法能够跨兼容基准或策略模型继续迭代。核心机制是给 harness 优化器（而非任务求解策略）配备自我改进记忆（SIM）：按反复出现的 harness 问题对编辑分组，记录其动机、预期结果与实际结果以及评估上下文，新尝试在此基础上续写历史。在四个领域的跨数据集与成对跨模型对比中，SIM 的最终得分均高于仅保留 harness 与仅保留根因的延续方式；编码任务上十次独立源运行的成对延续平均提升 2.36 分（p=0.003）。该设定为 Agent harness 的持续自进化与跨模型迁移提供了可复用的记忆式优化范式。",
+      "score": 8,
+      "reason": "Agent harness 自进化与记忆机制，属后训练／Agent 高分方向"
     },
     {
       "id": "2611.18494",
@@ -1236,6 +1330,54 @@
       "reason": "多智能体增益归因与评测方法学，直击 Agent 方向"
     },
     {
+      "id": "2611.18908",
+      "title": "MemeEconomy: Do LLM Agents Trade Ethics for Survival?",
+      "authors": [
+        "Syed Nazmus Sakib",
+        "Nafiul Haque",
+        "Ahnaf Tahmid Manan",
+        "M M Mahabub Morshed",
+        "Shifat E. Arman"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Alignment-trained large language model (LLM) agents are increasingly deployed in autonomous, multi-round settings where ethical compliance can come into direct tension with task success. While safety literature extensively documents failure modes like sycophancy and reward hacking, it largely overlooks a critical vulnerability: how agents behave under simulated existential economic pressure. We introduce MemeEconomy, a multimodal agentic market simulation in which LLM agents act as meme investors. Agents select content from a five-tier harm taxonomy and target communities under low-pressure and high-pressure (survival) environments. Each decision is logged in a Belief-Desire-Intention (BDI) schema that we use as a diagnostic instrument, externalizing the agent's event understanding, declared priorities, and harm acknowledgment. Across ten models from four frontier model families, harmful selection rates remain consistently high and rise by +15 percentage points on average under an economic survival incentive. Frontier alignment-trained models commit to harm-tolerant selection at initialization while suppressing the explicit harm acknowledgment that previously accompanied it. In competitive tournaments, ethical agents finish higher overall, yet moderation penalties fail to suppress harm: harmful selection rates remain elevated in rounds following a removal, indicating the moderation mechanism does not function as a deterrent. We further train MemeAgent, a 2B-parameter verifier on the simulation's BDI logs, which outperforms zero-shot frontier verifiers on in-distribution audits (97.5% vs. 63-74% accuracy on the Pass vs. Block decision) and generalizes to external multimodal harm benchmarks (78% vs. 50-56% on Hateful Memes). The same logs that surface the failure mode also help train the model that detects it.",
+      "published": "2026-11-13T20:12:24Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18908",
+        "pdf": "https://arxiv.org/pdf/2611.18908"
+      },
+      "comment": "Accepted at NeurIPS 2026. Project page : https://syed-nazmus-sakib.github.io/MemeEconomy/",
+      "titleZh": "MemeEconomy：LLM Agent 会为生存牺牲伦理吗？",
+      "summaryZh": "对齐训练的 LLM Agent 进入多轮自主场景后，伦理合规常与任务成功冲突，而安全文献很少考察生存性经济压力下的行为。MemeEconomy 构建多模态 agentic 市场模拟：Agent 扮演 meme 投资者，从五级危害分类中选内容并选目标社区，分低压与生存高压两种环境，决策按 Belief-Desire-Intention schema 记录，外化事件理解、优先级与危害承认。四个模型家族的 10 个模型上，有害选择率普遍偏高，生存激励下平均上升 15 个百分点；前沿对齐模型初始即倾向容忍危害并压抑显式承认，事后审核惩罚未能形成威慑。用同一批 BDI 日志训练的 2B 验证器 MemeAgent 分布内 Pass/Block 准确率 97.5%（零样本前沿模型 63–74%），Hateful Memes 上 78%（50–56%）。",
+      "score": 7.5,
+      "reason": "Agent 对齐在生存压力下的失效分析，实验系统、结论有分量"
+    },
+    {
+      "id": "2611.18883",
+      "title": "SPLICE: Structured Prompt Local Iterative Combinatorial Evolution",
+      "authors": [
+        "Anish Acharya",
+        "Phillip Studans",
+        "Amit Dhanda",
+        "Sina Amini Niaki",
+        "Ninad Vivek Rao",
+        "Vishal Amarlal Khatri"
+      ],
+      "authorsTotal": 7,
+      "abstract": "Natural language optimization (NLO) improves an agent by having a model critique and rewrite its natural language policy parameters: system prompts, tool instructions, reasoning directives, few-shot demonstrations. These artifacts are multi-section documents in which some sections encode contracts (safety clauses, tool schemas, output formats) that must not drift, while others are legitimate optimization targets. Most iterative NLO methods treat the artifact as a single editable string, producing three recurrent failure modes: unsafe global rewrites, beam collapse onto a single lineage, and unchecked bloat, none addressed by formal guarantees. We introduce SPLICE, a unified NLO framework that poses optimization as constrained combinatorial search over an edit graph of block-structured, selectively-mutable states. We map each failure mode to a matched guarantee: (i) per-block mutability preserves contract text verbatim, with a price-of-freezing bound; (ii) elitist beam search with diversity slots never lets the leader regress on validation, bounds regression under noisy re-evaluation by an exponential tail, and keeps a competitive candidate from a different parent whenever one exists; (iii) a ratio length regularizer comes with an explicit accuracy-length bias bound. Candidates are proposed from dual section-local textual gradients; under a proposer-competence condition whose proxy we measure, edit-graph reachability and a convergence rate bound how quickly improving children arrive. Across seven public benchmarks under five reproduced protocols, SPLICE wins on four and matches the strongest prior method on three. On a production-style contract stress test it keeps the contract clauses that unconstrained optimizers trade away to raise the proxy metric, and ablations attribute gains to critique and elitist search.",
+      "published": "2026-11-13T19:43:02Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18883",
+        "pdf": "https://arxiv.org/pdf/2611.18883"
+      },
+      "titleZh": "SPLICE：结构化提示词的局部迭代组合进化",
+      "summaryZh": "针对自然语言优化（NLO）将系统提示、工具指令等策略文档当作单一可编辑字符串、因而出现契约漂移、beam坍缩与无节制膨胀的问题，SPLICE将优化建模为分块可变更状态编辑图上的受限组合搜索：按块可变性逐字保留契约文本并给出冻结代价界，精英beam搜索配多样性槽保证验证集不回退，比例长度正则化给出精度—长度偏差界，候选由分节局部文本梯度提出。在七个公开基准、五套复现协议下，SPLICE在四项上最优、三项上与最强基线持平；生产风格契约压力测试中保留了无约束优化器为提升代理指标而牺牲的契约条款，消融显示收益来自批评与精英搜索。",
+      "score": 7.5,
+      "reason": "提示词优化带形式化保证，命中Agent与后训练方向"
+    },
+    {
       "id": "2611.18553",
       "title": "WeightBench: Evaluating Language Models as Weight-Space Programmers",
       "authors": [
@@ -1463,6 +1605,98 @@
       "summaryZh": "现有昇腾NPU内核基准多聚焦内核生成，较少考察Agent按真实负载输入配置优化已有实现的能力。AscendGYM初始套件含48个内核、分三级难度，测试用例的数据类型与张量形状采集自真实训练与推理任务，因此其性能提升可直接映射到对应负载。基准支持模型评测与模型加harness两种模式，提供完整执行环境以复现实际流程中的内核调用，并内置带搜索编排与经验积累的harness；同时提出Speedup-Token Score（STS）指标，联合加速比与token成本，在给定预算下衡量模型或harness的实用内核优化能力。",
       "score": 7.5,
       "reason": "昇腾NPU内核优化基准，命中代码智能与训练推理效率方向"
+    },
+    {
+      "id": "2611.18987",
+      "title": "PREFACE: Separating Shared Corrections from Prefix Conditioning in PEFT",
+      "authors": [
+        "Novanto Yudistira",
+        "One Octadion"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Does input-conditioned parameter-efficient fine-tuning (PEFT) improve because it uses the current input, or because it adds a useful learned correction? We investigate this distinction with PREFACE, a bounded channel controller for PEFT-adapted projections that requires no test-time gradients. The controller reads observed context; in multiple-choice likelihood scoring, its state is independent of the candidate continuation. Our central study freezes IA3, tuned LoRA, and DoRA adapters and matches controller architecture, initialization, batches, and updates across current-prefix and learned-global controls. Across ARC-Challenge and SciQ, current-prefix control improves all six mean accuracies over frozen adapters, but none of its paired contrasts with learned-global control excludes zero. Replacing its corrections with their training-prefix mean changes accuracy by at most 0.34 percentage points; input-varying corrections contribute only 1.8-2.8% of correction RMS. On ARC test, frozen-adapter current/global controls score 25.68%/25.77%, distinct from the earlier jointly trained 23.1% to 26.4% gain over IA3. We derive and evaluate static compilation of fixed corrections, separating deployment simplification from statistical equivalence. Broader GPT-2, Pythia, and Qwen experiments show family-, task-, and scoring-dependent gains, with modest recent-model effects. The study provides an intervention-based evaluation of conditional PEFT: improvements over a static adapter do not by themselves demonstrate a benefit from input matching.",
+      "published": "2026-11-13T22:33:36Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18987",
+        "pdf": "https://arxiv.org/pdf/2611.18987"
+      },
+      "comment": "22 pages, 2 figures. Includes supplementary analyses, code, and numerical evaluation artifacts",
+      "titleZh": "PREFACE：区分PEFT中的共享修正与前缀条件化",
+      "summaryZh": "输入条件化PEFT的增益究竟来自当前输入，还是来自学到的共享修正?PREFACE用无需测试时梯度的有界通道控制器读取上下文，在多项选择打分中其状态与候选续写无关。冻结IA3、LoRA与DoRA适配器，匹配架构、初始化、批次与更新，对比current-prefix与learned-global控制:ARC-Challenge与SciQ上current-prefix在六个平均准确率上均优于冻结适配器，但与learned-global的配对对比无一排除零;修正替换为训练前缀均值后准确率变化不超过0.34个百分点，输入变化分量仅占修正RMS的1.8%–2.8%,ARC测试上二者为25.68%/25.77%。该工作为条件化PEFT提供干预式评测，说明超过静态适配器的增益本身不足以证明输入匹配有效。",
+      "score": 7,
+      "reason": "PEFT条件化机制的可控消融，方法学扎实但结论偏负，与后训练擦边"
+    },
+    {
+      "id": "2611.18933",
+      "title": "Geometrically Disentangling Concept Learning from the Language Modeling Loss",
+      "authors": [
+        "Yupei Wang",
+        "Neil Mallinar",
+        "Mikhail Belkin",
+        "Alex Warstadt"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Language models acquire a vast array of concepts and abilities from next-token prediction alone. We introduce an interpretability framework that exposes how this single loss relates to the development of different concepts at different points during pretraining. We propose Concept Energy, a measure of the concept-specific alignment between a concept subspace and the average gradient outer product (AGOP) of the next-token-prediction loss. The concept subspace captures where the concept currently lives in the model's representation; AGOP captures the directions to which the loss is most sensitive. Across 19 checkpoints of Pythia-410M and -1B and 12 lexical, syntactic, and semantic concepts, we find that the first peak in Concept Energy generally occurs at or before the steepest increase in probe decodability. Furthermore, whereas probe performance usually increases monotonically throughout training, Concept Energy is not confined to a single peak; some concepts exhibit sustained or repeated engagement across pretraining, suggesting that concept learning may require continual reinforcement or occur at multiple points. Our results indicate that the loss contributes to concept learning in a myriad of ways that simple probe performance alone cannot reveal.",
+      "published": "2026-11-13T20:37:10Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18933",
+        "pdf": "https://arxiv.org/pdf/2611.18933"
+      },
+      "comment": "Accepted at NeurIPS 2026. Code: https://github.com/YpLarryWang/concept-energy . Pretrained probes and research artifacts: https://huggingface.co/collections/disentangle-concept-learning/concept-energy-neurips-2026",
+      "titleZh": "几何解耦概念学习与语言建模损失",
+      "summaryZh": "提出 Concept Energy 指标，度量概念子空间与下一词预测损失的平均梯度外积(AGOP)之间的对齐程度，以刻画预训练过程中概念学习与单一语言建模损失的关系。在 Pythia-410M 与 1B 的 19 个检查点、12 个词法/句法/语义概念上分析发现，Concept Energy 的首个峰值通常出现在探针可解码性上升最陡处之前或与之同时;探针性能多单调上升，而 Concept Energy 会出现持续或重复的峰值，提示概念学习需反复强化或在多个阶段发生。该工作为理解预训练中概念如何形成提供了超出探针精度的几何视角。",
+      "score": 7,
+      "reason": "预训练机制可解释性，契合架构与预训练方向"
+    },
+    {
+      "id": "2611.18890",
+      "title": "Benchmark Factory: Agentic Benchmark Creation via Dataset Curation and Label-Free Quality Anchors",
+      "authors": [
+        "Shervin Shahidi",
+        "James Poon",
+        "Hang Xie",
+        "Kenneth O. Xu",
+        "Robin Håkanson",
+        "Vikram Nair"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Teams deploying coding agents need benchmarks built from their own code, but curating and validating them by hand is resource intensive, and an unvalidated benchmark can mislead silently. We present Benchmark Factory, an autonomous meta-agent loop with human checkpoints: an LLM agent writes sourcing queries over landed production code changes, runs models of known relative strength on each candidate, diagnoses why a candidate fails, and repairs it by editing its queries, prompts, and configuration until it clears quality anchors that need no per-task human labels. We used Benchmark Factory to build benchmarks for five developer cohorts at our organization. Engineering raters scored a 5% sample 2.3 for task quality and 2.6 for grader verdicts on a 1-to-3 scale. On configurations never used to build them, the benchmarks ranked Claude Opus~4.7 at high reasoning effort above low effort (60.6% vs. 54.4% of tasks passed, $p=0.002$) and GPT-5.5 above GPT-5.4 (65.8% vs. 60.5%, $p=0.004$); 9 of the 10 per-cohort comparisons pointed the same way. A deliberately trivial benchmark failed the anchors; five broken graders failed them, even under a relaxed rule fixed in advance that the real grader passes; and with model labels shuffled so that no true ordering existed, random redraws of a candidate passed in at most 1.4% of simulations. The anchors are necessary, not sufficient, conditions for a valid benchmark, designed to focus human review on what the loop cannot repair.",
+      "published": "2026-11-13T19:49:01Z",
+      "primaryCategory": "cs.SE",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18890",
+        "pdf": "https://arxiv.org/pdf/2611.18890"
+      },
+      "comment": "5 pages, prepared for submission to AGENT 2027",
+      "titleZh": "Benchmark Factory：通过数据集策划与无标签质量锚点自动构建 Agentic 基准",
+      "summaryZh": "部署编码 agent 的团队需要用自有代码构建基准，人工策划与验证成本高，未经校验的基准还会静默误导。Benchmark Factory是带人工检查点的自主meta-agent循环：LLM针对落地的生产代码变更编写检索查询，在候选任务上运行强弱关系已知的模型，诊断失败原因并改写查询与配置，直到通过无需逐任务标注的质量锚点。为五个开发者群体建成的基准在人工抽样中任务质量得2.3、评分器判定得2.6（1–3分）；在未参与构建的配置上，Claude Opus 4.7的高推理强度通过率高于低强度（60.6%对54.4%，p=0.002），GPT-5.5高于GPT-5.4（65.8%对60.5%，p=0.004）。锚点被定位为必要非充分条件，把人工审查集中到循环无法修复之处。",
+      "score": 7,
+      "reason": "Agent自动构建代码基准，命中评测与Agent方向，短文分量有限"
+    },
+    {
+      "id": "2611.18818",
+      "title": "What to Practice Next? Latent Profile-Guided Task Selection for Skill-Evolving LLM Agents",
+      "authors": [
+        "Qijin Zhang",
+        "Hanzhen Wang",
+        "Yan Huang",
+        "Zhongxiang Dai",
+        "Shuang Qiu"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Task selection shapes the experiences available for skill evolution in LLM agents, yet fixed practice schedules overlook differences in skill requirements and evolving task value. Most existing methods, however, rely on fixed schedules or scalar measures of progress, leaving nonstationary skill demands unaddressed. We propose SPG-Select, a framework for allocating limited practice budget using a multidimensional profile inferred from binary outcomes via MIRT. The framework predicts surrogate progress, defined as the difference between consecutive profile estimates, and prioritizes progress in dimensions with larger estimated proficiency gaps. Our SPG-Select-R policy combines these predictions with uncertainty-based exploration and periodic restarting to accommodate nonstationarity. We evaluate SPG-Select on ALFWorld and WebShop with three skill-evolution backends. In the reported runs, SPG-Select-R achieves higher mean held-out terminal success than uniform sampling in all six backend-benchmark combinations, with gains of 1.49-13.18 percentage points on ALFWorld and 0.93-3.13 points on WebShop. Under a predictable linear surrogate model and boundedness assumptions, we establish a high-probability dynamic pseudo-regret bound for surrogate task allocation in terms of parameter path variation.",
+      "published": "2026-11-13T17:52:32Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18818",
+        "pdf": "https://arxiv.org/pdf/2611.18818"
+      },
+      "titleZh": "接下来练什么?潜在画像引导的面向技能演化 LLM Agent 的任务选择",
+      "summaryZh": "LLM Agent 的技能演化依赖任务选择，但固定练习计划忽视了各任务的技能需求差异与任务价值变化，现有方法多用固定计划或标量进度度量，难以应对非平稳的技能需求。SPG-Select 用多维项目反应理论(MIRT)从二值结果中推断 agent 的多维技能画像，以相邻两次画像估计之差作为替代进度信号，优先练习估计能力缺口更大的维度;SPG-Select-R 在此基础上加入基于不确定性的探索与周期性重启。在 ALFWorld 与 WebShop 上配合三种技能演化后端，SPG-Select-R 在全部六种组合中均优于均匀采样，ALFWorld 提升1.49–13.18个百分点，WebShop 提升0.93–3.13个百分点，并在线性替代模型与有界性假设下给出了动态伪 regret 界。",
+      "score": 7,
+      "reason": "Agent 自演化中的任务选择与课程设计，方法清晰但环境规模有限"
     },
     {
       "id": "2611.18514",
@@ -1734,96 +1968,6 @@
       "summaryZh": "针对PEFT在适配质量与训练开销之间的权衡，SCALAR用任务激活构造固定输入基，为每个输入方向配一个随机输出字典，微调时只学习逐层标量系数，从而压缩梯度与优化器状态的存储；分组计算先聚合输出原子再作用于token激活，并在兼容层之间共享字典以降低固定基存储。常识推理上以约4%的LoRA可训练参数量取得相当准确率，Qwen2.5-7B上峰值训练显存降低20%、吞吐提升6%。方法适用于显存与算力受限的LLM微调场景。",
       "score": 7,
       "reason": "PEFT新变体，显存与吞吐有实测收益，属效率方向的扎实工作"
-    },
-    {
-      "id": "2611.17766",
-      "title": "GDP.xlsx: Benchmarking Frontier Models on Professional Workbooks",
-      "authors": [
-        "Suhaas Garre",
-        "Sushant Mehta",
-        "Edwin Chen"
-      ],
-      "authorsTotal": 3,
-      "abstract": "We introduce GDP_xlsx, a benchmark of 70 realistic workplace requests written by professionals in 13 domains, each paired with an expert rubric of binary criteria and with the complete workbook or CSV file it refers to. Together the files hold 2.18 million populated cells, and the rubrics 791 criteria. Agents work in a container with spreadsheet tools, and an agentic judge that can open the file applies the rubric. Completeness and exclusivity criteria require set-valued answers to be found in full and with nothing extra. We rank models by strict pass@1, the share of attempts that meet every criterion. Across 20 model configurations, including frontier models from Google, Anthropic, and OpenAI, the top-scoring one, Gemini 4 Argon, passes only 38.3% of attempts, and the median score is 19.3%, leaving wide headroom. We release the evaluation harness and three public tasks; the other 67 are held out to protect the leaderboard from contamination.",
-      "published": "2026-11-13T05:24:50Z",
-      "primaryCategory": "cs.CL",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.17766",
-        "pdf": "https://arxiv.org/pdf/2611.17766"
-      },
-      "comment": "14 pages, 4 figures, 6 tables. Accepted to the Agent Evaluation Science Symposium (New York City, November 2026). Leaderboard: https://surgehq.ai/benchmarks/gdp-xlsx ; evaluation harness: https://github.com/surge-ai/gdp-xlsx ; public tasks: https://huggingface.co/datasets/surgeai/GDP.xlsx",
-      "titleZh": "GDP.xlsx:在专业工作簿上评测前沿模型",
-      "summaryZh": "面向真实职场电子表格任务构建基准，收录 13 个领域专业人士撰写的 70 条请求，每条配完整工作簿或 CSV(合计 218 万个填充单元格)与专家设计的二元标准评分表(共 791 条)。智能体在容器内调用表格工具操作文件，由可打开文件的 agentic judge 逐条判定，完整性标准要求集合型答案既不遗漏也不多余。按严格 pass@1(满足全部标准才算通过)排名 20 种模型配置，Gemini 4 Argon 以 38.3% 居首，中位数仅 19.3%。该基准用于衡量前沿模型在真实办公表格场景中的能力缺口，并公开评测框架与 3 个任务、留出 67 个防污染。",
-      "score": 7,
-      "reason": "LLM智能体真实表格任务评测，含agentic judge，属评测方向扎实工作"
-    },
-    {
-      "id": "2611.17681",
-      "title": "OCTAVE: A Capability-Resolved Benchmark for End-to-End HTML5 Game Generation",
-      "authors": [
-        "Kehang Li",
-        "Xinlan Xu",
-        "Yulin Jin",
-        "Heng Cao",
-        "Xuchen Li",
-        "Houxian Ren"
-      ],
-      "authorsTotal": 13,
-      "abstract": "Complete game generation requires agents to coordinate rules, interactions, states, and presentation over a long development process. A single aggregate score obscures which capabilities are implemented and which requirements remain unmet. We present OCTAVE, a benchmark for complete HTML5 game generation organized around eight Capability Dimensions, with 180 tasks and 1,800 Evaluation Requirements drawn from real player requests, commercial-mechanics reconstruction, and human expert design. It covers PC Web, Mobile Web, 2D, and 3D. Requirements distinguish Completeness, assessing publicly specified core implementation, from Richness, assessing hidden, deeper system relationships. Static source-code judgments provide requirement-level diagnosis across capabilities and task conditions. Evaluation of 11 model-harness combinations yields 33.2% Completeness and 32.5% Richness; 19.9% of generation records are static gate failures or missing artifacts. Excluding same-model self-evaluation, even the best combination remains below 50% on both public and hidden requirements. Richness is not harder than Completeness under every task condition. Systems perform relatively better on Core Rules and Numerical Design, while AI/NPC and Feedback and Game Feel show more prominent gaps. Requirement difficulty offers coarse stratification but is only weakly negatively correlated with pass rates. A limited human cross-check finds that requirements judged satisfied by humans but failed by the automated evaluator are the main direction of disagreement. OCTAVE extends evaluation beyond aggregate scores to diagnosis localized by requirement, capability, and task condition.",
-      "published": "2026-11-13T02:48:04Z",
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.17681",
-        "pdf": "https://arxiv.org/pdf/2611.17681"
-      },
-      "titleZh": "OCTAVE：面向端到端 HTML5 游戏生成的能力细粒度基准",
-      "summaryZh": "单一总分难以说明智能体在长程开发中实现了哪些规则、交互、状态与呈现。OCTAVE 以八个能力维度组织 180 个任务与 1800 条评估要求，任务来自真实玩家需求、商业机制复现与专家设计，覆盖 PC/移动 Web 与 2D/3D。评估要求区分衡量公开核心实现的 Completeness 与衡量隐含系统关联的 Richness，并基于静态源码给出要求级诊断。11 种模型-harness 组合仅达 33.2% Completeness 与 32.5% Richness，19.9% 生成记录为静态门槛失败或产物缺失，排除同模型自评后最佳组合两项均低于 50%。",
-      "score": 7,
-      "reason": "benchmark 设计与代码智能体评测，方法学扎实但非模型层面创新"
-    },
-    {
-      "id": "2611.17662",
-      "title": "Learn then Bet: Learning Interpretable Rules for Reliable Agent Intervention",
-      "authors": [
-        "You-Lin Chen",
-        "Xinyi Lisa Chen",
-        "Pedro Herrero-Vidal",
-        "Xiaojing Yu",
-        "Bingqing Song",
-        "Bin Xu"
-      ],
-      "authorsTotal": 6,
-      "abstract": "Autonomous agents now run for hundreds of steps with little or no human supervision. In practice, practitioners use runtime monitors such as turn limits and keyword filters to decide when a run should be stopped, upgraded, or assisted. However, these heuristics may stop runs that would otherwise succeed or allow failing runs to continue. To address this limitation, we introduce LeBet (Learn then Bet), a statistical learning framework that derives its learning objective from sufficient conditions for valid and powerful intervention. In particular, LeBet learns an interpretable OR-of-AND monitor and accumulates evidence through a fixed betting statistic, intervening when the evidence reaches a prescribed threshold. Under finite within-class exchangeability and leave-one-out stability, we derive finite-sample guarantees for false-positive control (validity) and detection power conditional on the training data, using the same trajectories for learning and calibration without assuming independent and identically distributed trajectories. To address the intractable combinatorial optimization problem in our learning formulation, we use stochastic local search that leverages the monitor's Boolean structure to propose rule edits aimed at improving empirical separation. On SWE-bench Lite with Ministral 3 8B, the learned monitor saves $34.46\\%$ of input-plus-output tokens and increases output precision from $18.33\\%$ to $21.59\\%$. The empirical false-positive rate is $13.64\\%$. Our results show how to formalize the learning problem over interpretable rule sets with statistical conditions and establish training-conditional guarantees for reliable intervention based on partial histories.",
-      "published": "2026-11-13T02:14:55Z",
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.17662",
-        "pdf": "https://arxiv.org/pdf/2611.17662"
-      },
-      "titleZh": "先学习再下注：为可靠 Agent 干预学习可解释规则",
-      "summaryZh": "运行时监控常用的轮次上限、关键词过滤等启发式规则容易误停本可成功的运行，也容易放过失败运行。LeBet 把干预问题形式化为统计学习：学出可解释的 AND-of-OR 规则集，并用固定下注统计量累积证据，证据达到阈值才干预；在类内可交换与留一稳定性假设下，给出有限样本的假阳性控制与检测功效保证，且学习与校准复用同一批轨迹。学习中的组合优化改用利用布尔结构做规则编辑的随机局部搜索求解。在 SWE-bench Lite 上用 Ministral 3 8B 验证，节省 34.46% 输入加输出 token，输出精度从 18.33% 提升到 21.59%，实测假阳性率 13.64%。",
-      "score": 7,
-      "reason": "Agent 运行时干预与可验证监控，方法有统计保证，偏 Agent 与代码任务方向"
-    },
-    {
-      "id": "2611.17632",
-      "title": "Generated Evaluation Suites as Diversity-Driven Search for Real Agent Regressions",
-      "authors": [
-        "Pulkit Yadav"
-      ],
-      "authorsTotal": 1,
-      "abstract": "Generating an evaluation suite from an agent's specification is diversity-driven search: a generator fills a descriptor space (requirements $\\times$ personas $\\times$ scenario kinds), and the suite it emits is an archive, then scored like a benchmark by its mean pass rate, which throws away the search's product. We inject 7 controlled defects into a $τ^2$-bench agent across two domains. Coverage yields a ceiling: if a defect's traced footprint holds $b$ scenarios that pass at baseline, it can itself contribute at most $b/N$ to a suite of $N$. For 4 of 5 traceable defects that ceiling lies at or below the detection threshold $θ= 0.10$, so no within-footprint effect can move the suite past it; in both domains the tool-removal defect destroys every covered scenario it can (exactly its ceiling) while the suite-level pass rate moves the other way. Defects split into two regimes: trace-aligned ones, where per-cell scoring recovers the tool-removal defect in full and reveals a second as a significant improvement, and trace-orthogonal ones, whose footprint is behavioural: forced escalation is detected in retail at a traced coverage of exactly zero. Diversity along the generator's own axes helps only where it aligns: at fixed suite size a happy-path-only suite detects nothing, while a kind-diverse one detects the orchestration defect in 5 of 20 draws. Evaluation archives should be scored per cell and should publish coverage as a first-class property.",
-      "published": "2026-11-13T01:03:19Z",
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.17632",
-        "pdf": "https://arxiv.org/pdf/2611.17632"
-      },
-      "comment": "9 pages. Accepted at the NeurIPS 2026 EvoRobust Workshop",
-      "titleZh": "生成式评测套件即面向真实 Agent 回归的多样性驱动搜索",
-      "summaryZh": "用生成式方法为 Agent 造评测套件本质是多样性驱动搜索:生成器在「需求×人物画像×场景类型」的描述符空间中填充样本，产出的套件是一个档案库;但按平均通过率给它打分，等于把搜索的产物丢掉了。作者向 τ²-bench 的 Agent 注入 7 个受控缺陷、覆盖两个领域，给出覆盖率上限:若某缺陷的追踪足迹含 b 个基线通过场景，它在 N 条套件中最多只能贡献 b/N;5 个可追踪缺陷中有 4 个的上限落在检测阈值 θ=0.10 及以下，因此足迹内部效应无法把套件推过阈值——两个领域中「移除工具」缺陷都摧毁了所有可覆盖场景(恰好等于其上限)，套件级通过率却反向变化。按单元(cell)打分可完整召回该缺陷，并把另一个缺陷识别为显著提升;而与追踪足迹正交的缺陷只在行为层面暴露，例如零售领域「强制升级」缺陷在追踪覆盖率为零时仍被检出。作者据此主张评测档案应按单元计分，并把覆盖率作为一等属性公布。",
-      "score": 7,
-      "reason": "Agent 评测方法与基准设计，切中评测可靠性方向，但为 workshop 短文"
     }
   ],
   "embodied": [
@@ -1872,12 +2016,12 @@
         "abs": "https://arxiv.org/abs/2611.18397",
         "pdf": "https://arxiv.org/pdf/2611.18397"
       },
-      "track": "embodied",
       "titleZh": "Gamer：面向长时程实时游戏智能体的通用视觉-语言-动作基础模型",
       "summaryZh": "面向复杂交互环境中的长时程任务，构建端到端统一感知、记忆管理与多步推理的通用智能体：先在上万小时设备级键鼠交互轨迹（横跨模拟游戏与具身环境）上继续预训练，再用稀疏思考指令微调削减冗余计算，并以稳定的多轮RL处理有限上下文窗口、rollout误差累积与稀疏奖励；配套云边推理引擎支持多环境并发、无界上下文与低延迟。在多个3D开放世界游戏中泛化性与运行效率接近熟练玩家，2D游戏基准亦有竞争力，说明重复性键鼠轨迹同样能从数据与算法扩展中获益，为打通数字与物理世界的通用智能体提供路径。",
       "score": 9,
       "reason": "通用VLA基础模型技术报告，多轮RL与长时程智能体系统性强",
-      "deepDive": true
+      "deepDive": true,
+      "track": "embodied"
     },
     {
       "id": "2611.18372",
@@ -1921,13 +2065,12 @@
         "abs": "https://arxiv.org/abs/2611.18176",
         "pdf": "https://arxiv.org/pdf/2611.18176"
       },
-      "comment": "Technical report. 25 pages, 7 figures. Code: https://github.com/Embodied-Self-Improvement/ESI",
+      "comment": "Technical report. 25 pages, 7 figures. Code: https://github.com/ZERITH-ZLab/ESI",
       "track": "embodied",
       "titleZh": "ESI:面向LLM-VLA智能体的具身自改进飞轮",
       "summaryZh": "LLM与VLA独立预训练后拼在一起并不能自动协同:VLA可能偏离LLM规划的子任务，重新接管控制时又会破坏LLM已恢复的良好状态。ESI以模块化智能体整体作为后训练单元，构建自动化飞轮，反复优化引导LLM的提示、表达意图的共享技能接口与实现意图的VLA参数，并协同重部署;其核心思路是协作过程本身即可提供监督——LLM的子任务决策给出语义监督，有效纠正与后续学生续跑给出恢复与交接的动作级监督，学生也从自身成功执行中学习，使局部有效经验在整段失败时仍可贡献。在10个RoboDojo任务上，不生成任务专用控制代码即取得62.03平均Score与49.41%成功率，超过GO-3 Nano Preview(47.27分、36.60%)等全部对比混合具身智能体与代码类方法。",
       "score": 8.5,
-      "reason": "LLM-VLA智能体自改进后训练飞轮，直接命中具身后训练与自进化方向",
-      "deepDive": true
+      "reason": "LLM-VLA智能体自改进后训练飞轮，直接命中具身后训练与自进化方向"
     },
     {
       "id": "2611.18359",
@@ -1971,11 +2114,35 @@
         "pdf": "https://arxiv.org/pdf/2611.17626"
       },
       "comment": "29 pages, 6 figures, 14 tables",
-      "track": "embodied",
       "titleZh": "通过可微轨迹优化的联合世界动作模型",
       "summaryZh": "联合世界动作模型（WAM）同时生成未来动作与状态，但纯轨迹模仿无法保证轨迹任务有效或符合动力学。WATO 将生成的动作与未来状态作为参考，放入带动力学约束的轨迹优化问题，并把任务损失经优化后的轨迹反传以训练生成器；轨迹优化只在训练阶段使用，部署时直接生成候选轨迹并用世界模型排序。在 7 个视觉控制环境上平均成功率从 79.9% 提升到 91.7%，优于基于模型、目标条件 RL 与生成式控制基线，相比 CEM 平均快 11.5 倍、世界模型调用少 600.5 倍。",
       "score": 8,
-      "reason": "世界-动作模型的训练机制有新意，7 个环境的控制结果扎实"
+      "reason": "世界-动作模型的训练机制有新意，7 个环境的控制结果扎实",
+      "track": "embodied"
+    },
+    {
+      "id": "2611.18891",
+      "title": "Bring Back Language to Actions: Restoring VLM capabilities in VLA Models via Parameter Merging",
+      "authors": [
+        "Mohamed Salim Aissi",
+        "Olivier Sigaud",
+        "Laure Soulier",
+        "Nicolas Thome"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Vision-Language-Action models (VLAs) are obtained by fine-tuning pre-trained Vision-Language Models (VLMs) on robot demonstration data, enabling action prediction from visual observations and language instructions. However, this fine-tuning induces catastrophic forgetting, substantially degrading the semantic and visual grounding capabilities of the original VLM. We address this by merging the parameters of a VLM and its VLA derivative without retraining either model. Concretely, we extract the task vector (the difference between VLA and VLM weights) and decompose it via Singular Value Decomposition. For each component, we learn a scalar mixing coefficient controlling how much of the VLA adaptation is retained, optimised to jointly preserve action prediction and vision-language capabilities. Experiments show that our merged model performs well on both axes simultaneously, consistently outperforming established merging baselines.",
+      "published": "2026-11-13T19:51:30Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.18891",
+        "pdf": "https://arxiv.org/pdf/2611.18891"
+      },
+      "comment": "Accept at EACL 2027 (Main)",
+      "track": "embodied",
+      "titleZh": "让语言回归动作:通过参数合并恢复 VLA 模型中的 VLM 能力",
+      "summaryZh": "VLA 模型在机器人示教数据上微调后会灾难性遗忘，语义与视觉 grounding 能力明显退化。该工作不重训任一模型，而是取 VLA 与 VLM 的权重差作为任务向量，用奇异值分解拆成若干分量，再为每个分量学习标量混合系数，联合优化动作预测与视觉语言能力。合并后的模型在动作与视觉语言两条轴上同时保持良好表现，稳定优于已有合并基线，为 VLA 后训练提供了一种免重训的能力保留方案。",
+      "score": 7,
+      "reason": "VLA 后训练遗忘与参数合并，命中 VLA 训练方向"
     },
     {
       "id": "2611.18298",
@@ -2012,7 +2179,7 @@
         "Yujian Ma",
         "Shenwen Deng"
       ],
-      "authorsTotal": 8,
+      "authorsTotal": 9,
       "abstract": "Large language and vision-language models have substantially advanced robotic behavior planning from natural-language instructions and visual observations. However, safe manipulation in tabletop environments remains challenging because the safety constraints required for a task depend on the surrounding scene and may not be explicitly specified in the instruction. We propose a safety-aware behavior planning framework based on an explicit Constraint Space that stores reusable textual safety rules. Rather than retrieving rules solely by semantic similarity, we formulate constraint selection as task- and environment-conditioned applicability learning. A lightweight query-conditioned dual-tower model identifies the constraints applicable to the current context, which are then provided together with the original task and image to a multimodal behavior planner. To handle incorrect constraint selections and previously unseen hazards, we introduce a multimodal Safety Inspector that evaluates generated primitive plans, reconstructs the complete applicable constraint set, and provides corrective planning feedback. Validated inspection feedback is further used for test-time adaptation of constraint applicability and parameter-efficient adaptation of the Safety Inspector through LoRA, while newly identified constraints are incorporated into the Constraint Space. The resulting framework integrates explicit safety knowledge representation,context-aware constraint selection, corrective safety inspection, and test-time knowledge adaptation for safety-aware robotic behavior planning.",
       "published": "2026-11-13T10:51:57Z",
       "primaryCategory": "cs.RO",
@@ -2050,179 +2217,115 @@
       "summaryZh": "潜在动作模型可从无标注视频推断动作变量，但能提升未来预测的隐变量可能只编码了当前状态、任务身份等捷径，重建损失、rollout 保真度、动作恢复与下游性能都难以区分二者。LASR 是离线评估的无量纲指标，衡量隐变量对动作相关目标的预测支持是否超出当前状态与非动作替代量，给出 GeoLASR（典型支持）与 WorstLASR（最弱情形）两个汇总，并以真实动作及对应物理状态变化为目标、按 episode 划分、统一预测器、设置正负对照。在机器人操作数据与匹配的多任务面板上，它能检出已知动作信息、拒绝代表性非动作捷径并给出分级比较，还被用于训练与审计轻量残差适配器。",
       "score": 7,
       "reason": "世界模型隐变量的具身评测方法学，方向对口但偏基准协议"
+    }
+  ],
+  "overflow": [
+    {
+      "id": "2611.17766",
+      "title": "GDP.xlsx: Benchmarking Frontier Models on Professional Workbooks",
+      "titleZh": "GDP.xlsx:在专业工作簿上评测前沿模型",
+      "score": 7,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.17766",
+        "pdf": "https://arxiv.org/pdf/2611.17766"
+      }
     },
     {
       "id": "2611.17751",
       "title": "When Does Cross-View Consistency Matter in Multi-View Appearance Augmentation? A Controlled Study for Visuomotor Policies",
-      "authors": [
-        "Zixuan Jiang"
-      ],
-      "authorsTotal": 1,
-      "abstract": "Multi-view visual augmentation often seeks consistency across cameras, but it is unclear which forms of consistency matter for downstream control. We use simulation-state replay to manipulate cross-view coupling while preserving the per-camera perturbation distributions, physical trajectories, and action labels. Across seven LIBERO manipulation tasks, marginal-matched changes in global appearance, ghost injection, and target color have small average costs for a late-fusion Diffusion Policy: point estimates are near zero or negative, and the largest upper endpoint of the 90% posterior credible intervals is 2.55 percentage points. In contrast, geometrically anti-coupled observations reduce success by 3.30 percentage points relative to coupled observations (90% CrI [0.64, 6.28]), with displacement magnitude, direction marginals, and the number of affected views matched. Camera interventions reveal substantial dependence on wrist-view geometry, while feature analysis shows appearance sensitivity patterns associated with the factors randomized during training. ACT shows a higher target-color cost estimate than DP, with uncertainty that includes zero and sensitivity to task composition. Within the tested tasks and policy configurations, these findings motivate selective consistency constraints: appearance coupling can sometimes be relaxed, whereas task-relevant geometry and cross-view spatial correspondence warrant protection.",
-      "published": "2026-11-13T05:10:00Z",
+      "titleZh": "多视角外观增强中的跨视角一致性何时重要？面向视觉运动策略的受控研究",
+      "score": 7,
       "primaryCategory": "cs.RO",
+      "track": "embodied",
       "urls": {
         "abs": "https://arxiv.org/abs/2611.17751",
         "pdf": "https://arxiv.org/pdf/2611.17751"
-      },
-      "comment": "30 pages, 10 figures. Code: https://github.com/PKUJZX/xview-consistency-augmentation",
-      "track": "embodied",
-      "titleZh": "多视角外观增强中的跨视角一致性何时重要？面向视觉运动策略的受控研究",
-      "summaryZh": "多视角视觉增强常约束跨相机一致性，但哪种一致性影响下游控制尚不清楚。用仿真状态重放操控跨视角耦合，保持各相机扰动分布、物理轨迹与动作标签不变，在七个LIBERO操作任务上受控评测late-fusion Diffusion Policy。全局外观、ghost注入与目标颜色的边缘匹配变化代价接近零（90%后验区间上端点最大2.55个百分点）；几何反耦合使成功率下降3.30个百分点（90% CrI [0.64, 6.28]），腕部视角几何依赖明显，ACT的目标颜色代价更高但区间含零。结果支持选择性一致性约束：外观耦合可放松，任务相关几何与跨视角空间对应需保护。",
+      }
+    },
+    {
+      "id": "2611.17681",
+      "title": "OCTAVE: A Capability-Resolved Benchmark for End-to-End HTML5 Game Generation",
+      "titleZh": "OCTAVE：面向端到端 HTML5 游戏生成的能力细粒度基准",
       "score": 7,
-      "reason": "多视角增强一致性对视觉运动策略的受控消融，方法学扎实"
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.17681",
+        "pdf": "https://arxiv.org/pdf/2611.17681"
+      }
+    },
+    {
+      "id": "2611.17662",
+      "title": "Learn then Bet: Learning Interpretable Rules for Reliable Agent Intervention",
+      "titleZh": "先学习再下注：为可靠 Agent 干预学习可解释规则",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.17662",
+        "pdf": "https://arxiv.org/pdf/2611.17662"
+      }
+    },
+    {
+      "id": "2611.17632",
+      "title": "Generated Evaluation Suites as Diversity-Driven Search for Real Agent Regressions",
+      "titleZh": "生成式评测套件即面向真实 Agent 回归的多样性驱动搜索",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.17632",
+        "pdf": "https://arxiv.org/pdf/2611.17632"
+      }
     }
   ],
   "scores": {
     "main": {
-      "2611.17605": 4,
-      "2611.17608": 2,
-      "2611.17616": 4,
-      "2611.17620": 6,
-      "2611.17630": 1,
-      "2611.17650": 1,
-      "2611.17674": 5,
-      "2611.17680": 3,
-      "2611.17684": 3,
-      "2611.17686": 3,
-      "2611.17704": 1,
-      "2611.17710": 2,
-      "2611.17722": 2,
-      "2611.17728": 5,
-      "2611.17735": 6,
-      "2611.17746": 2,
-      "2611.17754": 5,
-      "2611.17763": 6.5,
-      "2611.17768": 3,
-      "2611.17772": 6.5,
-      "2611.17776": 5.5,
-      "2611.17781": 4,
-      "2611.17788": 6,
-      "2611.17793": 2,
-      "2611.17794": 2,
-      "2611.17796": 2,
-      "2611.17819": 2,
-      "2611.17836": 5,
-      "2611.17846": 6.5,
-      "2611.17851": 2,
-      "2611.17856": 5,
-      "2611.17858": 2,
-      "2611.17862": 5,
-      "2611.17867": 6,
-      "2611.17869": 2,
-      "2611.17870": 5,
-      "2611.17872": 1,
-      "2611.17886": 2,
-      "2611.17915": 4,
-      "2611.17917": 3,
-      "2611.17921": 4,
-      "2611.17925": 5,
-      "2611.17929": 5,
-      "2611.17931": 4,
-      "2611.17937": 2,
-      "2611.17938": 2,
-      "2611.17939": 6,
-      "2611.17944": 2,
-      "2611.17950": 2,
-      "2611.17953": 5,
-      "2611.17959": 2,
-      "2611.17963": 3,
-      "2611.17967": 2,
-      "2611.17968": 2,
-      "2611.17981": 2,
-      "2611.17983": 2,
-      "2611.17998": 1,
-      "2611.18005": 1,
-      "2611.18008": 2,
-      "2611.18014": 3,
-      "2611.18035": 3,
-      "2611.18043": 2,
-      "2611.18050": 3,
-      "2611.18064": 2,
-      "2611.18074": 3,
-      "2611.18088": 6.5,
-      "2611.18089": 6,
-      "2611.18096": 6.5,
-      "2611.18098": 6,
-      "2611.18121": 1,
-      "2611.18125": 5,
-      "2611.18130": 5,
-      "2611.18140": 3,
-      "2611.18142": 3,
-      "2611.18144": 1,
-      "2611.18149": 2,
-      "2611.18157": 3,
-      "2611.18163": 4,
-      "2611.18179": 5,
-      "2611.18190": 2,
-      "2611.18199": 3,
-      "2611.18238": 5,
-      "2611.18239": 5.5,
-      "2611.18244": 3,
-      "2611.18245": 1,
-      "2611.18248": 5,
-      "2611.18252": 5,
-      "2611.18257": 5,
-      "2611.18264": 5,
-      "2611.18279": 5,
-      "2611.18284": 5,
-      "2611.18297": 5.5,
-      "2611.18315": 5,
-      "2611.18319": 3,
-      "2611.18321": 2,
-      "2611.18333": 1,
-      "2611.18346": 3,
-      "2611.18367": 4,
-      "2611.18370": 5,
-      "2611.18371": 3,
-      "2611.18382": 2,
-      "2611.18393": 3,
-      "2611.18395": 4,
-      "2611.18396": 4,
-      "2611.18409": 2,
-      "2611.18412": 4,
-      "2611.18419": 6.5,
-      "2611.18434": 2,
-      "2611.18450": 1,
-      "2611.18458": 3,
-      "2611.18462": 2,
-      "2611.18464": 4,
-      "2611.18477": 3,
-      "2611.18493": 5,
-      "2611.18506": 4,
-      "2611.18507": 2,
-      "2611.18513": 5,
-      "2611.18531": 6,
-      "2611.18563": 2
+      "2611.17632": 7,
+      "2611.17662": 7,
+      "2611.17681": 7,
+      "2611.17766": 7,
+      "2611.18792": 5,
+      "2611.18793": 1,
+      "2611.18802": 2,
+      "2611.18803": 2,
+      "2611.18809": 2,
+      "2611.18844": 2,
+      "2611.18847": 5.5,
+      "2611.18851": 5.5,
+      "2611.18866": 1,
+      "2611.18868": 2,
+      "2611.18878": 5,
+      "2611.18898": 2,
+      "2611.18905": 6,
+      "2611.18914": 3,
+      "2611.18915": 5,
+      "2611.18930": 5,
+      "2611.18931": 2,
+      "2611.18952": 5,
+      "2611.18958": 3,
+      "2611.18964": 5,
+      "2611.18965": 2,
+      "2611.18971": 3,
+      "2611.18981": 6,
+      "2611.18994": 3,
+      "2611.18996": 5,
+      "2611.19005": 5.5,
+      "2611.19016": 4,
+      "2611.19020": 6.5,
+      "2611.19027": 2
     },
     "embodied": {
-      "2611.17619": 5.5,
-      "2611.17631": 5.5,
-      "2611.17638": 3,
-      "2611.17658": 6,
-      "2611.17660": 1,
-      "2611.17720": 1,
-      "2611.17730": 5,
-      "2611.17802": 2,
-      "2611.17859": 2,
-      "2611.18003": 4,
-      "2611.18110": 2,
-      "2611.18123": 5,
-      "2611.18186": 1,
-      "2611.18305": 3,
-      "2611.18365": 2,
-      "2611.18422": 2,
-      "2611.18484": 3,
-      "2611.18491": 4,
-      "2611.18496": 3,
-      "2611.18501": 2,
-      "2611.18505": 3,
-      "2611.18543": 4,
-      "2611.18546": 2
+      "2611.17751": 7,
+      "2611.18807": 5,
+      "2611.18855": 1,
+      "2611.18877": 3,
+      "2611.18919": 5,
+      "2611.18935": 2,
+      "2611.18976": 3,
+      "2611.18982": 3
     }
   },
   "pool": {
-    "main": 163,
-    "embodied": 33
+    "main": 83,
+    "embodied": 18
   }
 }
