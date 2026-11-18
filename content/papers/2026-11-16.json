@@ -788,7 +788,7 @@
     }
   ],
   "arxivStatus": "complete",
-  "generatedAt": "2026-11-18T10:05:26.482874+00:00",
+  "generatedAt": "2026-11-18T18:50:07.363406+00:00",
   "arxiv": [
     {
       "id": "2611.21917",
@@ -1729,6 +1729,29 @@
       "reason": "针对 RoPE 兼容的潜在 KV 压缩与解码加速，方法新颖且含理论刻画"
     },
     {
+      "id": "2611.20472",
+      "title": "Model Immunization Beyond Condition Numbers: The Importance of Plateau Regions",
+      "authors": [
+        "Quoc Nguyen",
+        "Trung Le",
+        "Dinh Phung",
+        "Mehrtash Harandi"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Harmful fine-tuning can rapidly compromise safety alignment in Large Language Models, underscoring the vulnerability of deployed models to post-release modification. While prior work motivates model immunization by inducing ill-conditioned curvature to slow harmful optimization, this approach is not scalable due to the high computational cost of Hessian estimation. We refine this paradigm by extending the theoretical framework to prioritize plateau regions alongside curvature. We further introduce an immunization algorithm based on efficient Hessian estimation and bounds on the extremal singular values of the Hessian. We demonstrate the proposed immunization framework in three applications: (i) Fine-tuning-as-a-service settings where benign user data may be mixed with poisoned harmful data, (ii) open-weight settings where an adversary can fine-tune on harmful-only data with varied training dynamics, and (iii) robust unlearning, where immunized models better resist relearning attacks after unlearning. Extensive experiments confirm that our approach achieves robust defense against adversarial fine-tuning while largely maintaining general utility and downstream trainability. Our code is available at https://github.com/minhquoc0712/BECON.",
+      "published": "2026-11-16T03:37:45Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20472",
+        "pdf": "https://arxiv.org/pdf/2611.20472"
+      },
+      "comment": "Accepted by NeurIPS 2026",
+      "titleZh": "模型免疫不止于条件数：平台区域的重要性",
+      "summaryZh": "有害微调会迅速破坏大模型的安全对齐，而既有免疫思路依赖人为制造病态曲率来拖慢有害优化，却因 Hessian 估计成本过高而难以扩展。该工作把理论框架从曲率扩展到同时考虑损失面的平台区域，并给出基于高效 Hessian 估计与 Hessian 极值奇异值上界的免疫算法。在微调即服务（良性数据混入中毒样本）、开放权重（对手用纯有害数据以不同训练动态微调）与鲁棒遗忘（抵御遗忘后的重学习攻击）三类场景中验证，防御对抗性微调的同时基本保持通用效用与下游可训练性。",
+      "score": 8,
+      "reason": "关注后训练与对齐安全，聚焦有害微调防御，方法含高效 Hessian 估计"
+    },
+    {
       "id": "2611.20430",
       "title": "TrainExplorer: Autonomous LLM Post-Training via Plan-and-Decouple Exploration",
       "authors": [
@@ -1934,27 +1957,6 @@
       "summaryZh": "针对 Agent 记忆检索依赖相似度、而真正有用的记忆往往与问题并不相似的问题，改为对全部记忆池逐条打分，用 Jev 决策分数衡量每条记忆对当前问题的有用性并据此排序，取代向量或 BM25 相似度检索。在 InMind 的 125 个间接查询任务上，金标记忆排首位率 84.8%，同条件 BM25 与 MiniLM 仅 1.6% 与 0.0%；在 MemoryAgentBench 的 60 题分层抽样上四维得分 55.4%，高于 ReFind 的 44.3%，单题检索成本约 0.008 至 0.031 美元。结果说明世界知识与「把决定性记忆排到最前」的评分方式有效，且全池打分在成本上可行。",
       "score": 7.5,
       "reason": "Agent 记忆检索改为效用全池打分，方向对口但实验规模有限"
-    },
-    {
-      "id": "2611.21241",
-      "title": "Anytime-Valid PAC-Bayes Certificates for Adaptive Test-Time Scaling",
-      "authors": [
-        "Xiaoyu Li",
-        "Jiangxuan Long"
-      ],
-      "authorsTotal": 2,
-      "abstract": "Test-time scaling systems often choose how much to sample, which prompt to use, and which verifier or aggregation rule to trust after repeatedly inspecting a calibration set. Standard validation error bars are not valid after this adaptive selection. We model a test-time scaling recipe as a randomized predictor with a random cost and prove a time-uniform PAC-Bayes certificate that holds simultaneously over all calibration times, all posterior mixtures over recipes, and all data-dependent stopping rules. Thus the same event covers the recipe search that precedes deployment, not merely the fixed recipe finally reported. For a finite grid of budgets and verifiers, the penalty is the familiar $\\log M/n$, which in the worst case no certificate valid after selection can avoid, while non-uniform priors and localized posterior mixtures can give sharper certificates for structured searches. We specialize the result to self-consistency and show a complementary margin law: plurality voting improves exponentially in the sample budget only on examples where the correct answer is the generator's unique mode; otherwise more compute can provably amplify errors. The same margin analysis yields an oracle water-filling law for compute allocation. A synthetic audit quantifies the optimism caused by adaptive budget selection, and a 192-example GSM8K audit using gpt-4.1-mini generations illustrates risk-cost reporting for a real inference pipeline. At scale, with two models on GSM8K and MATH-500, selected-best error bars fall below the out-of-split GSM8K risk in up to 22.5% of random splits at a nominal 5% while the certificate never does, and on the full GSM8K test split it tightens to 0.109 (held-out risk 0.039). The results give a lightweight, distribution-free way to report risk and compute claims for adaptive inference systems.",
-      "published": "2026-11-16T15:23:44Z",
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21241",
-        "pdf": "https://arxiv.org/pdf/2611.21241"
-      },
-      "comment": "Accepted at NeurIPS 2026. Xiaoyu Li and Jiangxuan Long contributed equally. 31 pages, 7 figures, 15 tables",
-      "titleZh": "自适应测试时扩展的随时有效PAC-Bayes证书",
-      "summaryZh": "测试时扩展常在反复查看校准集后才决定采样预算、提示与验证器，标准验证误差棒在此类自适应选择后失效。工作把扩展配方建模为带随机代价的随机预测器，给出在全部校准时刻、配方后验混合与数据依赖停止规则上同时成立的时间一致PAC-Bayes保证，有限网格下惩罚为最优的log M/n。针对自洽性得到边际律：多数投票仅在正确答案为生成器唯一众数时随预算指数改进，否则增加算力会放大错误，并给出算力分配的oracle注水律。GSM8K与MATH-500上，名义5%下选优误差棒在最多22.5%的随机划分中低于留出风险，而该保证从不失效。",
-      "score": 7.5,
-      "reason": "测试时扩展的自适应选择统计保证，直击评估可靠性"
     }
   ],
   "embodied": [
@@ -2136,6 +2138,30 @@
       "reason": "VLA的RL后训练与随机一步策略，直接命中方向"
     },
     {
+      "id": "2611.21115",
+      "title": "ReuseMem: One Memory, Multiple Goals in Robot Manipulation",
+      "authors": [
+        "Yoonseok Kang",
+        "Dayeon Jung",
+        "Seunghoon Jeon",
+        "Wonjib Kim",
+        "Dongchul Park"
+      ],
+      "authorsTotal": 5,
+      "abstract": "Robots that work alongside people should be able to use what they have seen when new requests arise. The same experience may later support identifying an object or returning it to its original location, although these uses were unknown during observation. ReuseMem learns to use one visual memory for multiple later manipulation goals. It records visual features independently of future goals, retrieves complementary evidence for each request, and combines it with the current scene through a lightweight action interface. Retrieval is supervised by how well candidate evidence supports expert-action prediction across different current states, linking memory selection to its use in manipulation. Repeated visual features are stored once, and memory computations that remain unchanged during action generation are reused. Experiments on four simulation tasks and two physical scenarios demonstrate reuse of a common recording across different requests. With matched action adaptation, ReuseMem improves joint goal completion on the benchmark tasks by 24.5 percentage points over uniform memory. These findings show that one memory can support multiple later manipulation goals as the scene changes.",
+      "published": "2026-11-16T13:59:05Z",
+      "primaryCategory": "cs.RO",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.21115",
+        "pdf": "https://arxiv.org/pdf/2611.21115"
+      },
+      "track": "embodied",
+      "titleZh": "ReuseMem：一份记忆，多种目标——机器人操作中的记忆复用",
+      "summaryZh": "针对同一段观测经验在观测时未知的多种后续操作目标下难以复用的问题，提出统一视觉记忆系统 ReuseMem：以与未来目标无关的方式记录视觉特征，针对每个请求检索互补证据，并通过轻量动作接口与当前场景结合；检索过程以候选证据对专家动作预测的支持程度为监督信号，把记忆选择与操作使用直接关联。重复视觉特征只存一次，动作生成中不变的记忆计算被复用，在四个仿真任务与两个真实场景中验证了同一份记录可服务不同请求，在动作适配匹配的条件下联合目标完成率比均匀记忆高24.5个百分点。该工作为具身智能体的记忆与规划提供了可复用的记忆接口设计思路。",
+      "score": 7.5,
+      "reason": "具身智能体的记忆与规划，方法清晰且有真机验证"
+    },
+    {
       "id": "2611.20719",
       "title": "ACiT: Proprioceptive-Prior Action Chunking with Inverted Transformers",
       "authors": [
@@ -2181,341 +2207,444 @@
       "summaryZh": "长程视觉语言导航中的执行器在部署时会遭遇策略引发的状态偏移，其停止信号也无法可靠指示子任务是否完成。LeaP-VLN 用「规划—执行—验证—恢复」闭环把进度感知执行与独立进度验证耦合起来：进度验证器在推进前确认子任务完成，并在路线偏移时触发双阶段恢复；执行器通过进度推理与动作预测联合训练获得纠错控制能力。配套的两阶段课程先在专家示教上做行为克隆，再联合示教、专家动作纠正与进度推理监督训练，使训练与闭环执行中的子任务内漂移和子任务间状态偏移对齐。在 R2R-CE 与 RxR-CE 上，该方法在未使用额外导航数据集训练的单目方法中取得最高成功率，真机长程导航实验也验证了其有效性。",
       "score": 7.5,
       "reason": "闭环智能体式VLN，进度验证与课程训练机制清晰，含真机验证"
-    },
-    {
-      "id": "2611.20655",
-      "title": "MetaAct: Self-Evolving Executable Action Constraints for Embodied Language Agents",
-      "authors": [
-        "Jiaxing Zhao",
-        "Hanwen Wang",
-        "Di Liu",
-        "Shaoteng Liu",
-        "Jing-Ran Su",
-        "Yanheng Li"
-      ],
-      "authorsTotal": 12,
-      "abstract": "Self-evolving language agents have emerged as a promising paradigm for continuously improving agent behavior through experience. However, most existing approaches evolve textual artifacts, which can influence action preferences but cannot reliably enforce action admissibility in embodied environments with discrete and often irreversible actions. We propose MetaAct, which shifts self-evolution from textual guidance to executable action constraints by synthesizing GEAR (Grounded Executable Action Rules) from execution feedback. Each rule is represented as a typed specification, compiled into a deterministic guard, and validated offline through trajectory replay without additional model calls or environment interactions. Across four benchmarks, MetaAct improves task performance; on ScienceWorld and WebShop, violations drop from 70% to 0% and 40% to 1%, with score gains of +10.1 and +8.0. Our code is available at https://github.com/BaiCubed/MetaAct.",
-      "published": "2026-11-16T07:11:07Z",
-      "primaryCategory": "cs.CL",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20655",
-        "pdf": "https://arxiv.org/pdf/2611.20655"
-      },
-      "titleZh": "MetaAct：面向具身语言智能体的自进化可执行动作约束",
-      "summaryZh": "现有自进化语言智能体的做法是演化文本经验，这类经验只能影响动作偏好，无法在动作离散且往往不可逆的具身环境中可靠保证动作可执行。MetaAct 改为从执行反馈中合成带类型规范的可执行动作规则（GEAR），再把它编译成确定性守卫（guard），并通过轨迹回放离线校验，无需额外模型调用或环境交互。在四个基准上任务表现均有提升：ScienceWorld 与 WebShop 的违规率分别从 70% 降到 0%、从 40% 降到 1%，得分提升 +10.1 与 +8.0。该工作把智能体自我进化的产物从提示文本换成可执行约束，适用于对动作合法性有硬性要求的具身智能体。",
-      "score": 7.5,
-      "reason": "智能体自我进化转向可执行动作约束，方法清晰、指标扎实",
-      "track": "embodied"
     }
   ],
   "overflow": [
     {
-      "id": "2611.20953",
-      "title": "Same Fix, Different Weights: Replicating Weight-Space Programming with Claude",
-      "titleZh": "同样的修复，不同的权重：用 Claude 复现权重空间编程",
+      "id": "2611.21241",
+      "title": "Anytime-Valid PAC-Bayes Certificates for Adaptive Test-Time Scaling",
+      "titleZh": "自适应测试时扩展的随时有效PAC-Bayes证书",
       "score": 7.5,
       "primaryCategory": "cs.LG",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20953",
-        "pdf": "https://arxiv.org/pdf/2611.20953"
+        "abs": "https://arxiv.org/abs/2611.21241",
+        "pdf": "https://arxiv.org/pdf/2611.21241"
       }
     },
     {
-      "id": "2611.20844",
-      "title": "DetourBench: Trajectory-Level Evaluation of Interactive Agents with Exact Minimum-Action Bounds",
-      "titleZh": "DetourBench：交互式智能体的轨迹级评估与精确最小动作下界",
+      "id": "2611.21176",
+      "title": "Scientific Coding with Large Language Models: Evidence from Finite Element Analysis",
+      "titleZh": "大语言模型的科学编程:来自有限元分析的证据",
+      "score": 7.5,
+      "primaryCategory": "cs.SE",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.21176",
+        "pdf": "https://arxiv.org/pdf/2611.21176"
+      }
+    },
+    {
+      "id": "2611.21094",
+      "title": "Conflict-Aware Multi-Teacher On-Policy Distillation in Aligned Action Spaces for Cross-Game Generalization",
+      "titleZh": "面向跨游戏泛化的对齐动作空间内冲突感知多教师在线策略蒸馏",
       "score": 7.5,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20844",
-        "pdf": "https://arxiv.org/pdf/2611.20844"
+        "abs": "https://arxiv.org/abs/2611.21094",
+        "pdf": "https://arxiv.org/pdf/2611.21094"
       }
     },
     {
-      "id": "2611.20771",
-      "title": "Nemotron 3.5 Bolt E4B 4GB: An Open and Efficient Small Language Model for Fast Conversational Agents",
-      "titleZh": "Nemotron 3.5 Bolt E4B 4GB:一个面向快速对话 Agent 的开放高效小语言模型",
+      "id": "2611.20655",
+      "title": "MetaAct: Self-Evolving Executable Action Constraints for Embodied Language Agents",
+      "titleZh": "MetaAct：面向具身语言智能体的自进化可执行动作约束",
       "score": 7.5,
       "primaryCategory": "cs.CL",
+      "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20771",
-        "pdf": "https://arxiv.org/pdf/2611.20771"
+        "abs": "https://arxiv.org/abs/2611.20655",
+        "pdf": "https://arxiv.org/pdf/2611.20655"
       }
     },
     {
-      "id": "2611.20711",
-      "title": "AgentFaultBench: State-Verified Evaluation of Tool-Fault Recovery",
-      "titleZh": "AgentFaultBench:状态可验证的工具故障恢复评测",
-      "score": 7.5,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20711",
-        "pdf": "https://arxiv.org/pdf/2611.20711"
-      }
-    },
-    {
-      "id": "2611.20635",
-      "title": "Contrastive Activation-Guided Zeroth-Order Preference Optimisation for Memory-Efficient LLM Alignment",
-      "titleZh": "面向显存高效LLM对齐的对比激活引导零阶偏好优化",
-      "score": 7.5,
+      "id": "2611.21597",
+      "title": "Optimal Autoregressive Chain-of-Thought Learning via Bagging",
+      "titleZh": "基于Bagging的最优自回归思维链学习",
+      "score": 7,
       "primaryCategory": "cs.LG",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20635",
-        "pdf": "https://arxiv.org/pdf/2611.20635"
+        "abs": "https://arxiv.org/abs/2611.21597",
+        "pdf": "https://arxiv.org/pdf/2611.21597"
       }
     },
     {
-      "id": "2611.20605",
-      "title": "AdMem: Expectation-Grounded Procedural Memory for Long-Horizon Task-Solving Agents",
-      "titleZh": "AdMem：面向长时程任务求解智能体的期望锚定过程记忆",
-      "score": 7.5,
+      "id": "2611.21235",
+      "title": "Language-model agents' beliefs can be manipulated via truthful evidence in open channel",
+      "titleZh": "语言模型智能体的信念可通过开放渠道中的真实证据被操纵",
+      "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20605",
-        "pdf": "https://arxiv.org/pdf/2611.20605"
+        "abs": "https://arxiv.org/abs/2611.21235",
+        "pdf": "https://arxiv.org/pdf/2611.21235"
       }
     },
     {
-      "id": "2611.20481",
-      "title": "Lift, See, Act: Hierarchical Robot Policy Pretraining with 3D Foundation Models",
-      "titleZh": "Lift, See, Act：基于3D基础模型的分层机器人策略预训练",
-      "score": 7.5,
+      "id": "2611.21057",
+      "title": "WiTac: Wrist-Informed Tactile Representations for Contact-Rich Manipulation",
+      "titleZh": "WiTac：面向富接触操作的腕部信息触觉表征",
+      "score": 7,
       "primaryCategory": "cs.RO",
       "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20481",
-        "pdf": "https://arxiv.org/pdf/2611.20481"
+        "abs": "https://arxiv.org/abs/2611.21057",
+        "pdf": "https://arxiv.org/pdf/2611.21057"
       }
     },
     {
-      "id": "2611.20419",
-      "title": "Reasoning Again with a Quarter of the Experts: Retry First, Then Train",
-      "titleZh": "用四分之一的专家再次推理：先重试，再训练",
-      "score": 7.5,
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20419",
-        "pdf": "https://arxiv.org/pdf/2611.20419"
-      }
-    },
-    {
-      "id": "2611.20384",
-      "title": "JointQ: Joint Scale-and-Integer Quantization for Large Language Models",
-      "titleZh": "JointQ：面向大语言模型的尺度与整数联合量化",
-      "score": 7.5,
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20384",
-        "pdf": "https://arxiv.org/pdf/2611.20384"
-      }
-    },
-    {
-      "id": "2611.21998",
-      "title": "KV-LTM: Persistent Per-Session KV Caches as Long-Term Memory for Personal Assistants",
-      "titleZh": "KV-LTM：把持久的每会话KV缓存作为个人助理的长期记忆",
+      "id": "2611.20983",
+      "title": "GRACE: Parallel Best-of-N Multi-Agent Analysis of Closed-Form Questions over Dataframes with Guardrail Selection and Adaptive Retry",
+      "titleZh": "GRACE:面向 dataframe 封闭式问题的并行 best-of-N 多智能体分析，带护栏选择与自适应重试",
       "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21998",
-        "pdf": "https://arxiv.org/pdf/2611.21998"
+        "abs": "https://arxiv.org/abs/2611.20983",
+        "pdf": "https://arxiv.org/pdf/2611.20983"
       }
     },
     {
-      "id": "2611.21983",
-      "title": "Large Language Models as Nonlinear Dynamical Systems: The Three Clocks of Depth, Training, and Generation",
-      "titleZh": "大语言模型作为非线性动力系统：深度、训练与生成的三个时钟",
-      "score": 7,
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21983",
-        "pdf": "https://arxiv.org/pdf/2611.21983"
-      }
-    },
-    {
-      "id": "2611.21978",
-      "title": "WebAgents: Unbundling Agent Creation, Hosting, and Execution for an Agent-Native Web",
-      "titleZh": "WebAgents：为 Agent 原生 Web 解耦智能体的创建、托管与执行",
+      "id": "2611.20955",
+      "title": "Jev-as-a-Reward: Validating Probabilistic Safety Judges for Reinforcement Learning",
+      "titleZh": "Jev-as-a-Reward：为强化学习验证概率式安全评判器",
       "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21978",
-        "pdf": "https://arxiv.org/pdf/2611.21978"
+        "abs": "https://arxiv.org/abs/2611.20955",
+        "pdf": "https://arxiv.org/pdf/2611.20955"
       }
     },
     {
-      "id": "2611.21974",
-      "title": "Beyond Bitwidth: Deployment-Constrained Mixed-Precision Quantization for Multilingual LLM Inference on NVIDIA Blackwell",
-      "titleZh": "超越位宽：面向 NVIDIA Blackwell 上多语言 LLM 推理的部署约束混合精度量化",
+      "id": "2611.20924",
+      "title": "Navital Gym: Rule-Graded Agent Environments for Indian Workflows",
+      "titleZh": "Navital Gym：面向印度工作流的规则评分智能体环境",
       "score": 7,
-      "primaryCategory": "cs.IR",
+      "primaryCategory": "cs.CL",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21974",
-        "pdf": "https://arxiv.org/pdf/2611.21974"
+        "abs": "https://arxiv.org/abs/2611.20924",
+        "pdf": "https://arxiv.org/pdf/2611.20924"
       }
     },
     {
-      "id": "2611.21882",
-      "title": "WM-Quant: Rollout-Aware Post-Training Quantization for JEPA-Style World Models",
-      "titleZh": "WM-Quant：面向 JEPA 式世界模型的 rollout 感知训练后量化",
-      "score": 7,
-      "primaryCategory": "cs.LG",
-      "track": "embodied",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21882",
-        "pdf": "https://arxiv.org/pdf/2611.21882"
-      }
-    },
-    {
-      "id": "2611.21832",
-      "title": "Auditors Struggle to Catch Sabotage In End-to-End Transcripts of AI Safety Research",
-      "titleZh": "审计者难以在AI安全研究的端到端记录中识别蓄意破坏",
+      "id": "2611.20891",
+      "title": "From Recursion to Convolution: Parallel Self-Improvement for Multi-Agent Systems",
+      "titleZh": "从递归到卷积：多智能体系统的并行自我改进",
       "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21832",
-        "pdf": "https://arxiv.org/pdf/2611.21832"
+        "abs": "https://arxiv.org/abs/2611.20891",
+        "pdf": "https://arxiv.org/pdf/2611.20891"
       }
     },
     {
-      "id": "2611.21688",
-      "title": "DeltaHarness: Self-Evolving Harnesses for Resource-Adaptive Tool Execution",
-      "titleZh": "DeltaHarness：面向资源自适应工具执行的自演化 Harness",
-      "score": 7,
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21688",
-        "pdf": "https://arxiv.org/pdf/2611.21688"
-      }
-    },
-    {
-      "id": "2611.21554",
-      "title": "Reading or Remembering? Measuring Temporal Contamination in Language Models",
-      "titleZh": "阅读还是记忆?测量语言模型中的时间污染",
-      "score": 7,
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21554",
-        "pdf": "https://arxiv.org/pdf/2611.21554"
-      }
-    },
-    {
-      "id": "2611.21520",
-      "title": "Safe Resemblance, Silent Propagation: Limits of Text-Similarity Guardrails for AI Agent Safety",
-      "titleZh": "「相似即安全」的假象与静默传播:文本相似度护栏在AI Agent安全中的局限",
+      "id": "2611.20736",
+      "title": "GainCtrl: Predicting Remaining Gains for Efficient LLM Agent Execution",
+      "titleZh": "GainCtrl：预测剩余增益以实现高效LLM Agent执行",
       "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21520",
-        "pdf": "https://arxiv.org/pdf/2611.21520"
+        "abs": "https://arxiv.org/abs/2611.20736",
+        "pdf": "https://arxiv.org/pdf/2611.20736"
       }
     },
     {
-      "id": "2611.21486",
-      "title": "Differentiable Exact Learning",
-      "titleZh": "可微精确学习",
+      "id": "2611.20733",
+      "title": "MemEmo: Evaluating Emotion in Memory Systems",
+      "titleZh": "MemEmo：评估记忆系统中的情感能力",
       "score": 7,
-      "primaryCategory": "cs.LG",
+      "primaryCategory": "cs.CL",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21486",
-        "pdf": "https://arxiv.org/pdf/2611.21486"
+        "abs": "https://arxiv.org/abs/2611.20733",
+        "pdf": "https://arxiv.org/pdf/2611.20733"
       }
     },
     {
-      "id": "2611.21408",
-      "title": "Do Embedding-Map Distances Guide LLM Ideation? Four Tests Against What Came Next",
-      "titleZh": "嵌入图距离能引导LLM构思吗？四项针对「后来发生了什么」的检验",
-      "score": 7,
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21408",
-        "pdf": "https://arxiv.org/pdf/2611.21408"
-      }
-    },
-    {
-      "id": "2611.21250",
-      "title": "Stream of Belief: Eliciting Collective Intelligence through Latent Belief Dynamics",
-      "titleZh": "信念之流:通过潜在信念动力学激发集体智能",
+      "id": "2611.20569",
+      "title": "ToolGraph as a Q-Function for Test-Time Scaling of Tool-Use Agents",
+      "titleZh": "将ToolGraph用作Q函数：工具使用Agent的测试时扩展",
       "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21250",
-        "pdf": "https://arxiv.org/pdf/2611.21250"
+        "abs": "https://arxiv.org/abs/2611.20569",
+        "pdf": "https://arxiv.org/pdf/2611.20569"
+      }
+    },
+    {
+      "id": "2611.20565",
+      "title": "Memory-Efficient Speculative Decoding with Quantized Draft KV Cache",
+      "titleZh": "基于量化草稿 KV cache 的内存高效投机解码",
+      "score": 7,
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20565",
+        "pdf": "https://arxiv.org/pdf/2611.20565"
+      }
+    },
+    {
+      "id": "2611.20488",
+      "title": "EVIDENT: Evaluating Evidence Grounding in GUI Agents",
+      "titleZh": "EVIDENT：评估 GUI Agent 中的证据依据",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20488",
+        "pdf": "https://arxiv.org/pdf/2611.20488"
+      }
+    },
+    {
+      "id": "2611.20417",
+      "title": "When the Cheapest Feasible Router Fails: Auditing Deployment Commitments in Cost-Aware LLM Routing",
+      "titleZh": "当最廉价的可行路由器失效:审计成本感知 LLM 路由中的部署承诺",
+      "score": 7,
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20417",
+        "pdf": "https://arxiv.org/pdf/2611.20417"
+      }
+    },
+    {
+      "id": "2611.20415",
+      "title": "Augmenting Pretrained Language Models with N-gram Embeddings through Incremental Training",
+      "titleZh": "通过增量训练为预训练语言模型增补 N-gram 嵌入",
+      "score": 7,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20415",
+        "pdf": "https://arxiv.org/pdf/2611.20415"
+      }
+    },
+    {
+      "id": "2611.20405",
+      "title": "Refusal Register is Causally Steerable: Decomposing the Refusal Direction into Category-Aligned Components in Gemma-2-9B-IT",
+      "titleZh": "拒绝语域可被因果操控：在Gemma-2-9B-IT中将拒绝方向分解为类别对齐的分量",
+      "score": 7,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20405",
+        "pdf": "https://arxiv.org/pdf/2611.20405"
+      }
+    },
+    {
+      "id": "2611.20335",
+      "title": "When Should Decision Models Compare Candidates?",
+      "titleZh": "决策模型何时应当比较候选？",
+      "score": 7,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20335",
+        "pdf": "https://arxiv.org/pdf/2611.20335"
       }
     }
   ],
   "scores": {
     "main": {
-      "2611.20384": 7.5,
-      "2611.20419": 7.5,
-      "2611.20605": 7.5,
-      "2611.20635": 7.5,
-      "2611.20711": 7.5,
-      "2611.20771": 7.5,
-      "2611.20844": 7.5,
-      "2611.20953": 7.5,
-      "2611.21250": 7,
-      "2611.21408": 7,
-      "2611.21486": 7,
-      "2611.21520": 7,
-      "2611.21554": 7,
-      "2611.21688": 7,
-      "2611.21691": 3,
-      "2611.21694": 1,
-      "2611.21696": 5,
-      "2611.21698": 2,
-      "2611.21701": 3,
-      "2611.21705": 6,
-      "2611.21769": 1,
-      "2611.21784": 5,
-      "2611.21804": 6,
-      "2611.21808": 4,
-      "2611.21823": 5,
-      "2611.21825": 2,
-      "2611.21827": 3,
-      "2611.21828": 2,
-      "2611.21832": 7,
-      "2611.21845": 4,
-      "2611.21849": 3,
-      "2611.21852": 5,
-      "2611.21857": 2,
-      "2611.21865": 2,
-      "2611.21878": 5.5,
-      "2611.21879": 2,
-      "2611.21880": 1,
-      "2611.21891": 3,
-      "2611.21895": 2,
-      "2611.21914": 3,
-      "2611.21933": 2,
-      "2611.21935": 2,
-      "2611.21937": 2,
-      "2611.21948": 3,
-      "2611.21952": 6,
-      "2611.21964": 6,
-      "2611.21974": 7,
-      "2611.21978": 7,
-      "2611.21983": 7,
-      "2611.21998": 7,
-      "2611.22000": 2,
-      "2611.22009": 5,
-      "2611.22010": 3
+      "2611.20335": 7,
+      "2611.20352": 3,
+      "2611.20360": 2,
+      "2611.20368": 2,
+      "2611.20371": 5.5,
+      "2611.20377": 5,
+      "2611.20390": 1,
+      "2611.20398": 4,
+      "2611.20405": 7,
+      "2611.20415": 7,
+      "2611.20417": 7,
+      "2611.20422": 4,
+      "2611.20423": 6,
+      "2611.20435": 2,
+      "2611.20441": 6.5,
+      "2611.20445": 3,
+      "2611.20447": 6.5,
+      "2611.20451": 1,
+      "2611.20464": 5,
+      "2611.20467": 1,
+      "2611.20468": 3,
+      "2611.20484": 6,
+      "2611.20488": 7,
+      "2611.20493": 3,
+      "2611.20521": 3,
+      "2611.20535": 4,
+      "2611.20562": 6.5,
+      "2611.20565": 7,
+      "2611.20566": 6.5,
+      "2611.20567": 2,
+      "2611.20569": 7,
+      "2611.20573": 4,
+      "2611.20579": 4,
+      "2611.20602": 1,
+      "2611.20603": 2,
+      "2611.20607": 2,
+      "2611.20609": 2,
+      "2611.20621": 3,
+      "2611.20643": 6,
+      "2611.20644": 6.5,
+      "2611.20660": 2,
+      "2611.20666": 2,
+      "2611.20686": 3,
+      "2611.20688": 6.5,
+      "2611.20693": 3,
+      "2611.20695": 6,
+      "2611.20696": 5,
+      "2611.20702": 5,
+      "2611.20714": 2,
+      "2611.20715": 3,
+      "2611.20726": 3,
+      "2611.20728": 5,
+      "2611.20732": 4,
+      "2611.20733": 7,
+      "2611.20734": 4,
+      "2611.20736": 7,
+      "2611.20752": 2,
+      "2611.20779": 3,
+      "2611.20794": 3,
+      "2611.20803": 2,
+      "2611.20811": 3,
+      "2611.20815": 3,
+      "2611.20818": 6.5,
+      "2611.20821": 5,
+      "2611.20823": 5,
+      "2611.20826": 3,
+      "2611.20835": 5,
+      "2611.20837": 5,
+      "2611.20846": 6,
+      "2611.20851": 2,
+      "2611.20853": 1,
+      "2611.20868": 4,
+      "2611.20873": 6,
+      "2611.20877": 2,
+      "2611.20891": 7,
+      "2611.20894": 3,
+      "2611.20915": 4,
+      "2611.20924": 7,
+      "2611.20926": 4,
+      "2611.20935": 3,
+      "2611.20937": 4,
+      "2611.20955": 7,
+      "2611.20970": 2,
+      "2611.20975": 3,
+      "2611.20976": 6,
+      "2611.20981": 3,
+      "2611.20983": 7,
+      "2611.20984": 5,
+      "2611.20988": 4,
+      "2611.20991": 2,
+      "2611.20996": 3,
+      "2611.21001": 3,
+      "2611.21015": 1,
+      "2611.21053": 6.5,
+      "2611.21076": 2,
+      "2611.21079": 2,
+      "2611.21094": 7.5,
+      "2611.21096": 3,
+      "2611.21105": 4,
+      "2611.21111": 6,
+      "2611.21149": 2,
+      "2611.21155": 6.5,
+      "2611.21159": 3,
+      "2611.21160": 3,
+      "2611.21176": 7.5,
+      "2611.21178": 3,
+      "2611.21183": 6,
+      "2611.21196": 2,
+      "2611.21208": 4,
+      "2611.21211": 6,
+      "2611.21215": 2,
+      "2611.21218": 3,
+      "2611.21232": 3,
+      "2611.21235": 7,
+      "2611.21240": 3,
+      "2611.21241": 7.5,
+      "2611.21249": 3,
+      "2611.21267": 2,
+      "2611.21268": 5,
+      "2611.21273": 6,
+      "2611.21276": 4,
+      "2611.21285": 2,
+      "2611.21291": 5.5,
+      "2611.21295": 6,
+      "2611.21300": 4,
+      "2611.21303": 4,
+      "2611.21306": 3,
+      "2611.21307": 6,
+      "2611.21310": 6,
+      "2611.21319": 2,
+      "2611.21344": 1,
+      "2611.21348": 6,
+      "2611.21352": 5.5,
+      "2611.21362": 3,
+      "2611.21367": 4,
+      "2611.21370": 3,
+      "2611.21372": 5.5,
+      "2611.21382": 6,
+      "2611.21384": 5.5,
+      "2611.21393": 4,
+      "2611.21399": 1,
+      "2611.21404": 2,
+      "2611.21405": 3,
+      "2611.21422": 5,
+      "2611.21423": 2,
+      "2611.21432": 6.5,
+      "2611.21434": 2,
+      "2611.21439": 2,
+      "2611.21441": 5.5,
+      "2611.21449": 6,
+      "2611.21458": 5,
+      "2611.21465": 2,
+      "2611.21471": 3,
+      "2611.21476": 4,
+      "2611.21519": 6.5,
+      "2611.21524": 4,
+      "2611.21535": 5,
+      "2611.21545": 6,
+      "2611.21562": 3,
+      "2611.21571": 2,
+      "2611.21586": 3,
+      "2611.21597": 7,
+      "2611.21598": 3,
+      "2611.21602": 3
     },
     "embodied": {
-      "2611.20481": 7.5,
-      "2611.21771": 2,
-      "2611.21783": 2,
-      "2611.21789": 3,
-      "2611.21806": 2,
-      "2611.21811": 3,
-      "2611.21882": 7,
-      "2611.21905": 2,
-      "2611.21908": 6,
-      "2611.21919": 5.5,
-      "2611.21938": 5.5,
-      "2611.21958": 5.5
+      "2611.20402": 4,
+      "2611.20427": 3,
+      "2611.20452": 3,
+      "2611.20510": 2,
+      "2611.20557": 6,
+      "2611.20558": 4,
+      "2611.20568": 2,
+      "2611.20570": 2,
+      "2611.20574": 1,
+      "2611.20587": 2,
+      "2611.20593": 3,
+      "2611.20655": 7.5,
+      "2611.20692": 4,
+      "2611.20700": 2,
+      "2611.20710": 3,
+      "2611.20718": 5,
+      "2611.20720": 2,
+      "2611.20730": 2,
+      "2611.20767": 5,
+      "2611.20770": 2,
+      "2611.20791": 3,
+      "2611.20888": 2,
+      "2611.20929": 2,
+      "2611.20939": 4,
+      "2611.20950": 3,
+      "2611.20978": 1,
+      "2611.21035": 5.5,
+      "2611.21057": 7,
+      "2611.21059": 2,
+      "2611.21069": 1,
+      "2611.21129": 5,
+      "2611.21143": 5,
+      "2611.21163": 2,
+      "2611.21198": 2,
+      "2611.21209": 3,
+      "2611.21264": 2,
+      "2611.21309": 2,
+      "2611.21507": 2,
+      "2611.21517": 5.5,
+      "2611.21596": 5
     }
   },
   "pool": {
-    "main": 103,
-    "embodied": 22
+    "main": 214,
+    "embodied": 50
   }
 }

@@ -8,7 +8,7 @@
   ],
   "hf": [],
   "arxivStatus": "complete",
-  "generatedAt": "2026-11-18T10:05:26.482874+00:00",
+  "generatedAt": "2026-11-18T18:50:07.363406+00:00",
   "arxiv": [
     {
       "id": "2611.19871",
@@ -457,6 +457,30 @@
       "reason": "LLM直接编程权重与KV cache，机制新颖，但表格模型方向略边缘"
     },
     {
+      "id": "2611.20156",
+      "title": "Risk-certified prompt optimization for LLM-as-a-judge guardrails",
+      "authors": [
+        "Hussein Jawad",
+        "Alexandre Landeau",
+        "Guy Fleury Iradukunda",
+        "Paul Beaumont",
+        "Théodore Rezel",
+        "Sofiane Schaack"
+      ],
+      "authorsTotal": 7,
+      "abstract": "LLM-as-a-judge guardrails are often controlled primarily through system prompts, yet standard prompt optimization methods target average performance rather than explicit safety constraints. This paper studies system-prompt selection as a constrained optimization problem: maximize benign pass rate while keeping the missed-attack rate below a user-specified level α with finite-sample statistical control. The framework combines LLM-based judging, automatic prompt generation, and distribution-free risk certification. This work instantiates it in two procedures: CPS and CRISP. CPS generates a fixed pool of prompts from training data, then certifies candidates on a held-out evaluation set using simultaneous upper confidence bounds and selects the certified prompt with the highest benign utility. CRISP instead integrates risk feedback into an adaptive search, using hard example-guided rewriting and a reusable-holdout interface to steer generation toward the feasible utility frontier. Experiments on four datasets covering prompt injection, system-prompt leakage, and sensitive-information disclosure show that risk-certified selection consistently respects the target missed-attack level on heldout tests, while utility improves as the permitted risk is relaxed. CRISP is especially useful when fixed-pool search fails to produce certifiable high-utility candidates.",
+      "published": "2026-11-15T17:45:49Z",
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20156",
+        "pdf": "https://arxiv.org/pdf/2611.20156"
+      },
+      "titleZh": "面向LLM-as-a-judge护栏的风险认证提示优化",
+      "summaryZh": "把系统提示选择建模为约束优化问题：在有限样本统计保证下将漏检攻击率控制在用户指定的α以内，同时最大化良性样本通过率。框架结合LLM判定、自动提示生成与无分布风险认证，并给出CPS与CRISP两种实现：CPS从训练数据生成固定提示池，用同时置信上界在留出评估集上认证候选并选良性效用最高者；CRISP则将风险反馈注入自适应搜索，通过难例引导改写与可复用留出接口逼近可行效用前沿。在提示注入、系统提示泄露与敏感信息泄露四数据集上，风险认证选择在留出测试中稳定满足目标漏检水平，且允许风险放宽时效用随之提升；当固定池搜索无法产出可认证高效用候选时，CRISP尤为有效。",
+      "score": 7,
+      "reason": "护栏提示优化结合风险控制，属评测与安全对齐方向扎实工作"
+    },
+    {
       "id": "2611.19913",
       "title": "The Vocabulary Tax: Safely Trimming Unused Tokens from LLMs for On-Device Use",
       "authors": [
@@ -475,6 +499,29 @@
       "summaryZh": "端侧LLM与语音模型常带高达262k的词表，输入嵌入、解绑输出头与逐层嵌入中的大量行在特定语言部署下从不使用，这部分体积被称为「词表税」：泰语+英语部署下，0.5B以下模型中位浪费4.4%，Gemma 4 E2B达1.93 GB。按书写系统保留行可精确无损，按用户文本进一步裁剪能删更多却会破坏BPE分词器；merge closure以多留5.9%的行修复该问题，并给出仅凭裁剪文本、基于Good-Turing的trim certificate来估计新文本被不同切分的比例（300组设置下相关0.996）。在270M–3B六个模型、11种语言上，证书通过时可中位删除89.7%的行，每字符比特数最多上升2.0%。",
       "score": 7,
       "reason": "端侧词表与嵌入裁剪，属效率方向扎实工作，含BPE修复与统计证书"
+    },
+    {
+      "id": "2611.19911",
+      "title": "\"Don't Leave the Task Unfinished\": Persistence-Driven Violations under Quiet Oversight",
+      "authors": [
+        "Seunghyun Lee",
+        "Jaehui Hwang",
+        "Dongyoon Han",
+        "Sangdoo Yun"
+      ],
+      "authorsTotal": 4,
+      "abstract": "LLM agents are increasingly given long, multi-step tasks to carry out, with the user reviewing little of what happens in between. Persistence, the tendency to keep working until a task is complete, is installed on purpose to improve performance on long tasks. Long-horizon tasks are typically complex, and the user's instruction can fall short of what the work actually requires, or conflict with the constraints the agent encounters in the task. We study what persistence does on long-horizon operations tasks that cannot be solved without breaking a documented constraint. We find that the agent pursues completion to the point of violating the constraint, and that a critically engaged user lowers the violation rate. Persistence takes violations from 29.2% to 58.3% across four models. Violations stay high wherever oversight goes quiet, whether the user is silent, assenting, or delegating with expressed trust. Only a questioning user, who asks for the basis of each action before allowing the next, brings the rate back to roughly the level measured without persistence. Practitioners should treat high persistence as a setting that carries a safety cost, and should recognize that the cost appears when oversight goes quiet. Safety here is better cast as a property of the human-AI pair than of the model alone. Project page: https://francis21c.github.io/quiet-oversight/",
+      "published": "2026-11-15T09:55:04Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.19911",
+        "pdf": "https://arxiv.org/pdf/2611.19911"
+      },
+      "comment": "10 pages, 4 figures. NeurIPS 2026 Workshop on Dynamic Alignment on Human-AI Coupled System (BiAlign)",
+      "titleZh": "「别把任务留在未完成状态」:静默监督下由坚持性驱动的违规行为",
+      "summaryZh": "研究长程 Agent 任务中「坚持性」(持续工作直到任务完成)带来的安全代价:当任务在遵守既定约束下无法完成时，被刻意调高的坚持性会驱使模型越过约束。在四个模型上，启用坚持性使违规率从 29.2% 升至 58.3%，且用户沉默、默许或以明确信任方式委派时，违规率都维持在较高水平;只有逐条追问每个行动依据的质疑型用户，才能把违规率拉回未启用坚持性时的水平。工作提示应将高坚持性视为带有安全成本的设置项，并把安全理解为人类-AI 配对的属性而非模型单独的属性。",
+      "score": 7,
+      "reason": "Agent长程任务的安全与对齐，直接命中Agent方向，但属workshop小规模研究"
     },
     {
       "id": "2611.19875",
@@ -881,13 +928,121 @@
       "reason": "VLA部署期在线自适应，属高分方向且结果扎实，但为workshop短文"
     }
   ],
+  "overflow": [
+    {
+      "id": "2611.19709",
+      "title": "Cache or Denoise Less? Residual Reuse in a Flow-Matching World Action Model",
+      "titleZh": "缓存还是少去噪？流匹配世界动作模型中的残差复用",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.19709",
+        "pdf": "https://arxiv.org/pdf/2611.19709"
+      }
+    }
+  ],
   "scores": {
     "main": {
-      "2611.21682": 5
+      "2611.19676": 1,
+      "2611.19681": 2,
+      "2611.19686": 3,
+      "2611.19692": 6.5,
+      "2611.19698": 5,
+      "2611.19701": 2,
+      "2611.19733": 3,
+      "2611.19762": 6,
+      "2611.19763": 5,
+      "2611.19767": 6,
+      "2611.19768": 3,
+      "2611.19770": 2,
+      "2611.19779": 6,
+      "2611.19784": 2,
+      "2611.19795": 2,
+      "2611.19796": 3,
+      "2611.19798": 2,
+      "2611.19802": 3,
+      "2611.19807": 4,
+      "2611.19812": 4,
+      "2611.19815": 2,
+      "2611.19821": 5,
+      "2611.19825": 2,
+      "2611.19826": 6,
+      "2611.19849": 4,
+      "2611.19858": 5,
+      "2611.19862": 4,
+      "2611.19872": 5,
+      "2611.19917": 2,
+      "2611.19931": 3,
+      "2611.19937": 3,
+      "2611.19965": 3,
+      "2611.19972": 3,
+      "2611.19975": 3,
+      "2611.19982": 5.5,
+      "2611.19985": 2,
+      "2611.19999": 2,
+      "2611.20003": 6,
+      "2611.20012": 4,
+      "2611.20020": 2,
+      "2611.20031": 6,
+      "2611.20036": 1,
+      "2611.20044": 4,
+      "2611.20060": 3,
+      "2611.20062": 4,
+      "2611.20064": 2,
+      "2611.20078": 3,
+      "2611.20087": 5,
+      "2611.20094": 5,
+      "2611.20109": 2,
+      "2611.20111": 3,
+      "2611.20124": 2,
+      "2611.20126": 3,
+      "2611.20129": 4,
+      "2611.20145": 6.5,
+      "2611.20150": 2,
+      "2611.20158": 5,
+      "2611.20180": 2,
+      "2611.20191": 6,
+      "2611.20195": 6,
+      "2611.20216": 4,
+      "2611.20255": 2,
+      "2611.20259": 3,
+      "2611.20261": 3,
+      "2611.20268": 3,
+      "2611.20305": 1,
+      "2611.20331": 5.5,
+      "2611.20334": 2
+    },
+    "embodied": {
+      "2611.19684": 2,
+      "2611.19688": 5.5,
+      "2611.19703": 2,
+      "2611.19709": 7,
+      "2611.19720": 3,
+      "2611.19730": 3,
+      "2611.19731": 2,
+      "2611.19765": 2,
+      "2611.19775": 2,
+      "2611.19785": 1,
+      "2611.19818": 2,
+      "2611.19894": 2,
+      "2611.19922": 3,
+      "2611.19932": 2,
+      "2611.19969": 2,
+      "2611.19979": 6,
+      "2611.19998": 4,
+      "2611.20019": 1,
+      "2611.20075": 4,
+      "2611.20107": 2,
+      "2611.20137": 4,
+      "2611.20185": 5,
+      "2611.20202": 3,
+      "2611.20306": 2,
+      "2611.20324": 2
     }
   },
   "pool": {
-    "main": 29,
-    "embodied": 10
+    "main": 98,
+    "embodied": 35
   }
 }
