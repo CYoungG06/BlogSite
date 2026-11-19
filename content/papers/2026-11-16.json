@@ -788,7 +788,7 @@
     }
   ],
   "arxivStatus": "complete",
-  "generatedAt": "2026-11-18T18:50:07.363406+00:00",
+  "generatedAt": "2026-11-19T10:05:22.873279+00:00",
   "arxiv": [
     {
       "id": "2611.21917",
@@ -824,7 +824,7 @@
         "Chaoran Cheng"
       ],
       "authorsTotal": 11,
-      "abstract": "Language models are trained once, frozen and deployed: improving one again takes another training run, and a prompt, a scaffold or extra computation at inference is gone once the task ends. A frontier model has been shown to edit the weights of a much smaller one. We ask whether a model can rewrite its own weights to make itself better, and find that it can, by its own reasoning, with no gradients and no training; we call this self-rewriting. Given its weights, graded answers and the ability to run itself, a 27B model diagnoses its failure and edits the weights behind it. It surpasses itself: its own edit makes it 6.6 points more accurate on 490 problems it never saw, in a test fixed in advance, and another session's edit also makes it significantly better. It keeps getting better: it submits an edit only when its own tests support it, each edit replacing the last, and over its first eight such sessions its accuracy only rises. Unlike test-time scaling, the gain persists in its weights and adds no cost per answer; unlike training, it needs no pre- or post-training infrastructure, only an open model and hours on one GPU. It repairs a damaged copy of itself: it locates the corrupted matrix and rewrites it with values of its own, never reading the undamaged weights; found on text math problems alone, the repair lifts the copy on six image benchmarks it never saw from 7% to 70% accuracy, 83% of the undamaged model's. And the ability emerges with scale: across four sizes of one family, the 2B model makes no edit and the 4B and 9B models break themselves; only the 27B model works on itself as a human would, comparing its hidden states on answers that finish and on answers that run out of tokens, weakening the direction that separates them. Like a human, a model need not separate training from inference; improving a language model may come to take a conversation rather than a training run.",
+      "abstract": "A language model is trained once and frozen. Making it better takes another training run, or a prompt, a harness or extra computation at inference that is gone once the task ends. We show a third way: to our knowledge for the first time, a language model rewrites its own weights by its own reasoning and becomes better, with no gradients and no training. We call this self-rewriting: the model is its own optimizer. In earlier work, a frontier model edited a much smaller one; here an open 27B model, given its weights, its graded answers and the ability to run itself, diagnoses its own failure and rewrites the weights behind it. It surpasses itself: its own edit makes it 6.6 points more accurate on problems it never saw. It keeps getting better: it tests its edits on practice problems and submits only what works, each edit improving on the last, and over eight consecutive sessions its accuracy only rises. It repairs a damaged copy of itself, like a broken robot that fixes itself without being rebuilt: the copy solves almost nothing, yet with no retraining and without ever reading the original weights, the model brings it back to over 80% of the original accuracy on image tasks it never saw. And the ability emerges with scale: in one model family, the smaller models make no edit or break themselves, and only the largest improves and repairs itself. Unlike test-time scaling, self-rewriting writes its gain into the weights, at no cost per answer; unlike training, it runs only forward passes, as serving does. The wall between training and inference is a limit of our tools, not a property of intelligence. We believe self-rewriting is a necessary step toward recursive self-improvement: a model that, like a human, does not separate training from inference could keep upgrading itself for life, with no larger model, no harness or prompt engineering, and no pre- or post-training.",
       "published": "2026-11-16T20:55:08Z",
       "primaryCategory": "cs.AI",
       "urls": {
@@ -1105,6 +1105,26 @@
       "summaryZh": "把大教师模型的软件工程智能体能力蒸馏进小模型：学生在可执行仓库中自主交互，教师只对学生实际访问到的前缀做逐 token 监督。三组教师—学生、两个训练来源、三个SWE benchmark上，Qwen3.6-27B监督使Qwen3.5-9B的SWE-bench Pro解决率从35.9%升至39.4%；用缓存教师分数的离线变体仍优于基线，同时省下59.4%–72.6%端到端GPU小时、峰值显存减半，并扩展到跨tokenizer场景（GLM-4.5-Air从DeepSeek-V4-Flash-0731蒸馏后，SWE-bench Pro 35.8%→39.7%、Multilingual 41.8%→46.2%）。此外发现loss下降并不代表智能体性能变好：top-K reverse-KL下某学生出现严重重复生成，作者将成因指向support-mass梯度项。",
       "score": 8.5,
       "reason": "在线策略蒸馏+代码智能体，直接命中后训练与Agent方向"
+    },
+    {
+      "id": "2611.21983",
+      "title": "Large Language Models as Nonlinear Dynamical Systems: The Three Clocks of Depth, Training, and Generation",
+      "authors": [
+        "Maor Farid"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Language models are dynamical systems. A transformer is iterated over its layers, over the steps of its training and over the tokens it generates, and on each of these three clocks it shows behavior that nonlinear dynamics has studied for a century: fixed points, bifurcations, synchronization, chaos and noise-driven escape from potential wells. The two communities rarely meet, so this behavior is often rediscovered under new names. We build a bridge between them. To describe, we condense about 200 papers into the Three-Clock Dictionary, which maps fifteen concepts of nonlinear dynamics onto each clock and marks every correspondence as proved, measured or conjectured, and we show each concept in a mechanical system and in a language model side by side. To explain, we derive reduced-order models: the softmax is a Boltzmann distribution, gradient descent an Euler step on a nonlinear spring, a loss spike a ball thrown out of a stiff valley, attention on the circle a Kuramoto model, and a repetition loop a well that deepens while it is occupied. We then test these explanations on open language models, on a laptop CPU. Escape from repetition loops in GPT-2 and Pythia follows the Arrhenius law with the logit gap as the barrier, and the barrier deepens and then saturates, so the temperature needed to leave a loop falls like $1/\\ln N$ with the generation length $N$ and rises with model size. Coherent text lives in a narrow window of temperatures, which a small reasoning model shares at its recommended temperature. Training makes each Pythia layer more expansive, and a small transformer trains at a multi-mode edge of stability. The third step, solving problems of language models, is still ahead: controllers derived from the escape analysis remove loops but do not yet beat the best fixed temperature. We state twelve open problems where nonlinear dynamics could get there.",
+      "published": "2026-11-16T23:11:52Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.21983",
+        "pdf": "https://arxiv.org/pdf/2611.21983"
+      },
+      "comment": "52 pages, 19 figures. Code and data: https://github.com/maorfarid1/three-clocks",
+      "titleZh": "大语言模型作为非线性动力系统：深度、训练与生成的三个时钟",
+      "summaryZh": "把 Transformer 沿层数、训练步与生成 token 三条“时钟”视为非线性动力系统，梳理固定点、分岔、同步、混沌与势阱逃逸等行为与 LLM 的对应关系。以约 200 篇文献凝练出的“三时钟词典”把 15 个动力学概念映射到各条时钟，标注为已证明、已测量或猜想，并给出降阶模型：softmax 即 Boltzmann 分布、梯度下降即非线性弹簧上的 Euler 步、loss spike 即被抛出刚性势谷的球、圆周上的注意力即 Kuramoto 模型、重复循环即越坐越深的势阱。在 GPT-2 与 Pythia 上测得逃逸重复循环服从以 logit 差为势垒的 Arrhenius 定律，势垒先加深后饱和，所需温度随生成长度按 1/ln N 下降、随模型规模上升；训练使 Pythia 各层更扩张，小 Transformer 在多模稳定边缘训练。",
+      "score": 8,
+      "reason": "以动力学统一刻画训练稳定性与解码，理论框架新颖且有可测定律"
     },
     {
       "id": "2611.21950",
@@ -1502,6 +1522,25 @@
       "reason": "Agent 记忆的分阶段归因与自修复，多模态，系统性较强"
     },
     {
+      "id": "2611.20953",
+      "title": "Same Fix, Different Weights: Replicating Weight-Space Programming with Claude",
+      "authors": [
+        "Subham Kundu"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Takehi et al. (2026) report that GPT-6 Astra, given the weights of small neural networks as text, can say what they were trained to do, repair them, and write new ones without training. I re-ran the core of that study with Claude Opus 5.5 in ten pre-registered experiments, with untrained-network and permutation controls and hand audits of every sandboxed code cell. Reading was mixed: Claude named 3 of 4 Atari games from policy weights and found the measured copying heads in 15/15 character-LM runs, but its answers about training data often followed priors. Unlike the original, it identified a sycophantic Gemma 3 270M finetune from weights alone in 6/6 runs. One-shot weight edits took a failing MountainCar policy from 0% to 100% success and a hovering LunarLander policy from 0% to 85.6%; zero-shot networks beat PPO at 100k steps on 4 of 5 environments, each implementing a textbook controller. With no training or forward passes, Claude wrote a 1.48M-parameter 9x9 Go network that won 85-94% of games against three PPO opponents. Given Qwen3.5-0.8B's weights and 10, 25 or 50 forward passes of 64 practice problems, Claude raised MATH-500 from 6.7% to 51.4%, 55.2% and 58.1% (+51.4 points at 50 passes, 95% CI [47.9, 55.0]; original 48.1%), GSM8K from 11.6% to 68.2% and IFEval from 22.2% to 54.2%. Unlike the original, which removed an internal loop direction, every edit acted at the output: it scaled the final norm, raising the effective sampling temperature, and lowered the logit of \"Wait\" while raising that of </think>. The norm scaling alone reaches only 20.9-22.1% on MATH-500. On Gemma 3 270M, which rarely loops, no edit helped (-0.8 points), as in the original.",
+      "published": "2026-11-16T12:00:22Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20953",
+        "pdf": "https://arxiv.org/pdf/2611.20953"
+      },
+      "titleZh": "同样的修正，不同的权重:用 Claude 复现权重空间编程",
+      "summaryZh": "检验「LLM 把权重当文本读入、不经训练即可诊断、修复并生成网络」:用 Claude Opus 5.5 做十项预注册复现，并加入未训练网络、置换对照与逐格代码审计。读出结果参差:4 个 Atari 游戏命名 3 个、复制头 15/15 命中，并从权重认出谄媚微调的 Gemma 3 270M(6/6)。一次性编辑把 MountainCar 成功率从 0% 抬到 100%、LunarLander 到 85.6%;零样本写出的 1.48M 参数 9x9 Go 网络对三个 PPO 对手胜率 85–94%;凭权重与 50 次前向把 Qwen3.5-0.8B 的 MATH-500 从 6.7% 提到 58.1%。所有编辑都落在输出端(放大最终 norm、压低「Wait」logit)，提示该能力偏向输出分布层面的改写。",
+      "score": 8,
+      "reason": "权重空间编程的系统复现，涉及权重编辑与模型自省，分量足"
+    },
+    {
       "id": "2611.20922",
       "title": "Experience Rot: Experienced Agents Fail Where Novices Succeed",
       "authors": [
@@ -1822,6 +1861,26 @@
       "reason": "注意力汇与门控机制的可解释性分析，命中架构与训练稳定性"
     },
     {
+      "id": "2611.21974",
+      "title": "Beyond Bitwidth: Deployment-Constrained Mixed-Precision Quantization for Multilingual LLM Inference on NVIDIA Blackwell",
+      "authors": [
+        "Hyojung Han"
+      ],
+      "authorsTotal": 1,
+      "abstract": "Low-bit LLM quantization is useful only if a model preserves service-relevant accuracy, executes through supported GPU kernels, and meets measured memory and latency limits. We study Qwen3-8B on NVIDIA B200 with vLLM, including INT2/INT3, GPTQ, NVFP4, and mixed-precision configurations. We verify native packed execution and precision on all 144 fused linear modules and evaluate Korean, English, numerical, and reasoning quality under preregistered gates. Packed INT2 and INT3 execute, but all seven tested INT2 grids degenerate on generation. Isolated module-restoration effects are strongly non-additive; Korean and reasoning sensitivity rankings disagree, and a promising INT4/INT8 development candidate fails independent final evaluation. A configuration with 16-bit activations, 98 NVFP4 weight-only modules, 46 INT8 modules, and an INT8 output head passes all gates on the untouched FINAL-81 set (5,168 items): 5.917 GiB of weight-loading memory (limit 5.98), Korean teacher-correct retention 0.904 (gate 0.90), and TPOT ratio 0.939 relative to BF16. It improves paired accuracy over NVFP4 W4A4 by +1.4 percentage points (Bonferroni-adjusted interval [+0.2, +2.6]), compared with +3.4 points on the selection set. This comparison changes both activation precision and INT8 protection; exploratory analyses suggest that the activation change contributes substantially, but the isolated allocation effect is not established. Final checkpoints were not retained, and bitwise rebuild reproducibility remains unverified.",
+      "published": "2026-11-16T22:58:32Z",
+      "primaryCategory": "cs.IR",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.21974",
+        "pdf": "https://arxiv.org/pdf/2611.21974"
+      },
+      "comment": "18 pages, 2 figures",
+      "titleZh": "超越位宽：面向NVIDIA Blackwell上多语言LLM推理的部署约束混合精度量化",
+      "summaryZh": "低比特量化只有在保持服务相关精度、能通过受支持的GPU内核执行、并满足实测内存与延迟约束时才有意义。在NVIDIA B200上用vLLM对Qwen3-8B做INT2/INT3、GPTQ、NVFP4与混合精度实验，逐模块核验144个融合线性模块的原生packed执行与精度，并在预注册门槛下评测韩语、英语、数值与推理质量。结果显示packed INT2/INT3虽可执行，但七种INT2网格在生成上全部退化，模块级恢复效应强非可加。最终配置（16比特激活＋98个NVFP4 weight-only模块＋46个INT8模块＋INT8输出头）在未触碰的FINAL-81（5168条）上全部过门：权重加载内存5.917 GiB（限5.98）、韩语教师正确保留率0.904（门0.90）、TPOT为BF16的0.939，配对准确率较NVFP4 W4A4提升1.4个百分点。",
+      "score": 7.5,
+      "reason": "混合精度量化在Blackwell上的部署约束实测，属高效推理方向"
+    },
+    {
       "id": "2611.21921",
       "title": "Latent Fact Composition under Next-Token Training",
       "authors": [
@@ -1867,96 +1926,28 @@
       "reason": "KV缓存复用做用户记忆，命中KV cache与高效推理方向"
     },
     {
-      "id": "2611.21797",
-      "title": "Can Coding Agents Write and Transpile Unit Tests",
+      "id": "2611.21832",
+      "title": "Auditors Struggle to Catch Sabotage In End-to-End Transcripts of AI Safety Research",
       "authors": [
-        "Gil Pasternak",
-        "AJ Langley",
-        "Tom Yotam",
-        "Ellie Kitanidis"
+        "Keshav Shenoy",
+        "Anthony Zang",
+        "Eric Gan",
+        "Jacqueline Tay",
+        "Amy Ngo",
+        "Sebastian Prasanna"
       ],
-      "authorsTotal": 4,
-      "abstract": "Coding assistants built on Large Language Models (LLMs) have become a staple of modern software development, increasingly trusted to execute workflows and modernize code end-to-end. Much of this trust rests on passing tests, which are often written by the coding agents themselves. In this work, we examine the ability of these agents to both write reliable tests and translate them between programming languages. We benchmark three popular coding agents, each evaluated with a native frontier model and high reasoning effort. Verifying across a broad suite of metrics, we find that coding agents far exceed human written suites on traditional measures of coverage. This advantage, however, is uneven: agent test quality degrades sharply with project size, and much of the advantage lies in a greater number of written tests. We also show that agentic test translation---while seemingly strong in aggregate---remains inconsistent and unreliable.",
-      "published": "2026-11-16T19:16:19Z",
-      "primaryCategory": "cs.SE",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21797",
-        "pdf": "https://arxiv.org/pdf/2611.21797"
-      },
-      "titleZh": "编程智能体能否编写并转译单元测试",
-      "summaryZh": "考察编程智能体自行编写单元测试并在编程语言之间转译的能力，回应「测试通过即可信」这一工程默认假设。以三个主流 coding agent 为对象，统一搭配前沿原生模型与高推理强度，在覆盖率、测试条数、项目规模、跨语言转译一致性等多维指标上做实证评估。结果显示 agent 测试集在传统覆盖率上大幅超过人工测试，但优势随项目规模增大迅速衰减，且相当部分来自写出的测试数量更多;测试转译在聚合指标上看似可用，实际并不稳定可靠。结论对把 agent 生成测试当作验收信号的工程实践提出警示。",
-      "score": 7.5,
-      "reason": "coding agent 测试生成与转译的系统实证评测，命中代码智能方向"
-    },
-    {
-      "id": "2611.21584",
-      "title": "CertiSum: Bitwise-Identical MXFP4 Training Across Platforms and Parallelism Layouts",
-      "authors": [
-        "Steve Rhyner",
-        "Yubo Gao",
-        "Stefan de Lasa",
-        "Sankeerth Durvasula",
-        "Nandita Vijaykumar"
-      ],
-      "authorsTotal": 5,
-      "abstract": "Training with MXFP4, a 4-bit microscaling format, is non-deterministic: identical inputs can produce different results across parallelism layouts and GPU vendors. These differences complicate debugging and training audits and can cause training and inference engines to disagree. We present CertiSum to make MXFP4 training bitwise invariant across runs, parallelism layouts, and GPU vendors. Its key insight is that native FP32 accumulation of MXFP4 products is often already exact for every summation order. CertiSum collects statistics during quantization to certify native matrix multiplication results, recomputes uncertified outputs exactly, and uses exact kernels directly where certification rarely succeeds. CertiSum keeps quantization blocks unchanged across layouts and merges partial sums without rounding, including in attention and weight-gradient computation. In 200-step Qwen3-8B-Base experiments, CertiSum preserves training states bit for bit across AMD MI350X and NVIDIA GB200 and across changes in data, tensor, and context parallelism on MI350X. Across three 8B--14B models on FineWeb-Edu using MI350X, it adds 11.8--60.5% to training-step latency relative to its non-exact MXFP4 counterpart at the larger evaluated input shapes, with speedups of up to $1.24\\times$ over BF16 and $1.70\\times$ over deterministic BF16.",
-      "published": "2026-11-16T18:54:07Z",
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21584",
-        "pdf": "https://arxiv.org/pdf/2611.21584"
-      },
-      "titleZh": "CertiSum：跨平台与并行布局下位级完全一致的 MXFP4 训练",
-      "summaryZh": "MXFP4 训练存在非确定性：相同输入在不同并行布局与不同 GPU 厂商上会得到不同结果，给调试、训练审计以及训练引擎与推理引擎的一致性带来麻烦。CertiSum 的核心观察是，MXFP4 乘积的 FP32 原生累加在多数求和顺序下本就精确；它在量化阶段收集统计量，对原生矩阵乘结果做认证，仅对未认证输出进行精确重算，并在认证难以成功的场景直接采用精确 kernel，同时保持量化块跨布局不变、部分和无舍入合并（含 attention 与权重梯度计算）。在 Qwen3-8B-Base 的 200 步实验中，CertiSum 在 AMD MI350X 与 NVIDIA GB200 之间、以及 MI350X 上数据／张量／上下文并行变化时均实现训练状态逐位一致；在三个 8B–14B 模型上，较大输入形状下相对非精确 MXFP4 增加 11.8%–60.5% 的单步延迟，同时相对 BF16 最高提速 1.24 倍、相对确定性 BF16 最高提速 1.70 倍。该工作为低精度训练提供了可审计、可跨平台复现的确定性方案。",
-      "score": 7.5,
-      "reason": "低精度训练确定性，命中高效训练与量化方向"
-    },
-    {
-      "id": "2611.21529",
-      "title": "Procedure without Judgment: What Small Language Models Learn under an Exact Verifier",
-      "authors": [
-        "Arunkumar V",
-        "Manoranjan Gandhudi",
-        "Gangadharan G. R.",
-        "Arun Prakash",
-        "S. Senthilkumar"
-      ],
-      "authorsTotal": 5,
-      "abstract": "When an authorization policy blocks an agent's tool call, the audit log should name the facts that forced the decision and nothing more. For an executable policy over an enumerable context space this minimal sufficient reason can be computed exactly, so an explanation is scored against ground truth rather than a proxy for it. We use that exactness to ask what a model can learn from a verifier that has no error in it. The explainer sees one request and one decision, never the policy, and has thirty turns in which it may call the policy on altered requests and ask whether a candidate set of facts is sufficient. Frontier models find the exact reason about half the time with the tools alone, and one sentence telling them to shrink the answer lifts Haiku 4.5 from 58% to 75%. A 4B model fine-tuned on 2000 traces of the deletion algorithm reaches 92% on the policy it was trained on. Teacher kind is what moves this: at matched data size the algorithm-taught student leads the frontier-taught one in all three training seeds, and the two arms never overlap. What the student learns is a fixed schedule of sufficiency checks, and the schedule does not travel. On three public policies it never saw, its answers stay sufficient (94%) and stop being minimal (48%), while Haiku under the same sentence is exact on all 47 episodes. Reinforcement learning from the exact reward leaves held-out accuracy where it was and inverts the strategy, from probing the policy to spending the entire budget on sufficiency checks. The oracle made the effect of training legible, but it did not make training better.",
-      "published": "2026-11-16T18:20:09Z",
+      "authorsTotal": 8,
+      "abstract": "As AI systems are increasingly used to automate AI R&D, misaligned systems could sabotage research intended to improve model safety and alignment. To stress-test defenses against such sabotage, we use a human expert as a proxy saboteur on AI safety research. We conduct a red-team/blue-team game where a human researcher runs AI safety experiments from scratch and auditors try to tell which were sabotaged and how. Given access to the full research transcript and the ability to run experiments, human auditors mostly fail to distinguish sabotaged from benign research: they achieve an AUROC of 0.59, not significantly better than chance, and fully identify the specific sabotage in only 17% of cases. Despite not being allowed to run experiments, the best frontier models outperform human auditors (Fable 5.1: AUROC 0.73, 32% full identification) within noise and weaker models perform comparably. When the saboteur chooses which experiments are attacked, rather than being required to sabotage every question given, sabotage identification drops further. Our results suggest that research sabotage by expert-level agents is difficult to detect with current auditing methods and provide a new setting for studying research sabotage.",
+      "published": "2026-11-16T19:52:38Z",
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21529",
-        "pdf": "https://arxiv.org/pdf/2611.21529"
+        "abs": "https://arxiv.org/abs/2611.21832",
+        "pdf": "https://arxiv.org/pdf/2611.21832"
       },
-      "comment": "17 pages",
-      "titleZh": "无判断的程序：小型语言模型在精确验证器下学到了什么",
-      "summaryZh": "授权策略拦截工具调用时，审计日志需给出最小充分的事实集合；在可枚举上下文空间上，该最小理由可精确计算，因此解释能对照真值评分，而非依赖代理指标。实验设置中解释器只看到单个请求与决策、看不到策略本身，可在三十轮内调用策略并提出候选事实集询问充分性。前沿模型仅靠工具约有半数能找到精确理由，加入一句「缩小答案」的提示后 Haiku 4.5 从 58% 升至 75%；在 2000 条删除算法轨迹上微调的 4B 模型在训练策略上达到 92%，且算法教学在所有三个随机种子下都优于前沿模型教学。但学生学到的是一套固定的充分性检查流程：在三个未见过的公开策略上答案仍充分（94%）却不再最小（48%），同样提示下 Haiku 在全部 47 个回合上精确；直接用精确奖励做 RL 未提升留出准确率，只把策略从探测改判为耗尽预算做充分性检查。",
+      "titleZh": "审计者在AI安全研究的端到端记录中难以识别蓄意破坏",
+      "summaryZh": "针对自动化AI研发中失准系统可能破坏安全研究的问题，构建以人类专家作为代理破坏者的红蓝对抗设置：研究者从零开展AI安全实验，审计者基于完整研究记录判断哪些实验被破坏、如何被破坏。人类审计者区分被破坏与正常研究的AUROC仅0.59，与随机水平无显著差异，完整识别具体破坏方式的比例仅17%；最强前沿模型在禁止运行实验的条件下反而达到AUROC 0.73、完整识别率32%，较弱模型与人类相当。当破坏者自行选择攻击对象、而非必须破坏每个问题时，识别率进一步下降。该工作提供了研究破坏检测的新评测场景，表明专家级智能体的研究破坏难以被现有审计方法发现。",
       "score": 7.5,
-      "reason": "可验证奖励加小模型后训练与工具调用，方法清晰但实验规模偏小"
-    },
-    {
-      "id": "2611.21478",
-      "title": "Jetriever: Shifting Agent Memory Retrieval from Similarity to Utility",
-      "authors": [
-        "Ruizhe Li",
-        "Licheng Zhang",
-        "Mingxuan Du",
-        "Zhendong Mao"
-      ],
-      "authorsTotal": 4,
-      "abstract": "A useful memory need not resemble the question it helps answer. Jetriever ranks each stored memory by Jev's decision score for its usefulness to the current question, replacing similarity search with full-pool utility scoring. On InMind's 125 indirect-query tasks, it places the gold exchange first in 84.8% of cases; matched BM25 and MiniLM controls reach 1.6% and 0.0% when indexing user turns. A 20-question comparison separates finding evidence from ranking it: Jev and Qwen3.5 9B each find 90% of gold exchanges by rank 50, while Laya finds 30%; at rank one, Jev reaches 85% and Qwen3.5 9B 40%. On a dimension-proportional random sample of 60 MemoryAgentBench questions, Jetriever's four-dimension score is 55.4%, against 44.3% for ReFind on the same questions. Jev retrieval costs USD 0.00834 per InMind question and USD 0.03103 per MAB question on average. These results show the value of world knowledge, scores that rank decisive memories first, and affordable full-pool scoring.",
-      "published": "2026-11-16T17:50:53Z",
-      "primaryCategory": "cs.CL",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21478",
-        "pdf": "https://arxiv.org/pdf/2611.21478"
-      },
-      "comment": "13 pages, 1 figure, 8 tables. Project repository: https://github.com/imlrz/Jetriever",
-      "titleZh": "Jetriever：把 Agent 记忆检索从相似度转向效用",
-      "summaryZh": "针对 Agent 记忆检索依赖相似度、而真正有用的记忆往往与问题并不相似的问题，改为对全部记忆池逐条打分，用 Jev 决策分数衡量每条记忆对当前问题的有用性并据此排序，取代向量或 BM25 相似度检索。在 InMind 的 125 个间接查询任务上，金标记忆排首位率 84.8%，同条件 BM25 与 MiniLM 仅 1.6% 与 0.0%；在 MemoryAgentBench 的 60 题分层抽样上四维得分 55.4%，高于 ReFind 的 44.3%，单题检索成本约 0.008 至 0.031 美元。结果说明世界知识与「把决定性记忆排到最前」的评分方式有效，且全池打分在成本上可行。",
-      "score": 7.5,
-      "reason": "Agent 记忆检索改为效用全池打分，方向对口但实验规模有限"
+      "reason": "AI安全审计与Agent破坏检测，属评测方法学，设置新颖"
     }
   ],
   "embodied": [
@@ -2211,440 +2202,267 @@
   ],
   "overflow": [
     {
-      "id": "2611.21241",
-      "title": "Anytime-Valid PAC-Bayes Certificates for Adaptive Test-Time Scaling",
-      "titleZh": "自适应测试时扩展的随时有效PAC-Bayes证书",
-      "score": 7.5,
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21241",
-        "pdf": "https://arxiv.org/pdf/2611.21241"
-      }
-    },
-    {
-      "id": "2611.21176",
-      "title": "Scientific Coding with Large Language Models: Evidence from Finite Element Analysis",
-      "titleZh": "大语言模型的科学编程:来自有限元分析的证据",
+      "id": "2611.21797",
+      "title": "Can Coding Agents Write and Transpile Unit Tests",
+      "titleZh": "编程智能体能否编写并转译单元测试",
       "score": 7.5,
       "primaryCategory": "cs.SE",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21176",
-        "pdf": "https://arxiv.org/pdf/2611.21176"
+        "abs": "https://arxiv.org/abs/2611.21797",
+        "pdf": "https://arxiv.org/pdf/2611.21797"
       }
     },
     {
-      "id": "2611.21094",
-      "title": "Conflict-Aware Multi-Teacher On-Policy Distillation in Aligned Action Spaces for Cross-Game Generalization",
-      "titleZh": "面向跨游戏泛化的对齐动作空间内冲突感知多教师在线策略蒸馏",
+      "id": "2611.21584",
+      "title": "CertiSum: Bitwise-Identical MXFP4 Training Across Platforms and Parallelism Layouts",
+      "titleZh": "CertiSum：跨平台与并行布局下位级完全一致的 MXFP4 训练",
       "score": 7.5,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.21094",
-        "pdf": "https://arxiv.org/pdf/2611.21094"
-      }
-    },
-    {
-      "id": "2611.20655",
-      "title": "MetaAct: Self-Evolving Executable Action Constraints for Embodied Language Agents",
-      "titleZh": "MetaAct：面向具身语言智能体的自进化可执行动作约束",
-      "score": 7.5,
-      "primaryCategory": "cs.CL",
-      "track": "embodied",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20655",
-        "pdf": "https://arxiv.org/pdf/2611.20655"
-      }
-    },
-    {
-      "id": "2611.21597",
-      "title": "Optimal Autoregressive Chain-of-Thought Learning via Bagging",
-      "titleZh": "基于Bagging的最优自回归思维链学习",
-      "score": 7,
       "primaryCategory": "cs.LG",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21597",
-        "pdf": "https://arxiv.org/pdf/2611.21597"
+        "abs": "https://arxiv.org/abs/2611.21584",
+        "pdf": "https://arxiv.org/pdf/2611.21584"
       }
     },
     {
-      "id": "2611.21235",
-      "title": "Language-model agents' beliefs can be manipulated via truthful evidence in open channel",
-      "titleZh": "语言模型智能体的信念可通过开放渠道中的真实证据被操纵",
-      "score": 7,
+      "id": "2611.21529",
+      "title": "Procedure without Judgment: What Small Language Models Learn under an Exact Verifier",
+      "titleZh": "无判断的程序：小型语言模型在精确验证器下学到了什么",
+      "score": 7.5,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21235",
-        "pdf": "https://arxiv.org/pdf/2611.21235"
+        "abs": "https://arxiv.org/abs/2611.21529",
+        "pdf": "https://arxiv.org/pdf/2611.21529"
       }
     },
     {
-      "id": "2611.21057",
-      "title": "WiTac: Wrist-Informed Tactile Representations for Contact-Rich Manipulation",
-      "titleZh": "WiTac：面向富接触操作的腕部信息触觉表征",
-      "score": 7,
+      "id": "2611.21520",
+      "title": "Safe Resemblance, Silent Propagation: Limits of Text-Similarity Guardrails for AI Agent Safety",
+      "titleZh": "表面相似的安全、静默传播：文本相似度护栏对 AI Agent 安全的局限",
+      "score": 7.5,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.21520",
+        "pdf": "https://arxiv.org/pdf/2611.21520"
+      }
+    },
+    {
+      "id": "2611.21478",
+      "title": "Jetriever: Shifting Agent Memory Retrieval from Similarity to Utility",
+      "titleZh": "Jetriever：把 Agent 记忆检索从相似度转向效用",
+      "score": 7.5,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.21478",
+        "pdf": "https://arxiv.org/pdf/2611.21478"
+      }
+    },
+    {
+      "id": "2611.20771",
+      "title": "Nemotron 3.5 Bolt E4B 4GB: An Open and Efficient Small Language Model for Fast Conversational Agents",
+      "titleZh": "Nemotron 3.5 Bolt E4B 4GB：一个开放高效的小语言模型，面向快速对话智能体",
+      "score": 7.5,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20771",
+        "pdf": "https://arxiv.org/pdf/2611.20771"
+      }
+    },
+    {
+      "id": "2611.20711",
+      "title": "AgentFaultBench: State-Verified Evaluation of Tool-Fault Recovery",
+      "titleZh": "AgentFaultBench：工具故障恢复的状态可验证评测",
+      "score": 7.5,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20711",
+        "pdf": "https://arxiv.org/pdf/2611.20711"
+      }
+    },
+    {
+      "id": "2611.20481",
+      "title": "Lift, See, Act: Hierarchical Robot Policy Pretraining with 3D Foundation Models",
+      "titleZh": "提升、观察、行动：基于3D基础模型的分层机器人策略预训练",
+      "score": 7.5,
       "primaryCategory": "cs.RO",
       "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.21057",
-        "pdf": "https://arxiv.org/pdf/2611.21057"
+        "abs": "https://arxiv.org/abs/2611.20481",
+        "pdf": "https://arxiv.org/pdf/2611.20481"
       }
     },
     {
-      "id": "2611.20983",
-      "title": "GRACE: Parallel Best-of-N Multi-Agent Analysis of Closed-Form Questions over Dataframes with Guardrail Selection and Adaptive Retry",
-      "titleZh": "GRACE:面向 dataframe 封闭式问题的并行 best-of-N 多智能体分析，带护栏选择与自适应重试",
+      "id": "2611.20419",
+      "title": "Reasoning Again with a Quarter of the Experts: Retry First, Then Train",
+      "titleZh": "用四分之一的专家重新推理：先重试，再训练",
+      "score": 7.5,
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.20419",
+        "pdf": "https://arxiv.org/pdf/2611.20419"
+      }
+    },
+    {
+      "id": "2611.21998",
+      "title": "KV-LTM: Persistent Per-Session KV Caches as Long-Term Memory for Personal Assistants",
+      "titleZh": "KV-LTM：将持久的按会话KV缓存作为个人助理的长期记忆",
       "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20983",
-        "pdf": "https://arxiv.org/pdf/2611.20983"
+        "abs": "https://arxiv.org/abs/2611.21998",
+        "pdf": "https://arxiv.org/pdf/2611.21998"
       }
     },
     {
-      "id": "2611.20955",
-      "title": "Jev-as-a-Reward: Validating Probabilistic Safety Judges for Reinforcement Learning",
-      "titleZh": "Jev-as-a-Reward：为强化学习验证概率式安全评判器",
+      "id": "2611.21978",
+      "title": "WebAgents: Unbundling Agent Creation, Hosting, and Execution for an Agent-Native Web",
+      "titleZh": "WebAgents:解耦 Agent 的创建、托管与执行，构建 Agent 原生 Web",
       "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20955",
-        "pdf": "https://arxiv.org/pdf/2611.20955"
+        "abs": "https://arxiv.org/abs/2611.21978",
+        "pdf": "https://arxiv.org/pdf/2611.21978"
       }
     },
     {
-      "id": "2611.20924",
-      "title": "Navital Gym: Rule-Graded Agent Environments for Indian Workflows",
-      "titleZh": "Navital Gym：面向印度工作流的规则评分智能体环境",
+      "id": "2611.21845",
+      "title": "EmbedGym: Letting Coding Agents Develop and Debug Embedded Firmware Without Physical Hardware",
+      "titleZh": "EmbedGym:让编码智能体无需物理硬件即可开发与调试嵌入式固件",
       "score": 7,
-      "primaryCategory": "cs.CL",
+      "primaryCategory": "cs.SE",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20924",
-        "pdf": "https://arxiv.org/pdf/2611.20924"
+        "abs": "https://arxiv.org/abs/2611.21845",
+        "pdf": "https://arxiv.org/pdf/2611.21845"
       }
     },
     {
-      "id": "2611.20891",
-      "title": "From Recursion to Convolution: Parallel Self-Improvement for Multi-Agent Systems",
-      "titleZh": "从递归到卷积：多智能体系统的并行自我改进",
-      "score": 7,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20891",
-        "pdf": "https://arxiv.org/pdf/2611.20891"
-      }
-    },
-    {
-      "id": "2611.20736",
-      "title": "GainCtrl: Predicting Remaining Gains for Efficient LLM Agent Execution",
-      "titleZh": "GainCtrl：预测剩余增益以实现高效LLM Agent执行",
-      "score": 7,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20736",
-        "pdf": "https://arxiv.org/pdf/2611.20736"
-      }
-    },
-    {
-      "id": "2611.20733",
-      "title": "MemEmo: Evaluating Emotion in Memory Systems",
-      "titleZh": "MemEmo：评估记忆系统中的情感能力",
-      "score": 7,
-      "primaryCategory": "cs.CL",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20733",
-        "pdf": "https://arxiv.org/pdf/2611.20733"
-      }
-    },
-    {
-      "id": "2611.20569",
-      "title": "ToolGraph as a Q-Function for Test-Time Scaling of Tool-Use Agents",
-      "titleZh": "将ToolGraph用作Q函数：工具使用Agent的测试时扩展",
-      "score": 7,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20569",
-        "pdf": "https://arxiv.org/pdf/2611.20569"
-      }
-    },
-    {
-      "id": "2611.20565",
-      "title": "Memory-Efficient Speculative Decoding with Quantized Draft KV Cache",
-      "titleZh": "基于量化草稿 KV cache 的内存高效投机解码",
+      "id": "2611.21688",
+      "title": "DeltaHarness: Self-Evolving Harnesses for Resource-Adaptive Tool Execution",
+      "titleZh": "DeltaHarness:面向资源自适应工具执行的自演化执行框架",
       "score": 7,
       "primaryCategory": "cs.LG",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20565",
-        "pdf": "https://arxiv.org/pdf/2611.20565"
+        "abs": "https://arxiv.org/abs/2611.21688",
+        "pdf": "https://arxiv.org/pdf/2611.21688"
       }
     },
     {
-      "id": "2611.20488",
-      "title": "EVIDENT: Evaluating Evidence Grounding in GUI Agents",
-      "titleZh": "EVIDENT：评估 GUI Agent 中的证据依据",
-      "score": 7,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.20488",
-        "pdf": "https://arxiv.org/pdf/2611.20488"
-      }
-    },
-    {
-      "id": "2611.20417",
-      "title": "When the Cheapest Feasible Router Fails: Auditing Deployment Commitments in Cost-Aware LLM Routing",
-      "titleZh": "当最廉价的可行路由器失效:审计成本感知 LLM 路由中的部署承诺",
+      "id": "2611.21554",
+      "title": "Reading or Remembering? Measuring Temporal Contamination in Language Models",
+      "titleZh": "阅读还是记忆？度量语言模型中的时间污染",
       "score": 7,
       "primaryCategory": "cs.LG",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20417",
-        "pdf": "https://arxiv.org/pdf/2611.20417"
+        "abs": "https://arxiv.org/abs/2611.21554",
+        "pdf": "https://arxiv.org/pdf/2611.21554"
       }
     },
     {
-      "id": "2611.20415",
-      "title": "Augmenting Pretrained Language Models with N-gram Embeddings through Incremental Training",
-      "titleZh": "通过增量训练为预训练语言模型增补 N-gram 嵌入",
+      "id": "2611.20844",
+      "title": "DetourBench: Trajectory-Level Evaluation of Interactive Agents with Exact Minimum-Action Bounds",
+      "titleZh": "DetourBench:带精确最小动作下界的交互式智能体轨迹级评测",
       "score": 7,
-      "primaryCategory": "cs.CL",
+      "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20415",
-        "pdf": "https://arxiv.org/pdf/2611.20415"
+        "abs": "https://arxiv.org/abs/2611.20844",
+        "pdf": "https://arxiv.org/pdf/2611.20844"
       }
     },
     {
-      "id": "2611.20405",
-      "title": "Refusal Register is Causally Steerable: Decomposing the Refusal Direction into Category-Aligned Components in Gemma-2-9B-IT",
-      "titleZh": "拒绝语域可被因果操控：在Gemma-2-9B-IT中将拒绝方向分解为类别对齐的分量",
+      "id": "2611.20605",
+      "title": "AdMem: Expectation-Grounded Procedural Memory for Long-Horizon Task-Solving Agents",
+      "titleZh": "AdMem:面向长程任务求解智能体的期望锚定程序性记忆",
       "score": 7,
-      "primaryCategory": "cs.CL",
+      "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20405",
-        "pdf": "https://arxiv.org/pdf/2611.20405"
+        "abs": "https://arxiv.org/abs/2611.20605",
+        "pdf": "https://arxiv.org/pdf/2611.20605"
       }
     },
     {
-      "id": "2611.20335",
-      "title": "When Should Decision Models Compare Candidates?",
-      "titleZh": "决策模型何时应当比较候选？",
+      "id": "2611.20384",
+      "title": "JointQ: Joint Scale-and-Integer Quantization for Large Language Models",
+      "titleZh": "JointQ：面向大语言模型的尺度与整数联合量化",
       "score": 7,
-      "primaryCategory": "cs.CL",
+      "primaryCategory": "cs.LG",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.20335",
-        "pdf": "https://arxiv.org/pdf/2611.20335"
+        "abs": "https://arxiv.org/abs/2611.20384",
+        "pdf": "https://arxiv.org/pdf/2611.20384"
       }
     }
   ],
   "scores": {
     "main": {
-      "2611.20335": 7,
-      "2611.20352": 3,
-      "2611.20360": 2,
-      "2611.20368": 2,
-      "2611.20371": 5.5,
-      "2611.20377": 5,
-      "2611.20390": 1,
-      "2611.20398": 4,
-      "2611.20405": 7,
-      "2611.20415": 7,
-      "2611.20417": 7,
-      "2611.20422": 4,
-      "2611.20423": 6,
-      "2611.20435": 2,
-      "2611.20441": 6.5,
-      "2611.20445": 3,
-      "2611.20447": 6.5,
-      "2611.20451": 1,
-      "2611.20464": 5,
-      "2611.20467": 1,
-      "2611.20468": 3,
-      "2611.20484": 6,
-      "2611.20488": 7,
-      "2611.20493": 3,
-      "2611.20521": 3,
-      "2611.20535": 4,
-      "2611.20562": 6.5,
-      "2611.20565": 7,
-      "2611.20566": 6.5,
-      "2611.20567": 2,
-      "2611.20569": 7,
-      "2611.20573": 4,
-      "2611.20579": 4,
-      "2611.20602": 1,
-      "2611.20603": 2,
-      "2611.20607": 2,
-      "2611.20609": 2,
-      "2611.20621": 3,
-      "2611.20643": 6,
-      "2611.20644": 6.5,
-      "2611.20660": 2,
-      "2611.20666": 2,
-      "2611.20686": 3,
-      "2611.20688": 6.5,
-      "2611.20693": 3,
-      "2611.20695": 6,
-      "2611.20696": 5,
-      "2611.20702": 5,
-      "2611.20714": 2,
-      "2611.20715": 3,
-      "2611.20726": 3,
-      "2611.20728": 5,
-      "2611.20732": 4,
-      "2611.20733": 7,
-      "2611.20734": 4,
-      "2611.20736": 7,
-      "2611.20752": 2,
-      "2611.20779": 3,
-      "2611.20794": 3,
-      "2611.20803": 2,
-      "2611.20811": 3,
-      "2611.20815": 3,
-      "2611.20818": 6.5,
-      "2611.20821": 5,
-      "2611.20823": 5,
-      "2611.20826": 3,
-      "2611.20835": 5,
-      "2611.20837": 5,
-      "2611.20846": 6,
-      "2611.20851": 2,
-      "2611.20853": 1,
-      "2611.20868": 4,
-      "2611.20873": 6,
-      "2611.20877": 2,
-      "2611.20891": 7,
-      "2611.20894": 3,
-      "2611.20915": 4,
-      "2611.20924": 7,
-      "2611.20926": 4,
-      "2611.20935": 3,
-      "2611.20937": 4,
-      "2611.20955": 7,
-      "2611.20970": 2,
-      "2611.20975": 3,
-      "2611.20976": 6,
-      "2611.20981": 3,
-      "2611.20983": 7,
-      "2611.20984": 5,
-      "2611.20988": 4,
-      "2611.20991": 2,
-      "2611.20996": 3,
-      "2611.21001": 3,
-      "2611.21015": 1,
-      "2611.21053": 6.5,
-      "2611.21076": 2,
-      "2611.21079": 2,
-      "2611.21094": 7.5,
-      "2611.21096": 3,
-      "2611.21105": 4,
-      "2611.21111": 6,
-      "2611.21149": 2,
-      "2611.21155": 6.5,
-      "2611.21159": 3,
-      "2611.21160": 3,
-      "2611.21176": 7.5,
-      "2611.21178": 3,
-      "2611.21183": 6,
-      "2611.21196": 2,
-      "2611.21208": 4,
-      "2611.21211": 6,
-      "2611.21215": 2,
-      "2611.21218": 3,
-      "2611.21232": 3,
-      "2611.21235": 7,
-      "2611.21240": 3,
-      "2611.21241": 7.5,
-      "2611.21249": 3,
-      "2611.21267": 2,
-      "2611.21268": 5,
-      "2611.21273": 6,
-      "2611.21276": 4,
-      "2611.21285": 2,
-      "2611.21291": 5.5,
-      "2611.21295": 6,
-      "2611.21300": 4,
-      "2611.21303": 4,
-      "2611.21306": 3,
-      "2611.21307": 6,
-      "2611.21310": 6,
-      "2611.21319": 2,
-      "2611.21344": 1,
-      "2611.21348": 6,
-      "2611.21352": 5.5,
-      "2611.21362": 3,
-      "2611.21367": 4,
-      "2611.21370": 3,
-      "2611.21372": 5.5,
-      "2611.21382": 6,
-      "2611.21384": 5.5,
-      "2611.21393": 4,
-      "2611.21399": 1,
-      "2611.21404": 2,
-      "2611.21405": 3,
-      "2611.21422": 5,
-      "2611.21423": 2,
-      "2611.21432": 6.5,
-      "2611.21434": 2,
-      "2611.21439": 2,
-      "2611.21441": 5.5,
-      "2611.21449": 6,
-      "2611.21458": 5,
-      "2611.21465": 2,
-      "2611.21471": 3,
-      "2611.21476": 4,
-      "2611.21519": 6.5,
-      "2611.21524": 4,
-      "2611.21535": 5,
-      "2611.21545": 6,
-      "2611.21562": 3,
-      "2611.21571": 2,
-      "2611.21586": 3,
-      "2611.21597": 7,
-      "2611.21598": 3,
-      "2611.21602": 3
+      "2611.20384": 7,
+      "2611.20419": 7.5,
+      "2611.20605": 7,
+      "2611.20635": 6.5,
+      "2611.20711": 7.5,
+      "2611.20771": 7.5,
+      "2611.20844": 7,
+      "2611.21250": 6.5,
+      "2611.21408": 6,
+      "2611.21478": 7.5,
+      "2611.21486": 6,
+      "2611.21520": 7.5,
+      "2611.21529": 7.5,
+      "2611.21554": 7,
+      "2611.21584": 7.5,
+      "2611.21688": 7,
+      "2611.21691": 4,
+      "2611.21694": 1,
+      "2611.21696": 5,
+      "2611.21698": 1,
+      "2611.21701": 3,
+      "2611.21705": 6,
+      "2611.21769": 2,
+      "2611.21784": 5,
+      "2611.21797": 7.5,
+      "2611.21804": 6,
+      "2611.21808": 5,
+      "2611.21823": 5,
+      "2611.21825": 3,
+      "2611.21827": 3,
+      "2611.21828": 2,
+      "2611.21845": 7,
+      "2611.21849": 2,
+      "2611.21852": 3,
+      "2611.21857": 2,
+      "2611.21865": 1,
+      "2611.21878": 5,
+      "2611.21879": 2,
+      "2611.21880": 2,
+      "2611.21891": 3,
+      "2611.21914": 3,
+      "2611.21933": 2,
+      "2611.21935": 2,
+      "2611.21937": 3,
+      "2611.21948": 2,
+      "2611.21952": 6.5,
+      "2611.21964": 5.5,
+      "2611.21978": 7,
+      "2611.21998": 7,
+      "2611.22000": 2,
+      "2611.22009": 5.5,
+      "2611.22010": 3
     },
     "embodied": {
-      "2611.20402": 4,
-      "2611.20427": 3,
-      "2611.20452": 3,
-      "2611.20510": 2,
-      "2611.20557": 6,
-      "2611.20558": 4,
-      "2611.20568": 2,
-      "2611.20570": 2,
-      "2611.20574": 1,
-      "2611.20587": 2,
-      "2611.20593": 3,
-      "2611.20655": 7.5,
-      "2611.20692": 4,
-      "2611.20700": 2,
-      "2611.20710": 3,
-      "2611.20718": 5,
-      "2611.20720": 2,
-      "2611.20730": 2,
-      "2611.20767": 5,
-      "2611.20770": 2,
-      "2611.20791": 3,
-      "2611.20888": 2,
-      "2611.20929": 2,
-      "2611.20939": 4,
-      "2611.20950": 3,
-      "2611.20978": 1,
-      "2611.21035": 5.5,
-      "2611.21057": 7,
-      "2611.21059": 2,
-      "2611.21069": 1,
-      "2611.21129": 5,
-      "2611.21143": 5,
-      "2611.21163": 2,
-      "2611.21198": 2,
-      "2611.21209": 3,
-      "2611.21264": 2,
-      "2611.21309": 2,
-      "2611.21507": 2,
-      "2611.21517": 5.5,
-      "2611.21596": 5
+      "2611.20481": 7.5,
+      "2611.21771": 2,
+      "2611.21783": 2,
+      "2611.21789": 3,
+      "2611.21806": 1,
+      "2611.21811": 4,
+      "2611.21882": 6,
+      "2611.21895": 2,
+      "2611.21905": 2,
+      "2611.21908": 5,
+      "2611.21919": 5.5,
+      "2611.21938": 6,
+      "2611.21958": 6.5
     }
   },
   "pool": {
-    "main": 214,
-    "embodied": 50
+    "main": 102,
+    "embodied": 23
   }
 }
