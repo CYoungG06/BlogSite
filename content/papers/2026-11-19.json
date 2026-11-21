@@ -806,7 +806,7 @@
     }
   ],
   "arxivStatus": "complete",
-  "generatedAt": "2026-11-20T18:36:06.900688+00:00",
+  "generatedAt": "2026-11-21T10:05:31.212749+00:00",
   "arxiv": [
     {
       "id": "2611.26358",
@@ -1225,6 +1225,28 @@
       "reason": "Agent 自进化与实时控制闭环结合，机制清晰，命中 Agent 方向"
     },
     {
+      "id": "2611.25780",
+      "title": "RouteVerify: Routing Interventions for Step-Level Verification in Mixture-of-Experts Models",
+      "authors": [
+        "Yucheng Du",
+        "Ryan A. Rossi",
+        "Xiyang Hu"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Routing states in mixture-of-experts (MoE) models can distinguish correct from erroneous reasoning steps. If changing routing also changes a model's step-level verification judgment, it is tempting to conclude that the judgment follows what routing encodes. We test this inference with RouteVerify, a controlled intervention study that replaces selected internal activations from one solution trace with activations from another, while keeping the evaluated input unchanged. Across nine MoE checkpoints, we compare three intervention interfaces: router logits, MoE outputs, and post-MoE residual states. We vary the layers and token positions at which activations are replaced. We measure changes in a verification margin that quantifies the model's preference for INCORRECT over CORRECT. We also evaluate the same input with activations from correct versus erroneous steps to test whether the resulting judgment depends on the source step's correctness. We report four linked results. First, probes on router logits separate correct from erroneous steps in eight checkpoints (AUROC 0.80-0.88). Second, replacing router logits across all routed layers changes the judgment in all nine checkpoints, and by more than a norm-matched random replacement. Third, this change rarely depends on whether the source step is correct. At one layer, routing from erroneous steps and from correct steps produces indistinguishable margins in all nine checkpoints. Under all-layer routing, their difference is resolved and positive in only one. Fourth, the same difference is positive for local residual replacements in eight of nine checkpoints, so the measure does detect such dependence where it exists. Correctness is therefore readable from routing, and routing replacements move the judgment, but the movement rarely follows correctness.",
+      "published": "2026-11-19T09:11:52Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25780",
+        "pdf": "https://arxiv.org/pdf/2611.25780"
+      },
+      "comment": "38 pages, 5 figures. Code: https://github.com/yucheng-du/RouteVerify",
+      "titleZh": "RouteVerify:通过路由干预实现 MoE 模型的步骤级验证",
+      "summaryZh": "研究 MoE 模型的路由状态能否作为步骤级验证判断的因果依据。RouteVerify 采用受控干预:保持被评估输入不变，用另一条解题轨迹的内部激活替换选定激活，在九个 MoE checkpoint 上比较 router logits、MoE 输出与 MoE 后残差三种干预接口，并扫描层与 token 位置，以验证 margin(模型偏好错误步骤的程度)为指标。结果显示 router logits 的探针可在八个 checkpoint 上区分正确与错误步骤(AUROC 0.80–0.88)，替换 router logits 会改变判断且强于范数匹配的随机替换，但这种改变极少依赖源步骤是否正确;而在九分之八的 checkpoint 上，局部残差替换能够检出该依赖性。说明路由可读、可干预，但干预引发的判断变化并不跟随正确性。",
+      "score": 8,
+      "reason": "MoE 路由与步骤级验证的受控因果分析，方法扎实、切中可解释性与推理评测"
+    },
+    {
       "id": "2611.25760",
       "title": "Characterizing and Detecting Unfaithful Work Reports by Coding Agents",
       "authors": [
@@ -1293,6 +1315,26 @@
       "summaryZh": "针对长程 Agent 任务中工作上下文不断膨胀、压缩能力缺乏评估的问题，构建了以任务完成度为衡量标准的压缩基准：从成功轨迹出发在不同阶段插入压缩边界，用待测模型压缩前序上下文后由同一执行器继续任务，并通过轻量迭代比例调整实现留存率受控的公平比较，覆盖 BrowseComp、SWE-bench 与内部 CompanyBench 三类场景。实验显示压缩仍高度有损，Claude 与 GPT 系列整体最强，但激进压缩下下游任务准确率明显下降；失败不仅源于信息遗漏，也源于任务状态被扭曲，例如未解决问题被写成结论、已确立结果被遗忘，导致错误决策与重复执行。",
       "score": 8,
       "reason": "Agent 长程上下文压缩基准，选题硬核、评测设计扎实"
+    },
+    {
+      "id": "2611.25597",
+      "title": "Decision-Focused Reinforcement Learning for LLM Post-Training",
+      "authors": [
+        "Haotian Zhai",
+        "Leqi Liu"
+      ],
+      "authorsTotal": 2,
+      "abstract": "Large language models (LLMs) have shown promise as predictors across various tasks, benefiting from their ability to use information from unstructured context. However, when predictions serve as parameters of downstream optimization problems, higher prediction accuracy does not necessarily translate into lower decision costs. We propose decision-focused reinforcement learning (DFRL), a framework for post-training LLMs to predict optimization parameters using negative downstream decision regret as reward. DFRL trains LLM predictors to minimize the costs of the decisions induced by their predictions, without requiring downstream convexity or differentiability, and integrates readily into existing RL post-training frameworks. To address expensive reward evaluation, we develop two approaches. Heuristic warm-starting uses inexpensive approximate rewards during an initial phase before switching to refinement with exact rewards. Reward correction combines inexpensive estimates with randomized exact evaluations, preserving the expected policy gradient while reducing the expected number of exact solves per update. Experiments on three synthetic optimization problems demonstrate improvements over prediction-loss baselines, while a larger knapsack experiment shows faster early improvement under short training budgets. On inventory planning with H&M transactions and product descriptions, our best configuration, in which the LLM reasons before predicting, reduces regret by 31.4% relative to the SFT baseline and 12.4% relative to the strongest evaluated conventional forecasting baseline.",
+      "published": "2026-11-19T06:44:35Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25597",
+        "pdf": "https://arxiv.org/pdf/2611.25597"
+      },
+      "titleZh": "面向LLM后训练的决策聚焦强化学习",
+      "summaryZh": "当LLM的预测作为下游优化问题的参数时，更高的预测精度不一定带来更低的决策成本。提出DFRL框架，以负的下游决策后悔值作为奖励对LLM做后训练，无需下游问题满足凸性或可微性，可直接接入现有RL后训练框架。针对奖励评估开销大的问题，设计两种机制:启发式热启动在初期用廉价近似奖励、后期切换到精确奖励精修;奖励修正把廉价估计与随机精确评估结合，在保持期望策略梯度不变的前提下减少每次更新的精确求解次数。在三个人工优化问题上优于预测损失基线，H&M库存规划任务中「先推理再预测」的配置使后悔值相比SFT基线降低31.4%、相比最强传统预测基线降低12.4%。",
+      "score": 8,
+      "reason": "RL后训练新奖励范式，可接入现有框架，方法清晰有数据"
     },
     {
       "id": "2611.25582",
@@ -1366,6 +1408,31 @@
       "summaryZh": "Agent 技能以自然语言指令封装过程性知识，而现有自我进化方法只看整次运行的结果或错误位置，无法区分失败源于指令本身有误，还是 Agent 没有遵循指令。SkillPlumber 借助指令级覆盖率标注(follow / not-follow / not covered):一个常驻的根因分析 Agent 把每个标签转成修改问题，并用下一次运行校验修改效果;另一个维护者 Agent 把跨任务的排查结论蒸馏进共享策略库。在三个 benchmark、三种执行器上，任务解决率为 64.7%–70.5%，比初始技能高 25.6–30.4 个百分点，比最强基线高 8.7–14.0 个百分点;在 SkillsBench 上使用 GPT-5.5 时，去掉覆盖率信号使恢复的失败减少 20.8%。这一结果说明对技能做细粒度诊断能有效提升 Agent 的可靠性与自我改进效率。",
       "score": 8,
       "reason": "Agent 技能自我进化与覆盖率诊断，直接命中 Agent 与自进化方向"
+    },
+    {
+      "id": "2611.25387",
+      "title": "TuringSpace: Grounding Spatial Intelligence in Action with Interactive CAPTCHAs",
+      "authors": [
+        "Xuwei Ding",
+        "Skylar Zhai",
+        "Linxin Song",
+        "Jiarui Feng",
+        "Dongqi Fu",
+        "Huajun Xi"
+      ],
+      "authorsTotal": 12,
+      "abstract": "Humans act in the visual world by inferring the 3D layout behind a 2D view, predicting how an action changes it, and correcting themselves after seeing the result. Can multimodal large language models (MLLMs) do the same? CAPTCHAs offer a natural test, since humans solve them through this very loop, clicking and dragging on the screen and adjusting after each result. Yet existing CAPTCHA benchmarks are largely solved and rarely spatial, while spatial benchmarks rarely require action. We therefore present TuringSpace, a synthetic web environment of 125 interactive CAPTCHAs that span five spatial abilities and must be solved through clicks and drags on the screen. Every task is a program that generates new instances with a checker and an oracle, so the tasks also form a scalable training gym. Humans solve 94.1% of the tasks, whereas the best model, GPT-6 Astra, still fails 25.9% of them, and the best open-weight model, Kimi K3, fails 68.0%. Our further analysis shows that most failures come from misreading the screenshot, and that model reasoning rarely corrects a wrong belief but hallucinates evidence to defend it. To test whether such spatial abilities can be learned, we fine-tune Qwen3.5-9B on this gym. Its success rate rises from 1.6% to 33.1%, above Kimi K3, and it improves on all seven out-of-distribution benchmarks, including a 9.9-point gain on the real-world indoor videos of VSI-Bench. These results show that grounding spatial intelligence in screen actions exposes what MLLMs lack and offers a scalable way to teach it, with gains that transfer to real-world scenes. We will release TuringSpace to support further study.",
+      "published": "2026-11-19T02:32:10Z",
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25387",
+        "pdf": "https://arxiv.org/pdf/2611.25387"
+      },
+      "comment": "45 pages. Project page: https://xuweid.com/turingspace/",
+      "titleZh": "TuringSpace:用交互式 CAPTCHA 将空间智能锚定于动作",
+      "summaryZh": "现有 CAPTCHA 基准大多已被模型攻破且缺少空间性，空间基准又少见动作交互;TuringSpace 提供 125 个需在截图上点击、拖拽完成的交互式 CAPTCHA，覆盖五类空间能力，任务由带 checker 与 oracle 的程序生成，可不断采样新实例，兼作可扩展训练环境。人类解题率 94.1%,GPT-6 Astra 失败 25.9%，最强开源模型 Kimi K3 失败 68.0%;失败主要来自误读截图，推理很少纠正错误信念，反而编造证据自证。在 Qwen3.5-9B 上微调后成功率从 1.6% 升至 33.1%，七个分布外基准全面提升，VSI-Bench 真实室内视频提升 9.9 点。",
+      "score": 8,
+      "reason": "MLLM 空间理解新基准兼可扩展训练环境，含微调迁移验证"
     },
     {
       "id": "2611.25360",
@@ -1528,6 +1595,30 @@
       "reason": "AI科学家智能体基准，命中科研智能体与评测方向，但属纯benchmark发布"
     },
     {
+      "id": "2611.26171",
+      "title": "The FrontierOR Challenge: Agentic Algorithm Design for Operations Research",
+      "authors": [
+        "Hai Wang",
+        "Bretislav Hajek",
+        "Chonghe Jiang",
+        "Minwei Kong",
+        "Ao Qu",
+        "Huatian Gong"
+      ],
+      "authorsTotal": 9,
+      "abstract": "Operations research (OR) relies on algorithms that experts tailor to each problem: a new routing, scheduling or network design problem can take weeks of specialist work before it is solved well at scale. Large language model (LLM) agents now write, test and improve code, but whether they can design algorithms that scale to realistic instances is open: in the FrontierOR benchmark's one-shot evaluation, the strongest model matches Gurobi, with an objective within 1% of Gurobi's and no slower, on only 39% of the large instances. The FrontierOR Challenge asks teams to build agentic workflows that design, test, and improve algorithms for many optimization problems at once. Stage 1 releases 60 of the benchmark's 180 audited problems, spanning six application categories and five formulation types, in weekly rounds of 15; Stage 2 introduces new problems outside the benchmark, with unseen instances. Two tracks are ranked separately: in the Main track we run the submitted algorithms in a network-isolated sandbox with open-source dependencies only; in the Self-hosted track teams solve the instances on their own machines, with any software, within a timed window. Every solution is checked for feasibility, and a feasible solution scores the ratio of its objective to a frozen known reference, averaged over hidden instances.",
+      "published": "2026-11-19T14:20:27Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26171",
+        "pdf": "https://arxiv.org/pdf/2611.26171"
+      },
+      "titleZh": "FrontierOR挑战赛：面向运筹学的Agentic算法设计",
+      "summaryZh": "运筹学算法通常需专家针对每个新问题定制，耗时数周；LLM agent能否自主设计可扩展算法尚不清楚——在FrontierOR基准的一次性评测中，最强模型仅在39%的大规模实例上追平Gurobi（目标值差距1%以内且速度不慢）。挑战赛要求参赛队伍构建能同时为多个优化问题设计、测试并改进算法的Agent工作流：Stage 1从180道已审核题目中放出60道，覆盖六类应用与五种建模形式，每周发布15道；Stage 2引入基准之外的新问题与未见实例。赛道分为Main（网络隔离沙箱、仅限开源依赖）与Self-hosted（自备机器、软件不限、限时求解），所有解均做可行性校验，可行解按目标值与冻结参考解的比值在隐藏实例上平均计分。",
+      "score": 7.5,
+      "reason": "Agentic算法设计基准与竞赛，方向相关但以赛题发布为主"
+    },
+    {
       "id": "2611.26077",
       "title": "Same Judgement, Different Scores: Numerical Scoring Topology in LLM-as-a-Judge Evaluation",
       "authors": [
@@ -1688,6 +1779,52 @@
       "reason": "长上下文稀疏注意力与预填充加速，方法清晰且系统收益可观"
     },
     {
+      "id": "2611.25903",
+      "title": "From Cases to Criteria: Reusing Evaluation Knowledge for Task-Specific Rubric Generation",
+      "authors": [
+        "Qiyan Deng",
+        "Long-Kai Huang",
+        "Kangfei Zhao"
+      ],
+      "authorsTotal": 3,
+      "abstract": "Query-specific rubrics make LLM evaluation more fine-grained and transparent, and generating high-quality rubrics requires both identifying the target query's evaluation scope and specifying concrete checks. Historical rubrics provide reusable evaluation experiences, yet existing approaches reuse either complete query-rubric cases or aggregated criteria and dimensions without explicitly connecting recurring evaluation requirements to their criterion-level evidence and source-query context. This can preserve irrelevant task details or lose the broader evaluation structure. In this paper, we introduce RubricDuo, which organizes historical query-rubric pairs into a Rubric Knowledge Graph linking evaluation dimensions, shared concepts, local concepts, criteria, and queries, where reusable evaluation requirements across queries are abstracted by shared concepts. Given a target query, RubricDuo first combines concepts relevant to the target query with retrieved historical cases to draft a rubric with broad coverage. It then revisits each draft criterion, retrieves concept-linked historical criteria and their source queries, and adapts applicable evidence to refine the criterion. Experiments on RubricBench and HealthBench demonstrate that RubricDuo achieves the overall best performance among the evaluated automatic methods in both alignment with human-authored rubrics and downstream LLM judging.",
+      "published": "2026-11-19T10:52:50Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25903",
+        "pdf": "https://arxiv.org/pdf/2611.25903"
+      },
+      "titleZh": "从案例到准则：复用评估知识生成任务特定评分细则",
+      "summaryZh": "针对查询生成细粒度评分细则时，现有方法要么复用完整的查询—细则案例、要么复用聚合后的维度与准则，容易保留无关任务细节或丢失整体评估结构。RubricDuo将历史查询—细则对组织成评分细则知识图谱，用共享概念抽象跨查询可复用的评估要求；给定目标查询后，先结合相关概念与检索到的历史案例起草覆盖面广的细则，再逐条回溯概念关联的历史准则及其来源查询进行改写精炼。在RubricBench与HealthBench上，该方法在与人工撰写细则的一致性及下游LLM评判两方面均取得所评估自动方法中的整体最佳表现，可用于任务特定、可追溯的LLM评估细则构建。",
+      "score": 7.5,
+      "reason": "LLM评估细则生成与知识复用，属评测方法学扎实工作"
+    },
+    {
+      "id": "2611.25861",
+      "title": "Decoupled Knowledge Retrieval and Compact Memory Enable Reliable Lifelong Model Editing",
+      "authors": [
+        "Yue Che",
+        "Jingze Wang",
+        "Chen Guoyi",
+        "Yujie Wu",
+        "Xuming Ran",
+        "Mingkun Xu"
+      ],
+      "authorsTotal": 6,
+      "abstract": "Lifelong model editing requires continuously incorporating new facts into deployed large language models (LLMs) without expensive retraining or compromising existing capabilities. Memory-based editors offer an appealing solution by keeping the base parameters untouched, yet their practical use is hindered by linearly growing storage requirements and deteriorating retrieval performance as edits accumulate. To tackle these problems, we introduce BiSpace, a lifelong model editing framework that decouples memory retrieval from knowledge injection across two distinct representation spaces. BiSpace routes queries and identifies relevant edits in an external semantic space, while injecting the corresponding knowledge into the internal representation space of the LLM through sparse and storage-efficient updates. Extensive experiments show that BiSpace shrinks each entry's storage to only about 10.2% of the original and shows strong resilience to long edit sequences of up to 16K edits. On a more challenging benchmark, BiSpace further improves Overall Performance by more than 23% over existing methods. These results advance memory-based editing toward reliable long-term model maintenance at scale.",
+      "published": "2026-11-19T10:10:57Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25861",
+        "pdf": "https://arxiv.org/pdf/2611.25861"
+      },
+      "comment": "18 pages, 9 figures",
+      "titleZh": "解耦知识检索与紧凑记忆实现可靠的终身模型编辑",
+      "summaryZh": "终身模型编辑需要在不重新训练、不损害原有能力的前提下持续向已部署LLM注入新事实；基于记忆的编辑器虽不改动基座参数，却受制于存储线性膨胀与编辑累积后检索精度下降。BiSpace把记忆检索与知识注入解耦到两个表示空间：在外部语义空间完成查询路由并定位相关编辑，再以稀疏、存储高效的更新把对应知识写入LLM内部表示空间。实验中单条编辑的存储降至原来的约10.2%，在长达16K条编辑的序列上仍保持稳健，在更具挑战性的基准上总体性能较现有方法提升23%以上。",
+      "score": 7.5,
+      "reason": "终身模型编辑的双空间解耦，存储降至10%，结果扎实"
+    },
+    {
       "id": "2611.25793",
       "title": "When Safety Rationales Hallucinate: Diagnosing and Grounding Multimodal Safety Guards",
       "authors": [
@@ -1710,6 +1847,30 @@
       "summaryZh": "多模态安全护栏在给出安全判定的同时生成理由，但这些理由是否可靠缺乏系统研究。工作区分视觉理由幻觉（理由含无支撑的视觉事实）与安全归因幻觉（已接地内容被赋予错误的安全解释），跨多种理由生成方法、视觉语言骨干与安全数据集发现幻觉普遍存在，且不随分类准确率或模型规模稳定下降；Think-with-Image 范式的幻觉集中于细粒度属性与关系，视觉工具调用稀疏、空间聚焦不足。为此提出 Tool-Contrastive Grounding RL（TCG-RL），仅当工具使用相对无工具参考能提升理由接地时才给予奖励，显著降低理由幻觉并保持有竞争力的安全预测性能。",
       "score": 7.5,
       "reason": "多模态安全理由幻觉诊断加工具对比RL接地，命中后训练与Agent工具方向"
+    },
+    {
+      "id": "2611.25773",
+      "title": "Duopra: From Full-Duplex Conversation to Full-Duplex Agency",
+      "authors": [
+        "Chiyu Chen",
+        "Pengzhou Cheng",
+        "Yuezhao Ma",
+        "Xiaocheng Li",
+        "Can Liu",
+        "Haonan Hu"
+      ],
+      "authorsTotal": 15,
+      "abstract": "Full-duplex interaction models exhibit strong conversational agency, enabling natural, low-latency turn-taking, backchannels, and interruptions. However, completing tasks further requires task agency: timely tool invocation and argument revision following user corrections. Frontend-backend agents separate initiation from execution: the frontend decides whether and what to request, while the backend determines how. Execution can be offloaded, but unsent requests cannot be executed, and incomplete ones can misdirect the backend. On Full-Duplex-Bench v3 (FDB v3), most failures of Realtime-Venus-Audio + Harness in our streaming pipeline occur before a domain tool executes. We introduce Duopra, a full-duplex interaction model that learns task execution alongside conversational control. Duopra treats the backend as a tool, accepting a self-contained natural-language request. Direct calls and backend delegation share an action interface and requirements for faithful initiation and correct execution. Its three-stage training combines protocol SFT, full-duplex RL rewarding timely and complete execution, and projector-only repair of talker conditioning after thinker updates. With the same backend, Pass@1 rises from 4.7% to 44.7%; Duopra achieves 47.7% calling tools directly (26.0% after SFT) and 49.3% with a DeepSeek backend. It improves three FDB v1.0 takeover rates over the base model. These results show that task agency can coexist with key conversational agency.",
+      "published": "2026-11-19T09:09:23Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25773",
+        "pdf": "https://arxiv.org/pdf/2611.25773"
+      },
+      "titleZh": "Duopra:从全双工对话到全双工能动性",
+      "summaryZh": "全双工交互模型的对话能动性很强，但在需要及时调用工具、并随用户纠正修改参数的任务上仍会失败;前端-后端式 agent 把「是否发起请求」与「如何执行」拆开，未发出的请求无法执行，不完整的请求又会误导后端。Duopra 把后端当作一个工具，让直接调用与后端委派共用同一动作接口，并以三阶段训练(协议 SFT、奖励及时且完整执行的全双工 RL、thinker 更新后仅用 projector 修复 talker 条件)在同一模型中同时学习任务执行与对话控制。在相同后端下 Pass@1 从 4.7% 升至 44.7%，直接调用工具达 47.7%(SFT 后为 26.0%)，配 DeepSeek 后端为 49.3%，并提升了 FDB v1.0 的三项接管率。",
+      "score": 7.5,
+      "reason": "全双工语音 agent 的工具调用与 RL 训练，命中 Agent 与后训练方向"
     },
     {
       "id": "2611.25717",
@@ -1804,170 +1965,6 @@
       "summaryZh": "LLM Agent 依赖持久记忆来做工具调用规划，一旦记忆被污染或误导就会出现记忆漂移，使执行路径偏离并改变最终结果。检测记忆漂移的难点在于：困惑度和检索相关性等内容层特征无法判断哪条记忆真正改变了 Agent 行为，而对每条候选记忆逐一做反事实重放，开销又超出在线服务预算。DriftGuard 采用两阶段框架，把离线因果监督和在线估计解耦：先从共享的动作前状态出发，对原始轨迹后缀与单条记忆置为中性后的轨迹后缀做重复成对反事实重放，再按分量多数投票把标注聚合成记忆漂移分数（MDS），该分数涵盖动作改变、攻击移除、违规移除与任务恢复；随后用这些监督信号训练在线风险模型，只需动作前信息即可估计 MDS，并以最大分量风险标记致漂移记忆，无需在线反事实 rollout。实验表明该方法能准确识别致漂移记忆，并支持高效的在线防御。",
       "score": 7.5,
       "reason": "Agent 记忆安全与因果归因，方法系统且具在线可用性"
-    },
-    {
-      "id": "2611.25543",
-      "title": "Efficient Multimodal Agents for Auditing 3D Worlds",
-      "authors": [
-        "Jingbo Yang",
-        "Ziyan Jiang",
-        "Li An",
-        "Jiabao Ji",
-        "Yujian Liu",
-        "Tommi Jaakkola"
-      ],
-      "authorsTotal": 8,
-      "abstract": "Multimodal agents can now build interactive 3D worlds and games, yet these worlds, like those built by people, often contain glitches such as floating objects, walls that can be walked through, or objects that change when no one is looking. An automatic auditor could check such worlds at scale and provide rewards for agents that build them, but only if it is both accurate and cheap. Auditing requires three abilities, namely navigating to the objects that may contain a glitch, triggering glitches that appear only after a specific behavior, and recognizing what is wrong. Current auditors are either accurate but slow and expensive or cheap but unreliable. We study how much of the audit small models can take on. A 4B vision language model fine-tuned end to end on verified trajectories of a frontier teacher guided by Bayesian search learns to navigate and trigger, and six such explorers together match a frontier model on both, but recognition stays far behind. We therefore build an auditor in which a swarm of small explorers navigates and triggers, and a frontier model reviews what they record and report. On WorldAuditBench, our auditor succeeds on 55.9% of 213 tasks in Unreal Engine 5 and Three.js worlds, 13.6 points above the strongest auditor reported, at less than a quarter of its cost. It matches the frontier reviewer exploring on its own at 4.6 times lower cost and about half the latency. Without further training, it also answers embodied questions about real-world scans, matching the frontier reviewer exploring on its own and surpassing four other frontier models by 6.4 to 16.6 points.",
-      "published": "2026-11-19T05:46:09Z",
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.25543",
-        "pdf": "https://arxiv.org/pdf/2611.25543"
-      },
-      "titleZh": "面向3D世界审计的高效多模态智能体",
-      "summaryZh": "3D世界与游戏常出现悬浮物体、可穿墙、无人观察时变化等glitch，自动审计须兼顾准确与廉价，现有审计器要么准确但昂贵，要么便宜但不可靠。用4B视觉语言模型在贝叶斯搜索引导的前沿教师模型已验证轨迹上端到端微调，习得导航与触发glitch;因识别能力仍落后，最终改由一群小模型explorer负责导航和触发，前沿模型只审阅其记录并判定。在WorldAuditBench的213个Unreal Engine 5与Three.js任务上成功率55.9%，超最强基线13.6个点而成本不足其四分之一，与前沿模型单独探索持平但成本低4.6倍、延迟约减半;未经额外训练迁移到真实扫描的具身问答，领先四个前沿模型6.4至16.6个点。",
-      "score": 7.5,
-      "reason": "小模型多智能体探索＋前沿模型审阅的Agent系统，场景偏3D世界审计"
-    },
-    {
-      "id": "2611.25476",
-      "title": "WeightCode: Installing New Capabilities into Neural Networks via Weight-Space Programming",
-      "authors": [
-        "Bo Li",
-        "Taoyong Cui",
-        "Bob Zhang",
-        "Mengran Li",
-        "Chengyang Zhang",
-        "Yang Zhang"
-      ],
-      "authorsTotal": 11,
-      "abstract": "Neural networks encode learned capabilities in their weights, yet extending those capabilities with explicit task knowledge remains a fundamental challenge. Here we show that Weight-Space Programming (WSP), in which executable programs read, construct or modify a network's weights directly, can install new capabilities within trained neural networks. WeightCode, a WSP framework, uses a frozen language model to write executable weight programs that install new computations into trained neural networks using task knowledge and their existing weights, without gradient-based training. Once installed, the new capabilities run independently of the language model. Given a grammar or eight demonstrations, weight programs enable previously unseen command compositions (0% to 99.8% exact match) and a new pickup action (0% to 98.4% success), while preserving the original command and navigation capabilities. On ImageNet, four weight programs achieve net gains of 8.84-17.62 points while preserving clean accuracy, outperforming the best of eight fine-tuning methods under matched examples, checks, and retention constraints. In a Vision Transformer, causal interventions show that installed noise-correction gates drive robustness gains, while their selective activation preserves clean accuracy. Rerun on five independently trained Vision Transformers without further language model calls, ten weight programs retain 83-110% of their source-network gains on average, whereas copying their fixed weight edits yields negligible gains. Six programs written for an already edited network add 5.23-14.50 points of contrast robustness while retaining the previously installed noise gain. Together, these results establish WSP as a new route to acquiring and accumulating capabilities in trained neural networks through reusable weight programs.",
-      "published": "2026-11-19T04:04:29Z",
-      "primaryCategory": "cs.LG",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.25476",
-        "pdf": "https://arxiv.org/pdf/2611.25476"
-      },
-      "comment": "26 pages, 11 figures, including appendix. Code: https://github.com/Gen-Verse/WeightCode",
-      "titleZh": "WeightCode：通过权重空间编程为神经网络安装新能力",
-      "summaryZh": "已训练网络的能力固化在权重里，难以用显式任务知识扩展。WeightCode让冻结的语言模型直接读写目标网络的权重，生成可执行的「权重程序」把新计算安装进网络，全程不用梯度训练，安装后新能力脱离语言模型独立运行。命令组合任务中未见过的组合精确匹配从0%升到99.8%，新「抓取」动作成功率从0%升到98.4%，原有命令与导航能力保持不变；ImageNet上四个权重程序带来8.84–17.62点净增益，超过八种微调方法在同等样本与保持约束下的最佳结果。ViT上的因果干预显示鲁棒性提升来自安装的噪声校正门控，同一批程序还能跨五个独立训练的网络复用并保留83–110%的增益。",
-      "score": 7.5,
-      "reason": "权重空间编程新范式，免梯度安装能力且实验扎实"
-    },
-    {
-      "id": "2611.25363",
-      "title": "Stop Going in Circles:Loop-Triggered Routing for System 1 Decision Agents",
-      "authors": [
-        "Zeming Yu",
-        "Huamin Ma",
-        "Yingyu Chen",
-        "Yuan Sun",
-        "Peng Hu",
-        "Yang Qin"
-      ],
-      "authorsTotal": 6,
-      "abstract": "System 1 decision models (represented by Jev) provide fast, low-cost action selection, but existing agent integrations do not reliably translate these local advantages into task completion. At certain points during execution, an agent may repeatedly select the same actions without making progress toward its goal. LLM-based policies offer strong reasoning capabilities that support planning within an agent, but invoking them at every step incurs substantial overhead. The effective coordination should therefore preserve Jev's fast local action selection while introducing LLM reasoning when execution stalls. We observe that recurring state-action pairs can signal stalled execution. We therefore propose LoopRoute, a simple but effective action router that uses this signal to allocate control within an agent. The decision model acts by default. When a loop is detected, the LLM provides brief, feedback-driven assistance and then returns control to the decision model. Later loops can request further assistance. The rule requires neither additional training nor model-specific confidence calibration. Across three benchmarks and seven LLMs, LoopRoute improves task success over standalone Jev with only limited use of the LLM policy. The mean gains are 21.0%, 60.1%, and 30.1% on ALFWorld, MapReader, and TextWorld cooking, respectively. Compared with full LLM control, LoopRoute also substantially reduces the mean cumulative API time and API-call cost per task. The same rule also improves the success rates of six frozen decision models.",
-      "published": "2026-11-19T02:01:59Z",
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.25363",
-        "pdf": "https://arxiv.org/pdf/2611.25363"
-      },
-      "comment": "15 pages,3 figures",
-      "titleZh": "别再兜圈子：面向System 1决策智能体的循环触发路由",
-      "summaryZh": "System 1决策模型(如Jev)接入agent后常反复选择同一动作、任务停滞，而每步都调用LLM开销过大，两者难以兼顾。方法上以重复出现的状态-动作对作为停滞信号:默认由决策模型执行，检测到循环时才短暂调用LLM给出反馈式协助，随后交还控制权，后续可再次触发，无需额外训练与置信度校准。在ALFWorld、MapReader、TextWorld cooking三个基准、七个LLM上，成功率相对单独使用Jev平均提升21.0%、60.1%、30.1%，并显著降低每任务累计API时间与调用成本;同一规则也提升了六个冻结决策模型的成功率。",
-      "score": 7.5,
-      "reason": "Agent路由与循环检测，属agent scaffold方向的扎实工作"
-    },
-    {
-      "id": "2611.26346",
-      "title": "Context as a Resource",
-      "authors": [
-        "Xufei Tian",
-        "Han Hu",
-        "Wenli Du"
-      ],
-      "authorsTotal": 3,
-      "abstract": "Managing concurrent tasks across separate agent sessions quickly exhausts human attention, motivating always-on personal agents behind a single continuous interface. Yet when every context shares identical frozen backbone weights, funneling interleaved dialogues and external events into one linear session induces cross-topic constraint bleed and head-of-line stalling. Conversely, router-ticket hierarchies incur lossy prose handoffs, heavy routing overhead, and blind merges - collapsing true-conflict repository merges to a 33.3% three-run mean despite high isolated branch passes. Rather than scheduling anthropomorphic roles, we introduce ClonAct, a routerless architecture that virtualizes context blocks directly through a pluggable single-pass non-generative Context MMU, in-place Context Cells, a footprint-aware Synaptic Bus with an isolated trial merge gate, and a wave-flushed Shared Trunk. Across three programmatic multi-stream benchmarks and three model families, our portable trial merge gate lifts true-conflict merges to 63.3%, while ClonAct's routerless virtualization attains this ceiling with 45.9% fewer prompt tokens and prevents compact-model router collapse. Under continuous surge streams, ClonAct matches top completion (95.0%) with the lowest median wait and zero timed-out status checks.",
-      "published": "2026-11-19T16:19:56Z",
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.26346",
-        "pdf": "https://arxiv.org/pdf/2611.26346"
-      },
-      "comment": "27 pages, including appendices. Code: https://github.com/Viacol0916/ClonAct",
-      "titleZh": "上下文即资源",
-      "summaryZh": "常驻个人Agent要在一个连续界面里并发处理多路任务，若把交错对话与外部事件都塞进单一线性会话，就会出现跨主题约束串扰与队头阻塞；路由—票据式层级则带来有损的文本交接、路由开销与盲目合并，真冲突仓库合并三次运行均值仅33.3%。ClonAct改为无可路由架构，直接虚拟化上下文块：可插拔的单遍非生成式Context MMU、原地Context Cells、带隔离试合并闸门的足迹感知Synaptic Bus，以及波冲洗Shared Trunk。在三个多流基准与三个模型家族上，试合并闸门把真冲突合并提升到63.3%，ClonAct以减少45.9%的prompt token达到同一上限，并避免小模型路由崩塌；持续洪峰下完成率95.0%，中位等待最低且无超时状态检查。",
-      "score": 7,
-      "reason": "Agent上下文虚拟化与多流调度，方向命中但术语体系偏门"
-    },
-    {
-      "id": "2611.26342",
-      "title": "Training LLMs to Follow Reasoning Instructions with Minimal Edits",
-      "authors": [
-        "Alexandra Yakovleva",
-        "Luat Gia Khoi Nguyen",
-        "Juho Kannala",
-        "Harri Valpola",
-        "Alexander Ilin"
-      ],
-      "authorsTotal": 5,
-      "abstract": "Large language models increasingly rely on extended reasoning traces, yet the training signals used to shape this behavior remain coarse. Supervised fine-tuning on full trajectories forces the model to imitate an entire demonstration, overconstraining its output distribution, while trajectory-level reinforcement learning provides only weak credit assignment, rewarding or penalizing whole completions without identifying where they succeed or fail. We propose edit-based training, a general framework for learning from a model's own trajectories via localized textual corrections. Given a sampled completion, an editor identifies the first point of failure under a specified criterion and proposes a minimal replacement span. The model is then supervised only on these edited spans. By design, this concentrates supervision where the model's reasoning first breaks down and aims to preserve its existing reasoning patterns elsewhere. The method applies both offline and online, with the latter continually adapting supervision to the model's evolving failure modes. We instantiate this approach on reasoning instruction following with Qwen3-32B on the ReasonIF benchmark. Compared to full-trajectory imitation and trajectory-level reinforcement learning baselines, edit-based training substantially improves compliance with the reasoning instruction while largely preserving the model's skills on untargeted tasks. These results suggest that localized correction is an effective complement to these approaches for shaping how LLMs reason.",
-      "published": "2026-11-19T16:18:25Z",
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.26342",
-        "pdf": "https://arxiv.org/pdf/2611.26342"
-      },
-      "comment": "Accepted at the NeurIPS 2026 Workshop on Transitioning from Pre-training to Post-training",
-      "titleZh": "训练 LLM 以最小编辑遵循推理指令",
-      "summaryZh": "现有推理训练信号偏粗：全轨迹 SFT 迫使模型模仿整段示范、过度约束输出分布，轨迹级 RL 只在整条 completion 上给奖励、信用分配弱。提出基于编辑的训练框架：给定采样完成，编辑器按指定准则定位首个失败点并给出最小替换片段，模型只在这些片段上接受监督，把监督集中在推理首次出错处、保留其余已有模式；可离线或在线使用，在线版本随失败模式演化持续调整监督。在 ReasonIF 基准上用 Qwen3-32B 验证，相比全轨迹模仿与轨迹级 RL 基线显著提升推理指令遵循度，同时基本保留未定向任务的技能。",
-      "score": 7,
-      "reason": "后训练信用分配新框架，命中推理对齐方向"
-    },
-    {
-      "id": "2611.26336",
-      "title": "One Framework to Diagnose Them All: A Stratified Benchmark for Bengali LLM Hallucination",
-      "authors": [
-        "Asif Shahriyar Sushmit",
-        "Shefayat E Shams Adib",
-        "Abdullah Al Jubaer Gem",
-        "Ahmed Shafin Ruhan",
-        "MD. Nazmuddoha Ansary",
-        "Biplab Kumar Sarkar"
-      ],
-      "authorsTotal": 19,
-      "abstract": "Hallucination research in low-resource languages fragments easily: each newly named failure mode prompts its own dataset, spending scarce annotators on incomparable resources. We argue for consolidation and test it at community scale. Alikbachan is a Bengali hallucination-detection benchmark stratified along three crossed axes: a human-validated cultural-distance band, six task types, and a five-family, 32-mode hallucination taxonomy. It comprises a harvested 2,516-item test set (Phase 1) and a quota-constructed, gold-labeled 5,000-item set (Phase 2). The stratification is diagnostic. Four zero-shot LLM judges vary by over 30 macro-F1 points across strata, and the item-level predictions of 99 Phase-1 and 32 Phase-2 competition systems reproduce the profile: discourse-level omission defeats judges and most teams alike, whereas only a minority over-flag negative controls. The judges' verdict probabilities rank items well (ROC-AUC 0.74-0.95) but are overconfident (ECE 0.04-0.29). An open competition on Alikbachan drew 222 teams and 3,566 submissions, and a single-prompt 32B judge reaches the 57th percentile. Of the 25 teams in both phases, 24 regress on Phase 2 (mean $-17.6$ points) while every zero-shot judge improves, and Phase-1 rank barely predicts Phase-2 rank (Spearman $ρ=0.35$), so a Phase-1 leaderboard alone would have crowned a different winner.",
-      "published": "2026-11-19T16:15:38Z",
-      "primaryCategory": "cs.CL",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.26336",
-        "pdf": "https://arxiv.org/pdf/2611.26336"
-      },
-      "comment": "Accepted to Findings of the Association for Computational Linguistics: EACL 2027, 25 pages, 8 figures, 23 tables. Code: https://github.com/Alikbachan/Alikbachan | Data: https://huggingface.co/datasets/Alikbachan/Alikbachan | Competition: https://www.kaggle.com/competitions/bengali-hallucination/ | Project page: https://alikbachan.github.io",
-      "titleZh": "一个框架诊断所有：面向孟加拉语 LLM 幻觉的分层基准",
-      "summaryZh": "针对低资源语言幻觉研究数据集碎片化、标注不可比的问题，构建孟加拉语幻觉检测基准 Alikbachan，沿文化距离、六类任务与五族 32 种幻觉分类法三轴交叉分层，含 2516 条采集测试集与 5000 条配额构建的金标集。四个零样本 LLM 判官跨层 macro-F1 差异超 30 点，概率排序尚可（ROC-AUC 0.74–0.95）但明显过自信（ECE 0.04–0.29），语篇级遗漏是主要失败模式。竞赛吸引 222 支队伍、3566 次提交；同时参与两阶段的 25 支队伍中 24 支在第二阶段掉分（均值 −17.6），而零样本判官均有提升，第一阶段排名对第二阶段预测力很弱（Spearman ρ=0.35）。",
-      "score": 7,
-      "reason": "幻觉评测基准，含判官校准与跨阶段泛化分析，评测方法学方向扎实工作"
-    },
-    {
-      "id": "2611.26282",
-      "title": "What If Chain-of-Thought Is Not Enough?",
-      "authors": [
-        "Marc Jansen"
-      ],
-      "authorsTotal": 1,
-      "abstract": "Reasoning capabilities in large language models have evolved from prompting-based methods to internalized model behaviors. In this paper, we investigate whether the internal thinking model of an LLM can be deliberately changed and whether such a change is beneficial. Instead of relying on Chain-of-Thought, we train models to follow Question--Option--Criteria (QOC), a structured decision process that decomposes a task into explicit questions, competing options, and evaluation criteria. We present a three-generation development pipeline that ranges from a basic QOC decision core to richer answer synthesis and statistically enriched QOC reasoning. We then evaluate the resulting models with respect to both internal consistency and output quality. Across the reported experiments, QOC-based fine-tuning improves answer quality relative to non-fine-tuned base models and yields particularly strong gains once models are large enough to execute the underlying QOC computations reliably. The results suggest that the internal thinking model of an LLM is trainable and that structured alternatives to Chain-of-Thought can provide a promising path toward more reliable, interpretable, and task-adapted decision support.",
-      "published": "2026-11-19T15:43:51Z",
-      "primaryCategory": "cs.CL",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.26282",
-        "pdf": "https://arxiv.org/pdf/2611.26282"
-      },
-      "titleZh": "如果思维链还不够呢?",
-      "summaryZh": "针对思维链(CoT)提示难以内化为稳定模型行为的问题，该工作提出 Question–Option–Criteria(QOC)结构化决策过程，把任务拆成显式问题、候选选项与评估标准，并用三阶段生成式流水线训练模型:从基础 QOC 决策核心，到更丰富的答案综合，再到统计增强的 QOC 推理。评估兼顾内部一致性与输出质量，结果显示 QOC 微调相对未微调基座模型提升答案质量，且当模型规模足以可靠执行 QOC 计算时增益尤为明显。这说明 LLM 的内部思维模式可被训练改变，结构化替代 CoT 有望带来更可靠、可解释、贴合任务需求的决策支持。",
-      "score": 7,
-      "reason": "结构化推理替代 CoT 的后训练工作，方法清晰但实验细节有限"
     }
   ],
   "embodied": [
@@ -2091,6 +2088,31 @@
       "reason": "VLA物理推理基准，35K轨迹加三模型评测，命中具身评测方向"
     },
     {
+      "id": "2611.26519",
+      "title": "ACE-Brain-0.7: Learning Execution-Grounded Reasoning for Embodied Agents",
+      "authors": [
+        "Yinhe Wang",
+        "Shijun Shi",
+        "Feng Pan",
+        "Tao Tao",
+        "Wei Mao",
+        "Jiangning Zhang"
+      ],
+      "authorsTotal": 14,
+      "abstract": "Reliable reasoning for long-horizon embodied tasks requires predictions grounded in the observed execution state. We present ACE-Brain-0.7, a 9B vision--language model that combines spatial grounding, task understanding, and progress estimation. To train the model, we curate 3.7 million question--answer pairs, drawing execution supervision from egocentric human videos, robot episodes, and simulation. These questions span different stages of an execution and connect task-level judgments with observed progress and outcomes. We then fine-tune Qwen3.5-9B on this collection together with additional task, spatial-grounding, and progress-estimation data. Across six public task-reasoning benchmarks, ACE-Brain-0.7 achieves an average score of 76.5, ahead of GPT-6 Astra at 72.7 and Claude Opus 5.5 at 73.5. Our model also leads the evaluated models in spatial grounding, averaging 75.90 across seven benchmarks and reaching 91.25 Acc@0.5 on RefCOCOg. Controlled evaluations further indicate that our task-only model makes more effective use of visual history and more accurately distinguishes execution states. Together, these results show that ACE-Brain-0.7 effectively combines spatial perception with temporal understanding, delivering strong execution-grounded reasoning and comparing favorably with closed-source models.",
+      "published": "2026-11-19T17:59:37Z",
+      "primaryCategory": "cs.RO",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26519",
+        "pdf": "https://arxiv.org/pdf/2611.26519"
+      },
+      "track": "embodied",
+      "titleZh": "ACE-Brain-0.7:面向具身智能体的执行 grounded 推理学习",
+      "summaryZh": "长程具身任务要求模型的推理预测锚定在真实执行状态上，而现有 VLM 缺乏对执行进度的判断能力。工作构建 370 万问答对，监督信号取自第一视角人类视频、机器人 episode 与仿真，覆盖执行各阶段的任务理解、空间 grounding 与进度估计，并基于 Qwen3.5-9B 微调出 9B 模型 ACE-Brain-0.7。在六个公开任务推理基准上平均 76.5 分，超过 GPT-6 Astra 的 72.7 与 Claude Opus 5.5 的 73.5;七个空间 grounding 基准平均 75.90,RefCOCOg 上 Acc@0.5 达 91.25。受控实验显示仅训练任务数据的版本能更有效利用视觉历史、更准确区分执行状态，说明空间感知与时序理解可协同提升具身执行推理。",
+      "score": 8,
+      "reason": "VLA 式具身基础模型，执行 grounded 推理与进度估计，结果扎实"
+    },
+    {
       "id": "2611.26444",
       "title": "Mind2Act World: A Diagnostic Benchmark for Embodied Mind, Physical Action, and Mind-Action Composition in Robotic Manipulation",
       "authors": [
@@ -2141,6 +2163,32 @@
       "track": "embodied"
     },
     {
+      "id": "2611.26405",
+      "title": "TacInno: Teaching Vision-Language-Action Models the Contact Dynamics Beyond Vision and Action",
+      "authors": [
+        "Weile Li",
+        "Yunfan Lou",
+        "Muqing Shi",
+        "Zihao Zhang",
+        "Zhenbiao Huang",
+        "Boxian Yao"
+      ],
+      "authorsTotal": 8,
+      "abstract": "Vision-Language-Action (VLA) models have recently been equipped with tactile sensing to perceive visually subtle contact events in contact-rich manipulation. However, adding tactile input yields inconsistent gains, and some visuo-tactile VLA models rely little on tactile input, because much of the tactile change, such as the gel deformation during gripper closure, is predictable from visual observations and executed actions. To address this problem, we introduce TacInno, which isolates the contact dynamics that vision and executed actions cannot explain, termed tactile innovation, and uses tactile innovation only as a training target. Specifically, the TacInno tokenizer, conditioned on visual observations and executed actions, compresses the future tactile change into a discrete code, and the policy, TacInno-VLA, learns to predict the code, adding no module for the code at deployment. TacInno-VLA achieves average success rates of 87.5% across six simulation tasks and 70.5% across four real-world tasks, outperforming the strongest visuo-tactile baseline by 10.7 and 9.0 percentage points, respectively. Ablation studies validate the contributions of visual and action conditioning, multi-frame encoding, and auxiliary code prediction. Together, these results demonstrate the effectiveness of tactile innovation as a supervision signal for contact-rich manipulation.",
+      "published": "2026-11-19T16:53:19Z",
+      "primaryCategory": "cs.RO",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26405",
+        "pdf": "https://arxiv.org/pdf/2611.26405"
+      },
+      "comment": "11 pages, 4 figures, 4 tables. Project page: https://tacinno.github.io",
+      "track": "embodied",
+      "titleZh": "TacInno:教 VLA 模型理解视觉与动作之外的接触动力学",
+      "summaryZh": "视触觉 VLA 中触觉输入常带来不一致的增益，因为夹爪闭合时的凝胶形变等大部分触觉变化可由视觉观测与已执行动作预测。TacInno 以视觉观测和动作为条件，把未来触觉变化压缩为离散码，只将「视觉与动作无法解释的触觉残差」(触觉创新)作为训练目标，由策略 TacInno-VLA 预测该码，部署时不增加任何模块。方法在六个仿真任务上平均成功率达 87.5%，四个真机任务达 70.5%，分别超过最强视触觉基线 10.7 与 9.0 个百分点，消融验证了视觉与动作条件、多帧编码及辅助码预测的作用。该结果说明触觉创新可作为接触密集操作的有效监督信号，适用于视触觉 VLA 的后训练与表示学习。",
+      "score": 8,
+      "reason": "视触觉 VLA 训练方法，机制清晰且仿真真机均有验证"
+    },
+    {
       "id": "2611.26341",
       "title": "Reasoning on Call: Efficient Agentic Robot Control for Long-Horizon Robot Manipulation",
       "authors": [
@@ -2164,59 +2212,800 @@
       "summaryZh": "长程机器人操作中频繁调用多模态大模型带来显著延迟与 token 开销，难点在于判断何时需要智能体介入、错误应修正底层执行还是上层子任务规划。RoC 用在线任务状态监控器融合时序视觉观测与有序交互记忆，联合估计当前子任务进度并预测后继子任务，据此事件触发式唤醒高层推理，协同完成执行修复与计划修订，验证后的结果再驱动记忆更新与子任务切换，使常规执行留在低层策略、推理只用于需额外判断的决策。在 RMBench 上成功率较最强智能体基线提升 24.0 个百分点、token 消耗降低 65.3%，并比最强纯策略基线高 15.1 个百分点，三个真机长程任务亦验证其有效性。",
       "score": 8,
       "reason": "智能体与策略按需协同，命中具身智能体高效推理方向"
+    }
+  ],
+  "overflow": [
+    {
+      "id": "2611.26239",
+      "title": "Teaching Vision-Language-Action Models to Stop Safely",
+      "titleZh": "教 Vision-Language-Action 模型安全停止",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26239",
+        "pdf": "https://arxiv.org/pdf/2611.26239"
+      }
     },
     {
       "id": "2611.26196",
       "title": "EmbodyAgent: Post-Training Embodied VLM Agents via Distillation, SFT, and RL",
-      "authors": [
-        "Wei Dai",
-        "Jinkun Liu",
-        "Jiayi Chen",
-        "Han Liu",
-        "Wenbo Ding",
-        "Shaolun Huang"
-      ],
-      "authorsTotal": 6,
-      "abstract": "Vision-language models (VLMs) can act as closed-loop robot-use agents (RUAs) by writing and executing control code through tool interfaces. However, turning an open-weight VLM into a high-performing embodied agent requires a complete post-training stack: out-of-the-box open VLMs fail completely at interactive tool contracts, strong frontier teachers are accessible only as black-box endpoints without exposed weights or token probabilities, and supervised imitation alone plateaus under rollout distribution shift. We present EmbodyAgent, an end-to-end post-training framework with three tightly coupled pipelines: (1) a black-box data synthesis pipeline that queries a strong teacher under a forced think-then-code contract and filters trajectories by task success; (2) an SFT pipeline that distills the explanation-and-program targets into an open-weight 9B VLM with both vision and language encoders trainable; and (3) an online RL pipeline that optimizes student-generated episodes via group-relative advantage with a runtime-error-penalized outcome reward. All three pipelines share one primitive-free Python execution tool exposing only raw visual observation and seven-dimensional end-effector control, with no action decoder and no interface shift across stages. Under a strictly separated evaluation protocol on ten LIBERO Spatial tasks (disjoint state splits, greedy test-time decoding, training-only safeguards), held-out success on 100 test states rises from 0/100 (base 9B VLM) to 14/100 (after SFT) and 84/100 (after RL), while training rollout success climbs from 8.4% to 87.7% and median model calls per episode drop from 36 to 11. We further identify a self-reinforcing runtime-error mode induced by outcome-based RL on executable code, and establish a failure-category monitoring and sampling-side curation protocol that stabilizes training.",
-      "published": "2026-11-19T14:41:34Z",
+      "titleZh": "EmbodyAgent：通过蒸馏、SFT 与 RL 后训练具身 VLM 智能体",
+      "score": 8,
       "primaryCategory": "cs.RO",
+      "track": "embodied",
       "urls": {
         "abs": "https://arxiv.org/abs/2611.26196",
         "pdf": "https://arxiv.org/pdf/2611.26196"
-      },
-      "comment": "11 pages, 4 figures. Code-as-policy robot-use agent post-training",
-      "track": "embodied",
-      "titleZh": "EmbodyAgent：通过蒸馏、SFT 与 RL 后训练具身 VLM 智能体",
-      "summaryZh": "开放权重 VLM 靠写代码调用工具即可充当闭环机器人智能体，但基座模型在工具契约上直接失败，前沿教师只能黑盒调用，纯模仿在 rollout 分布漂移下饱和。EmbodyAgent 用三条流水线补齐：按「先思考再写代码」契约查询黑盒教师并按成功过滤轨迹，把解释与程序蒸馏进 9B VLM，再用组相对优势加运行时错误惩罚的结果奖励做在线 RL，三阶段共享同一 Python 执行工具（仅原始视觉观测与七维末端控制）。LIBERO Spatial 十个任务 100 个测试状态上成功率 0/100→14/100（SFT）→84/100（RL），单回合调用中位数 36→11，并识别出可执行代码上结果型 RL 的自强化运行时错误模式。",
-      "score": 8,
-      "reason": "code-as-policy 机器人智能体的完整后训练栈，正中具身智能体方向"
+      }
     },
     {
       "id": "2611.26161",
       "title": "One View, One Action: Spatially Generalizable VLAs through Observation-Aligned Experts and Cross Graph Consistency",
-      "authors": [
-        "Jinxi Liu",
-        "Ruifeng Zhai",
-        "Hao Liu",
-        "Guangrun Wang"
-      ],
-      "authorsTotal": 4,
-      "abstract": "Multi-view vision-language-action (VLA) models still face challenges in spatial generalization, particularly under changes in camera viewpoints and robot initial states. These models typically receive action supervision only in the robot base frame, requiring them to implicitly learn the spatial correspondence between observations from each view and base-frame actions. We propose One View, One Action (OVOA-VLA), which learns to predict actions in each view's camera frame, allowing the same physical motion to provide diverse, observation-aligned supervision across views. OVOA-VLA jointly trains a base-frame expert and view-specific action experts, whose robot-state inputs and action targets are expressed in their respective camera frames. Two complementary directed attention graphs model both directions of interaction between the base and view-specific experts, jointly leveraging view-specific action supervision to improve base-frame prediction. Cross Graph Consistency further encourages agreement between the two graphs' base-frame predictions for the same sample. With the same multi-view inputs, the model supports both full and base-only inference. Experiments across multiple simulation benchmarks demonstrate improved manipulation performance and robustness to camera-viewpoint and robot-initialization perturbations. Full and base-only inference achieve average success rates of 88.1% and 85.7% on LIBERO-Plus, respectively. In real-world evaluations, base-only inference raises the average success rates from $π_{0.5}$'s 28.3% to 58.3% across three tasks under spatial distribution shifts.",
-      "published": "2026-11-19T14:16:44Z",
+      "titleZh": "一视图，一动作：通过观测对齐专家与跨图一致性实现空间可泛化的 VLA",
+      "score": 8,
       "primaryCategory": "cs.RO",
+      "track": "embodied",
       "urls": {
         "abs": "https://arxiv.org/abs/2611.26161",
         "pdf": "https://arxiv.org/pdf/2611.26161"
-      },
-      "track": "embodied",
-      "titleZh": "一视图，一动作：通过观测对齐专家与跨图一致性实现空间可泛化的 VLA",
-      "summaryZh": "多视图 VLA 只在机器人基座坐标系下接受动作监督，模型必须隐式学习各视图观测与基座系动作之间的空间对应，导致相机视角与初始位姿变化时泛化困难。OVOA-VLA 改为在每个视图的相机坐标系下预测动作，使同一物理运动在各视图上提供观测对齐的多样监督；模型联合训练一个基座系专家与多个视图专属专家，并用两个互补的有向注意力图建模二者的双向交互，再由跨图一致性约束两图对同一样本的基座系预测趋于一致，支持完整多视图与仅基座两种推理。LIBERO-Plus 上两种推理平均成功率分别为 88.1% 与 85.7%，真机空间分布偏移下仅基座推理把 π0.5 的平均成功率从 28.3% 提升到 58.3%。",
+      }
+    },
+    {
+      "id": "2611.26105",
+      "title": "PhysVAM: Physics-oriented Future Value Action Model for Dynamic Object Manipulation",
+      "titleZh": "PhysVAM:面向动态物体操作的物理导向未来价值动作模型",
       "score": 8,
-      "reason": "VLA 训练与空间泛化机制有新意，真机增益明显"
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26105",
+        "pdf": "https://arxiv.org/pdf/2611.26105"
+      }
+    },
+    {
+      "id": "2611.26103",
+      "title": "UniVEP: Unifying Velocity and Endpoint Prediction for Robot Manipulation",
+      "titleZh": "UniVEP:统一速度与端点预测的机器人操作策略",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26103",
+        "pdf": "https://arxiv.org/pdf/2611.26103"
+      }
+    },
+    {
+      "id": "2611.25980",
+      "title": "Learning What Actions Change: Action Effect Matching for Dynamics-Faithful World Models",
+      "titleZh": "学习哪些动作带来变化:面向动力学忠实世界模型的动作效果匹配",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25980",
+        "pdf": "https://arxiv.org/pdf/2611.25980"
+      }
+    },
+    {
+      "id": "2611.25927",
+      "title": "Fast-JEPA: Advancing the Success-Latency Frontier for Latent World Models",
+      "titleZh": "Fast-JEPA：推进潜在世界模型的成功率-延迟前沿",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25927",
+        "pdf": "https://arxiv.org/pdf/2611.25927"
+      }
+    },
+    {
+      "id": "2611.25679",
+      "title": "LeCompass: Task-Level Execution through State-Indexed Interfaces",
+      "titleZh": "LeCompass：通过状态索引接口实现任务级执行",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25679",
+        "pdf": "https://arxiv.org/pdf/2611.25679"
+      }
+    },
+    {
+      "id": "2611.25656",
+      "title": "A$^2$-VLA: Adapting Vision-Language-Action Policies to New Tools through Agentic Affordance Discovery",
+      "titleZh": "A$^2$-VLA:通过智能体式可供性发现让视觉-语言-动作策略适配新工具",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25656",
+        "pdf": "https://arxiv.org/pdf/2611.25656"
+      }
+    },
+    {
+      "id": "2611.25460",
+      "title": "LoongForge-Embodied: A Unified Framework for Training Heterogeneous Embodied Models",
+      "titleZh": "LoongForge-Embodied:面向异构具身模型训练的统一框架",
+      "score": 8,
+      "primaryCategory": "cs.AI",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25460",
+        "pdf": "https://arxiv.org/pdf/2611.25460"
+      }
+    },
+    {
+      "id": "2611.26385",
+      "title": "Beyond the Sink Interpretation: Radial Attention in Flow-Based VLA Policies",
+      "titleZh": "超越「汇点」解释:流式 VLA 策略中的径向注意力",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26385",
+        "pdf": "https://arxiv.org/pdf/2611.26385"
+      }
+    },
+    {
+      "id": "2611.25777",
+      "title": "Hindsight Self-Distillation: Teaching Robots to Act from the Present",
+      "titleZh": "事后自蒸馏：教机器人从当下行动",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25777",
+        "pdf": "https://arxiv.org/pdf/2611.25777"
+      }
+    },
+    {
+      "id": "2611.25695",
+      "title": "DMT-Attack: Diffusion-Prior Texture Search for Closed-Loop Vision-Language-Action Policies",
+      "titleZh": "DMT-Attack:面向闭环视觉-语言-动作策略的扩散先验纹理搜索",
+      "score": 7.5,
+      "primaryCategory": "cs.AI",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25695",
+        "pdf": "https://arxiv.org/pdf/2611.25695"
+      }
+    },
+    {
+      "id": "2611.25667",
+      "title": "CauSyncVLA: Causal Latent World Modeling for Asynchronous Robot Control",
+      "titleZh": "CauSyncVLA：面向异步机器人控制的因果潜世界建模",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25667",
+        "pdf": "https://arxiv.org/pdf/2611.25667"
+      }
+    },
+    {
+      "id": "2611.25543",
+      "title": "Efficient Multimodal Agents for Auditing 3D Worlds",
+      "titleZh": "面向3D世界审计的高效多模态智能体",
+      "score": 7.5,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25543",
+        "pdf": "https://arxiv.org/pdf/2611.25543"
+      }
+    },
+    {
+      "id": "2611.25476",
+      "title": "WeightCode: Installing New Capabilities into Neural Networks via Weight-Space Programming",
+      "titleZh": "WeightCode：通过权重空间编程为神经网络安装新能力",
+      "score": 7.5,
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25476",
+        "pdf": "https://arxiv.org/pdf/2611.25476"
+      }
+    },
+    {
+      "id": "2611.25413",
+      "title": "WAMotor: Accelerating World Action Models via Speculative Inference under Dual Nonuniform Denoising Dynamics",
+      "titleZh": "WAMotor：在对偶非均匀去噪动力学下通过推测推理加速世界动作模型",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25413",
+        "pdf": "https://arxiv.org/pdf/2611.25413"
+      }
+    },
+    {
+      "id": "2611.25400",
+      "title": "Dune: A Zeroth-Order Optimizer with Time-Conditioned Historical Error Regression for VLA Test-Time Adaptation",
+      "titleZh": "Dune：面向VLA测试时自适应的带时间条件历史误差回归的零阶优化器",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25400",
+        "pdf": "https://arxiv.org/pdf/2611.25400"
+      }
+    },
+    {
+      "id": "2611.25366",
+      "title": "Learning to Move from and for Manipulation Policies: Spatializing Latent Action Representations for Goal-Pose-Free Mobile Manipulation",
+      "titleZh": "学习从操作策略中并为其而移动:将潜在动作表示空间化以实现无目标位姿的移动操作",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25366",
+        "pdf": "https://arxiv.org/pdf/2611.25366"
+      }
+    },
+    {
+      "id": "2611.25363",
+      "title": "Stop Going in Circles:Loop-Triggered Routing for System 1 Decision Agents",
+      "titleZh": "别再兜圈子：面向System 1决策智能体的循环触发路由",
+      "score": 7.5,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25363",
+        "pdf": "https://arxiv.org/pdf/2611.25363"
+      }
+    },
+    {
+      "id": "2611.26596",
+      "title": "PGX: Physically Grounded Execution for Long-Horizon Humanoid Loco-Manipulation",
+      "titleZh": "PGX：面向长程人形移动操作的物理落地执行框架",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26596",
+        "pdf": "https://arxiv.org/pdf/2611.26596"
+      }
+    },
+    {
+      "id": "2611.26590",
+      "title": "Probing the \"Conscious\" Mind: Selective Access and Global Workspace in Vision-Language Models",
+      "titleZh": "探查「意识」心智:视觉语言模型中的选择性访问与全局工作区",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26590",
+        "pdf": "https://arxiv.org/pdf/2611.26590"
+      }
+    },
+    {
+      "id": "2611.26557",
+      "title": "MM-SystemOneBias: Evaluating Bias in Multimodal Jev-Style System One Decision Models",
+      "titleZh": "MM-SystemOneBias：评估多模态 Jev 风格系统 1 决策模型中的偏差",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26557",
+        "pdf": "https://arxiv.org/pdf/2611.26557"
+      }
+    },
+    {
+      "id": "2611.26503",
+      "title": "JARVIS: An Agent That Designs, Builds, and Tests Circuit Boards on Its Own",
+      "titleZh": "JARVIS：一个自主设计、构建和测试电路板的智能体",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26503",
+        "pdf": "https://arxiv.org/pdf/2611.26503"
+      }
+    },
+    {
+      "id": "2611.26346",
+      "title": "Context as a Resource",
+      "titleZh": "上下文即资源",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26346",
+        "pdf": "https://arxiv.org/pdf/2611.26346"
+      }
+    },
+    {
+      "id": "2611.26342",
+      "title": "Training LLMs to Follow Reasoning Instructions with Minimal Edits",
+      "titleZh": "训练 LLM 以最小编辑遵循推理指令",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26342",
+        "pdf": "https://arxiv.org/pdf/2611.26342"
+      }
+    },
+    {
+      "id": "2611.26336",
+      "title": "One Framework to Diagnose Them All: A Stratified Benchmark for Bengali LLM Hallucination",
+      "titleZh": "一个框架诊断所有：面向孟加拉语 LLM 幻觉的分层基准",
+      "score": 7,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26336",
+        "pdf": "https://arxiv.org/pdf/2611.26336"
+      }
+    },
+    {
+      "id": "2611.26282",
+      "title": "What If Chain-of-Thought Is Not Enough?",
+      "titleZh": "如果思维链还不够呢?",
+      "score": 7,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26282",
+        "pdf": "https://arxiv.org/pdf/2611.26282"
+      }
+    },
+    {
+      "id": "2611.26228",
+      "title": "Attention Head Specialization: Phase Transitions in Sample Complexity",
+      "titleZh": "注意力头特化：样本复杂度中的相变",
+      "score": 7,
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26228",
+        "pdf": "https://arxiv.org/pdf/2611.26228"
+      }
+    },
+    {
+      "id": "2611.26046",
+      "title": "Agentic Scaling of Embodied Tasks in Simulation for Synthetic Data Collection and Policy Evaluation",
+      "titleZh": "面向合成数据采集与策略评估的仿真具身任务智能体化扩展",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26046",
+        "pdf": "https://arxiv.org/pdf/2611.26046"
+      }
+    },
+    {
+      "id": "2611.26024",
+      "title": "ForeSeek: Foresight-Driven Reasoning for Long-Form Video Understanding",
+      "titleZh": "ForeSeek:面向长视频理解的前瞻驱动推理",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.26024",
+        "pdf": "https://arxiv.org/pdf/2611.26024"
+      }
+    },
+    {
+      "id": "2611.25926",
+      "title": "ROAM-GRPO: Enforcing Reasoning Diversity in GRPO via Routed Off-mode Approach Mining",
+      "titleZh": "ROAM-GRPO:通过路由式离模式方法挖掘在GRPO中强制推理多样性",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25926",
+        "pdf": "https://arxiv.org/pdf/2611.25926"
+      }
+    },
+    {
+      "id": "2611.25905",
+      "title": "Validation-driven Deployment of LLM Inference Platforms for Agentic Workloads",
+      "titleZh": "以验证为驱动的 Agentic 负载 LLM 推理平台部署",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25905",
+        "pdf": "https://arxiv.org/pdf/2611.25905"
+      }
+    },
+    {
+      "id": "2611.25896",
+      "title": "The Price of an Explanation: What Demanding Verifiable Artifacts Costs, and What It Buys Back",
+      "titleZh": "解释的代价：要求可验证产物要付出什么，又能换回什么",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25896",
+        "pdf": "https://arxiv.org/pdf/2611.25896"
+      }
+    },
+    {
+      "id": "2611.25891",
+      "title": "Meta-RTL: Evolving Agent Harnesses for RTL Optimization",
+      "titleZh": "Meta-RTL:为 RTL 优化演化 Agent Harness",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25891",
+        "pdf": "https://arxiv.org/pdf/2611.25891"
+      }
+    },
+    {
+      "id": "2611.25855",
+      "title": "HabitusMem: Belief Memory over Evolving User Preferences for LLM Agents",
+      "titleZh": "HabitusMem:面向演化用户偏好的 LLM Agent 信念记忆",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25855",
+        "pdf": "https://arxiv.org/pdf/2611.25855"
+      }
+    },
+    {
+      "id": "2611.25845",
+      "title": "LINEAGE: A Benchmark for Empirical Lineage Retrieval in AI Scientific Literature",
+      "titleZh": "LINEAGE：AI 科学文献中实证谱系检索的基准",
+      "score": 7,
+      "primaryCategory": "cs.IR",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25845",
+        "pdf": "https://arxiv.org/pdf/2611.25845"
+      }
+    },
+    {
+      "id": "2611.25735",
+      "title": "PosteriorBench: Evaluating Behavior Posterior Sampling in Language Models",
+      "titleZh": "PosteriorBench：评测语言模型中的行为后验采样",
+      "score": 7,
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25735",
+        "pdf": "https://arxiv.org/pdf/2611.25735"
+      }
+    },
+    {
+      "id": "2611.25671",
+      "title": "LATER: Learning Action-Conditioned Temporal Evidence Retrieval for Predictive World Models",
+      "titleZh": "LATER:学习动作条件的时间证据检索，用于预测性世界模型",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25671",
+        "pdf": "https://arxiv.org/pdf/2611.25671"
+      }
+    },
+    {
+      "id": "2611.25614",
+      "title": "Don't Lose the Future: Latent-Aware 4-Bit Quantization of World Action Models",
+      "titleZh": "不要丢失未来：世界动作模型的潜在感知4比特量化",
+      "score": 7,
+      "primaryCategory": "cs.AI",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25614",
+        "pdf": "https://arxiv.org/pdf/2611.25614"
+      }
+    },
+    {
+      "id": "2611.25594",
+      "title": "Bradley-Terry Training Can Distort Outcome Probabilities of Initially Accurate Language World Models",
+      "titleZh": "Bradley-Terry训练可能扭曲初始准确的语言世界模型的结果概率",
+      "score": 7,
+      "primaryCategory": "cs.LG",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25594",
+        "pdf": "https://arxiv.org/pdf/2611.25594"
+      }
+    },
+    {
+      "id": "2611.25575",
+      "title": "Trajectory-Calibrated Merging of Embodied Policies",
+      "titleZh": "轨迹校准的具身策略合并",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25575",
+        "pdf": "https://arxiv.org/pdf/2611.25575"
+      }
+    },
+    {
+      "id": "2611.25526",
+      "title": "MATE: Mobile Agent Trustworthy Execution for Safe and Efficient Mobile Control",
+      "titleZh": "MATE：面向安全高效移动控制的移动智能体可信执行",
+      "score": 7,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25526",
+        "pdf": "https://arxiv.org/pdf/2611.25526"
+      }
+    },
+    {
+      "id": "2611.25408",
+      "title": "FG-GraphBench: Benchmarking and Enhancing Fine-Grained Visual Understanding with Multimodal Scene Graphs",
+      "titleZh": "FG-GraphBench：用多模态场景图评测并增强细粒度视觉理解",
+      "score": 7,
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25408",
+        "pdf": "https://arxiv.org/pdf/2611.25408"
+      }
+    },
+    {
+      "id": "2611.25407",
+      "title": "ChronoDossier: Long-Form Personas as Temporal Memory Representations",
+      "titleZh": "ChronoDossier：将长篇人物画像作为时间记忆表示",
+      "score": 7,
+      "primaryCategory": "cs.CL",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25407",
+        "pdf": "https://arxiv.org/pdf/2611.25407"
+      }
+    },
+    {
+      "id": "2611.25336",
+      "title": "MoRE: Mixture-of-Experts for Multi-Physics Robotic World Models",
+      "titleZh": "MoRE：面向多物理机器人世界模型的专家混合",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25336",
+        "pdf": "https://arxiv.org/pdf/2611.25336"
+      }
     }
   ],
+  "scores": {
+    "main": {
+      "2611.25311": 2,
+      "2611.25314": 6.5,
+      "2611.25320": 2,
+      "2611.25325": 6,
+      "2611.25327": 3,
+      "2611.25342": 3,
+      "2611.25361": 5,
+      "2611.25363": 7.5,
+      "2611.25385": 2,
+      "2611.25388": 5,
+      "2611.25393": 5,
+      "2611.25396": 2,
+      "2611.25403": 3,
+      "2611.25404": 6,
+      "2611.25407": 7,
+      "2611.25408": 7,
+      "2611.25422": 3,
+      "2611.25424": 2,
+      "2611.25430": 6,
+      "2611.25446": 6,
+      "2611.25450": 1,
+      "2611.25452": 2,
+      "2611.25459": 6,
+      "2611.25463": 6,
+      "2611.25476": 7.5,
+      "2611.25489": 3,
+      "2611.25492": 6,
+      "2611.25502": 3,
+      "2611.25514": 2,
+      "2611.25521": 4,
+      "2611.25526": 7,
+      "2611.25527": 3,
+      "2611.25530": 3,
+      "2611.25531": 3,
+      "2611.25538": 6,
+      "2611.25539": 6,
+      "2611.25543": 7.5,
+      "2611.25557": 6.5,
+      "2611.25560": 6.5,
+      "2611.25566": 6.5,
+      "2611.25570": 4,
+      "2611.25577": 3,
+      "2611.25586": 3,
+      "2611.25590": 5,
+      "2611.25592": 3,
+      "2611.25603": 2,
+      "2611.25605": 6,
+      "2611.25606": 4,
+      "2611.25607": 2,
+      "2611.25613": 5.5,
+      "2611.25619": 4,
+      "2611.25624": 4,
+      "2611.25625": 2,
+      "2611.25629": 2,
+      "2611.25643": 3,
+      "2611.25644": 5,
+      "2611.25650": 2,
+      "2611.25651": 3,
+      "2611.25652": 1,
+      "2611.25653": 5,
+      "2611.25658": 6,
+      "2611.25669": 5.5,
+      "2611.25681": 2,
+      "2611.25682": 3,
+      "2611.25692": 3,
+      "2611.25703": 4,
+      "2611.25721": 6,
+      "2611.25733": 4,
+      "2611.25735": 7,
+      "2611.25742": 5,
+      "2611.25745": 5,
+      "2611.25754": 4,
+      "2611.25763": 3,
+      "2611.25765": 3,
+      "2611.25796": 4,
+      "2611.25808": 4,
+      "2611.25811": 2,
+      "2611.25818": 6.5,
+      "2611.25826": 3,
+      "2611.25831": 2,
+      "2611.25839": 4.5,
+      "2611.25841": 3,
+      "2611.25845": 7,
+      "2611.25848": 3,
+      "2611.25853": 5,
+      "2611.25855": 7,
+      "2611.25862": 3,
+      "2611.25868": 5.5,
+      "2611.25870": 3,
+      "2611.25874": 2,
+      "2611.25879": 2,
+      "2611.25884": 3,
+      "2611.25891": 7,
+      "2611.25894": 2,
+      "2611.25895": 2,
+      "2611.25896": 7,
+      "2611.25898": 6,
+      "2611.25905": 7,
+      "2611.25909": 3,
+      "2611.25916": 6.5,
+      "2611.25917": 1,
+      "2611.25921": 2,
+      "2611.25926": 7,
+      "2611.25942": 3,
+      "2611.25950": 1,
+      "2611.25955": 6,
+      "2611.25965": 3,
+      "2611.25970": 4,
+      "2611.25976": 3,
+      "2611.25986": 3,
+      "2611.25991": 1,
+      "2611.25998": 2,
+      "2611.26000": 1,
+      "2611.26003": 5.5,
+      "2611.26009": 6.5,
+      "2611.26012": 4,
+      "2611.26018": 6,
+      "2611.26024": 7,
+      "2611.26029": 3,
+      "2611.26030": 2,
+      "2611.26033": 4,
+      "2611.26050": 3,
+      "2611.26055": 3,
+      "2611.26060": 2,
+      "2611.26081": 5.5,
+      "2611.26095": 3,
+      "2611.26096": 5,
+      "2611.26101": 4,
+      "2611.26104": 4,
+      "2611.26108": 5,
+      "2611.26109": 3,
+      "2611.26114": 2,
+      "2611.26183": 1,
+      "2611.26187": 4,
+      "2611.26201": 3,
+      "2611.26216": 5,
+      "2611.26228": 7,
+      "2611.26232": 2,
+      "2611.26235": 3,
+      "2611.26252": 3,
+      "2611.26255": 3,
+      "2611.26256": 6.5,
+      "2611.26261": 2,
+      "2611.26275": 2,
+      "2611.26282": 7,
+      "2611.26286": 6,
+      "2611.26309": 5,
+      "2611.26317": 2,
+      "2611.26319": 3,
+      "2611.26323": 2,
+      "2611.26332": 5,
+      "2611.26333": 5,
+      "2611.26336": 7,
+      "2611.26339": 6,
+      "2611.26342": 7,
+      "2611.26346": 7,
+      "2611.26351": 2,
+      "2611.26355": 4,
+      "2611.26359": 2,
+      "2611.26366": 3,
+      "2611.26369": 2,
+      "2611.26383": 3,
+      "2611.26384": 3,
+      "2611.26398": 4,
+      "2611.26419": 2,
+      "2611.26422": 3,
+      "2611.26440": 4,
+      "2611.26463": 3,
+      "2611.26464": 2,
+      "2611.26475": 6,
+      "2611.26476": 4,
+      "2611.26491": 5,
+      "2611.26492": 4,
+      "2611.26504": 2,
+      "2611.26514": 4,
+      "2611.26521": 3,
+      "2611.26531": 5,
+      "2611.26538": 6,
+      "2611.26545": 6,
+      "2611.26557": 7,
+      "2611.26586": 2,
+      "2611.26588": 3,
+      "2611.26590": 7,
+      "2611.26598": 2,
+      "2611.26607": 2,
+      "2611.26624": 5
+    },
+    "embodied": {
+      "2611.25336": 7,
+      "2611.25366": 7.5,
+      "2611.25373": 1,
+      "2611.25398": 6.5,
+      "2611.25400": 7.5,
+      "2611.25413": 7.5,
+      "2611.25415": 6.5,
+      "2611.25445": 2,
+      "2611.25460": 8,
+      "2611.25462": 3,
+      "2611.25480": 3,
+      "2611.25558": 3,
+      "2611.25568": 4,
+      "2611.25575": 7,
+      "2611.25587": 6.5,
+      "2611.25589": 5,
+      "2611.25594": 7,
+      "2611.25604": 3,
+      "2611.25614": 7,
+      "2611.25637": 5,
+      "2611.25656": 8,
+      "2611.25665": 1,
+      "2611.25667": 7.5,
+      "2611.25671": 7,
+      "2611.25679": 8,
+      "2611.25683": 6,
+      "2611.25695": 7.5,
+      "2611.25725": 1,
+      "2611.25777": 7.5,
+      "2611.25778": 5,
+      "2611.25788": 3,
+      "2611.25798": 2,
+      "2611.25854": 2,
+      "2611.25866": 6.5,
+      "2611.25904": 1,
+      "2611.25927": 8,
+      "2611.25958": 2,
+      "2611.25980": 8,
+      "2611.26031": 2,
+      "2611.26046": 7,
+      "2611.26048": 2,
+      "2611.26054": 3,
+      "2611.26074": 2,
+      "2611.26083": 3,
+      "2611.26090": 4,
+      "2611.26103": 8,
+      "2611.26105": 8,
+      "2611.26127": 5,
+      "2611.26146": 3,
+      "2611.26161": 8,
+      "2611.26167": 2,
+      "2611.26196": 8,
+      "2611.26239": 8,
+      "2611.26242": 3,
+      "2611.26276": 2,
+      "2611.26293": 3,
+      "2611.26302": 2,
+      "2611.26313": 4,
+      "2611.26350": 5,
+      "2611.26385": 7.5,
+      "2611.26390": 3,
+      "2611.26485": 3,
+      "2611.26503": 7,
+      "2611.26596": 7,
+      "2611.26600": 2
+    }
+  },
   "pool": {
-    "main": 50,
-    "embodied": 10
+    "main": 236,
+    "embodied": 75
   }
 }
