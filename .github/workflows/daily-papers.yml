@@ -43,8 +43,13 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
+      # 显式取最新的 main:schedule 运行默认检出「触发那一刻」的提交,
+      # 兜底 schedule 晚 7–8 小时后常和准点那轮撞在一起,排队等完再跑时那个提交已经过时,
+      # 提交后 push 会被拒(2026-11-18 的失败就是这样)
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: main
 
       - name: Setup Python
         uses: actions/setup-python@v7
@@ -106,7 +111,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add content/papers
           git commit -m "content: 论文速递更新至 $DIGEST_DATE"
-          git push
+          # 运行期间 main 有新提交(比如手动 push)时,变基到最新再推一次
+          git push || { git pull --rebase origin main && git push; }
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       # GITHUB_TOKEN 的 push 不会触发其他 workflow(GitHub 防递归),

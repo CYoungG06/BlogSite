@@ -64,12 +64,17 @@ jobs:
           path: out
           include-hidden-files: true
 
-      # deploy-pages 偶发 "Timeout reached, aborting!"(Pages 侧抖动,产物本身没问题):
-      # 首次失败不立刻判死,用同一份产物重试一次
+      # deploy-pages 偶发 "Timeout reached, aborting!" 或刚上传的产物查不到
+      # ("No artifacts named github-pages were found"),都是 GitHub 侧抖动,产物本身没问题:
+      # 首次失败不立刻判死,等一会儿再用同一份产物重试一次(立刻重试会撞上同一个问题)
       - name: Deploy to GitHub Pages
         id: deployment
         continue-on-error: true
         uses: actions/deploy-pages@v5
+
+      - name: Wait before retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 60
 
       - name: Retry deploy
         id: deployment_retry
