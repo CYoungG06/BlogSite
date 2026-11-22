@@ -822,7 +822,7 @@
     }
   ],
   "arxivStatus": "complete",
-  "generatedAt": "2026-11-22T10:05:21.875098+00:00",
+  "generatedAt": "2026-11-22T17:49:01.545244+00:00",
   "arxiv": [
     {
       "id": "2611.25191",
@@ -2103,6 +2103,29 @@
       "reason": "具身智能体安全的系统性黑盒评测，规模大、方法清晰"
     },
     {
+      "id": "2611.23855",
+      "title": "RoboBuilder: Agentic Robot Co-Design with Real-world Video Feedback in the Loop",
+      "authors": [
+        "Ghadi Nehme",
+        "Dahyun Nam",
+        "Akshay Govind Srinivasan",
+        "Faez Ahmed"
+      ],
+      "authorsTotal": 4,
+      "abstract": "Can AI agents design robots that work in the real world? We introduce RoboBuilder, a benchmark in which coding agents co-design a robot's hardware and program from standard parts, motors and a custom 3D-printed part, and every design that passes in simulation is built and tested on a physical course. Simulation alone is not enough: under public part data, none of 15 initial passing designs crossed the real course, so an agent learns the simulator from measurements it requests and videos of real runs. Across four frontier coding agents, ten obstacles at three difficulty levels, 16,427 simulations of 12,774 distinct robots and 135 physical robots built in an estimated 240 hours, agents solve nearly all easy obstacles and invent mechanisms our search baselines do not reach, but falter at harder levels, when one robot must cross every obstacle, and in the real world, where 66% of simulated passes hold across all levels. Closing the loop helps: shown a video of its real failure, an agent redesigns the robot, sometimes correcting its simulator, and removes 72% of level-1 and level-2 failures. RoboBuilder measures progress toward agents that engineer real machines. Project Page: https://ghadinehme.com/robobuilder.github.io/",
+      "published": "2026-11-18T05:02:07Z",
+      "primaryCategory": "cs.AI",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23855",
+        "pdf": "https://arxiv.org/pdf/2611.23855"
+      },
+      "track": "embodied",
+      "titleZh": "RoboBuilder：以真实视频反馈闭环的智能体机器人协同设计",
+      "summaryZh": "考察编码智能体能否从标准零件、电机与一个 3D 打印件出发，同时设计机器人硬件与控制程序，并把仿真通过的设计真实搭建、在实体赛道上跑通。基准设 10 个障碍、3 个难度，4 个前沿编码智能体完成 16,427 次仿真（覆盖 12,774 个不同机器人）、实建 135 台机器；仅用公开零件数据时，15 个仿真通过的设计无一能过真实赛道，智能体改为主动请求测量、观看真机运行视频来学习仿真器。简单障碍几乎全解，并出现搜索基线未达的机构，但高难度、单机通全关与真机下明显退化（仿真通过仅 66% 在真机成立）；回灌真机失败视频后，智能体重设计机器人并可修正仿真器，消除 72% 的一二级失败。",
+      "score": 9,
+      "reason": "智能体写代码设计并实建机器人、以真机视频闭环纠错，直接命中具身智能体与评测方向"
+    },
+    {
       "id": "2611.23803",
       "title": "CoT-WAM: Collaborative Training of Vision-Language Models and World-Action Models via Plan Latents",
       "authors": [
@@ -2202,318 +2225,564 @@
       "summaryZh": "解决人形 VLA 用 RL 后训练时真机探索不安全、仿真 RL 又会利用残余 sim-to-real 差距的问题。在动作条件视频世界模型中做后训练：先用仿真操作与运动 play 数据提升接触动力学与视角变化预测，再用合成示范训练的 VLA 在每项任务上采集 20 条真机自主 rollout，把世界模型对齐到部署观测，随后将 VLA、全身控制器（WBC）与视频世界模型组成带稠密进度奖励的闭环 RL 环境。三项真机任务上，play 数据提升了全部世界模型指标与下游策略成功率，视频世界模型 RL 把平均成功率从 23.3% 提升到 75.0%，真机 RL 为 48.3%。仿真负责策略初始化与覆盖广度，视频世界模型提供与部署对齐的策略改进环境。",
       "score": 8,
       "reason": "VLA 后训练与世界模型 RL 结合，直接命中两个高分方向"
-    },
-    {
-      "id": "2611.25243",
-      "title": "Verify2Act: Critic-Guided Latent World Models for Verifying Language-Conditioned Manipulation Plans",
-      "authors": [
-        "Chrisantus Eze",
-        "Christopher Crick"
-      ],
-      "authorsTotal": 2,
-      "abstract": "Vision-Language Models (VLMs) can propose multi-step manipulation plans, but they have no grounded model of how a scene will change, and the pixel-level world models that could check those plans are slow and drift over long horizons. We present Verify2Act, a modular verification framework that separates semantic action proposal from latent physical verification. A VLM proposes candidate plans, a latent world model (V2A-WM) imagines each of them in the DINOv2 feature space, and a dual-head critic checks the imagined rollouts for temporal consistency and goal satisfaction before anything is executed. V2A-WM extends recent flow-matching world models with cross-attention action grounding and a causal temporal history window. We deploy the full system on a low-cost robot arm, training the world model and critic only on data generated in a digital twin. Across six language-conditioned tasks, Verify2Act reaches 83.3\\% task success, compared with 61.7\\% for a latent world model without our architectural changes, 53.3\\% for the VLM alone, and 46.7\\% for a pixel-diffusion world model. It verified every plan it executed and incurred no planning-induced failures: all of its failed episodes were caused by low-level grasp or placement slips. In simulation, Verify2Act obtains the highest five-task chain success on CALVIN among the compared baselines with 30$\\times$ fewer reflective VLM calls than pixel-diffusion verification, and the highest success on cluttered nut assembly.",
-      "published": "2026-11-18T22:22:00Z",
-      "primaryCategory": "cs.RO",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.25243",
-        "pdf": "https://arxiv.org/pdf/2611.25243"
-      },
-      "track": "embodied",
-      "titleZh": "Verify2Act：评论家引导的潜在世界模型，用于验证语言条件操作计划",
-      "summaryZh": "VLM 能提出多步操作计划，却缺乏对场景将如何变化的理解，像素级世界模型验证又慢且长程漂移。Verify2Act 把语义动作提议与潜在物理验证分离：VLM 生成候选计划，V2A-WM 在 DINOv2 特征空间中以 cross-attention 动作接地与因果时序历史窗口想象 rollout，双头 critic 在执行前检查时序一致性与目标达成。六个语言条件任务上，真机成功率达 83.3%，高于去掉架构改动的潜在世界模型 61.7%、纯 VLM 53.3% 与像素扩散世界模型 46.7%，且世界模型与 critic 仅用数字孪生数据训练；CALVIN 五任务链成功率最高，反射式 VLM 调用比像素扩散验证少 30 倍。",
-      "score": 8,
-      "reason": "潜在世界模型做计划验证，命中世界模型与具身智能体方向，真机与 CALVIN 结果扎实"
     }
   ],
   "overflow": [
     {
-      "id": "2611.25215",
-      "title": "Bridging vision-language reasoning and learned control for legged navigation in the wild",
-      "titleZh": "连接视觉-语言推理与学习控制:实现野外足式机器人导航",
+      "id": "2611.25243",
+      "title": "Verify2Act: Critic-Guided Latent World Models for Verifying Language-Conditioned Manipulation Plans",
+      "titleZh": "Verify2Act：评论家引导的潜在世界模型，用于验证语言条件操作计划",
       "score": 8,
       "primaryCategory": "cs.RO",
       "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.25215",
-        "pdf": "https://arxiv.org/pdf/2611.25215"
+        "abs": "https://arxiv.org/abs/2611.25243",
+        "pdf": "https://arxiv.org/pdf/2611.25243"
       }
     },
     {
-      "id": "2611.24925",
-      "title": "Render the Robot, Generate the World: One Video World Model Across Embodiments",
-      "titleZh": "渲染机器人，生成世界：一个跨本体的视频世界模型",
+      "id": "2611.24926",
+      "title": "Grana: Compositional Reward Modeling for Long-Horizon Robot Manipulation",
+      "titleZh": "Grana：面向长时程机器人操作的可组合奖励建模",
       "score": 8,
       "primaryCategory": "cs.RO",
       "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.24925",
-        "pdf": "https://arxiv.org/pdf/2611.24925"
+        "abs": "https://arxiv.org/abs/2611.24926",
+        "pdf": "https://arxiv.org/pdf/2611.24926"
       }
     },
     {
-      "id": "2611.24836",
-      "title": "DiWALI: Diffusion Policy Learning in World Models via Latent Action Inference from Human and Robot Play",
-      "titleZh": "DiWALI：通过从人类与机器人游玩数据中推断潜在动作，在世界模型中进行扩散策略学习",
+      "id": "2611.24708",
+      "title": "F$^3$: What Makes Good Experience in World-Action Models?",
+      "titleZh": "F$^3$:世界-动作模型中什么样的经验才是好的?",
+      "score": 8,
+      "primaryCategory": "cs.AI",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.24708",
+        "pdf": "https://arxiv.org/pdf/2611.24708"
+      }
+    },
+    {
+      "id": "2611.24585",
+      "title": "SHAPE: Discrete Supervision and Parallel Continuous Streams for Learning Dexterous Manipulation from Egocentric Human Data",
+      "titleZh": "SHAPE：以离散监督与并行连续流从第一视角人类数据学习灵巧操作",
       "score": 8,
       "primaryCategory": "cs.RO",
       "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.24836",
-        "pdf": "https://arxiv.org/pdf/2611.24836"
+        "abs": "https://arxiv.org/abs/2611.24585",
+        "pdf": "https://arxiv.org/pdf/2611.24585"
       }
     },
     {
-      "id": "2611.24816",
-      "title": "RoboMorpher: Scaling Robot Morphology Representations for Cross-Embodiment Action Prediction",
-      "titleZh": "RoboMorpher：扩展机器人形态表示以实现跨本体动作预测",
+      "id": "2611.24482",
+      "title": "Latent Action Policies from Suboptimal Data",
+      "titleZh": "从次优数据中学习潜在动作策略",
+      "score": 8,
+      "primaryCategory": "cs.LG",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.24482",
+        "pdf": "https://arxiv.org/pdf/2611.24482"
+      }
+    },
+    {
+      "id": "2611.24455",
+      "title": "Homeward: No Place Like the Training View",
+      "titleZh": "Homeward：没有比训练视角更亲切的地方",
       "score": 8,
       "primaryCategory": "cs.RO",
       "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.24816",
-        "pdf": "https://arxiv.org/pdf/2611.24816"
+        "abs": "https://arxiv.org/abs/2611.24455",
+        "pdf": "https://arxiv.org/pdf/2611.24455"
       }
     },
     {
-      "id": "2611.24321",
-      "title": "Benchmarking LLM abilities on postdoc-level natural science problems",
-      "titleZh": "评估LLM在博士后级自然科学问题上的能力基准",
-      "score": 7.5,
+      "id": "2611.24115",
+      "title": "Embodied Graph: A Relational World Model for Long-Horizon Tasks",
+      "titleZh": "Embodied Graph:面向长时程任务的关系型世界模型",
+      "score": 8,
       "primaryCategory": "cs.AI",
+      "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.24321",
-        "pdf": "https://arxiv.org/pdf/2611.24321"
+        "abs": "https://arxiv.org/abs/2611.24115",
+        "pdf": "https://arxiv.org/pdf/2611.24115"
       }
     },
     {
-      "id": "2611.24294",
-      "title": "KnowledgeClaw: Towards Agentic Knowledge Engineering via Omnimodal Hypergraphs",
-      "titleZh": "KnowledgeClaw:迈向基于全模态超图的智能体化知识工程",
-      "score": 7.5,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.24294",
-        "pdf": "https://arxiv.org/pdf/2611.24294"
-      }
-    },
-    {
-      "id": "2611.24004",
-      "title": "Space-X: Self-Evolving Spatial Agents Weaving Clues into Evidence Chains",
-      "titleZh": "Space-X：将线索编织为证据链的自演化空间智能体",
-      "score": 7.5,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.24004",
-        "pdf": "https://arxiv.org/pdf/2611.24004"
-      }
-    },
-    {
-      "id": "2611.23910",
-      "title": "MLE Agents: Autonomous ML Engineering in Large-scale Recommendation Systems",
-      "titleZh": "MLE Agents:大规模推荐系统中的自主机器学习工程",
-      "score": 7.5,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.23910",
-        "pdf": "https://arxiv.org/pdf/2611.23910"
-      }
-    },
-    {
-      "id": "2611.23817",
-      "title": "Metrics-in-the-Loop: Complexity Feedback Reshapes Agent-Written Code",
-      "titleZh": "Metrics-in-the-Loop:复杂度反馈重塑 Agent 编写的代码",
-      "score": 7.5,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.23817",
-        "pdf": "https://arxiv.org/pdf/2611.23817"
-      }
-    },
-    {
-      "id": "2611.23810",
-      "title": "Continual Tool-Space Extension Learning for Multimodal Agents",
-      "titleZh": "面向多模态智能体的持续工具空间扩展学习",
-      "score": 7.5,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.23810",
-        "pdf": "https://arxiv.org/pdf/2611.23810"
-      }
-    },
-    {
-      "id": "2611.25134",
-      "title": "GEMS: Generation and Experience Memory for Subgoal-Guided Long-Horizon World Model Planning",
-      "titleZh": "GEMS：面向子目标引导的长时程世界模型规划的生成与经验记忆",
-      "score": 7,
+      "id": "2611.24062",
+      "title": "JEPA Dots: Dual-Latent World Model for Language-Guided Robot Control",
+      "titleZh": "JEPA Dots：面向语言引导机器人控制的双潜在世界模型",
+      "score": 8,
       "primaryCategory": "cs.RO",
       "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.25134",
-        "pdf": "https://arxiv.org/pdf/2611.25134"
+        "abs": "https://arxiv.org/abs/2611.24062",
+        "pdf": "https://arxiv.org/pdf/2611.24062"
       }
     },
     {
-      "id": "2611.25071",
-      "title": "FinVeriQA: Financial Research Agents for Question Answering: Routing, Retrieval, MCP Tool Use, and Provenance-Aware Evidence Verification",
-      "titleZh": "FinVeriQA:金融研究问答智能体——路由、检索、MCP 工具调用与来源感知的证据核验",
-      "score": 7,
-      "primaryCategory": "cs.CL",
+      "id": "2611.23974",
+      "title": "LaST1.0: A Unified Latent World-Action Model with Control-Centric SpatioTemporal Reasoning",
+      "titleZh": "LaST1.0：一个以控制为中心时空推理的统一潜在世界-动作模型",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.25071",
-        "pdf": "https://arxiv.org/pdf/2611.25071"
+        "abs": "https://arxiv.org/abs/2611.23974",
+        "pdf": "https://arxiv.org/pdf/2611.23974"
       }
     },
     {
-      "id": "2611.25003",
-      "title": "A Model of Diverse Sampling from Language Models",
-      "titleZh": "语言模型多样化采样的一个模型",
+      "id": "2611.23926",
+      "title": "GTI: Grounding Task Intent Throughout Long-Horizon VLA Manipulation",
+      "titleZh": "GTI:在长程 VLA 操作中全程锚定任务意图",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23926",
+        "pdf": "https://arxiv.org/pdf/2611.23926"
+      }
+    },
+    {
+      "id": "2611.23843",
+      "title": "RePlan-VLA: Progress-Aware Replanning for Long-Horizon Vision-Language-Action Models",
+      "titleZh": "RePlan-VLA：面向长时程视觉-语言-动作模型的进度感知重规划",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23843",
+        "pdf": "https://arxiv.org/pdf/2611.23843"
+      }
+    },
+    {
+      "id": "2611.23774",
+      "title": "Improve How You Improve: Recursive Policy Self-Improvement for Zero-Shot Open-Vocabulary Multi-Object Navigation",
+      "titleZh": "改进你的改进方式：面向零样本开放词汇多目标导航的递归策略自我改进",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23774",
+        "pdf": "https://arxiv.org/pdf/2611.23774"
+      }
+    },
+    {
+      "id": "2611.23731",
+      "title": "RecallFlow: Episodic Memory as the Source Distribution of Generative Robot Policies",
+      "titleZh": "RecallFlow：以情景记忆作为生成式机器人策略的源分布",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23731",
+        "pdf": "https://arxiv.org/pdf/2611.23731"
+      }
+    },
+    {
+      "id": "2611.23714",
+      "title": "ExecGap: Exploiting Command-Execution Gap for Patch Attacks on Vision-Language-Action Models",
+      "titleZh": "ExecGap：利用命令—执行鸿沟对视觉-语言-动作模型发起补丁攻击",
+      "score": 8,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23714",
+        "pdf": "https://arxiv.org/pdf/2611.23714"
+      }
+    },
+    {
+      "id": "2611.25199",
+      "title": "VG-Steer: Visual-Geometric Policy Steering from In-Context Aligned Abstractions",
+      "titleZh": "VG-Steer：从上下文对齐的抽象出发的视觉—几何策略引导",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.25199",
+        "pdf": "https://arxiv.org/pdf/2611.25199"
+      }
+    },
+    {
+      "id": "2611.24229",
+      "title": "ProbeShare: Probing a Few, Sharing Across Many for Fast World-Model Planning",
+      "titleZh": "ProbeShare：少量探测、跨候选共享，实现快速世界模型规划",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.24229",
+        "pdf": "https://arxiv.org/pdf/2611.24229"
+      }
+    },
+    {
+      "id": "2611.24011",
+      "title": "WAM-Policy: World Action Models with On-Policy Distillation for Quadrupedal Loco-Manipulation",
+      "titleZh": "WAM-Policy：用世界动作模型与在线策略蒸馏实现四足移动操作",
+      "score": 7.5,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.24011",
+        "pdf": "https://arxiv.org/pdf/2611.24011"
+      }
+    },
+    {
+      "id": "2611.23677",
+      "title": "Simpler Tiny Recursive Models",
+      "titleZh": "更简单的微小递归模型",
+      "score": 7.5,
+      "primaryCategory": "cs.LG",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23677",
+        "pdf": "https://arxiv.org/pdf/2611.23677"
+      }
+    },
+    {
+      "id": "2611.25151",
+      "title": "Rate-distortion Assessment for Hierarchical Content Summarization",
+      "titleZh": "分层内容摘要的率失真评估",
       "score": 7,
       "primaryCategory": "cs.LG",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.25003",
-        "pdf": "https://arxiv.org/pdf/2611.25003"
+        "abs": "https://arxiv.org/abs/2611.25151",
+        "pdf": "https://arxiv.org/pdf/2611.25151"
       }
     },
     {
-      "id": "2611.25000",
-      "title": "Watch Where You Linearize: Predicting and Correcting Model-Merging Interference",
-      "titleZh": "注意在哪里做线性化：预测并校正模型合并中的干扰",
+      "id": "2611.24494",
+      "title": "RECLAIM: Robot-Vision-Informed Adversarial Patch Defense via Embodied Attention Feedback",
+      "titleZh": "RECLAIM：借助具身注意力反馈的机器人视觉对抗补丁防御",
       "score": 7,
-      "primaryCategory": "cs.LG",
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.25000",
-        "pdf": "https://arxiv.org/pdf/2611.25000"
+        "abs": "https://arxiv.org/abs/2611.24494",
+        "pdf": "https://arxiv.org/pdf/2611.24494"
       }
     },
     {
-      "id": "2611.24849",
-      "title": "Can Programs Replace LLM Judges? Executable Program Judges for Scalable and Efficient Relevance Labeling",
-      "titleZh": "程序能替代 LLM 评委吗？用可执行程序评委实现可扩展、高效的相关性标注",
+      "id": "2611.24409",
+      "title": "Risk-Triggered Search: Behavior-Preserving Safe Control",
+      "titleZh": "风险触发搜索：保持行为的安全控制",
       "score": 7,
-      "primaryCategory": "cs.IR",
+      "primaryCategory": "cs.AI",
+      "track": "embodied",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.24849",
-        "pdf": "https://arxiv.org/pdf/2611.24849"
+        "abs": "https://arxiv.org/abs/2611.24409",
+        "pdf": "https://arxiv.org/pdf/2611.24409"
       }
     },
     {
-      "id": "2611.24619",
-      "title": "GateWatch: Low-Overhead LLM Monitoring with Boolean Circuits",
-      "titleZh": "GateWatch：基于布尔电路的低开销 LLM 监控",
+      "id": "2611.24138",
+      "title": "Ego2X: Contact-aware Transfer from Egocentric Human Data to Any Robot",
+      "titleZh": "Ego2X：从第一视角人类数据到任意机器人的接触感知迁移",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.24138",
+        "pdf": "https://arxiv.org/pdf/2611.24138"
+      }
+    },
+    {
+      "id": "2611.24076",
+      "title": "Meaning Reaches Object Choice but Not Completion: Where Is a VLA Vulnerable to Landmark Synonyms?",
+      "titleZh": "语义能左右物体选择却无法保证任务完成:VLA 在何处对地标同义词脆弱?",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.24076",
+        "pdf": "https://arxiv.org/pdf/2611.24076"
+      }
+    },
+    {
+      "id": "2611.23963",
+      "title": "CoRA-VTLA: Contact-Guided Attention and Queryable Response Memory for Tactile Post-Training",
+      "titleZh": "CoRA-VTLA：面向触觉后训练的接触引导注意力与可查询响应记忆",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23963",
+        "pdf": "https://arxiv.org/pdf/2611.23963"
+      }
+    },
+    {
+      "id": "2611.23961",
+      "title": "3DTouch: A Tactile-aware VLA Model with 3D Geometric Relations for Dexterous Manipulation",
+      "titleZh": "3DTouch：融合 3D 几何关系的触觉感知 VLA 模型，用于灵巧操作",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23961",
+        "pdf": "https://arxiv.org/pdf/2611.23961"
+      }
+    },
+    {
+      "id": "2611.23930",
+      "title": "A Hierarchical Onboard Vision-Language-Navigation Framework for Aerial Robots in Complex Environments",
+      "titleZh": "面向复杂环境中空中机器人的分层机载视觉-语言-导航框架",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23930",
+        "pdf": "https://arxiv.org/pdf/2611.23930"
+      }
+    },
+    {
+      "id": "2611.23685",
+      "title": "Measuring the Conservatism of Latent Safety Filters for World Models",
+      "titleZh": "度量世界模型潜在安全过滤器的保守性",
+      "score": 7,
+      "primaryCategory": "cs.RO",
+      "track": "embodied",
+      "urls": {
+        "abs": "https://arxiv.org/abs/2611.23685",
+        "pdf": "https://arxiv.org/pdf/2611.23685"
+      }
+    },
+    {
+      "id": "2611.23678",
+      "title": "Evaluating Governed LLM-Driven ML Experimentation: Lifecycle, Provenance, and Failure Metrics",
+      "titleZh": "评估受治理的 LLM 驱动 ML 实验：生命周期、溯源与失败指标",
       "score": 7,
       "primaryCategory": "cs.AI",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.24619",
-        "pdf": "https://arxiv.org/pdf/2611.24619"
+        "abs": "https://arxiv.org/abs/2611.23678",
+        "pdf": "https://arxiv.org/pdf/2611.23678"
       }
     },
     {
-      "id": "2611.24331",
-      "title": "OpenGNS: An Open Dataset of the Gradient Noise Scale across Vision, Language, and Diffusion Models",
-      "titleZh": "OpenGNS:一个覆盖视觉、语言与扩散模型的梯度噪声规模开放数据集",
+      "id": "2611.23651",
+      "title": "Safe Personal RSI: Evaluating and Repairing Personal-Agent Updates",
+      "titleZh": "安全个人 RSI：评估与修复个人 Agent 的更新",
       "score": 7,
-      "primaryCategory": "cs.LG",
+      "primaryCategory": "cs.SE",
       "urls": {
-        "abs": "https://arxiv.org/abs/2611.24331",
-        "pdf": "https://arxiv.org/pdf/2611.24331"
-      }
-    },
-    {
-      "id": "2611.24000",
-      "title": "A Mechanistic Analysis of In-Context Learning and Out-of-Context Hallucination",
-      "titleZh": "上下文学习与上下文外幻觉的机制分析",
-      "score": 7,
-      "primaryCategory": "cs.CL",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.24000",
-        "pdf": "https://arxiv.org/pdf/2611.24000"
-      }
-    },
-    {
-      "id": "2611.23938",
-      "title": "Can you make models believe false facts in the prompt?",
-      "titleZh": "能否让模型相信提示中的虚假事实？",
-      "score": 7,
-      "primaryCategory": "cs.AI",
-      "urls": {
-        "abs": "https://arxiv.org/abs/2611.23938",
-        "pdf": "https://arxiv.org/pdf/2611.23938"
+        "abs": "https://arxiv.org/abs/2611.23651",
+        "pdf": "https://arxiv.org/pdf/2611.23651"
       }
     }
   ],
   "scores": {
     "main": {
-      "2611.23810": 7.5,
-      "2611.23817": 7.5,
-      "2611.23910": 7.5,
-      "2611.23938": 7,
-      "2611.24000": 7,
-      "2611.24004": 7.5,
-      "2611.24221": 6.5,
-      "2611.24294": 7.5,
-      "2611.24321": 7.5,
-      "2611.24331": 7,
-      "2611.24379": 6,
-      "2611.24619": 7,
-      "2611.24778": 5,
-      "2611.24846": 6.5,
-      "2611.24849": 7,
-      "2611.24867": 6.5,
-      "2611.24994": 6,
-      "2611.24999": 4,
-      "2611.25000": 7,
-      "2611.25001": 2,
-      "2611.25003": 7,
-      "2611.25004": 2,
-      "2611.25011": 2,
-      "2611.25043": 5,
-      "2611.25066": 3,
-      "2611.25070": 4,
-      "2611.25071": 7,
-      "2611.25100": 5,
-      "2611.25108": 2,
-      "2611.25111": 5,
-      "2611.25114": 3,
-      "2611.25119": 2,
-      "2611.25130": 2,
-      "2611.25160": 2,
-      "2611.25165": 6.5,
-      "2611.25170": 5,
-      "2611.25171": 5,
-      "2611.25184": 5,
-      "2611.25185": 3,
-      "2611.25198": 6.5,
-      "2611.25208": 4,
-      "2611.25236": 3,
-      "2611.25247": 2,
-      "2611.25252": 6.5,
-      "2611.25258": 6,
-      "2611.25264": 1,
-      "2611.25271": 3,
-      "2611.25273": 4,
-      "2611.25274": 3,
-      "2611.25282": 3,
-      "2611.25288": 3,
-      "2611.25300": 5,
-      "2611.25301": 2
+      "2611.23639": 3,
+      "2611.23651": 7,
+      "2611.23664": 3,
+      "2611.23677": 7.5,
+      "2611.23678": 7,
+      "2611.23684": 2,
+      "2611.23700": 4,
+      "2611.23702": 6.5,
+      "2611.23704": 4,
+      "2611.23718": 4,
+      "2611.23729": 2,
+      "2611.23732": 6,
+      "2611.23742": 5,
+      "2611.23749": 6,
+      "2611.23750": 2,
+      "2611.23753": 3,
+      "2611.23761": 2,
+      "2611.23773": 4,
+      "2611.23779": 3,
+      "2611.23815": 2,
+      "2611.23832": 4,
+      "2611.23836": 2,
+      "2611.23856": 2,
+      "2611.23864": 6,
+      "2611.23880": 5,
+      "2611.23886": 6.5,
+      "2611.23890": 6,
+      "2611.23900": 3,
+      "2611.23907": 4,
+      "2611.23908": 2,
+      "2611.23925": 1,
+      "2611.23936": 3,
+      "2611.23942": 2,
+      "2611.23969": 5,
+      "2611.23977": 3,
+      "2611.23990": 5,
+      "2611.24028": 2,
+      "2611.24037": 2,
+      "2611.24039": 6,
+      "2611.24043": 5,
+      "2611.24049": 3,
+      "2611.24052": 3,
+      "2611.24055": 5.5,
+      "2611.24057": 2,
+      "2611.24058": 6.5,
+      "2611.24070": 1,
+      "2611.24075": 3,
+      "2611.24093": 3,
+      "2611.24114": 3,
+      "2611.24124": 2,
+      "2611.24156": 5,
+      "2611.24159": 5,
+      "2611.24166": 3,
+      "2611.24168": 4,
+      "2611.24205": 4,
+      "2611.24206": 2,
+      "2611.24213": 3,
+      "2611.24214": 5,
+      "2611.24249": 3,
+      "2611.24257": 3,
+      "2611.24274": 1,
+      "2611.24285": 3,
+      "2611.24290": 1,
+      "2611.24314": 3,
+      "2611.24325": 2,
+      "2611.24329": 4,
+      "2611.24347": 6,
+      "2611.24351": 6,
+      "2611.24367": 4,
+      "2611.24377": 4,
+      "2611.24381": 4,
+      "2611.24383": 4,
+      "2611.24394": 6,
+      "2611.24406": 5,
+      "2611.24413": 5,
+      "2611.24423": 2,
+      "2611.24425": 2,
+      "2611.24426": 2,
+      "2611.24436": 2,
+      "2611.24469": 4,
+      "2611.24475": 6,
+      "2611.24486": 2,
+      "2611.24498": 2,
+      "2611.24517": 6.5,
+      "2611.24522": 4,
+      "2611.24535": 4,
+      "2611.24552": 5,
+      "2611.24557": 4,
+      "2611.24568": 2,
+      "2611.24588": 4,
+      "2611.24596": 2,
+      "2611.24599": 3,
+      "2611.24622": 2,
+      "2611.24636": 2,
+      "2611.24641": 4,
+      "2611.24648": 4,
+      "2611.24650": 4,
+      "2611.24669": 5,
+      "2611.24689": 4,
+      "2611.24699": 6.5,
+      "2611.24718": 5,
+      "2611.24721": 4,
+      "2611.24728": 4,
+      "2611.24737": 2,
+      "2611.24739": 1,
+      "2611.24757": 3,
+      "2611.24763": 2,
+      "2611.24764": 3,
+      "2611.24782": 5,
+      "2611.24797": 2,
+      "2611.24799": 2,
+      "2611.24827": 2,
+      "2611.24830": 5,
+      "2611.24831": 3,
+      "2611.24837": 2,
+      "2611.24843": 2,
+      "2611.24845": 4,
+      "2611.24869": 2,
+      "2611.24873": 3,
+      "2611.24877": 5,
+      "2611.24880": 3,
+      "2611.24881": 3,
+      "2611.24896": 3,
+      "2611.24932": 4,
+      "2611.24936": 6.5,
+      "2611.25109": 6.5,
+      "2611.25151": 7
     },
     "embodied": {
-      "2611.24816": 8,
-      "2611.24836": 8,
-      "2611.24925": 8,
-      "2611.25005": 6.5,
-      "2611.25067": 3,
-      "2611.25134": 7,
-      "2611.25138": 2,
-      "2611.25197": 2,
-      "2611.25215": 8,
-      "2611.25232": 2,
-      "2611.25249": 3,
-      "2611.25254": 3
+      "2611.23654": 2,
+      "2611.23676": 6,
+      "2611.23685": 7,
+      "2611.23714": 8,
+      "2611.23719": 2,
+      "2611.23731": 8,
+      "2611.23774": 8,
+      "2611.23804": 5,
+      "2611.23816": 6,
+      "2611.23830": 2,
+      "2611.23843": 8,
+      "2611.23858": 4,
+      "2611.23894": 4,
+      "2611.23911": 2,
+      "2611.23916": 2,
+      "2611.23926": 8,
+      "2611.23930": 7,
+      "2611.23932": 4,
+      "2611.23935": 2,
+      "2611.23939": 3,
+      "2611.23961": 7,
+      "2611.23963": 7,
+      "2611.23974": 8,
+      "2611.24008": 2,
+      "2611.24011": 7.5,
+      "2611.24051": 2,
+      "2611.24062": 8,
+      "2611.24074": 4,
+      "2611.24076": 7,
+      "2611.24083": 3,
+      "2611.24108": 2,
+      "2611.24115": 8,
+      "2611.24138": 7,
+      "2611.24142": 2,
+      "2611.24146": 6.5,
+      "2611.24155": 4,
+      "2611.24171": 3,
+      "2611.24173": 2,
+      "2611.24178": 6.5,
+      "2611.24187": 4,
+      "2611.24191": 2,
+      "2611.24207": 3,
+      "2611.24226": 2,
+      "2611.24229": 7.5,
+      "2611.24244": 3,
+      "2611.24254": 2,
+      "2611.24258": 2,
+      "2611.24273": 5,
+      "2611.24279": 1,
+      "2611.24280": 2,
+      "2611.24310": 2,
+      "2611.24375": 5,
+      "2611.24376": 4,
+      "2611.24409": 7,
+      "2611.24424": 1,
+      "2611.24455": 8,
+      "2611.24470": 5,
+      "2611.24482": 8,
+      "2611.24494": 7,
+      "2611.24499": 4,
+      "2611.24511": 1,
+      "2611.24554": 3,
+      "2611.24585": 8,
+      "2611.24631": 2,
+      "2611.24646": 2,
+      "2611.24708": 8,
+      "2611.24771": 3,
+      "2611.24781": 5,
+      "2611.24800": 2,
+      "2611.24858": 5,
+      "2611.24876": 1,
+      "2611.24883": 2,
+      "2611.24926": 8,
+      "2611.25199": 7.5,
+      "2611.25243": 8
     }
   },
   "pool": {
-    "main": 103,
-    "embodied": 22
+    "main": 177,
+    "embodied": 85
   }
 }
